@@ -1026,22 +1026,22 @@ void TMSelectServerScene::ResetDemoPlayer()
 			SANC_INFO stSancInfo{};
 
 			short sFace = m_stDemoHuman[i].nFace;
-			stHumanLook.FaceMesh = g_pItemList[m_stDemoHuman[i].nFace].nIndexTexture;
-			stHumanLook.FaceSkin = g_pItemList[m_stDemoHuman[i].nFace].IndexMesh;
-			stHumanLook.HelmMesh = g_pItemList[m_stDemoHuman[i].Helm].nIndexTexture;
-			stHumanLook.HelmSkin = g_pItemList[m_stDemoHuman[i].Helm].IndexMesh;
-			stHumanLook.CoatMesh = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
-			stHumanLook.CoatSkin = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
-			stHumanLook.PantsMesh = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
-			stHumanLook.PantsSkin = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
-			stHumanLook.GlovesMesh = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
-			stHumanLook.GlovesSkin = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
-			stHumanLook.BootsMesh = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
-			stHumanLook.BootsSkin = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
-			stHumanLook.RightMesh = g_pItemList[m_stDemoHuman[i].Right].nIndexTexture;
-			stHumanLook.RightSkin = g_pItemList[m_stDemoHuman[i].Right].IndexMesh;
-			stHumanLook.LeftMesh = g_pItemList[m_stDemoHuman[i].Left].nIndexTexture;
-			stHumanLook.LeftSkin = g_pItemList[m_stDemoHuman[i].Left].IndexMesh;
+			stHumanLook.FaceMesh = g_pItemList[m_stDemoHuman[i].nFace].IndexMesh;
+			stHumanLook.FaceSkin = g_pItemList[m_stDemoHuman[i].nFace].nIndexTexture;
+			stHumanLook.HelmMesh = g_pItemList[m_stDemoHuman[i].Helm].IndexMesh;
+			stHumanLook.HelmSkin = g_pItemList[m_stDemoHuman[i].Helm].nIndexTexture;
+			stHumanLook.CoatMesh = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
+			stHumanLook.CoatSkin = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
+			stHumanLook.PantsMesh = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
+			stHumanLook.PantsSkin = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
+			stHumanLook.GlovesMesh = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
+			stHumanLook.GlovesSkin = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
+			stHumanLook.BootsMesh = g_pItemList[m_stDemoHuman[i].Body].IndexMesh;
+			stHumanLook.BootsSkin = g_pItemList[m_stDemoHuman[i].Body].nIndexTexture;
+			stHumanLook.RightMesh = g_pItemList[m_stDemoHuman[i].Right].IndexMesh;
+			stHumanLook.RightSkin = g_pItemList[m_stDemoHuman[i].Right].nIndexTexture;
+			stHumanLook.LeftMesh = g_pItemList[m_stDemoHuman[i].Left].IndexMesh;
+			stHumanLook.LeftSkin = g_pItemList[m_stDemoHuman[i].Left].nIndexTexture;
 			stSancInfo.Sanc7 = m_stDemoHuman[i].nSanc;
 			stSancInfo.Sanc6 = stSancInfo.Sanc7;
 			stSancInfo.Sanc5 = stSancInfo.Sanc7;
@@ -1081,9 +1081,9 @@ void TMSelectServerScene::ResetDemoPlayer()
 				m_pCheckHumanList[i]->m_sMountIndex = sIndex - 315;
 				int nClass = BASE_GetItemAbility(&item, 18);
 				m_pCheckHumanList[i]->m_nMountSkinMeshType = BASE_DefineSkinMeshType(nClass);
-				m_pCheckHumanList[i]->m_stMountLook.Mesh0 = g_pItemList[sIndex].nIndexTexture;
+				m_pCheckHumanList[i]->m_stMountLook.Mesh0 = g_pItemList[sIndex].IndexMesh;
 				m_pCheckHumanList[i]->m_stMountLook.Mesh1 = m_pCheckHumanList[i]->m_stMountLook.Mesh0;
-				m_pCheckHumanList[i]->m_stMountLook.Skin0 = g_pItemList[sIndex].IndexMesh;
+				m_pCheckHumanList[i]->m_stMountLook.Skin0 = g_pItemList[sIndex].nIndexTexture;
 				m_pCheckHumanList[i]->m_stMountLook.Skin1 = m_pCheckHumanList[i]->m_stMountLook.Skin0;
 
 				if (sIndex >= 321 && sIndex <= 325)

@@ -2,7 +2,7 @@
 <account>
 	<username>ADMIN</username>
 	<password>admin</password>
-	<cash>52685</cash>
+	<cash>0</cash>
 	<alreadyReseted>0</alreadyReseted>
 	<ban>
 		<type>52685</type>
@@ -292,8 +292,8 @@
 	</storage>
 	<block password="" status="0" />
 	<insignia>0</insignia>
-	<charslot>0</charslot>
-	<position x="2139" y="2085" />
+	<charslot>-1</charslot>
+	<position x="2090" y="2094" />
 	<water>
 		<day>62</day>
 		<total>0</total>

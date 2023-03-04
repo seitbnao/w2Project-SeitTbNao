@@ -3218,10 +3218,10 @@ int BASE_GetMeshIndex(short sIndex)
     int nPos = BASE_GetItemAbility(&item, 17);
     int nClassType = BASE_GetItemAbility(&item, 18);
     int nClassIndex = 0;
-    if (g_pItemList[sIndex].IndexMesh >= 40 && g_pItemList[sIndex].nIndexTexture < 50
+    if (g_pItemList[sIndex].IndexMesh >= 40 && g_pItemList[sIndex].IndexMesh < 50
         && (nPos & 4 || nPos & 8 || nPos & 0x10 || nPos & 0x20))
     {
-        if (g_pItemList[sIndex].nIndexTexture == 40)
+        if (g_pItemList[sIndex].IndexMesh == 40)
             return 0;
 
         switch (nClassType)
@@ -3249,7 +3249,7 @@ int BASE_GetMeshIndex(short sIndex)
         else if (nPos & 0x20)
             nPos = 3;
 
-        return nPos + 4 * (g_pItemList[sIndex].nIndexTexture + nClassIndex - 41) + 1401;
+        return nPos + 4 * (g_pItemList[sIndex].IndexMesh + nClassIndex - 41) + 1401;
     }
 
     switch (nClassType)
@@ -3271,18 +3271,18 @@ int BASE_GetMeshIndex(short sIndex)
     if (nClassType <= 8)
     {
         if (nPos & 2)
-            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1001;
+            return g_pItemList[sIndex].IndexMesh + nClassIndex + 1001;
         if (nPos & 4)
-            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1041;
+            return g_pItemList[sIndex].IndexMesh + nClassIndex + 1041;
         if (nPos & 8)
-            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1081;
+            return g_pItemList[sIndex].IndexMesh + nClassIndex + 1081;
         if (nPos & 0x10)
-            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1121;
+            return g_pItemList[sIndex].IndexMesh + nClassIndex + 1121;
         if (nPos & 0x20)
-            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1161;
+            return g_pItemList[sIndex].IndexMesh + nClassIndex + 1161;
     }
 
-    return g_pItemList[sIndex].nIndexTexture;
+    return g_pItemList[sIndex].IndexMesh;
 }
 
 bool BASE_CanRefine(STRUCT_ITEM* item)

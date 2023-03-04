@@ -438,11 +438,11 @@ int TMHuman::InitObject()
     int nCos = 0;
     if (m_sCostume >= 4150 && m_sCostume < 4200 || m_sCostume >= 6301 && m_sCostume <= 6400 && m_nClass != 29)
     {
-        m_stLookInfo.CoatMesh = g_pItemList[m_sCostume].nIndexTexture;
+        m_stLookInfo.CoatMesh = g_pItemList[m_sCostume].IndexMesh;
         m_stLookInfo.PantsMesh = m_stLookInfo.CoatMesh;
         m_stLookInfo.GlovesMesh = m_stLookInfo.PantsMesh;
         m_stLookInfo.BootsMesh = m_stLookInfo.GlovesMesh;
-        m_stLookInfo.CoatSkin = g_pItemList[m_sCostume].IndexMesh;
+        m_stLookInfo.CoatSkin = g_pItemList[m_sCostume].nIndexTexture;
         m_stLookInfo.PantsSkin = m_stLookInfo.CoatSkin;
         m_stLookInfo.GlovesSkin = m_stLookInfo.PantsSkin;
         m_stLookInfo.BootsSkin = m_stLookInfo.GlovesSkin;
@@ -4341,7 +4341,7 @@ int TMHuman::OnPacketUpdateEquip(PacketHeader* pStd)
     item.sIndex = pEquip->sEquip[0] & 0xFFF;
 
     TMEffectParticle* pParticle = nullptr;
-    if (m_stLookInfo.FaceMesh != g_pItemList[item.sIndex].nIndexTexture || BASE_GetItemAbility(&item, EF_CLASS) != m_nClass)
+    if (m_stLookInfo.FaceMesh != g_pItemList[item.sIndex].IndexMesh || BASE_GetItemAbility(&item, EF_CLASS) != m_nClass)
         pParticle = new TMEffectParticle(TMVector3{ m_vecPosition.x, m_fHeight + 1.0f, m_vecPosition.y }, 1, 3, 3.0f, 0, 1, 56, 1.0f, 1, TMVector3{}, 1000u);
 
     if (pParticle)
@@ -10788,15 +10788,15 @@ void TMHuman::MoveAttack(TMHuman* pTarget)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 102)
         {
             stAttack.SkillIndex = 152;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 871)
+            if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 871)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 872)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 872)
                 stAttack.SkillParm = 1;
         }
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 103)
         {
             stAttack.SkillIndex = 153;
-            switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture)
+            switch (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh)
             {
             case 873:
                 stAttack.SkillParm = 0;
@@ -10839,9 +10839,9 @@ void TMHuman::MoveAttack(TMHuman* pTarget)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 104)
         {
             stAttack.SkillIndex = 104;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 878)
+            if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 878)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 879)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 879)
                 stAttack.SkillParm = 1;
         }
 
@@ -11723,10 +11723,10 @@ void TMHuman::CheckWeapon(short sIndexL, short sIndexR)
         LOG_WRITELOG("Check Weapon : L = %d R = %d", itemL.sIndex, itemR.sIndex);
         return;
     }
-    if (g_pItemList[itemR.sIndex].nIndexTexture >= 0 && g_pItemList[itemL.sIndex].nIndexTexture >= 0)
+    if (g_pItemList[itemR.sIndex].IndexMesh >= 0 && g_pItemList[itemL.sIndex].IndexMesh >= 0)
     {
-        TMMesh* pMesh1 = g_pMeshManager->GetCommonMesh(g_pItemList[itemR.sIndex].nIndexTexture, 0, 3_min);
-        TMMesh* pMesh2 = g_pMeshManager->GetCommonMesh(g_pItemList[itemL.sIndex].nIndexTexture, 0, 3_min);
+        TMMesh* pMesh1 = g_pMeshManager->GetCommonMesh(g_pItemList[itemR.sIndex].IndexMesh, 0, 3_min);
+        TMMesh* pMesh2 = g_pMeshManager->GetCommonMesh(g_pItemList[itemL.sIndex].IndexMesh, 0, 3_min);
 
         if (!pMesh1 || !pMesh2)
         {
@@ -13325,8 +13325,8 @@ void TMHuman::SetPacketMOBItem(STRUCT_MOB* pMobData)
         m_sHelmIndex = pMobData->Equip[1].sIndex;
         m_citizen = static_cast<unsigned char>(pMobData->Equip[0].stEffect[2].cValue);
         m_cLegend = static_cast<char>(g_pItemList[pMobData->Equip[0].sIndex].nGrade);
-        m_stLookInfo.FaceMesh = g_pItemList[pMobData->Equip[0].sIndex].nIndexTexture;
-        m_stLookInfo.FaceSkin = g_pItemList[pMobData->Equip[0].sIndex].IndexMesh;
+        m_stLookInfo.FaceMesh = g_pItemList[pMobData->Equip[0].sIndex].IndexMesh;
+        m_stLookInfo.FaceSkin = g_pItemList[pMobData->Equip[0].sIndex].nIndexTexture;
 
         if (pMobData->Equip[1].sIndex >= 3500 && (pMobData->Equip[1].sIndex <= 3502 || pMobData->Equip[1].sIndex == 3507))
         {
@@ -13335,27 +13335,27 @@ void TMHuman::SetPacketMOBItem(STRUCT_MOB* pMobData)
         }
         else
         {
-            m_stLookInfo.HelmMesh = g_pItemList[pMobData->Equip[1].sIndex].nIndexTexture;
-            m_stLookInfo.HelmSkin = g_pItemList[pMobData->Equip[1].sIndex].IndexMesh;
+            m_stLookInfo.HelmMesh = g_pItemList[pMobData->Equip[1].sIndex].IndexMesh;
+            m_stLookInfo.HelmSkin = g_pItemList[pMobData->Equip[1].sIndex].nIndexTexture;
         }
 
-        m_stLookInfo.CoatMesh = g_pItemList[pMobData->Equip[2].sIndex].nIndexTexture;
-        m_stLookInfo.CoatSkin = g_pItemList[pMobData->Equip[2].sIndex].IndexMesh;
-        m_stLookInfo.PantsMesh = g_pItemList[pMobData->Equip[3].sIndex].nIndexTexture;
-        m_stLookInfo.PantsSkin = g_pItemList[pMobData->Equip[3].sIndex].IndexMesh;
-        m_stLookInfo.GlovesMesh = g_pItemList[pMobData->Equip[4].sIndex].nIndexTexture;
-        m_stLookInfo.GlovesSkin = g_pItemList[pMobData->Equip[4].sIndex].IndexMesh;
-        m_stLookInfo.BootsMesh = g_pItemList[pMobData->Equip[5].sIndex].nIndexTexture;
-        m_stLookInfo.BootsSkin = g_pItemList[pMobData->Equip[5].sIndex].IndexMesh;
-        m_stLookInfo.LeftMesh = g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture;
-        m_stLookInfo.LeftSkin = g_pItemList[pMobData->Equip[6].sIndex].IndexMesh;
-        m_stLookInfo.RightMesh = g_pItemList[pMobData->Equip[7].sIndex].nIndexTexture;
-        m_stLookInfo.RightSkin = g_pItemList[pMobData->Equip[7].sIndex].IndexMesh;
+        m_stLookInfo.CoatMesh = g_pItemList[pMobData->Equip[2].sIndex].IndexMesh;
+        m_stLookInfo.CoatSkin = g_pItemList[pMobData->Equip[2].sIndex].nIndexTexture;
+        m_stLookInfo.PantsMesh = g_pItemList[pMobData->Equip[3].sIndex].IndexMesh;
+        m_stLookInfo.PantsSkin = g_pItemList[pMobData->Equip[3].sIndex].nIndexTexture;
+        m_stLookInfo.GlovesMesh = g_pItemList[pMobData->Equip[4].sIndex].IndexMesh;
+        m_stLookInfo.GlovesSkin = g_pItemList[pMobData->Equip[4].sIndex].nIndexTexture;
+        m_stLookInfo.BootsMesh = g_pItemList[pMobData->Equip[5].sIndex].IndexMesh;
+        m_stLookInfo.BootsSkin = g_pItemList[pMobData->Equip[5].sIndex].nIndexTexture;
+        m_stLookInfo.LeftMesh = g_pItemList[pMobData->Equip[6].sIndex].IndexMesh;
+        m_stLookInfo.LeftSkin = g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture;
+        m_stLookInfo.RightMesh = g_pItemList[pMobData->Equip[7].sIndex].IndexMesh;
+        m_stLookInfo.RightSkin = g_pItemList[pMobData->Equip[7].sIndex].nIndexTexture;
 
         if (pMobData->Equip[15].sIndex > 0)
         {
             m_sMantuaIndex = pMobData->Equip[15].sIndex;
-            m_wMantuaSkin = g_pItemList[pMobData->Equip[15].sIndex].IndexMesh;
+            m_wMantuaSkin = g_pItemList[pMobData->Equip[15].sIndex].nIndexTexture;
             SetMantua(m_wMantuaSkin);
             m_ucMantuaLegend = static_cast<char>(g_pItemList[m_sMantuaIndex].nGrade);
             m_ucMantuaSanc = m_nTotalKill / 1000;
@@ -13455,9 +13455,9 @@ void TMHuman::SetPacketMOBItem(STRUCT_MOB* pMobData)
                 int nMountSanc = BASE_GetItemAbility(&pMobData->Equip[14], 81) / 10;
                 int nClass = BASE_GetItemAbility(&item, 18);
                 m_nMountSkinMeshType = BASE_DefineSkinMeshType(nClass);
-                m_stMountLook.Mesh0 = g_pItemList[sIndex].nIndexTexture;
+                m_stMountLook.Mesh0 = g_pItemList[sIndex].IndexMesh;
                 m_stMountLook.Mesh1 = m_stMountLook.Mesh0;
-                m_stMountLook.Skin0 = g_pItemList[sIndex].IndexMesh;
+                m_stMountLook.Skin0 = g_pItemList[sIndex].nIndexTexture;
                 m_stMountLook.Skin1 = m_stMountLook.Skin0;
                 m_sMountIndex = sIndex - 315;
                 if (_nEquipIdx == 3993)
@@ -13878,9 +13878,9 @@ void TMHuman::SetPacketEquipItem(unsigned short* sEquip)
             int nClass = BASE_GetItemAbility(&item, 18);
 
             m_nMountSkinMeshType = BASE_DefineSkinMeshType(nClass);
-            m_stMountLook.Mesh0 = g_pItemList[sIndex].nIndexTexture;
+            m_stMountLook.Mesh0 = g_pItemList[sIndex].IndexMesh;
             m_stMountLook.Mesh1 = m_stMountLook.Mesh0;
-            m_stMountLook.Skin0 = g_pItemList[sIndex].IndexMesh;
+            m_stMountLook.Skin0 = g_pItemList[sIndex].nIndexTexture;
             m_stMountLook.Skin1 = m_stMountLook.Skin0;
             m_sMountIndex = sIndex - 315;
             if (nMountIndex == 3993)
@@ -15224,15 +15224,15 @@ int TMHuman::MAutoAttack(TMHuman* pTarget, int mode)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 102)
         {
             stAttack.SkillIndex = 152;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 871)
+            if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 871)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 872)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 872)
                 stAttack.SkillParm = 1;
         }
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 103)
         {
             stAttack.SkillIndex = 153;
-            switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture)
+            switch (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh)
             {
             case 873:
                 stAttack.SkillParm = 0;
@@ -15275,9 +15275,9 @@ int TMHuman::MAutoAttack(TMHuman* pTarget, int mode)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 104)
         {
             stAttack.SkillIndex = 104;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 878)
+            if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 878)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 879)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 879)
                 stAttack.SkillParm = 1;
         }
         stAttack.Dam[0].TargetID = pTarget->m_dwID;

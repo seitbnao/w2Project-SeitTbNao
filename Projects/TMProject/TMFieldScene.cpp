@@ -11328,15 +11328,15 @@ int TMFieldScene::MobAttack(unsigned int wParam, D3DXVECTOR3 vec, unsigned int d
 				else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 102)
 				{
 					stAttack.SkillIndex = 152;
-					if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 871)
+					if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 871)
 						stAttack.SkillParm = 0;
-					else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 872)
+					else if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 872)
 						stAttack.SkillParm = 1;
 				}
 				else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 103)
 				{
 					stAttack.SkillIndex = 153;
-					switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture)
+					switch (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh)
 					{
 					case 873:
 						stAttack.SkillParm = 0;
@@ -11379,9 +11379,9 @@ int TMFieldScene::MobAttack(unsigned int wParam, D3DXVECTOR3 vec, unsigned int d
 				else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 104)
 				{
 					stAttack.SkillIndex = 104;
-					if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 878)
+					if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 878)
 						stAttack.SkillParm = 0;
-					else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 879)
+					else if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 879)
 						stAttack.SkillParm = 1;
 				}
 
@@ -14972,7 +14972,7 @@ void TMFieldScene::CreateGate(int nZoneIndex, int bInit)
 	TMItem* pItem = nullptr;
 	if (pOldItem)
 		pItem = pOldItem;
-	else if (g_pItemList[pCreateItem->Item.sIndex].nIndexTexture == 1607)
+	else if (g_pItemList[pCreateItem->Item.sIndex].IndexMesh == 1607)
 	{
 		pItem = new TMCannon();
 		pItem->m_dwObjType = 1607;
@@ -18861,7 +18861,7 @@ int TMFieldScene::OnPacketCreateItem(MSG_CreateItem* pMsg)
 	TMItem* pItem = nullptr;
 	if (pOldItem)
 		pItem = pOldItem;
-	else if (g_pItemList[pMsg->Item.sIndex].nIndexTexture == 1607)
+	else if (g_pItemList[pMsg->Item.sIndex].IndexMesh == 1607)
 	{
 		pItem = new TMCannon();
 		pItem->m_dwObjType = 1607;

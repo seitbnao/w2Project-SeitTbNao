@@ -5131,7 +5131,7 @@ SGridControlItem::SGridControlItem(SGridControl* pParent, STRUCT_ITEM* pItem, fl
 
 	if (m_pItem && pItem->sIndex >= 0 && pItem->sIndex <= 11600)
 	{
-		m_GCObj.n3DObjIndex = g_pItemList[pItem->sIndex].nIndexTexture;
+		m_GCObj.n3DObjIndex = g_pItemList[pItem->sIndex].IndexMesh;
 		m_pGridControl = pParent;
 		m_GCText.strString[0] = 0;
 		m_GCText.pFont = &m_Font;
@@ -5256,7 +5256,7 @@ SGridControlItem::~SGridControlItem()
 	if (m_pItem && m_pItem->sIndex <= 11600 && m_pItem->sIndex >= 0)
 	{
 		auto pControlContainer = g_pCurrentScene->m_pControlContainer;
-		if (g_pItemList[m_pItem->sIndex].nIndexTexture < 0)
+		if (g_pItemList[m_pItem->sIndex].IndexMesh < 0)
 		{
 			if (pControlContainer && m_GCObj.nLayer >= 0)
 				RemoveRenderControlItem(pControlContainer->m_pDrawControl, &m_GCObj, m_GCObj.nLayer);
