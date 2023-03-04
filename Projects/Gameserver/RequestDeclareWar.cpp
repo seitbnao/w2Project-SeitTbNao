@@ -13,10 +13,10 @@ bool CUser::RequestDeclareWar(PacketHeader *Header)
 		return true;
 	}
 
-	if(pMob[clientId].Mobs.Player.GuildMemberType != 9 && !IsAdmin)
+	if(pMob[clientId].Mobs.Player.GuildLevel != 9 && !IsAdmin)
 		return true;
 
-	if (ChargedGuildList[sServer.Channel - 1][4] != pMob[clientId].Mobs.Player.GuildIndex && !IsAdmin) // Somente caso possua a coroa
+	if (ChargedGuildList[sServer.Channel - 1][4] != pMob[clientId].Mobs.Player.Guild && !IsAdmin) // Somente caso possua a coroa
 		return true;
 
 	int slot = GetFirstSlot(clientId, 4030);

@@ -26,7 +26,7 @@ bool CUser::RequestDeleteItem(PacketHeader *Header)
 		return false;
 	} 
 
-	if(Status != USER_PLAY)
+	if(CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 
@@ -34,7 +34,7 @@ bool CUser::RequestDeleteItem(PacketHeader *Header)
 	}
 
 	STRUCT_ITEM *item = &pMob[clientId].Mobs.Player.Inventory[p->SlotID];
-	if(item->Index != p->ItemID)
+	if(item->sIndex != p->ItemID)
 	{
 		SendItem(clientId, SlotType::Inv, p->SlotID, item);
 
@@ -50,7 +50,7 @@ bool CUser::RequestDeleteItem(PacketHeader *Header)
 	}
 
 	bool canDel = true;
-	switch(item->Index)
+	switch(item->sIndex)
 	{
 	case 509:
 		canDel = false;
@@ -80,8 +80,8 @@ bool CUser::RequestDeleteItem(PacketHeader *Header)
 		Log(SERVER_SIDE, LOG_HACK, "[%s] - O usuario deletou itens muito rapidamente. Tempo para deletar: %lld", User.Username, timeInMs.count());
 	}
 
-	Log(clientId, LOG_INGAME, "Item %s deletado [%d] [%d %d %d %d %d %d]. Slot %d", ItemList[item->Index].Name, item->Index, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, p->SlotID);
-	LogPlayer(clientId, "Item %s deletado na lixeira do inventario", ItemList[item->Index].Name);
+	Log(clientId, LOG_INGAME, "Item %s deletado [%d] [%d %d %d %d %d %d]. Slot %d", g_pItemList[item->sIndex].ItemName, item->sIndex, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, p->SlotID);
+	LogPlayer(clientId, "Item %s deletado na lixeira do inventario", g_pItemList[item->sIndex].ItemName);
 
 	memset(item, 0, sizeof STRUCT_ITEM);
 	SendItem(clientId, SlotType::Inv, p->SlotID, item);

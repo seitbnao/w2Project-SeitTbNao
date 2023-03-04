@@ -1,6 +1,6 @@
 #pragma once
-
-#include "stBase.h"
+#include <SharedStructs.h>
+ 
 #include <map>
 #include <tuple>
 #include <sstream>

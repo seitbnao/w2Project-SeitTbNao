@@ -4,11 +4,12 @@
 
 #include <Windows.h>
 #include <fstream>
+#include <SharedStructs.h>
 #include "CUser.h"
-#include "stBase.h"
+ 
 #include "Keytable.h"
 #include "pugixml.hpp"
-
+ 
 // Adiciona a library da winsock
 #pragma comment (lib, "WS2_32.lib")
 
@@ -54,7 +55,7 @@ struct STRUCT_SERVER_INFO
 
 	INT32 ServerIndex;
 
-	bool Status;
+	bool CurrentScore;
 
 	// Safiras do servidor
 	UINT32 Sapphire;
@@ -120,7 +121,7 @@ void GetFirstKey(const char *source, char *dest);
 
 void AppendStructure(pugi::xml_node mob, STRUCT_CHARINFO* charInfo);
 void AppendStructure(pugi::xml_node mob, STRUCT_MOB* mobInfo);
-void AppendStructure(pugi::xml_node mob, STRUCT_STATUS* status);
+void AppendStructure(pugi::xml_node mob, STRUCT_SCORE* status);
 void AppendStructure(pugi::xml_node node, const STRUCT_AFFECT* affect);
 void AppendStructure(pugi::xml_node node, const STRUCT_ITEMDATE* date);
 void AppendStructure(pugi::xml_node node, const STRUCT_POSITION* position);
@@ -131,7 +132,7 @@ void XMLToStructure(pugi::xml_node node, STRUCT_CHARINFO& charInfo);
 void XMLToStructure(pugi::xml_node node, STRUCT_SUBINFO& sub);
 void XMLToStructure(pugi::xml_node node, STRUCT_ITEMDATE& date);
 void XMLToStructure(pugi::xml_node node, STRUCT_POSITION& position);
-void XMLToStructure(pugi::xml_node node, STRUCT_STATUS& status);
+void XMLToStructure(pugi::xml_node node, STRUCT_SCORE& status);
 void XMLToStructure(pugi::xml_node node, STRUCT_ITEM& item);
 void XMLToStructure(pugi::xml_node node, STRUCT_AFFECT& affect);
 void XMLToStructure(pugi::xml_node accNode, STRUCT_ACCOUNT* file);
@@ -141,7 +142,7 @@ void XMLToStructure(pugi::xml_node accNode, STRUCT_ACCOUNT* file);
 #define FLAG_DB2GAME     0x0400
 #define FLAG_GAME2DB	 0x0800
 
-#include "SharedStructs.h"
+
 
 #define _MSG_MessagePanel                 ( 1 | FLAG_GAME2CLIENT)
 #define _MSG_DBNewCharacter         ( 2 | FLAG_GAME2DB)
@@ -204,9 +205,9 @@ typedef struct
 	PacketHeader Header;
 
 	INT32 PosID;
-	char Name[16];
+	char MobName[16];
 	INT32 ClassID;
-	INT32 ClassInfo;
+	INT32 Class;
 	INT32 MortalSlot;
 } MSG_DBNewArch;
 
@@ -251,14 +252,14 @@ struct st_CharList
 	INT16 PositionX[4];
 	INT16 PositionY[4];
 
-	char Name[4][16];
+	char MobName[4][16];
 
-	STRUCT_STATUS Status[4];
+	STRUCT_SCORE CurrentScore[4];
 	STRUCT_ITEM Equip[4][16];
 
 	UINT16 GuildId[4];
 
-	int Gold[4];
+	int Coin[4];
 	INT64 Exp[4];
 }; // 744
 
@@ -299,33 +300,13 @@ struct p20F
 	UINT32 ClassID;
 };
 
-struct p114
-{
-	PacketHeader Header; // 0 - 11
-	STRUCT_POSITION WorldPos; // 12 - 15
-	STRUCT_MOB Mob; // 16 - 823
-
-	char dummy[212];
-	unsigned short CurrentKill;
-	unsigned short TotalKill;
-
-	short SlotIndex; // 1040 - 1041
-	short ClientIndex; // 1042 - 1043
-	short Weather; // 1044 - 1045
-
-	char SkillBar2[16]; // 1046 - 1061
-
-	int Unknow_1062[8];
-	STRUCT_AFFECT Affect[32];
-
-	char Unknown_1350[360];
-} ; 
+ 
 
 typedef struct
 {
     PacketHeader Header;
     int SlotIndex;
-    char Name[16];
+    char MobName[16];
     char Pwd[12];
 } p211; 
 
@@ -470,28 +451,28 @@ typedef struct
 	PacketHeader Header;
 
 	UINT32 Level;
-	UINT32 ClassInfo;
-	UINT32 Learn;
+	UINT32 Class;
+	UINT32 LearnedSkill;
 	UINT32 Mantle;
 	UINT32 Face;
 	UINT32 CharPos;
 
-	char Name[16];
+	char MobName[16];
 } p830;
 
 typedef struct
 {
 	PacketHeader Header;
 	
-	UINT32 ClassInfo;
-	UINT32 Learn;
+	UINT32 Class;
+	UINT32 LearnedSkill;
 	UINT64 Exp;
 
 	STRUCT_ITEMDATE Escritura;
 	UNION_QUESTINFO Info;
 
 	STRUCT_ITEM Item[2];
-	STRUCT_STATUS Status;
+	STRUCT_SCORE CurrentScore;
 }p432;
 
 struct MSG_STARTTOWERWAR
@@ -584,7 +565,7 @@ struct		 MSG_NPCreateCharacter_Reply
 	int  Slot;
 	char Account[16];
 	int  Result;
-	char Name[16];
+	char MobName[16];
 };
 
 const short  _MSG_NPDonate = (13 | FLAG_NP2DB | FLAG_DB2NP);
@@ -622,10 +603,10 @@ struct MSG_ADDSUB
 { 
 	PacketHeader Header;
 
-	INT16 GuildIndex;
+	INT16 Guild;
 	INT16 SubIndex;
-	char Name[16];
-	INT16 Status;
+	char MobName[16];
+	INT16 CurrentScore;
 };
 
 
@@ -634,7 +615,7 @@ struct _MSG_UPDATETOWERINFO
 {
 	PacketHeader Header;
 
-	int  KillerId; // GuildIndex que matou a torre
+	int  KillerId; // Guild que matou a torre
 };
 
 #define MSG_UPDATEWARDECLARATION 0x998
@@ -668,7 +649,7 @@ typedef struct
 	PacketHeader Header;
 
 	INT32 Server;
-	INT64 Gold;
+	INT64 Coin;
 	INT32 Taxe;
 } _MSG_REWARDWARTOWER;
 
@@ -686,7 +667,7 @@ typedef struct
 {
 	PacketHeader Header;
 
-	char Name[16];
+	char MobName[16];
 } _MSG_NOTIFY_KEFRA_DEATH;
 
 #define MSG_FIRST_KEFRA_NOTIFY 0x90A

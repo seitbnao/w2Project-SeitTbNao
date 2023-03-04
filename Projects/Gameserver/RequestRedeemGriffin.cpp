@@ -16,7 +16,7 @@ bool CUser::RequestRedeemGriffin(PacketHeader* header)
 	int slotId = packet->Value2;
 	STRUCT_ITEM& ticketItem = pMob[clientId].Mobs.Player.Inventory[slotId];
 
-	if ((packet->Value == 0 && ticketItem.Index != 4716) || (packet->Value == 1 && ticketItem.Index != 4731))
+	if ((packet->Value == 0 && ticketItem.sIndex != 4716) || (packet->Value == 1 && ticketItem.sIndex != 4731))
 	{
 		Log(clientId, LOG_INGAME, "Enviado slot %d. Esperava 4716 no slot mas ha %s", slotId, ticketItem.toString().c_str());
 
@@ -73,7 +73,7 @@ bool CUser::RequestRedeemGriffin(PacketHeader* header)
 	if (amount == 1)
 	{
 		ticketItem = STRUCT_ITEM{};
-		ticketItem.Index = costumeItemId;
+		ticketItem.sIndex = costumeItemId;
 
 		SendItem(clientId, SlotType::Inv, slotId, &ticketItem);
 	}
@@ -89,7 +89,7 @@ bool CUser::RequestRedeemGriffin(PacketHeader* header)
 
 		STRUCT_ITEM& item = pMob[clientId].Mobs.Player.Inventory[newSlotId];
 		item = STRUCT_ITEM{};
-		item.Index = costumeItemId;
+		item.sIndex = costumeItemId;
 
 		SendItem(clientId, SlotType::Inv, newSlotId, &item);
 
@@ -97,7 +97,7 @@ bool CUser::RequestRedeemGriffin(PacketHeader* header)
 		SendItem(clientId, SlotType::Inv, slotId, &ticketItem);
 	}
 
-	Log(clientId, LOG_INGAME, "Resgatado o item %s com sucesso", ItemList[costumeItemId].Name);
+	Log(clientId, LOG_INGAME, "Resgatado o item %s com sucesso", g_pItemList[costumeItemId].ItemName);
 	SendClientMessage(clientId, "Resgatado com sucesso");
 
 	SendSignal(clientId, clientId, RedeemGriffinClosePacket);

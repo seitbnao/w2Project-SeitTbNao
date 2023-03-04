@@ -12,11 +12,11 @@ bool CQuiz::Register(CUser& user, STRUCT_ITEM* item)
 	info.nextIteraction = std::chrono::milliseconds(1000);
 	info.firstInteraction = true;
 
-	if (item->Index == 4111)
+	if (item->sIndex == 4111)
 		info.quest = eQuizQuest::LanHouseN;
-	else if (item->Index == 4112)
+	else if (item->sIndex == 4112)
 		info.quest = eQuizQuest::LanHouseM;
-	else if (item->Index == 4113)
+	else if (item->sIndex == 4113)
 		info.quest = eQuizQuest::LanHouseA;
 
 	_users.push_back(info);
@@ -77,16 +77,16 @@ bool CQuiz::HandlePacket(CUser& user, MSG_QUIZ_ANSWER* packet)
 		if (!userInfo->firstInteraction)
 		{
 			if (userInfo->quest == eQuizQuest::LanHouseN)
-				pMob[userInfo->User->clientId].Mobs.Player.Gold += 2000000;
+				pMob[userInfo->User->clientId].Mobs.Player.Coin += 2000000;
 			else if (userInfo->quest == eQuizQuest::LanHouseM)
-				pMob[userInfo->User->clientId].Mobs.Player.Gold += 3000000;
+				pMob[userInfo->User->clientId].Mobs.Player.Coin += 3000000;
 			else if (userInfo->quest == eQuizQuest::LanHouseA)
-				pMob[userInfo->User->clientId].Mobs.Player.Gold += 5000000;
+				pMob[userInfo->User->clientId].Mobs.Player.Coin += 5000000;
 		}
 		else
 			userInfo->firstInteraction = false;
 
-		SendSignalParm(userInfo->User->clientId, userInfo->User->clientId, 0x3AF, pMob[userInfo->User->clientId].Mobs.Player.Gold);
+		SendSignalParm(userInfo->User->clientId, userInfo->User->clientId, 0x3AF, pMob[userInfo->User->clientId].Mobs.Player.Coin);
 		SendClientMessage(userInfo->User->clientId, "Resposta correta");
 	}
 	else
@@ -120,7 +120,7 @@ void CQuiz::Work()
 		return;
 
 	_users.erase(std::remove_if(std::begin(_users), std::end(_users), [&](const SQuizUserInfo& info) {
-		if (info.User->Status != USER_PLAY)
+		if (info.User->CurrentScore != USER_PLAY)
 			return true;
 
 		CMob& mob = pMob[info.User->clientId];

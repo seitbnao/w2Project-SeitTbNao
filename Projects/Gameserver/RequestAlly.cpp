@@ -14,14 +14,14 @@ bool CUser::RequestAlly(PacketHeader *Header)
 	if(LOCAL_4 <= 0 || LOCAL_5 < 0 || LOCAL_4 >= LOCAL_6 || LOCAL_5 >= LOCAL_6)
 		return true;
 	
-	if(pMob[clientId].Mobs.Player.GuildMemberType != 9)
+	if(pMob[clientId].Mobs.Player.GuildLevel != 9)
 	{
 		SendClientMessage(clientId, g_pLanguageString[_NN_Cant_Declare_Ally]);
 
 		return true;
 	}
 
-/*	if(pMob[clientId].Mobs.Player.GuildIndex != LOCAL_4 || pMob[clientId].Mobs.MedalId != 509)
+/*	if(pMob[clientId].Mobs.Player.Guild != LOCAL_4 || pMob[clientId].Mobs.MedalId != 509)
 	{
 		SendClientMessage(p->Header.ClientId, g_pLanguageString[_NN_Only_With_Guild_Master]);
 

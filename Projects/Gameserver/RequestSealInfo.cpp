@@ -8,7 +8,7 @@ bool CUser::RequestSealInfo(PacketHeader* header)
 	pMsgSignal *p = reinterpret_cast<pMsgSignal*>(header);
 
 	auto sealIt = std::find_if(std::begin(sServer.SealCache), std::end(sServer.SealCache), [&](const InfoCache<STRUCT_SEALINFO> seal) {
-		return seal.Info.Status == p->Value;
+		return seal.Info.CurrentScore == p->Value;
 	});
 
 	if (sealIt != std::end(sServer.SealCache))

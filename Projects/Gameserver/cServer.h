@@ -139,7 +139,7 @@ struct STRUCT_DROPBYZONES
 
 struct STRUCT_KINGDOMBATTLE
 {
-	bool Status;
+	bool CurrentScore;
 
 	int TowerId;
 	int KingId;
@@ -185,7 +185,7 @@ struct STRUCT_SCHEDULED
 struct STRUCT_MOB_BOSS
 {
 	std::vector<int> Geners;
-	int Index;
+	int sIndex;
 	int TimeToReborn;
 	int MaxTimeIngame;
 	int Fame;
@@ -212,7 +212,7 @@ struct STRUCT_NIGHTMARE_INFO
 	// False quando ainda não morreu
 	UINT8 Alive[8];
 
-	UINT16 Status;
+	UINT16 CurrentScore;
 };
 constexpr int MaxBoss = 64;
 
@@ -231,7 +231,7 @@ struct STRUCT_SERVER_INFO
 		char IP[32];
 	} Data;
 
-	bool Status;
+	bool CurrentScore;
 
 	SOCKADDR_IN Service;
 	UINT32 Socket;
@@ -379,7 +379,7 @@ struct STRUCT_SERVER_INFO
 		INT32 Hour{ 21 };
 
 		INT32 Points[2];
-		INT32 Status; // 1 = online
+		INT32 CurrentScore; // 1 = online
 		INT32 Bonus; // 1 = blue, 2 = red
 		INT32 Annoucement_Point;
 		INT32 Annoucement;
@@ -429,7 +429,7 @@ struct STRUCT_SERVER_INFO
 
 	struct 
 	{
-		INT32 Status;
+		INT32 CurrentScore;
 
 		// Membros registrados
 		INT32 Registered[MAX_PLAYER];
@@ -440,7 +440,7 @@ struct STRUCT_SERVER_INFO
 
 	struct
 	{
-		INT32 Status;
+		INT32 CurrentScore;
 		INT32 Guild;
 		INT32 Hour{ 22 };
 	} TowerWar;
@@ -451,8 +451,8 @@ struct STRUCT_SERVER_INFO
 
 		INT32 Count;
 
-		// Status do evento
-		INT32 Status;
+		// CurrentScore do evento
+		INT32 CurrentScore;
 
 		// Taxa de drop
 		INT32 Rate;
@@ -465,7 +465,7 @@ struct STRUCT_SERVER_INFO
 	{
 		STRUCT_ITEM item;
 		INT32 Count;
-		INT32 Status;
+		INT32 CurrentScore;
 		INT32 Rate;
 		INT32 Bonus;
 	} BossEvent;
@@ -474,7 +474,7 @@ struct STRUCT_SERVER_INFO
 	{
 		STRUCT_ITEM Item;
 
-		INT32 Gold;
+		INT32 Coin;
 		INT32 Last;
 		INT32 Second;
 		INT32 Interval;
@@ -501,7 +501,7 @@ struct STRUCT_SERVER_INFO
 		std::vector<STRUCT_DROPBYZONES> areas;
 
 		bool Message;
-		bool Status;
+		bool CurrentScore;
 	} DropArea;
 
 	struct
@@ -565,7 +565,7 @@ struct STRUCT_SERVER_INFO
 
 typedef struct
 {
-	UINT8 Status;
+	UINT8 CurrentScore;
 	UINT32 Socket;
 
 	BYTE *sendBuffer;

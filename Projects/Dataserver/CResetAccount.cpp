@@ -49,14 +49,14 @@ STRUCT_ACCOUNT CResetAccount::ResetAccount()
 
 	for (int i = 0; i < 4; ++i)
 	{
-		if (!_account.Mob[i].Player.Name[0])
+		if (!_account.Mob[i].Player.MobName[0])
 			continue;
 
 		auto mob = &_account.Mob[i];
 		for (int iSlot = 0; iSlot < 64; ++iSlot)
 		{
 			auto item = &mob->Player.Inventory[iSlot];
-			if (item->Index <= 0 || item->Index >= 6500)
+			if (item->sIndex <= 0 || item->sIndex >= 6500)
 				continue;
 
 			checkItem(item);
@@ -65,7 +65,7 @@ STRUCT_ACCOUNT CResetAccount::ResetAccount()
 		for (int iSlot = 0; iSlot < 16; ++iSlot)
 		{
 			auto item = &mob->Player.Equip[iSlot];
-			if (item->Index <= 0 || item->Index >= 6500)
+			if (item->sIndex <= 0 || item->sIndex >= 6500)
 				continue;
 
 			checkItem(item);
@@ -74,14 +74,14 @@ STRUCT_ACCOUNT CResetAccount::ResetAccount()
 		if (mob->Player.Equip[0].EFV2 > (int)evolution)
 			evolution = (Evolution)mob->Player.Equip[0].EFV2;
 
-		if (mob->Player.Equip[0].EFV2 == 3 && mob->Sub.Status == 1)
+		if (mob->Player.Equip[0].EFV2 == 3 && mob->Sub.CurrentScore == 1)
 			evolution = Evolution::Subcelestial;
 	}
 
 	for (int i = 0; i < 120; ++i)
 	{
 		auto item = &_account.Storage.Item[i];
-		if (item->Index <= 0 || item->Index >= 6500)
+		if (item->sIndex <= 0 || item->sIndex >= 6500)
 			continue;
 
 		checkItem(item);
@@ -134,32 +134,32 @@ void CResetAccount::LoadDonatePrice()
 		for (int i = 0; i < 27; ++i)
 		{
 			auto item = g_pStore[iStore][i].item;
-			if (item.Index == 0)
+			if (item.sIndex == 0)
 				continue;
 
-			if (item.Index >= 2420 && item.Index <= 2433)
+			if (item.sIndex >= 2420 && item.sIndex <= 2433)
 				continue;
 
-			if (item.Index == 3172 || item.Index == 4146 || item.Index == 4131)
+			if (item.sIndex == 3172 || item.sIndex == 4146 || item.sIndex == 4131)
 				continue;
 
-			donateStore[item.Index] = g_pStore[iStore][i].Price;
+			donateStore[item.sIndex] = g_pStore[iStore][i].Price;
 		}
 	}
 }
 
 int CResetAccount::GetItemPrice(const STRUCT_ITEM* item)
 {
-	if (donateStore.find(item->Index) != std::end(donateStore))
+	if (donateStore.find(item->sIndex) != std::end(donateStore))
 	{
-		int price = donateStore[item->Index];
-		if (item->Index == 4140)
+		int price = donateStore[item->sIndex];
+		if (item->sIndex == 4140)
 			price *= GetItemAmount(item);
-		if (item->Index == 3314)
+		if (item->sIndex == 3314)
 		{
 			for (int i = 0; i < 3; ++i)
 			{
-				if (item->Effect[i].Index == 200)
+				if (item->stEffect[i].cEffect == 200)
 					return 0;
 			}
 
@@ -188,7 +188,7 @@ bool CResetAccount::isInitialPackage(const STRUCT_ITEM* item) const
 {
 	constexpr std::array eternalItems = { 4152, 4153, 4155, 4156, 4220, 4221, 4194, 4195, 4191, 4192, 4199, 4193, 4595 };
 
-	if (std::find(std::begin(eternalItems), std::end(eternalItems), item->Index) != std::end(eternalItems))
+	if (std::find(std::begin(eternalItems), std::end(eternalItems), item->sIndex) != std::end(eternalItems))
 		return true;
 	
 	return false;
@@ -221,7 +221,7 @@ float CResetAccount::TimeRemaining(int dia, int mes, int ano) const
 
 bool CResetAccount::isExpired(const STRUCT_ITEM* item) const
 {
-	if ((item->Index >= 3980 && item->Index <= 3999) || (item->Index >= 4151 && item->Index <= 4189) || (item->Index >= 3995 && item->Index <= 3995) || (item->Index >= 4210 && item->Index <= 4229) || (item->Index >= 4235 && item->Index <= 4241))
+	if ((item->sIndex >= 3980 && item->sIndex <= 3999) || (item->sIndex >= 4151 && item->sIndex <= 4189) || (item->sIndex >= 3995 && item->sIndex <= 3995) || (item->sIndex >= 4210 && item->sIndex <= 4229) || (item->sIndex >= 4235 && item->sIndex <= 4241))
 	{
 		if (item->EF1 == 106 && item->EF2 == 110 && item->EF3 == 109)
 			return TimeRemaining(item->EFV1, item->EFV2, (item->EFV3 + 2000)) <= 0.0f;
@@ -232,11 +232,11 @@ bool CResetAccount::isExpired(const STRUCT_ITEM* item) const
 
 std::tuple<bool, STRUCT_ITEM> CResetAccount::isMountWithCostume(const STRUCT_ITEM* item)
 {
-	if (item->Index >= 2360 && item->Index < 2390 && item->Effect[2].Value > 11)
+	if (item->sIndex >= 2360 && item->sIndex < 2390 && item->stEffect[2].cValue > 11)
 	{
 		STRUCT_ITEM petItem{};
-		int trajeId = 4190 + (item->Effect[2].Value - 11);
-		switch (item->Effect[2].Value)
+		int trajeId = 4190 + (item->stEffect[2].cValue - 11);
+		switch (item->stEffect[2].cValue)
 		{
 		case 22:
 			trajeId = 4200;
@@ -252,7 +252,7 @@ std::tuple<bool, STRUCT_ITEM> CResetAccount::isMountWithCostume(const STRUCT_ITE
 			break;
 		}
 
-		petItem.Index = trajeId;
+		petItem.sIndex = trajeId;
 
 		return std::make_tuple(true, petItem);
 	}
@@ -266,9 +266,9 @@ int CResetAccount::GetItemAmount(const STRUCT_ITEM* item) const
 
 	for (INT8 i = 0; i < 3; i++)
 	{
-		if (item->Effect[i].Index == 61)
+		if (item->stEffect[i].cEffect == 61)
 		{
-			amount = item->Effect[i].Value;
+			amount = item->stEffect[i].cValue;
 			if (amount == 0)
 				amount = 1;
 

@@ -117,7 +117,7 @@ typedef struct
 	
 	// 3 = Não passa
 	int CanRun; // 20 - 23
-	int Status; // 24 - 27
+	int CurrentScore; // 24 - 27
 	int Rotation; // 28 - 31
 
 	DWORD IsOpen; // 32 - 35
@@ -130,7 +130,7 @@ typedef struct
 {
 	short PosX;
 	short PosY;
-	short Index;
+	short sIndex;
 	short Rotate;
 } BASE_InitItem;
 
@@ -220,9 +220,9 @@ typedef struct
 	PacketHeader Header;
 
 	INT32 PosID;
-	char Name[16];
+	char MobName[16];
 	INT32 ClassID;
-	INT32 ClassInfo;
+	INT32 Class;
 	INT32 MortalSlot;
 } MSG_DBNewArch;
 
@@ -285,14 +285,14 @@ typedef struct
 		INT16 PositionX[4];
 		INT16 PositionY[4];
 
-		char Name[4][16];
+		char MobName[4][16];
 
-		STRUCT_STATUS Status[4];
+		STRUCT_SCORE CurrentScore[4];
 		STRUCT_ITEM Equip[4][16];
 
-		UINT16 GuildIndex[4];
+		UINT16 Guild[4];
 
-		int Gold[4];
+		int Coin[4];
 		INT64 Exp[4];
 	} CharList;
 	
@@ -312,14 +312,14 @@ typedef struct
 		INT16 PositionX[4];
 		INT16 PositionY[4];
 
-		char Name[4][16];
+		char MobName[4][16];
 
-		STRUCT_STATUS Status[4];
+		STRUCT_SCORE CurrentScore[4];
 		STRUCT_ITEM Equip[4][16];
 
-		UINT16 GuildIndex[4];
+		UINT16 Guild[4];
 
-		int Gold[4];
+		int Coin[4];
 		INT64 Exp[4];
 	} CharList;
 } p112;
@@ -363,186 +363,9 @@ typedef struct
 	INT32 Cash;
 } p415;
 
-struct p114
-{ 
-	PacketHeader Header; // 0 - 11
-	STRUCT_POSITION WorldPos; // 12 - 15
-	STRUCT_MOB Mob; // 16 - 823
-
-	char dummy[212];
-	unsigned short CurrentKill;
-	unsigned short TotalKill;
-
-	short SlotIndex; // 1040 - 1041
-	short ClientIndex; // 1042 - 1043
-	short Weather; // 1044 - 1045
-
-	char SkillBar2[16]; // 1046 - 1061
-
-	int Unknow_1062[8];
-	STRUCT_AFFECT Affect[32];
-
-	char Unknown_1350[360];
-}; 
-
-// Spawn Info
-typedef struct
-{
-	PacketHeader Header; // 0 - 11
-
-	// Spawn Info
-	struct
-	{
-		short X, Y;
-	} Current; // 12 - 15
-
-	short Index; // 16 - 17
-
-	char Name[12]; // 18 - 29
-
-	// Killer Points
-	unsigned char ChaosPoints; // 30 
-	unsigned char CurrentKill; // 31 
-	unsigned short TotalKill; // 32 - 33
-
-	// Item Info
-	WORD Item_Refine[16]; // 34 - 65
+ 
 
 
-	// Skill Info
-	struct
-	{
-		BYTE Time;
-		BYTE Index;
-	} Affect[32]; // 66 - 129
-
-	// Guild Info
-	WORD GuildIndex; // 130 - 131
-
-	// Unknow byte 757 
-	char GuildMemberType; // 132 - 133
-
-	WORD Unknow;
-
-	// Score Info 
-	STRUCT_STATUS Status; // 134 - 181
-
-	// Spawn Type
-	struct
-	{
-		WORD Type;
-	} Spawn; // 182 - 185
-
-	char pAnctCode[16];
-	char pTab[26];
-
-	BYTE Unknow_02[4];
-
-	int Life;
-} p364;
-
-// Spawn Info
-typedef struct
-{
-	PacketHeader Header; // 0 - 11
-
-	// Spawn Info
-	struct
-	{
-		short X, Y;
-	} Current; // 12 - 15
-
-	short Index; // 16 - 17
-
-	char Name[16]; // 18 - 33
-
-	// Item Info
-	WORD Item_Refine[16]; // 34 - 65
-
-
-	// Skill Info
-	struct
-	{
-		BYTE Time;
-		BYTE Index;
-	} Affect[32]; // 66 - 129
-
-	// Guild Info
-	WORD GuildIndex; // 130 - 131
-
-	// Unknow byte 757 
-	char GuildMemberType; // 132 - 133
-
-	WORD Unknow;
-
-	// Score Info 
-	STRUCT_STATUS Status; // 134 - 181
-
-	// Spawn Type
-	struct
-	{
-		WORD Type;
-	} Spawn; // 182 - 185
-
-	char pAnctCode[16];
-	char pTab[26];
-
-	BYTE Unknow_02[4];
-
-	int Life;
-} p364_Mob;
-
-// Spawn Info
-typedef struct 
-{
-	PacketHeader Header;
-
-    // Spawn Info
-    struct
-    {
-        short X, Y;
-    } Current;
-
-    short Index;
-
-    char Name[12];
-
-	// Killer Points
-	unsigned char ChaosPoints;
-	unsigned char CurrentKill;
-	unsigned short TotalKill;
-
-    // Item Info
-	WORD Item_Refine[16];
-
-    // Skill Info
-    struct
-    {
-		BYTE Time;
-		BYTE Index;
-    } Affect[32];
-
-    // Guild Info
-	WORD GuildIndex;
-
-	// Unknow byte 757
-	char Unknow;
-
-    // Score Info
-    STRUCT_STATUS Status;
-
-    // Spawn Type
-    struct
-    {
-        unsigned short Type : 8;
-        unsigned short MemberType : 8;
-    } Spawn;
-
-    char pAnctCode[16];
-    char pTab[26];
-
-	char StoreName[27];
-} p363;
 
 typedef struct
 {
@@ -624,7 +447,7 @@ typedef struct
 {
 	PacketHeader Header; // 0 - 11
 
-	STRUCT_STATUS Status; // 12 - 59
+	STRUCT_SCORE CurrentScore; // 12 - 59
 
 	BYTE Critical; // 60
 	BYTE SaveMana; // 61
@@ -632,10 +455,10 @@ typedef struct
 	struct
 	{
 		BYTE Time;
-		BYTE Index;
+		BYTE sIndex;
 	} Affect[32]; //62 - 125
 
-	WORD GuildIndex; // 126 - 127
+	WORD Guild; // 126 - 127
 
 	BYTE RegenHP, // 128 
 		RegenMP; // 129
@@ -659,14 +482,14 @@ typedef struct
 {
     PacketHeader Header; // 0 - 11
 
-    char Name[24]; // 12 - 35
+    char MobName[24]; // 12 - 35
     STRUCT_ITEM Item[12]; // 36 - 131
 
     BYTE Slot[12]; // 132 - 143
 
-    int Gold[12]; // 144 - 191
+    int Coin[12]; // 144 - 191
     short Unknown; // 192 - 193
-    short Index; // 194 - 195
+    short sIndex; // 194 - 195
 } p397;
 
 typedef struct
@@ -683,7 +506,7 @@ typedef struct
 typedef struct 
 {
 	PacketHeader Header;
-    int Index;
+    int sIndex;
 } p39A;
 
 struct p39B
@@ -697,14 +520,14 @@ typedef struct
 {
 	PacketHeader Header;
 
-	UINT32 Gold;
+	UINT32 Coin;
 } p339;
 
 typedef struct
 { 
 	PacketHeader Header;
 
-	UINT32 Index;
+	UINT32 sIndex;
 } p384;
 
 typedef struct 
@@ -721,7 +544,7 @@ typedef struct
 
 	DWORD Hold;
 	UINT64 Exp;
-	UINT32 Learn;
+	UINT32 LearnedSkill;
 	UINT32 SecLearn;
 
 	WORD pStatus;
@@ -730,7 +553,7 @@ typedef struct
 	BYTE Magic; // Unknow
 	BYTE Unk;
 
-	DWORD Gold;
+	DWORD Coin;
 } p337;
 
 typedef struct
@@ -850,10 +673,10 @@ typedef struct
 {
 	PacketHeader Header;
 
-	INT32 curHP;
-	INT32 curMP;
-	INT32 maxHP;
-	INT32 maxMP;
+	INT32 Hp;
+	INT32 Mp;
+	INT32 MaxHp;
+	INT32 MaxMp;
 } p181;
 
 typedef struct  {
@@ -871,10 +694,10 @@ typedef struct
 {
 	PacketHeader Header; // 0 -11 
 	STRUCT_POSITION Init; // 12 - 15
-	short Index; // 16 - 17
+	short sIndex; // 16 - 17
 	STRUCT_ITEM Item; // 18 - 25
 	BYTE Rotation; // 26
-	BYTE Status; // 27
+	BYTE CurrentScore; // 27
 	BYTE HeightGrid; // 28
 	BYTE Unknow; // 29;
 } p26E;
@@ -915,8 +738,8 @@ typedef struct
 	PacketHeader Header;
     WORD partyId;
     WORD Level;
-    WORD maxHP;
-    WORD curHP;
+    WORD MaxHp;
+    WORD Hp;
     WORD leaderId;
     char nickName[16];
     BYTE unk;
@@ -935,8 +758,8 @@ typedef struct
 	PacketHeader Header;
     WORD LiderID;
     WORD Level;
-    WORD maxHP;
-    WORD curHP;
+    WORD MaxHp;
+    WORD Hp;
     WORD PartyID;
     char nickName[16];
     WORD ID;
@@ -960,13 +783,13 @@ typedef struct{
 	PacketHeader Header;
 
 	INT32 CurHP;
-	INT16 Status;
+	INT16 CurrentScore;
 }  p292 ;
 
 typedef struct
 {
 	PacketHeader Header;
-	unsigned char SkillBar1[4];
+	unsigned char ShortSkill[4];
     unsigned char SkillBar2[16];
 } p378;
 
@@ -1019,7 +842,7 @@ typedef struct
 	STRUCT_ITEM Item[15];
 	char Slot[15];
 	BYTE Unknow;
-	int Gold;
+	int Coin;
 	bool Confirm;
 	WORD ClientId;
 } p383;
@@ -1029,7 +852,7 @@ typedef struct
 	PacketHeader Header;
 
 	STRUCT_ITEM Item[64];
-	INT32 Gold;
+	INT32 Coin;
 } p185;
 
 typedef struct
@@ -1073,13 +896,13 @@ typedef struct
 	PacketHeader Header;
 
 	UINT32 Level;
-	UINT32 ClassInfo;
-	UINT32 Learn;
+	UINT32 Class;
+	UINT32 LearnedSkill;
 	UINT32 Mantle;
 	UINT32 Face;
 	UINT32 CharPos;
 
-	char Name[16];
+	char MobName[16];
 } p830;
 
 typedef struct
@@ -1129,10 +952,10 @@ struct MSG_ADDSUB
 { 
 	PacketHeader Header;
 
-	INT16 GuildIndex;
+	INT16 Guild;
 	INT16 SubIndex;
-	char Name[16];
-	INT16 Status;
+	char MobName[16];
+	INT16 CurrentScore;
 };
 
 typedef struct
@@ -1194,7 +1017,7 @@ typedef struct
 {
     PacketHeader Header;
     int SlotIndex;
-    char Name[16];
+    char MobName[16];
     char Pwd[12];
 } p211;
 
@@ -1240,7 +1063,7 @@ typedef struct
 	} Equip;
 
 	INT32 Exp;
-	INT32 Gold;
+	INT32 Coin;
 
 	INT32 Evolution;
 	INT32 Class;
@@ -1258,7 +1081,7 @@ typedef struct
 	}Item[MAX_NPCQUEST_REWARD_ITEM];
 	INT32 Exp;
 	INT32 Level;
-	INT32 Gold;
+	INT32 Coin;
 	
 	struct
 	{
@@ -1280,7 +1103,7 @@ typedef struct
 	} Item[MAX_NPCQUEST_REWARD_ITEM];
 
 	INT32 Exp;
-	INT32 Gold;
+	INT32 Coin;
 	
 	struct
 	{
@@ -1291,7 +1114,7 @@ typedef struct
 
 typedef struct
 {
-	char Name[16];
+	char MobName[16];
 	char Tab[28];
 
 	STRUCT_POSITION Pos;
@@ -1315,7 +1138,7 @@ typedef struct
 	UINT8 amountRequired[10];
 	
 	// ------
-	// Gold pedido no NPC
+	// Coin pedido no NPC
 	// ------
 	INT32 goldRequired;
 
@@ -1382,7 +1205,7 @@ struct _MSG_UPDATETOWERINFO
 {
 	PacketHeader Header;
 
-	int  KillerId; // GuildIndex que matou a torre
+	int  KillerId; // Guild que matou a torre
 };
 
 
@@ -1416,7 +1239,7 @@ typedef struct
 {
 	PacketHeader Header;
 
-	char Name[16];
+	char MobName[16];
 } _MSG_NOTIFY_KEFRA_DEATH;
 
 typedef struct 
@@ -1495,7 +1318,7 @@ typedef struct
 	PacketHeader Header;
 
 	INT32 Server;
-	INT64 Gold;
+	INT64 Coin;
 	INT32 Taxe;
 } _MSG_REWARDWARTOWER;
 
@@ -1588,7 +1411,7 @@ struct _MSG_REALBATTLE
 	PacketHeader Header;
 
 	int Kingdom;
-	int Status;
+	int CurrentScore;
 };
 
 constexpr int RealBattlePacket = 0x637;
@@ -1692,11 +1515,11 @@ struct MSG_MISSIONINFO
 	PacketHeader Header;
 
 	bool IsAccepted;
-	char Name[32];
+	char MobName[32];
 	
 	struct
 	{
-		char Name[16];
+		char MobName[16];
 		int Total;
 
 		int Killed;
@@ -1713,7 +1536,7 @@ struct MSG_MISSIONINFO
 	STRUCT_ITEM FreeReward[6];
 	STRUCT_ITEM BattlePassReward[6];
 
-	int Gold;
+	int Coin;
 	unsigned long long Exp;
 
 	STRUCT_ITEMDATE BattlePassValidation;
@@ -1772,7 +1595,7 @@ struct MSG_CHATMESSAGE
 
 struct MobDropInfo
 {
-	char Name[16];
+	char MobName[16];
 	STRUCT_POSITION Position;
 
 	INT32 Level;

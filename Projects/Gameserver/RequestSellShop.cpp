@@ -8,7 +8,7 @@ bool CUser::RequestSellShop(PacketHeader *Header)
 {
 	p37A *p = (p37A*)Header;
 
-	int fairyId = pMob[clientId].Mobs.Player.Equip[13].Index;
+	int fairyId = pMob[clientId].Mobs.Player.Equip[13].sIndex;
 
 	int mobId = p->npcId;
 	if (mobId >= MAX_MOB || mobId < 0)
@@ -41,13 +41,13 @@ bool CUser::RequestSellShop(PacketHeader *Header)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
-			Log(clientId, LOG_INGAME, "Uso do NPC %s fora do range para tentar vender %dx %dy %dx %dy. Distância: %d", mob->Mobs.Player.Name, mob->Target.X, mob->Target.Y, pMob[clientId].Target.X, pMob[clientId].Target.Y, distance);
+			Log(clientId, LOG_INGAME, "Uso do NPC %s fora do range para tentar vender %dx %dy %dx %dy. DistÃªncia: %d", mob->Mobs.Player.MobName, mob->Target.X, mob->Target.Y, pMob[clientId].Target.X, pMob[clientId].Target.Y, distance);
 			return false;
 		}
 	}
 
 	STRUCT_ITEM *item = &pMob[clientId].Mobs.Player.Inventory[p->sellSlot];
-	if(item->Index <= 0 || item->Index > MAX_ITEMLIST)
+	if(item->sIndex <= 0 || item->sIndex > MAX_ITEMLIST)
 	{
 		AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
@@ -61,7 +61,7 @@ bool CUser::RequestSellShop(PacketHeader *Header)
 		return true;
 	}
 
-	STRUCT_ITEMLIST *rItem = &ItemList[item->Index];
+	STRUCT_ITEMLIST *rItem = &g_pItemList[item->sIndex];
 	INT32 cityZone = 5;
 	if (mob != nullptr)
 		cityZone = GetVillage(mob->Target.X, mob->Target.Y);
@@ -79,14 +79,14 @@ bool CUser::RequestSellShop(PacketHeader *Header)
 
 	if (sellItemResult == eSellItemResult::BlockedItem)
 	{
-		SendClientMessage(clientId, "Não é possível vender este item");
+		SendClientMessage(clientId, "NÃªo Ãª possÃªvel vender este item");
 
 		SendItem(clientId, (SlotType)p->type, p->sellSlot, item);
 		return true;
 	}
 
 	auto found = std::find_if(Repurchase.Items.begin(), Repurchase.Items.end(), [](const STRUCT_ITEM& item) {
-		return item.Index <= 0 || item.Index >= MAX_ITEMLIST;
+		return item.sIndex <= 0 || item.sIndex >= MAX_ITEMLIST;
 	});
 
 	if(found == Repurchase.Items.end())
@@ -100,7 +100,7 @@ bool CUser::RequestSellShop(PacketHeader *Header)
 	(*found) = temporaryItem;
 
 	if(mob != nullptr)
-		Log(clientId, LOG_INGAME, "Vendido item no NPC %s", mob->Mobs.Player.Name);
+		Log(clientId, LOG_INGAME, "Vendido item no NPC %s", mob->Mobs.Player.MobName);
 
 	SendItem(clientId, SlotType::Inv, p->sellSlot, item);
 	return true;

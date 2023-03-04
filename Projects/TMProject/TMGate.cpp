@@ -35,8 +35,8 @@ void TMGate::InitGate(STRUCT_ITEM stItem)
     if (m_stItem.sIndex >= 0 && m_stItem.sIndex <= 6500)
     {
         m_sItemIndex = stItem.sIndex;
-        m_nLeftIndex = g_pItemList[m_sItemIndex].nIndexMesh;
-        m_nRightIndex = g_pItemList[m_sItemIndex].nIndexMesh;
+        m_nLeftIndex = g_pItemList[m_sItemIndex].nIndexTexture;
+        m_nRightIndex = g_pItemList[m_sItemIndex].nIndexTexture;
         m_stItem = stItem;
         switch (m_nRightIndex)
         {

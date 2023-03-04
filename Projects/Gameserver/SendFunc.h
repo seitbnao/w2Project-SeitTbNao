@@ -18,7 +18,7 @@ void SendSignal(INT32 toClientId, INT32 clientId, INT16 packetId);
 void SendCreateMob(int sendClientID, int createClientID, INT32 send = 0);
 
 // Envia o mob para todos da area
-void SendGridMob(int Index);
+void SendGridMob(int sIndex);
 
 // Envia os buffs do usuario
 void SendAffect(int clientId);

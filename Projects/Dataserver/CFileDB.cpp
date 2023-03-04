@@ -20,7 +20,7 @@ CFileDB::CFileDB()
 	if (!Account)
 		exit(1);
 
-	for (INT i = 0; i < MAX_DBACCOUNT; i++)
+	for (int i = 0; i < MAX_DBACCOUNT; i++)
 	{
 		Account[i] = STRUCT_ACCOUNT_DATABASE();
 		Account[i].Login = 0;
@@ -345,19 +345,19 @@ void CFileDB::DBGetSelChar(st_CharList *p, STRUCT_ACCOUNT *file)
 {
 	for (INT32 i = 0; i < 4; i++)
 	{
-		memcpy(p->Name[i], file->Mob[i].Player.Name, 16);
+		memcpy(p->MobName[i], file->Mob[i].Player.MobName, 16);
 		memcpy(p->Equip[i], file->Mob[i].Player.Equip, sizeof STRUCT_ITEM * 16);
 
-		if ((p->Equip[i][0].Index >= 22 && p->Equip[i][0].Index <= 25) || p->Equip[i][0].Index == 32)
-			p->Equip[i][0].Index = p->Equip[i][0].EF2;
+		if ((p->Equip[i][0].sIndex >= 22 && p->Equip[i][0].sIndex <= 25) || p->Equip[i][0].sIndex == 32)
+			p->Equip[i][0].sIndex = p->Equip[i][0].EF2;
 
-		p->GuildId[i] = file->Mob[i].Player.GuildIndex;
+		p->GuildId[i] = file->Mob[i].Player.Guild;
 		p->PositionX[i] = file->Mob[i].Player.Last.X;
 		p->PositionY[i] = file->Mob[i].Player.Last.Y;
 
-		memcpy(&p->Status[i], &file->Mob[i].Player.Status, sizeof STRUCT_STATUS);
+		memcpy(&p->CurrentScore[i], &file->Mob[i].Player.CurrentScore, sizeof STRUCT_SCORE);
 
-		p->Gold[i] = file->Mob[i].Player.Gold;
+		p->Coin[i] = file->Mob[i].Player.Coin;
 		p->Exp[i] = file->Mob[i].Player.Exp;
 	}
 }
@@ -451,7 +451,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			if (24 + i == 30)
 				continue;
 
-			int has = (p->Learn & (1 << (24 + i)));
+			int has = (p->LearnedSkill & (1 << (24 + i)));
 			if (has)
 				learn |= (1 << (24 + i));
 		}
@@ -460,18 +460,18 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		memset(Account[index].Account.Mob[charPos].Sub.Equip, 0, sizeof STRUCT_ITEM * 2);
 
-		Account[index].Account.Mob[charPos].Sub.Equip[0].Index = (baseFace + p->ClassInfo);
-		Account[index].Account.Mob[charPos].Sub.Equip[0].EF2 = (baseFace + p->ClassInfo);
+		Account[index].Account.Mob[charPos].Sub.Equip[0].sIndex = (baseFace + p->Class);
+		Account[index].Account.Mob[charPos].Sub.Equip[0].EF2 = (baseFace + p->Class);
 		Account[index].Account.Mob[charPos].Sub.Equip[0].EFV2 = 4;
 
-		Account[index].Account.Mob[charPos].Sub.Status = 1;
+		Account[index].Account.Mob[charPos].Sub.CurrentScore = 1;
 
 		Account[index].Account.Mob[charPos].Sub.Exp = 0;
 		Account[index].Account.Mob[charPos].Sub.Info.Value = 0;
-		Account[index].Account.Mob[charPos].Sub.Learn = learn;
+		Account[index].Account.Mob[charPos].Sub.LearnedSkill = learn;
 		Account[index].Account.Mob[charPos].Sub.Soul = 0;
 
-		memcpy(&Account[index].Account.Mob[charPos].Sub.SubStatus, &pBaseSet[p->ClassInfo].bStatus, sizeof STRUCT_STATUS);
+		memcpy(&Account[index].Account.Mob[charPos].Sub.SubStatus, &pBaseSet[p->Class].BaseScore, sizeof STRUCT_SCORE);
 		memset(Account[index].Account.Mob[charPos].Sub.SkillBar, -1, 20);
 	}
 	break;
@@ -490,7 +490,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			break;
 		}
 
-		if (!Account[idx].Account.Mob[slot].Player.Name[0])
+		if (!Account[idx].Account.Mob[slot].Player.MobName[0])
 		{
 			
 			return true;
@@ -632,7 +632,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		memcpy(Account[idx].Account.Storage.Item, p->Storage, sizeof STRUCT_ITEM * 128);
 		memcpy(Account[idx].Skillbar, p->SkillBar, 8);
 
-		memcpy(&Account[idx].Account.Mob[slot].Player.SkillBar1[0], p->SkillBar, 4);
+		memcpy(&Account[idx].Account.Mob[slot].Player.ShortSkill[0], p->SkillBar, 4);
 		memcpy(&Account[idx].Account.Mob[slot].SkillBar[0], &p->SkillBar[4], 16);
 
 		Account[idx].Account.Storage.Coin = p->Coin;
@@ -719,7 +719,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		Account[index].Account.Mob[slot] = p->Mob;
 
-		memcpy(&Account[index].Account.Mob[slot].Player.SkillBar1[0], p->SkillBar, 4);
+		memcpy(&Account[index].Account.Mob[slot].Player.ShortSkill[0], p->SkillBar, 4);
 		memcpy(&Account[index].Account.Mob[slot].SkillBar[0], &p->SkillBar[4], 16);
 
 		memcpy(Account[index].Account.Storage.Item, p->Storage, sizeof STRUCT_ITEM * 128);
@@ -771,7 +771,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		}
 
 		char check[16];//LOCAL_2843
-		strncpy_s(check, p->Name, 16);
+		strncpy_s(check, p->MobName, 16);
 
 		_strupr_s(check);
 
@@ -793,26 +793,26 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		memset(extra, 0, sizeof STRUCT_CHARINFO);
 
-		mob->Name[15] = 0;
-		mob->Name[14] = 0;
+		mob->MobName[15] = 0;
+		mob->MobName[14] = 0;
 
-		p->Name[15] = 0;
-		p->Name[14] = 0;
+		p->MobName[15] = 0;
+		p->MobName[14] = 0;
 
-		if (mob->Name[0])
+		if (mob->MobName[0])
 		{
 			SendDBSignal(conn, Header->ClientId, 0x41D);
 			// Log(err, newchar already charged
 			return true;
 		}
 
-		p->Name[15] = 0;
-		p->Name[14] = 0;
+		p->MobName[15] = 0;
+		p->MobName[14] = 0;
 
-		INT32 len = strlen(p->Name);//LOCAL_2845
+		INT32 len = strlen(p->MobName);//LOCAL_2845
 		for (INT32 i = 0; i < len; i++)
 		{
-			if (p->Name[i] == -95 && p->Name[i + 1] == -95)
+			if (p->MobName[i] == -95 && p->MobName[i + 1] == -95)
 			{
 				SendDBSignal(conn, Header->ClientId, 0x41D);
 				return true;
@@ -856,10 +856,10 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			return true;
 		}
 
-		memcpy(mob->Name, p->Name, 16);
+		memcpy(mob->MobName, p->MobName, 16);
 
 		memset(extra->SkillBar, -1, 16);
-		memset(mob->SkillBar1, -1, 4);
+		memset(mob->ShortSkill, -1, 4);
 
 		//memset(&mob->Equip[1], 0, sizeof STRUCT_ITEM);
 
@@ -871,15 +871,15 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		memset(&mob->Inventory[0], 0, sizeof STRUCT_ITEM * 64);
 
 
-		//mob->Equip[1].Index = 3500;
+		//mob->Equip[1].cEffect = 3500;
 
-		mob->Equip[0].Index = p->ClassID;
+		mob->Equip[0].sIndex = p->ClassID;
 		mob->Equip[0].EFV2 = 2;
 		mob->Equip[0].EF2 = p->ClassID;
 
 		extra->MortalSlot = p->MortalSlot;
 
-		mob->ClassInfo = p->ClassInfo;
+		mob->Class = p->Class;
 
 		INT32 ret = DBWriteAccount(&Account[index].Account);//LOCAL_2847
 		if (ret == 0)
@@ -950,13 +950,13 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		memset(extra, 0, sizeof STRUCT_CHARINFO);
 
-		mob->Name[15] = 0;
-		mob->Name[14] = 0;
+		mob->MobName[15] = 0;
+		mob->MobName[14] = 0;
 
 		p->Nick[15] = 0;
 		p->Nick[14] = 0;
 
-		if (mob->Name[0])
+		if (mob->MobName[0])
 		{
 			SendDBSignal(conn, Header->ClientId, 0x41D);
 			// Log(err, newchar already charged
@@ -1008,12 +1008,12 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		}
 
 		memset(extra->SkillBar, -1, 16);
-		memset(mob->SkillBar1, -1, 4);
+		memset(mob->ShortSkill, -1, 4);
 
 		mob->Equip[0].EFV2 = 1;
-		mob->Equip[0].EF2 =  mob->Equip[0].Index & 127;
+		mob->Equip[0].EF2 =  mob->Equip[0].sIndex & 127;
 
-		memcpy(mob->Name, p->Nick, 16);
+		memcpy(mob->MobName, p->Nick, 16);
 		
 		ret = DBWriteAccount(&Account[idx].Account);
 		if (ret == 0)
@@ -1180,18 +1180,18 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		for (; q < 4; q++)
 		{
-			if (account.Mob[q].Player.Equip[13].Index == 774)
+			if (account.Mob[q].Player.Equip[13].sIndex == 774)
 				left = q;
-			if (account.Mob[q].Player.Equip[13].Index == 775)
+			if (account.Mob[q].Player.Equip[13].sIndex == 775)
 				right = q;
 		}
 
 		if (left != -1 && right != -1)
 		{
 			char temp[16];//LOCAL_2134l
-			memcpy(temp, account.Mob[left].Player.Name, 16);
-			memcpy(account.Mob[left].Player.Name, account.Mob[right].Player.Name, 16);
-			memcpy(account.Mob[right].Player.Name, temp, 16);
+			memcpy(temp, account.Mob[left].Player.MobName, 16);
+			memcpy(account.Mob[left].Player.MobName, account.Mob[right].Player.MobName, 16);
+			memcpy(account.Mob[right].Player.MobName, temp, 16);
 
 			memset(&account.Mob[left].Player.Equip[13], 0, sizeof STRUCT_ITEM);
 			memset(&account.Mob[right].Player.Equip[13], 0, sizeof STRUCT_ITEM);
@@ -1243,7 +1243,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 			memcpy(&packet.SkillBar2, &Account[idx].Account.Mob[slot].SkillBar[0], 16);
 
-			if (!Account[idx].Account.Mob[slot].Player.Name[0])
+			if (!Account[idx].Account.Mob[slot].Player.MobName[0])
 			{
 				//Log( err, charlogin mobname empty
 				return true;
@@ -1298,7 +1298,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			return true;
 		}
 
-		if (!mob->Name[0])
+		if (!mob->MobName[0])
 			return true;
 
 		// 004133EC
@@ -1311,7 +1311,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		Account[index].Skillbar[slot][6] = 255;
 		Account[index].Skillbar[slot][7] = 255;
 
-		DeleteCharacter(mob->Name, Account[index].Account.Username);
+		DeleteCharacter(mob->MobName, Account[index].Account.Username);
 
 		memset(&Account[index].Account.Mob[slot], 0, sizeof STRUCT_CHARINFO);
 
@@ -1453,16 +1453,16 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 	{
 		MSG_ADDSUB *p = (MSG_ADDSUB*)(Header);
 	
-		if(p->GuildIndex > MAX_GUILD)
+		if(p->Guild > MAX_GUILD)
 			return true;
 
 		if(p->SubIndex < 0 || p->SubIndex >= 3)
 			return true;
 
-		if(p->Status == 1)
-			g_pGuild[p->GuildIndex].SubGuild[p->SubIndex].clear();
+		if(p->CurrentScore == 1)
+			g_pGuild[p->Guild].SubGuild[p->SubIndex].clear();
 		else
-			g_pGuild[p->GuildIndex].SubGuild[p->SubIndex] = std::string(p->Name);
+			g_pGuild[p->Guild].SubGuild[p->SubIndex] = std::string(p->MobName);
 		
 		for (INT32 i = 0; i < MAX_SERVERGROUP; i++)
 		{
@@ -1481,14 +1481,14 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		if(guildId <= 0 || guildId >= MAX_GUILD)
 			break;
 
-		if(g_pGuild[guildId].Name[0])
+		if(g_pGuild[guildId].MobName[0])
 		{
 			MessageBoxA(NULL, "error : guild slot is not empty", "error", MB_OK | MB_OKCANCEL);
 
 			break;
 		}
 
-		g_pGuild[guildId].Name = std::string(p->GuildName);
+		g_pGuild[guildId].MobName = std::string(p->GuildName);
 
 		g_pGuild[guildId].Citizen = p->citizen;
 		g_pGuild[guildId].Fame = 0;
@@ -1622,7 +1622,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		if (!Account[index].Account.SecondPass[0])
 		{
-			// Seta a senha numérica
+			// Seta a senha numÃªrica
 			strncpy_s(Account[index].Account.SecondPass, p->num, 16);
 
 			pUser[conn].Sock.SendOneMessage((char*)&fde, sizeof pFDE);
@@ -1633,7 +1633,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		{
 			if (p->RequestChange == 1)
 			{
-				// Copia a nova senha numérica para o usuario
+				// Copia a nova senha numÃªrica para o usuario
 				strncpy_s(Account[index].Account.SecondPass, p->num, 16);
 
 				// Envia o pacote para o usuario, informando que esta correta
@@ -1652,7 +1652,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 	case MSG_UPDATEWARDECLARATION://0x998
 	{
 		// Update de estado da guerra.
-        // Algum líder declarou ou recusou guerra
+        // Algum lÃªder declarou ou recusou guerra
 		_MSG_UPDATEWARDECLARATION *p = (_MSG_UPDATEWARDECLARATION*)Header;
 
 		BYTE newInfo = p->newInfo;
@@ -1664,7 +1664,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		if (g_pTowerWarState[otherConn].WarState != newInfo && g_pTowerWarState[otherConn].WarState != 2) 
 		{
-			// O if ira entrar ao declarar pois normalmente a guerra não esta declarada
+			// O if ira entrar ao declarar pois normalmente a guerra nÃªo esta declarada
 			// Ou seja, WarState = 0 e newInfo = 1
 			_MSG_UPDATEWARANSWER answer;
 			memset(&answer, 0, sizeof _MSG_UPDATEWARANSWER);
@@ -1681,7 +1681,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			// O canal que esta a declarar a guerra
 			answer.declarant = conn;
 
-			// O canal que é o par, ou seja, quem recebe a declaração
+			// O canal que Ãª o par, ou seja, quem recebe a declaraÃ§Ã£o
 			answer.receiver  = otherConn;
 
 			for (int i = 0; i < MAX_SERVERGROUP; i++)
@@ -1692,7 +1692,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 				if (pUser[i].Sock.Sock == INVALID_SOCKET)
 					continue;
 
-				// Envia o pacote para todos os canais disponíveis
+				// Envia o pacote para todos os canais disponÃªveis
 				answer.Header.ClientId = i;
 				pUser[i].Sock.SendOneMessage((char*)&answer, sizeof _MSG_UPDATEWARANSWER);
 			}
@@ -1726,9 +1726,9 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		if (p->KillerId)
 			SetFame(p->KillerId, g_pGuild[p->KillerId].Fame + 50);
 
-		// Para cada torre que cai em seu canal que não tenha sido ela a matar
+		// Para cada torre que cai em seu canal que nÃªo tenha sido ela a matar
 		// A coroa paga 50 de fame
-		// Desde que não seja o seu avanço
+		// Desde que nÃªo seja o seu avanÃªo
 		INT32 leader = ChargedGuildList[conn][4];
 		if (leader != p->KillerId && g_pTowerWarState[conn].TowerState != conn)
 		{
@@ -1758,10 +1758,10 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			g_pTowerWarState[conn].TMP = g_pTowerWarState[conn].WarState;
 			g_pTowerWarState[otherConn].WarState   = 2;
 
-			// Informa que quem deve atacar a torre é o pessoal do canal
+			// Informa que quem deve atacar a torre Ãª o pessoal do canal
 			g_pTowerWarState[conn].TowerState = conn;
 			
-			// Envia a mensagem para todos os canais se alguém avançou
+			// Envia a mensagem para todos os canais se alguÃªm avanÃªou
 			for (int i = 0; i < MAX_SERVERGROUP; i++)
 			{
 				if (pUser[i].Mode == USER_EMPTY)
@@ -1775,24 +1775,24 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		}
 		else
 		{
-			// Matou a torre em seu próprio canal
-			// Caso queira, pode declarar a guerra e avançar no outro canal
-			// Desde que sua torre não morra antes disso
+			// Matou a torre em seu prÃªprio canal
+			// Caso queira, pode declarar a guerra e avanÃªar no outro canal
+			// Desde que sua torre nÃªo morra antes disso
 
-			// Informa que quem esta avançando neste canal é o outro
+			// Informa que quem esta avanÃªando neste canal Ãª o outro
 			g_pTowerWarState[conn].TowerState = otherConn;
 
-			// Libera para possível avanço no outro canal
+			// Libera para possÃªvel avanÃªo no outro canal
 			g_pTowerWarState[otherConn].TowerState = conn;
 
 			// otherConn = 1
 			// conn      = 0
 			
-			// Seta como é possível declarar guerra novamente ao canal contrario
+			// Seta como Ãª possÃªvel declarar guerra novamente ao canal contrario
 			g_pTowerWarState[conn].WarState        = g_pTowerWarState[conn].TMP;
 			g_pTowerWarState[otherConn].WarState   = 0;
 
-			// Envia a mensagem para todos os canais se alguém avançou
+			// Envia a mensagem para todos os canais se alguÃªm avanÃªou
 			for (int i = 0; i < MAX_SERVERGROUP; i++)
 			{
 				if (pUser[i].Mode == USER_EMPTY)
@@ -1801,14 +1801,14 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 				if (pUser[i].Sock.Sock == INVALID_SOCKET)
 					continue;
 
-				SendNotice(i, "O canal %d avança em seu território.", conn + 1);
+				SendNotice(i, "O canal %d avanÃªa em seu territÃªrio.", conn + 1);
 			}
 
-			// Para avançar no outro canal, basta declarar a guerra
+			// Para avanÃªar no outro canal, basta declarar a guerra
 		}
 
-		// Enviar aos canais envolvidos suas novas informações
-		// Enviar a notícia de quem avançou onde
+		// Enviar aos canais envolvidos suas novas informaÃ§Ã£es
+		// Enviar a notÃªcia de quem avanÃªou onde
 		SendTowerWarInfo(2);
 		break;
 	}
@@ -1851,8 +1851,8 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		{
 			sServer.FirstKefra = conn;
 
-			if (strlen(p->Name) > 0)
-				strncpy_s(sServer.KefraKiller, p->Name, 16);
+			if (strlen(p->MobName) > 0)
+				strncpy_s(sServer.KefraKiller, p->MobName, 16);
 			
 			_MSG_FIRST_KEFRA_NOTIFY packet;
 			memset(&packet, 0, sizeof _MSG_FIRST_KEFRA_NOTIFY);
@@ -1918,7 +1918,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 		STRUCT_SEALFILE fileInfo;
 		if (!ReadSealInfo(p->Value, fileInfo))
-			packet.Info.Status = -1;
+			packet.Info.CurrentScore = -1;
 		else
 		{
 			const auto mob = fileInfo.Mob.Info;
@@ -1948,7 +1948,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		int newSlot = -1;
 		for (int i = 0; i < 4; i++)
 		{
-			if (!Account[index].Account.Mob[i].Player.Name[0])
+			if (!Account[index].Account.Mob[i].Player.MobName[0])
 			{
 				newSlot = i;
 				break;
@@ -1978,7 +1978,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		}
 
 		STRUCT_ITEM& item = Account[index].Account.Mob[slot].Player.Inventory[p->SrcSlot];
-		int sealIndex = item.Effect[0].Value * 256 + item.Effect[1].Value;
+		int sealIndex = item.stEffect[0].cValue * 256 + item.stEffect[1].cValue;
 
 		STRUCT_SEALFILE fileInfo{};
 		if(!ReadSealInfo(sealIndex, fileInfo))
@@ -1998,9 +1998,9 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			ClearMob(&mob->Player);
 			*mob = fileInfo.Mob;
 
-			mob->Player.Gold = 0;
-			mob->Player.GuildIndex = 0;
-			mob->Player.GuildMemberType = 0;
+			mob->Player.Coin = 0;
+			mob->Player.Guild = 0;
+			mob->Player.GuildLevel = 0;
 			mob->LastGuildKickOut = STRUCT_ITEMDATE{};
 			mob->Revigorante = STRUCT_ITEMDATE{};
 			mob->Divina = STRUCT_ITEMDATE{};
@@ -2008,7 +2008,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			mob->RvRPoints = 0;
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
-			strncpy_s(mob->Player.Name, p->MobName, 16);
+			strncpy_s(mob->Player.MobName, p->MobName, 16);
 		}
 
 		ret = DBWriteAccount(&Account[index].Account);
@@ -2046,20 +2046,20 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		const STRUCT_CHARINFO *extra = &Account[index].Account.Mob[slot];
 
 		STRUCT_SEALFILE info{};
-		info.Seal.CON = mob->bStatus.CON;
-		info.Seal.STR = mob->bStatus.STR;
-		info.Seal.INT = mob->bStatus.INT;
-		info.Seal.DEX = mob->bStatus.DEX;
+		info.Seal.Con = mob->BaseScore.Con;
+		info.Seal.Str = mob->BaseScore.Str;
+		info.Seal.Int = mob->BaseScore.Int;
+		info.Seal.Dex = mob->BaseScore.Dex;
 
 		info.Seal.Evolution = mob->Equip[0].EFV2;
 		info.Seal.Face = mob->Equip[0].EF2;
-		info.Seal.Level = static_cast<short>(mob->bStatus.Level);
+		info.Seal.Level = static_cast<short>(mob->BaseScore.Level);
 
-		int baseSkill = mob->ClassInfo * 24;
+		int baseSkill = mob->Class * 24;
 		int octaveSkill = -1;
 		for (int i = 1; i < 4; i++)
 		{
-			bool have = mob->Learn[0] & (1 << ((i * 8) - 1));
+			bool have = mob->LearnedSkill[0] & (1 << ((i * 8) - 1));
 
 			if (have)
 				octaveSkill = baseSkill + ((i * 8) - 1);
@@ -2071,7 +2071,7 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		{
 			int skillId = 95 + i;
 			
-			if ((mob->Learn[0] & (1 << (23 + i))))
+			if ((mob->LearnedSkill[0] & (1 << (23 + i))))
 				info.Seal.Skills[i] = skillId;
 			else
 				info.Seal.Skills[i] = -1;
@@ -2089,8 +2089,8 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		// Tira as bolsas
 		info.Mob.Player.Inventory[60] = STRUCT_ITEM{};
 		info.Mob.Player.Inventory[61] = STRUCT_ITEM{};
-		info.Mob.Player.GuildIndex = 0;
-		info.Mob.Player.GuildMemberType = 0;
+		info.Mob.Player.Guild = 0;
+		info.Mob.Player.GuildLevel = 0;
  
 		info.Mob.Fame = 0;
 		info.Mob.HallEnter = 0;
@@ -2106,12 +2106,12 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 			if (i == slot)
 				continue;
 
-			if (strcmp(Account[index].Account.Mob[i].Player.Name, mob->Name) == 0)
+			if (strcmp(Account[index].Account.Mob[i].Player.MobName, mob->MobName) == 0)
 				freeNickname = false;
 		}
 
 		if (freeNickname)
-			DeleteCharacter(mob->Name, Account[index].Account.Username);
+			DeleteCharacter(mob->MobName, Account[index].Account.Username);
 
 		memset(&Account[index].Account.Mob[slot], 0, sizeof STRUCT_CHARINFO);
 
@@ -2149,11 +2149,11 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 
 			strncpy_s(packet.Username, Account[index].Account.Username, 16);
 
-			packet.item.Index = 3443;
-			packet.item.Effect[0].Index = 59;
-			packet.item.Effect[0].Value = sServer.LastSeal / 256;;
-			packet.item.Effect[1].Index = 59;
-			packet.item.Effect[1].Value = sServer.LastSeal % 256;
+			packet.item.sIndex = 3443;
+			packet.item.stEffect[0].cEffect = 59;
+			packet.item.stEffect[0].cValue = sServer.LastSeal / 256;;
+			packet.item.stEffect[1].cEffect = 59;
+			packet.item.stEffect[1].cValue = sServer.LastSeal % 256;
 
 			pUser[conn].Sock.SendOneMessage((char*)&packet, sizeof pCOF);
 		}

@@ -17,7 +17,7 @@ void CMission::ResultItemListSet()
 {
 }
 
-void CMission::Set_NeedItemList(int Index)
+void CMission::Set_NeedItemList(int sIndex)
 {
 }
 

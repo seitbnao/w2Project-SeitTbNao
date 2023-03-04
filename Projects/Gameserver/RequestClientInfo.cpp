@@ -53,13 +53,13 @@ bool CUser::RequestClientInfo(PacketHeader *Header)
 				return true;
 			}
 
-			if(strncmp(p->nick, pMob[clientId].Mobs.Player.Name, 16) != 0)
+			if(strncmp(p->nick, pMob[clientId].Mobs.Player.MobName, 16) != 0)
 			{
 				Log(clientId, LOG_INGAME, "ANTIHACK - Respondido pacote incorretamente. Nickname respondido: %s. Nickname correto: %s", 
-					p->nick, pMob[clientId].Mobs.Player.Name);
+					p->nick, pMob[clientId].Mobs.Player.MobName);
 
 				Log(clientId, LOG_INGAME, "ANTIHACK - [%S] : Respondido pacote incorretamente. Nickname respondido: %s. Nickname correto: %s", 
-					User.Username, p->nick, pMob[clientId].Mobs.Player.Name);
+					User.Username, p->nick, pMob[clientId].Mobs.Player.MobName);
 
 				aHack.Error ++;
 			}

@@ -7,8 +7,8 @@
 	<ban>
 		<type>52685</type>
 		<date>
-			<day>0</day>
-			<month>0</month>
+			<day>205</day>
+			<month>205</month>
 			<year>0</year>
 			<hour>0</hour>
 			<minute>0</minute>
@@ -50,7 +50,7 @@
 				<defense>163</defense>
 				<attack>54</attack>
 				<merchant>240</merchant>
-				<move>23</move>
+				<move>20</move>
 				<maxHp>114</maxHp>
 				<maxMp>196</maxMp>
 				<curHp>114</curHp>
@@ -80,17 +80,13 @@
 				<item slot="15" itemId="0" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
 			</equips>
 			<inventory>
-				<item slot="0" itemId="400" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
-				<item slot="1" itemId="400" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
-				<item slot="2" itemId="400" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
-				<item slot="3" itemId="400" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
-				<item slot="4" itemId="400" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
-				<item slot="5" itemId="918" ef0="43" efv0="6" ef1="0" efv1="0" ef2="0" efv2="0" />
+				<item slot="0" itemId="4112" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
 				<item slot="6" itemId="1826" ef0="43" efv0="0" ef1="71" efv1="30" ef2="59" efv2="0" />
 				<item slot="7" itemId="4615" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
 				<item slot="8" itemId="2391" ef0="0" efv0="0" ef1="0" efv1="0" ef2="0" efv2="0" />
 				<item slot="9" itemId="1297" ef0="43" efv0="3" ef1="2" efv1="20" ef2="53" efv2="3" />
 				<item slot="10" itemId="1309" ef0="43" efv0="3" ef1="73" efv1="18" ef2="74" efv2="12" />
+				<item slot="11" itemId="918" ef0="43" efv0="6" ef1="0" efv1="0" ef2="0" efv2="0" />
 				<item slot="63" itemId="547" ef0="150" efv0="0" ef1="0" efv1="0" ef2="77" efv2="0" />
 			</inventory>
 			<learn>0</learn>
@@ -296,10 +292,10 @@
 	</storage>
 	<block password="" status="0" />
 	<insignia>0</insignia>
-	<charslot>-1</charslot>
-	<position x="2122" y="2109" />
+	<charslot>0</charslot>
+	<position x="2139" y="2085" />
 	<water>
-		<day>59</day>
+		<day>62</day>
 		<total>0</total>
 	</water>
 	<divina>

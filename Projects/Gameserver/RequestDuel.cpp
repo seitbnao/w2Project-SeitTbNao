@@ -17,9 +17,9 @@ bool CUser::RequestDuel(PacketHeader *Header)
 	if (mobId <= 0 || mobId >= MAX_PLAYER)
 		return false;
 
-	if (pUser[mobId].Status != USER_PLAY)
+	if (pUser[mobId].CurrentScore != USER_PLAY)
 	{
-		Log(clientId, LOG_INGAME, "Enviado Duelo para jogador que n�o esta online");
+		Log(clientId, LOG_INGAME, "Enviado Duelo para jogador que nêo esta online");
 		return true;
 	}
 
@@ -34,7 +34,7 @@ bool CUser::RequestDuel(PacketHeader *Header)
 	{
 //		if(pMob[LOCAL_22].Mobs.MedalId != 509 || pMob[clientId].Mobs.MedalId != 509)
 		{
-			SendClientMessage(clientId, "Dispon�vel apenas para l�deres de guild");
+			SendClientMessage(clientId, "Disponêvel apenas para lêderes de guild");
 
 			return true;
 		}
@@ -42,10 +42,10 @@ bool CUser::RequestDuel(PacketHeader *Header)
 
 	if(typeId == 4)
 	{
-		if (pUser[mobId].Status != USER_PLAY)
+		if (pUser[mobId].CurrentScore != USER_PLAY)
 			return true;
 
-		if (clientId != pUser[mobId].Challenger.Index)
+		if (clientId != pUser[mobId].Challenger.sIndex)
 			return true;
 
 		if(sServer.Challanger.RankingProcess != 0)
@@ -82,11 +82,11 @@ bool CUser::RequestDuel(PacketHeader *Header)
 
 	if(typeId == 1 || typeId == 2)
 	{
-		if (pMob[clientId].Mobs.Player.Status.curHP <= 0 || pMob[mobId].Mobs.Player.Status.curHP <= 0)
+		if (pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || pMob[mobId].Mobs.Player.CurrentScore.Hp <= 0)
 			return true;
 	}
 
-	pUser[clientId].Challenger.Index = mobId;
+	pUser[clientId].Challenger.sIndex = mobId;
 	pUser[clientId].Challenger.Type = typeId;
 
 	p->mobId = clientId;
@@ -96,7 +96,7 @@ bool CUser::RequestDuel(PacketHeader *Header)
 
 	LastDuel = std::chrono::steady_clock::now();
 
-	Log(clientId, LOG_INGAME, "Enviado duelo para o jogador %s", pMob[mobId].Mobs.Player.Name);
-	Log(mobId, LOG_INGAME, "Recebido duelo do jogador %s", pMob[clientId].Mobs.Player.Name);
+	Log(clientId, LOG_INGAME, "Enviado duelo para o jogador %s", pMob[mobId].Mobs.Player.MobName);
+	Log(mobId, LOG_INGAME, "Recebido duelo do jogador %s", pMob[clientId].Mobs.Player.MobName);
 	return true;
 }

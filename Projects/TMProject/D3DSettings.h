@@ -11,7 +11,7 @@
 #include "D3DEnumeration.h"
 
 //-----------------------------------------------------------------------------
-// Name: class CD3DSettings
+// ItemName: class CD3DSettings
 // Desc: Current D3D settings: adapter, device, mode, formats, etc.
 //-----------------------------------------------------------------------------
 class CD3DSettings

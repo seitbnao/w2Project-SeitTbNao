@@ -80,7 +80,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 
 				pAdmin[User].Sock.CloseSocket();
 				pAdmin[User].Mode = USER_EMPTY;
-				pAdmin[User].Name[0] = 0;
+				pAdmin[User].MobName[0] = 0;
 
 				break;
 			}
@@ -120,7 +120,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 				{
 					pAdmin[User].Sock.CloseSocket();
 					pAdmin[User].Mode = USER_EMPTY;
-					pAdmin[User].Name[0] = 0;
+					pAdmin[User].MobName[0] = 0;
 
 					break;
 				}
@@ -220,7 +220,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 			pAdmin[User].DisableID = 0;
 			pAdmin[User].IP = TempUser.IP;
 			pAdmin[User].Mode = TempUser.Mode;
-			pAdmin[User].Name[0] = 0;
+			pAdmin[User].MobName[0] = 0;
 			pAdmin[User].Sock.Sock = TempUser.Sock.Sock;
 			pAdmin[User].Sock.nRecvPosition = TempUser.Sock.nRecvPosition;
 			pAdmin[User].Sock.nProcPosition = TempUser.Sock.nProcPosition;

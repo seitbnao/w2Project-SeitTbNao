@@ -30,7 +30,7 @@ bool GetNewGuild(PacketHeader *Header)
 		return false;
 
 	memset(&g_pGuild[p->guildId], 0, sizeof STRUCT_GUILDINFO);
-	g_pGuild[p->guildId].Name = std::string(p->GuildName);
+	g_pGuild[p->guildId].MobName = std::string(p->GuildName);
 
 	g_pGuild[p->guildId].Fame = 0;
 	g_pGuild[p->guildId].Citizen = p->citizen;
@@ -50,10 +50,10 @@ bool AddSubLider(PacketHeader *Header)
 		return true;
 	}
 
-	if (p->Status == 1)
-		g_pGuild[p->GuildIndex].SubGuild[p->SubIndex][0] = 0;
+	if (p->CurrentScore == 1)
+		g_pGuild[p->Guild].SubGuild[p->SubIndex][0] = 0;
 	else
-		g_pGuild[p->GuildIndex].SubGuild[p->SubIndex] = p->Name;
+		g_pGuild[p->Guild].SubGuild[p->SubIndex] = p->MobName;
 
 	return true;
 }

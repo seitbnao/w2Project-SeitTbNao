@@ -25,7 +25,7 @@ BOOL SendTowerWarInfo(BYTE Info)
 
 	memcpy(packet.war, g_pTowerWarState, sizeof stTowerWar * 10);
 
-	// Informa os canais das condições iniciais da guerra e libera o funcionamento
+	// Informa os canais das condiÃ§Ã£es iniciais da guerra e libera o funcionamento
 	for (int i = 0; i < MAX_SERVERGROUP; i++)
 	{
 		if (pUser[i].Mode == USER_EMPTY)
@@ -126,7 +126,7 @@ INT32 GetUserFromSocket(INT32 soc)
 
 void ClearItem(STRUCT_ITEM *item)
 {
-	item->Index = 0;
+	item->sIndex = 0;
 	item->EF1 = 0;
 	item->EF2 = 0;
 	item->EF3 = 0;
@@ -142,8 +142,8 @@ void ClearMob(STRUCT_MOB *player)
 	player->Last.X = 2100;
 	player->Last.Y = 2100;
 
-	memset(&player->bStatus, 0, sizeof STRUCT_STATUS);
-	memset(&player->Status, 0, sizeof STRUCT_STATUS);
+	memset(&player->BaseScore, 0, sizeof STRUCT_SCORE);
+	memset(&player->CurrentScore, 0, sizeof STRUCT_SCORE);
 
 	for (INT32 i = 0; i < 16; i++)
 		ClearItem(&player->Equip[i]);
@@ -151,10 +151,10 @@ void ClearMob(STRUCT_MOB *player)
 	for (INT32 i = 0; i < 64; i++)
 		ClearItem(&player->Inventory[i]);
 
-	player->SkillBar1[0] = -1;
-	player->SkillBar1[1] = -1;
-	player->SkillBar1[2] = -1;
-	player->SkillBar1[3] = -1;
+	player->ShortSkill[0] = -1;
+	player->ShortSkill[1] = -1;
+	player->ShortSkill[2] = -1;
+	player->ShortSkill[3] = -1;
 }
 
 INT32 InitializeBaseDef()
@@ -268,7 +268,7 @@ INT32 ReadGuilds()
 		g_pGuild[guildId].Kingdom = kingdom;
 		g_pGuild[guildId].Wins = wins;
 
-		g_pGuild[guildId].Name = std::string(guildName);
+		g_pGuild[guildId].MobName = std::string(guildName);
 
 		for (INT32 i = 0; i < 3; i++)
 		{
@@ -295,11 +295,11 @@ INT32 WriteGuilds()
 
 		for (INT32 i = 1; i < MAX_GUILD; i++)
 		{
-			if (g_pGuild[i].Name.empty())
+			if (g_pGuild[i].MobName.empty())
 				continue;
 
 			STRUCT_GUILDINFO *g = &g_pGuild[i];
-			fprintf(pFile, "%d, %d, %d, %d, %d, %s, %s, %s, %s\n", i, g->Fame, g->Kingdom, g->Citizen, g->Wins, g->Name.c_str(), g->SubGuild[0].c_str(), g->SubGuild[1].c_str(), g->SubGuild[2].c_str());
+			fprintf(pFile, "%d, %d, %d, %d, %d, %s, %s, %s, %s\n", i, g->Fame, g->Kingdom, g->Citizen, g->Wins, g->MobName.c_str(), g->SubGuild[0].c_str(), g->SubGuild[1].c_str(), g->SubGuild[2].c_str());
 		}
 
 		fclose(pFile);
@@ -317,7 +317,7 @@ INT32 DecideWinnerTowerWar()
 
 		INT32 winner = -1;
 
-		// o canal esta avançando no canal 1 e no canal 2 pois o TowerState dos dois canais são diferentes dos
+		// o canal esta avanÃªando no canal 1 e no canal 2 pois o TowerState dos dois canais sÃªo diferentes dos
 		if(g_pTowerWarState[conn].TowerState == otherConn && g_pTowerWarState[otherConn].TowerState == otherConn)
 			winner = conn;
 		else if(g_pTowerWarState[conn].TowerState == conn && g_pTowerWarState[otherConn].TowerState == conn)
@@ -363,8 +363,8 @@ void SetFame(INT32 guildId, INT32 value)
 
 INT32 WriteNPCDonate()
 {
-	// O NPC também é salvo caso  oservidor seja desligado
-	// a quantidade de itens disponíveis na loja continue sempre o mesmo
+	// O NPC tambÃªm Ãª salvo caso  oservidor seja desligado
+	// a quantidade de itens disponÃªveis na loja continue sempre o mesmo
 	// Sussa? xD
 	FILE *pFile = nullptr;
 
@@ -377,11 +377,11 @@ INT32 WriteNPCDonate()
 		{
 			for (INT32 t = 0; t < 27; t++)
 			{
-				if (g_pStore[i][t].item.Index <= 0)
+				if (g_pStore[i][t].item.sIndex <= 0)
 					continue;
 
 				fprintf(pFile, "%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", i, t, g_pStore[i][t].Avaible, g_pStore[i][t].Price, g_pStore[i][t].Loop,
-					g_pStore[i][t].item.Index, g_pStore[i][t].item.EF1, g_pStore[i][t].item.EFV1, g_pStore[i][t].item.EF2, g_pStore[i][t].item.EFV2, g_pStore[i][t].item.EF3, g_pStore[i][t].item.EFV3);
+					g_pStore[i][t].item.sIndex, g_pStore[i][t].item.EF1, g_pStore[i][t].item.EFV1, g_pStore[i][t].item.EF2, g_pStore[i][t].item.EFV2, g_pStore[i][t].item.EF3, g_pStore[i][t].item.EFV3);
 			}
 		}
 
@@ -429,7 +429,7 @@ INT32 ReadNPCDonate()
 			g_pStore[store][index].Loop = loop;
 			g_pStore[store][index].Price = price;
 
-			g_pStore[store][index].item.Index = itemId;
+			g_pStore[store][index].item.sIndex = itemId;
 			g_pStore[store][index].item.EF1 = ef1;
 			g_pStore[store][index].item.EF2 = ef2;
 			g_pStore[store][index].item.EF3 = ef3;
@@ -491,15 +491,15 @@ void Log(char *username, const char *msg, ...)
 
 void AppendStructure(pugi::xml_node node, const STRUCT_ITEM* item)
 {
-	node.append_attribute("itemId").set_value(item->Index);
+	node.append_attribute("itemId").set_value(item->sIndex);
 
 	for (int i = 0; i < 3; i++)
 	{
 		std::string childEffectName = "ef" + std::to_string(i);
 		std::string childEffectValueName = "efv" + std::to_string(i);
 
-		node.append_attribute(childEffectName.c_str()).set_value(item->Effect[i].Index);
-		node.append_attribute(childEffectValueName.c_str()).set_value(item->Effect[i].Value);
+		node.append_attribute(childEffectName.c_str()).set_value(item->stEffect[i].cEffect);
+		node.append_attribute(childEffectValueName.c_str()).set_value(item->stEffect[i].cValue);
 	}
 }
 
@@ -527,39 +527,39 @@ void AppendStructure(pugi::xml_node node, const STRUCT_AFFECT* affect)
 	node.append_attribute("time").set_value(affect->Time);
 }
 
-void AppendStructure(pugi::xml_node mob, STRUCT_STATUS* status)
+void AppendStructure(pugi::xml_node mob, STRUCT_SCORE* status)
 {
 	mob.append_child("level").append_child(pugi::node_pcdata).set_value(std::to_string(status->Level).c_str());
-	mob.append_child("defense").append_child(pugi::node_pcdata).set_value(std::to_string(status->Defense).c_str());
-	mob.append_child("attack").append_child(pugi::node_pcdata).set_value(std::to_string(status->Attack).c_str());
+	mob.append_child("defense").append_child(pugi::node_pcdata).set_value(std::to_string(status->Ac).c_str());
+	mob.append_child("attack").append_child(pugi::node_pcdata).set_value(std::to_string(status->Damage).c_str());
 	mob.append_child("merchant").append_child(pugi::node_pcdata).set_value(std::to_string(status->Merchant.Value).c_str());
 	mob.append_child("move").append_child(pugi::node_pcdata).set_value(std::to_string(status->Move.Value).c_str());
-	mob.append_child("maxHp").append_child(pugi::node_pcdata).set_value(std::to_string(status->maxHP).c_str());
-	mob.append_child("maxMp").append_child(pugi::node_pcdata).set_value(std::to_string(status->maxMP).c_str());
-	mob.append_child("curHp").append_child(pugi::node_pcdata).set_value(std::to_string(status->curHP).c_str());
-	mob.append_child("curMp").append_child(pugi::node_pcdata).set_value(std::to_string(status->curMP).c_str());
-	mob.append_child("str").append_child(pugi::node_pcdata).set_value(std::to_string(status->STR).c_str());
-	mob.append_child("int").append_child(pugi::node_pcdata).set_value(std::to_string(status->INT).c_str());
-	mob.append_child("des").append_child(pugi::node_pcdata).set_value(std::to_string(status->DEX).c_str());
-	mob.append_child("con").append_child(pugi::node_pcdata).set_value(std::to_string(status->CON).c_str());
+	mob.append_child("maxHp").append_child(pugi::node_pcdata).set_value(std::to_string(status->MaxHp).c_str());
+	mob.append_child("maxMp").append_child(pugi::node_pcdata).set_value(std::to_string(status->MaxMp).c_str());
+	mob.append_child("curHp").append_child(pugi::node_pcdata).set_value(std::to_string(status->Hp).c_str());
+	mob.append_child("curMp").append_child(pugi::node_pcdata).set_value(std::to_string(status->Mp).c_str());
+	mob.append_child("str").append_child(pugi::node_pcdata).set_value(std::to_string(status->Str).c_str());
+	mob.append_child("int").append_child(pugi::node_pcdata).set_value(std::to_string(status->Int).c_str());
+	mob.append_child("des").append_child(pugi::node_pcdata).set_value(std::to_string(status->Dex).c_str());
+	mob.append_child("con").append_child(pugi::node_pcdata).set_value(std::to_string(status->Con).c_str());
 
 	auto mastery = mob.append_child("mastery");
-	mastery.append_attribute("mastery0").set_value(status->Mastery[0]);
-	mastery.append_attribute("mastery1").set_value(status->Mastery[1]);
-	mastery.append_attribute("mastery2").set_value(status->Mastery[2]);
-	mastery.append_attribute("mastery3").set_value(status->Mastery[3]);
+	mastery.append_attribute("mastery0").set_value(status->Special[0]);
+	mastery.append_attribute("mastery1").set_value(status->Special[1]);
+	mastery.append_attribute("mastery2").set_value(status->Special[2]);
+	mastery.append_attribute("mastery3").set_value(status->Special[3]);
 }
 
 void AppendStructure(pugi::xml_node mob, STRUCT_MOB* mobInfo)
 {
-	mob.append_child("name").append_child(pugi::node_pcdata).set_value(mobInfo->Name);
+	mob.append_child("name").append_child(pugi::node_pcdata).set_value(mobInfo->MobName);
 	mob.append_child("capeInfo").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->CapeInfo).c_str());
 	mob.append_child("info").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Info.Value).c_str());
 	mob.append_child("questInfo").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->QuestInfo.Value).c_str());
-	mob.append_child("guildIndex").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->GuildIndex).c_str());
-	mob.append_child("classInfo").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->ClassInfo).c_str());
+	mob.append_child("guildIndex").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Guild).c_str());
+	mob.append_child("classInfo").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Class).c_str());
 	mob.append_child("affectInfo").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->AffectInfo.Value).c_str());
-	mob.append_child("gold").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Gold).c_str());
+	mob.append_child("gold").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Coin).c_str());
 	mob.append_child("experience").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Exp).c_str());
 	AppendStructure(mob.append_child("lastPosition"), &mobInfo->Last);
 
@@ -567,8 +567,8 @@ void AppendStructure(pugi::xml_node mob, STRUCT_MOB* mobInfo)
 		auto baseStatus = mob.append_child("baseStatus");
 		auto currentStatus = mob.append_child("currentStatus");
 
-		AppendStructure(baseStatus, &mobInfo->bStatus);
-		AppendStructure(currentStatus, &mobInfo->Status);
+		AppendStructure(baseStatus, &mobInfo->BaseScore);
+		AppendStructure(currentStatus, &mobInfo->CurrentScore);
 	}
 
 	{
@@ -588,7 +588,7 @@ void AppendStructure(pugi::xml_node mob, STRUCT_MOB* mobInfo)
 
 		for (int i = 0; i < 64; i++)
 		{
-			if (mobInfo->Inventory[i].Index == 0)
+			if (mobInfo->Inventory[i].sIndex == 0)
 				continue;
 
 			auto invItem = inventory.append_child("item");
@@ -598,10 +598,10 @@ void AppendStructure(pugi::xml_node mob, STRUCT_MOB* mobInfo)
 		}
 	}
 
-	mob.append_child("learn").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Learn[0]).c_str());
-	mob.append_child("secLearn").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Learn[1]).c_str());
-	mob.append_child("statusPoint").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->StatusPoint).c_str());
-	mob.append_child("masterPoint").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->MasterPoint).c_str());
+	mob.append_child("learn").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->LearnedSkill[0]).c_str());
+	mob.append_child("secLearn").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->LearnedSkill[1]).c_str());
+	mob.append_child("statusPoint").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->ScoreBonus).c_str());
+	mob.append_child("masterPoint").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->SpecialBonus).c_str());
 	mob.append_child("skillPoint").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->SkillPoint).c_str());
 	mob.append_child("critical").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->Critical).c_str());
 	mob.append_child("saveMana").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->SaveMana).c_str());
@@ -612,11 +612,11 @@ void AppendStructure(pugi::xml_node mob, STRUCT_MOB* mobInfo)
 		{
 			auto sk = skillbar1.append_child("sk");
 			sk.append_attribute("index").set_value(i);
-			sk.append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->SkillBar1[i]).c_str());
+			sk.append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->ShortSkill[i]).c_str());
 		}
 	}
 
-	mob.append_child("guildMemberType").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->GuildMemberType).c_str());
+	mob.append_child("guildMemberType").append_child(pugi::node_pcdata).set_value(std::to_string(mobInfo->GuildLevel).c_str());
 }
 
 void AppendStructure(pugi::xml_node mob, STRUCT_CHARINFO* charInfo)
@@ -665,7 +665,7 @@ void AppendStructure(pugi::xml_node mob, STRUCT_CHARINFO* charInfo)
 	// sub
 	{
 		auto sub = mob.append_child("sub");
-		sub.append_attribute("status").set_value(charInfo->Sub.Status);
+		sub.append_attribute("status").set_value(charInfo->Sub.CurrentScore);
 
 		AppendStructure(sub.append_child("status"), &charInfo->Sub.SubStatus);
 
@@ -680,7 +680,7 @@ void AppendStructure(pugi::xml_node mob, STRUCT_CHARINFO* charInfo)
 		}
 
 		sub.append_child("experience").append_child(pugi::node_pcdata).set_value(std::to_string(charInfo->Sub.Exp).c_str());
-		sub.append_child("learn").append_child(pugi::node_pcdata).set_value(std::to_string(charInfo->Sub.Learn).c_str());
+		sub.append_child("learn").append_child(pugi::node_pcdata).set_value(std::to_string(charInfo->Sub.LearnedSkill).c_str());
 		sub.append_child("secLearn").append_child(pugi::node_pcdata).set_value(std::to_string(charInfo->Sub.SecLearn).c_str());
 
 		auto skillbar = sub.append_child("skillbar");
@@ -741,7 +741,7 @@ void AppendStructure(pugi::xml_node account, STRUCT_ACCOUNT* acc)
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			if (!acc->Mob[i].Player.Name[0])
+			if (!acc->Mob[i].Player.MobName[0])
 				continue;
 
 			auto mob = account.append_child("mob");
@@ -757,7 +757,7 @@ void AppendStructure(pugi::xml_node account, STRUCT_ACCOUNT* acc)
 		auto storageItems = storage.append_child("items");
 		for (int i = 0; i < 128; i++)
 		{
-			if (acc->Storage.Item[i].Index == 0)
+			if (acc->Storage.Item[i].sIndex == 0)
 				continue;
 
 			auto storageItem = storageItems.append_child("item");
@@ -798,42 +798,42 @@ void XMLToStructure(pugi::xml_node node, STRUCT_AFFECT& affect)
 
 void XMLToStructure(pugi::xml_node node, STRUCT_ITEM& item)
 {
-	item.Index = node.attribute("itemId").as_int();
+	item.sIndex = node.attribute("itemId").as_int();
 
 	for (int i = 0; i < 3; i++)
 	{
 		std::string childEffectName = "ef" + std::to_string(i);
 		std::string childEffectValueName = "efv" + std::to_string(i);
 
-		item.Effect[i].Index = node.attribute(childEffectName.c_str()).as_int();
-		item.Effect[i].Value = node.attribute(childEffectValueName.c_str()).as_int();
+		item.stEffect[i].cEffect = node.attribute(childEffectName.c_str()).as_int();
+		item.stEffect[i].cValue = node.attribute(childEffectValueName.c_str()).as_int();
 	}
 }
 
-void XMLToStructure(pugi::xml_node node, STRUCT_STATUS& status)
+void XMLToStructure(pugi::xml_node node, STRUCT_SCORE& status)
 {
 	if (node == nullptr)
 		return;
 
 	status.Level = std::stoul(node.child_value("level"));
-	status.Defense = std::stoul(node.child_value("defense"));
-	status.Attack = std::stoul(node.child_value("attack"));
+	status.Ac = std::stoul(node.child_value("defense"));
+	status.Damage = std::stoul(node.child_value("attack"));
 	status.Merchant.Value = std::stoul(node.child_value("merchant"));
 	status.Move.Value = std::stoi(node.child_value("move"));
-	status.maxHP = std::stoi(node.child_value("maxHp"));
-	status.maxMP = std::stoi(node.child_value("maxMp"));
-	status.curHP = std::stoi(node.child_value("curHp"));
-	status.curMP = std::stoi(node.child_value("curMp"));
-	status.STR = std::stoi(node.child_value("str"));
-	status.INT = std::stoi(node.child_value("int"));
-	status.CON = std::stoi(node.child_value("con"));
-	status.DEX = std::stoi(node.child_value("des"));
+	status.MaxHp = std::stoi(node.child_value("maxHp"));
+	status.MaxMp = std::stoi(node.child_value("maxMp"));
+	status.Hp = std::stoi(node.child_value("curHp"));
+	status.Mp = std::stoi(node.child_value("curMp"));
+	status.Str = std::stoi(node.child_value("str"));
+	status.Int = std::stoi(node.child_value("int"));
+	status.Con = std::stoi(node.child_value("con"));
+	status.Dex = std::stoi(node.child_value("des"));
 
 	auto mastery = node.child("mastery");
-	status.Mastery[0] = mastery.attribute("mastery0").as_int();
-	status.Mastery[1] = mastery.attribute("mastery1").as_int();
-	status.Mastery[2] = mastery.attribute("mastery2").as_int();
-	status.Mastery[3] = mastery.attribute("mastery3").as_int();
+	status.Special[0] = mastery.attribute("mastery0").as_int();
+	status.Special[1] = mastery.attribute("mastery1").as_int();
+	status.Special[2] = mastery.attribute("mastery2").as_int();
+	status.Special[3] = mastery.attribute("mastery3").as_int();
 }
 
 void XMLToStructure(pugi::xml_node node, STRUCT_POSITION& position)
@@ -893,7 +893,7 @@ void XMLToStructure(pugi::xml_node node, STRUCT_SUBINFO& sub)
 
 	sub.Exp = std::stoll(node.child_value("experience"));
 	sub.Info.Value = std::stoll(node.child_value("questInfo"));
-	sub.Learn = std::stoul(node.child_value("learn"));
+	sub.LearnedSkill = std::stoul(node.child_value("learn"));
 	sub.SecLearn = std::stoul(node.child_value("secLearn"));
 
 	{
@@ -912,7 +912,7 @@ void XMLToStructure(pugi::xml_node node, STRUCT_SUBINFO& sub)
 	}
 
 	sub.Soul = static_cast<unsigned char>(std::stoi(node.child_value("soul")));
-	sub.Status = node.attribute("status").as_int();
+	sub.CurrentScore = node.attribute("status").as_int();
 
 	XMLToStructure(node.child("status"), sub.SubStatus);
 }
@@ -923,22 +923,22 @@ void XMLToStructure(pugi::xml_node node, STRUCT_CHARINFO& charInfo)
 		STRUCT_MOB* player = &charInfo.Player;
 		auto playerNode = node.child("player");
 
-		strncpy_s(player->Name, playerNode.child_value("name"), 15);
+		strncpy_s(player->MobName, playerNode.child_value("name"), 15);
 		player->CapeInfo = std::stoi(playerNode.child_value("capeInfo"));
 		player->Info.Value = std::stoi(playerNode.child_value("info"));
-		player->GuildIndex = std::stoi(playerNode.child_value("guildIndex"));
-		player->ClassInfo = std::stoi(playerNode.child_value("classInfo"));
+		player->Guild = std::stoi(playerNode.child_value("guildIndex"));
+		player->Class = std::stoi(playerNode.child_value("classInfo"));
 		player->AffectInfo.Value = std::stoi(playerNode.child_value("affectInfo"));
 
 		if (!std::string(playerNode.child_value("questInfo")).empty())
 			player->QuestInfo.Value = std::stoi(playerNode.child_value("questInfo"));
 
 		player->Exp = std::stoll(playerNode.child_value("experience"));
-		player->Gold = std::stoi(playerNode.child_value("gold"));
+		player->Coin = std::stoi(playerNode.child_value("gold"));
 
 		XMLToStructure(playerNode.child("lastPosition"), player->Last);
-		XMLToStructure(playerNode.child("baseStatus"), player->bStatus);
-		XMLToStructure(playerNode.child("currentStatus"), player->Status);
+		XMLToStructure(playerNode.child("baseStatus"), player->BaseScore);
+		XMLToStructure(playerNode.child("currentStatus"), player->CurrentScore);
 
 		auto equips = playerNode.child("equips");
 		for (auto equipItem = equips.child("item"); equipItem; equipItem = equipItem.next_sibling("item"))
@@ -956,10 +956,10 @@ void XMLToStructure(pugi::xml_node node, STRUCT_CHARINFO& charInfo)
 			XMLToStructure(inventoryItem, player->Inventory[itemSlot]);
 		}
 
-		player->Learn[0] = std::stoul(playerNode.child_value("learn"));
-		player->Learn[1] = std::stoul(playerNode.child_value("secLearn"));
-		player->StatusPoint = (unsigned short)std::stoul(playerNode.child_value("statusPoint"));
-		player->MasterPoint = (unsigned short)std::stoul(playerNode.child_value("masterPoint"));
+		player->LearnedSkill[0] = std::stoul(playerNode.child_value("learn"));
+		player->LearnedSkill[1] = std::stoul(playerNode.child_value("secLearn"));
+		player->ScoreBonus = (unsigned short)std::stoul(playerNode.child_value("statusPoint"));
+		player->SpecialBonus = (unsigned short)std::stoul(playerNode.child_value("masterPoint"));
 		player->SkillPoint = (unsigned short)std::stoul(playerNode.child_value("skillPoint"));
 
 		{
@@ -973,11 +973,11 @@ void XMLToStructure(pugi::xml_node node, STRUCT_CHARINFO& charInfo)
 				if (index < 0 || index >= 4)
 					continue;
 
-				player->SkillBar1[index] = value;
+				player->ShortSkill[index] = value;
 			}
 		}
 
-		player->GuildMemberType = std::stoi(playerNode.child_value("guildMemberType"));
+		player->GuildLevel = std::stoi(playerNode.child_value("guildMemberType"));
 	}
 
 	{

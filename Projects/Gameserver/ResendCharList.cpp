@@ -10,19 +10,19 @@ bool CUser::ResendCharList(PacketHeader *Header)
 
 	for (int iChar = 0; iChar < 4; ++iChar)
 	{
-		if (!p->CharList.Name[iChar][0])
+		if (!p->CharList.MobName[iChar][0])
 			continue;
 
-		if (p->CharList.Equip[iChar][12].Index == 0)
+		if (p->CharList.Equip[iChar][12].sIndex == 0)
 			continue;
 
 		for (int i = 1; i < 11; ++i)
 		{
 			for (int iEffect = 0; iEffect < 3; ++iEffect)
 			{
-				if (p->CharList.Equip[iChar][i].Effect[iEffect].Index >= 116 && p->CharList.Equip[iChar][i].Effect[iEffect].Index <= 125)
+				if (p->CharList.Equip[iChar][i].stEffect[iEffect].cEffect >= 116 && p->CharList.Equip[iChar][i].stEffect[iEffect].cEffect <= 125)
 				{
-					p->CharList.Equip[iChar][i].Effect[iEffect].Index = EF_SANC;
+					p->CharList.Equip[iChar][i].stEffect[iEffect].cEffect = EF_SANC;
 
 					break;
 				}
@@ -31,7 +31,7 @@ bool CUser::ResendCharList(PacketHeader *Header)
 	}
 
 	// Seta como se o usuari oestivesse na charList
-	Status = USER_SELCHAR;
+	CurrentScore = USER_SELCHAR;
 	
 	// ClientID do pacote
 	p->Header.PacketId = 0x110;

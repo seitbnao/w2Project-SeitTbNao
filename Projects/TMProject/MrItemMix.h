@@ -19,7 +19,7 @@ public:
 	int Read_NMixListFile(const char* filename);
 	void TakeItResource(SControlContainer* ControlContainer, unsigned short CharID);
 	void ResultItemListSet(unsigned int Head, int X, int Y);
-	void Set_NeedItemList(int Index);
+	void Set_NeedItemList(int sIndex);
 	void ClearGridList();
 	void ClearResultGridList();
 	void ClearNeedGridList();

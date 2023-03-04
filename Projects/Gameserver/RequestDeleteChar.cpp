@@ -7,36 +7,36 @@
 bool CUser::RequestDeleteChar(PacketHeader* header)
 {
 	p211 *p = (p211*)(header);
-	p->Name[15] = '\0';
+	p->MobName[15] = '\0';
 	p->Pwd[11] = '\0';
 
 	STRUCT_MOB* mob = &pMob[clientId].Mobs.Player;
-	if (Status != USER_SELCHAR)
+	if (CurrentScore != USER_SELCHAR)
 	{
 		SendClientMessage(clientId, "Deleting Character, wait a moment");
 
-		Log(clientId, LOG_HACK, "Tentativa de deletar personagem enquanto não na CharList. Status atual: %d", Status);
+		Log(clientId, LOG_HACK, "Tentativa de deletar personagem enquanto nÃªo na CharList. Status atual: %d", CurrentScore);
 		return true;
 	}
 
 	for (int i = 1; i < 15; i++)
 	{
-		if (mob->Equip[i].Index <= 0 || mob->Equip[i].Index >= MAX_ITEMLIST)
+		if (mob->Equip[i].sIndex <= 0 || mob->Equip[i].sIndex >= MAX_ITEMLIST)
 			continue;
 
 		SendClientMessage(clientId, "Desequipe todos os itens do personagem para excluir");
 		return true;
 	}
 
-	if (pMob[clientId].Mobs.Player.Gold != 0)
+	if (pMob[clientId].Mobs.Player.Coin != 0)
 	{
-		SendClientMessage(clientId, "Não é possível excluir enquanto possuir gold no inventario");
+		SendClientMessage(clientId, "NÃªo Ãª possÃªvel excluir enquanto possuir gold no inventario");
 		return true;
 	}
 
-	Log(clientId, LOG_INGAME, "Solicitado deletar personagem %s", p->Name);
+	Log(clientId, LOG_INGAME, "Solicitado deletar personagem %s", p->MobName);
 
-	Status = USER_DELWAIT;
+	CurrentScore = USER_DELWAIT;
 
 	header->PacketId = 0x809;
 	return AddMessageDB((BYTE*)header, sizeof p211);

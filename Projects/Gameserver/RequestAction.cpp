@@ -8,18 +8,18 @@ bool CUser::RequestAction(PacketHeader *Header)
 { // 0042351A
 	p36C *p = (p36C*)(Header);
 	
-	if(pUser[clientId].Status != USER_PLAY)
+	if(pUser[clientId].CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 
 		return true;
 	}
 
-	if(pMob[clientId].Mobs.Player.Status.curHP == 0)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp == 0)
 	{
 		SendHpMode(clientId);
 
-		Log(clientId, LOG_INGAME, "Tentativa de mover enquanto morto. Posi��o: %ux %uy", pMob[clientId].Target.X, pMob[clientId].Target.Y);
+		Log(clientId, LOG_INGAME, "Tentativa de mover enquanto morto. Posição: %ux %uy", pMob[clientId].Target.X, pMob[clientId].Target.Y);
 		return true;
 	}
 
@@ -41,23 +41,23 @@ bool CUser::RequestAction(PacketHeader *Header)
 	
 	if(p->Header.PacketId == 0x368)
 	{
-		if(pMob[clientId].Mobs.Player.ClassInfo != 3 || !(pMob[clientId].Mobs.Player.Learn[0] & 2))
+		if(pMob[clientId].Mobs.Player.Class != 3 || !(pMob[clientId].Mobs.Player.LearnedSkill[0] & 2))
 		{
-			if(pMob[clientId].Mobs.Player.bStatus.Level < 400)
+			if(pMob[clientId].Mobs.Player.BaseScore.Level < 400)
 				if(AddCrackError(clientId, 10, 28))
 					return true;
 		}
 
 		INT32 mp = SkillData[73].Mana; // local40
 
-		if(pMob[clientId].Mobs.Player.Status.curMP < mp)
+		if(pMob[clientId].Mobs.Player.CurrentScore.Mp < mp)
 		{
 			SendSetHpMp(clientId);
 
 			return true;
 		}
 
-		pMob[clientId].Mobs.Player.Status.curMP -= mp;
+		pMob[clientId].Mobs.Player.CurrentScore.Mp -= mp;
 		pUser[clientId].Potion.CountMp -= mp;
 		/*
 		if(Users[clientId].IllusionTime != 0xE0A1ACA && moveTime < Users[clientId].IllusionTime + 900)
@@ -110,13 +110,13 @@ bool CUser::RequestAction(PacketHeader *Header)
 		}
 	}
 
-	if(p->MoveSpeed > pMob[clientId].Mobs.Player.Status.Move.Speed)
+	if(p->MoveSpeed > pMob[clientId].Mobs.Player.CurrentScore.Move.Speed)
 	{
-		// Retira o CrackError ja que o MoveSpeed correto � setado novamente abaixo.
+		// Retira o CrackError ja que o MoveSpeed correto ê setado novamente abaixo.
 		//AddCrackError(clientId, 5, 4);
 
 		std::stringstream str;
-		str << "Informa��es do pacote:\n";
+		str << "Informaçães do pacote:\n";
 		str << "MoveType: " << p->MoveType << "\n";
 		str << "MoveSpeed: " << p->MoveSpeed << "\n";
 		str << "DestinyX: " << p->Destiny.X << "\n";
@@ -124,10 +124,10 @@ bool CUser::RequestAction(PacketHeader *Header)
 		str << "DestinyX: " << p->LastPos.X << "\n";
 		str << "DestinyY: " << p->LastPos.Y << "\n";
 
-		str << "etc,diffrent movement. Speed que era para ser: " << (pMob[clientId].Mobs.Player.Status.Move.Value & 15);
+		str << "etc,diffrent movement. Speed que era para ser: " << (pMob[clientId].Mobs.Player.CurrentScore.Move.Value & 15);
 
 		Log(clientId, LOG_ERROR, str.str().c_str());
-		p->MoveSpeed = pMob[clientId].Mobs.Player.Status.Move.Speed; 
+		p->MoveSpeed = pMob[clientId].Mobs.Player.CurrentScore.Move.Speed; 
 	}
 
 	//00423AB3
@@ -135,7 +135,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 	INT32 tgtY = pMob[clientId].Target.Y; // local42
 
 	// Aqui ha uma checagem do tipo de movimento
-	// Quando � 1 ou 2, naturalmente a TMsrv n�o faz a checagem de dist�ncia. Rid�culo, n�o? :)
+	// Quando ê 1 ou 2, naturalmente a TMsrv nêo faz a checagem de distência. Ridêculo, nêo? :)
 	if (p->Destiny.X < tgtX - VIEWGRIDX || p->Destiny.X > tgtX + VIEWGRIDX || p->Destiny.Y < tgtY - VIEWGRIDY || p->Destiny.Y > tgtY + VIEWGRIDY)
 	{
 		if (p->Destiny.X < tgtX - (VIEWGRIDX * 2) || p->Destiny.X > tgtX + VIEWGRIDX * 2 || p->Destiny.Y < tgtY - VIEWGRIDY * 2 || p->Destiny.Y > tgtY + VIEWGRIDY * 2)
@@ -157,7 +157,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 	if(tgtX >= 3329 && tgtX <= 3452 && tgtY >= 1408 && tgtY <= 1462 && !IsAdmin)
 	{
 		STRUCT_PISTA_DE_RUNAS *pista = &pPista[2];
-		if(!pista->Status)
+		if(!pista->CurrentScore)
 		{
 			DoRecall(clientId);
 
@@ -207,7 +207,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 	int cape = pMob[clientId].Mobs.Player.CapeInfo;
 	/*
 	// RvR
-	if (p->Destiny.X >= 1710 && p->Destiny.X <= 1715 && p->Destiny.Y >= 1969 && tgtY <= p->Destiny.Y && sServer.RvR.Status == 1)
+	if (p->Destiny.X >= 1710 && p->Destiny.X <= 1715 && p->Destiny.Y >= 1969 && tgtY <= p->Destiny.Y && sServer.RvR.CurrentScore == 1)
 	{
 		if (cape != CAPE_RED)
 		{
@@ -222,7 +222,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 			return true;
 		}
 	}
-	else if (p->Destiny.X >= 1748 && p->Destiny.X <= 1754 && p->Destiny.Y >= 1969 && p->Destiny.Y <= 1994 && sServer.RvR.Status == 1)
+	else if (p->Destiny.X >= 1748 && p->Destiny.X <= 1754 && p->Destiny.Y >= 1969 && p->Destiny.Y <= 1994 && sServer.RvR.CurrentScore == 1)
 	{
 		if (cape != CAPE_BLUE)
 		{
@@ -240,7 +240,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 
 	if(p->Destiny.X <= 0 || p->Destiny.X >= 4096 || p->Destiny.Y <= 0 || p->Destiny.Y >= 4096)
 	{
-		Log(clientId, LOG_ERROR, "err,action - viewgrid %s", pMob[clientId].Mobs.Player.Name);
+		Log(clientId, LOG_ERROR, "err,action - viewgrid %s", pMob[clientId].Mobs.Player.MobName);
 
 		return true;
 	}
@@ -249,7 +249,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 	{
 		// 00423CEC
 		eMapAttribute attribute = GetAttribute(p->Destiny.X, p->Destiny.Y); // local56
-		if ((attribute.Newbie && pMob[clientId].Mobs.Player.Status.Level > sServer.NewbieZone && pMob[clientId].Mobs.Player.Status.Level < 1000) && !pUser[clientId].IsAdmin)
+		if ((attribute.Newbie && pMob[clientId].Mobs.Player.CurrentScore.Level > sServer.NewbieZone && pMob[clientId].Mobs.Player.CurrentScore.Level < 1000) && !pUser[clientId].IsAdmin)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Newbie_zone]);
 
@@ -265,13 +265,13 @@ bool CUser::RequestAction(PacketHeader *Header)
 			return true;
 		}
 
-		if (attribute.Guild && pMob[clientId].Mobs.Player.Status.Level < 400 && !pUser[clientId].IsAdmin)
+		if (attribute.Guild && pMob[clientId].Mobs.Player.CurrentScore.Level < 400 && !pUser[clientId].IsAdmin)
 		{
 			INT32 village = GetVillage(p->Destiny.X, p->Destiny.Y); // local57
 
 			if (village >= 0 && village < 5)
 			{
-				if (pMob[clientId].Mobs.Player.GuildIndex != ChargedGuildList[sServer.Channel - 1][village])
+				if (pMob[clientId].Mobs.Player.Guild != ChargedGuildList[sServer.Channel - 1][village])
 				{
 					SendClientMessage(clientId, g_pLanguageString[_NN_Only_Guild_Members]);
 
@@ -347,14 +347,14 @@ bool CUser::RequestAction(PacketHeader *Header)
 				LOCAL_130 = 0;
 		}
 
-		pMob[clientId].Mobs.Player.Status.Merchant.Value = pMob[clientId].Mobs.Player.Status.Merchant.Value | LOCAL_130 & 0xF0;
-		pMob[clientId].Mobs.Player.bStatus.Merchant.Value = pMob[clientId].Mobs.Player.Status.Merchant.Value;
+		pMob[clientId].Mobs.Player.CurrentScore.Merchant.Value = pMob[clientId].Mobs.Player.CurrentScore.Merchant.Value | LOCAL_130 & 0xF0;
+		pMob[clientId].Mobs.Player.BaseScore.Merchant.Value = pMob[clientId].Mobs.Player.CurrentScore.Merchant.Value;
 
 		//if (sServer.BRState && sServer.BRItem > 0)
 		//{
 		//	INT32 tX = pMob[clientId].Target.X;
 		//	INT32 tY = pMob[clientId].Target.Y;
-		//	INT32 level = pMob[clientId].Mobs.Player.Status.Level;
+		//	INT32 level = pMob[clientId].Mobs.Player.CurrentScore.Level;
 
 		//	if (tX >= 2604 && tY >= 1708 && tX <= 2648 && tY <= 1744)
 		//	{
@@ -368,7 +368,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 
 		if (sServer.Colo150Limit)
 		{
-			INT32 level = pMob[clientId].Mobs.Player.Status.Level;
+			INT32 level = pMob[clientId].Mobs.Player.CurrentScore.Level;
 			if (level >= 150)
 			{
 				INT32 tX = pMob[clientId].Target.X;
@@ -459,14 +459,14 @@ bool RequestAction2(PacketHeader *Header)
 		return true;
 	}
 
-	if (pUser[conn].Status != 22)
+	if (pUser[conn].CurrentScore != 22)
 	{
 		SendHpMode(conn);
 
 		return true;
 	}
 
-	int LOCAL251 = pMob[conn].Mobs.Player.Status.curHP;
+	int LOCAL251 = pMob[conn].Mobs.Player.CurrentScore.Hp;
 	if (!LOCAL251)
 	{		
 		SendHpMode(conn);
@@ -515,9 +515,9 @@ bool RequestAction2(PacketHeader *Header)
 
 	if (p->Header.PacketId == 0x368)
 	{
-		if (pMob[conn].Mobs.Player.ClassInfo != 3 || !(pMob[conn].Mobs.Player.Learn[0] & 2))
+		if (pMob[conn].Mobs.Player.Class != 3 || !(pMob[conn].Mobs.Player.LearnedSkill[0] & 2))
 		{
-			if (pMob[conn].Mobs.Player.Status.Level < 400)
+			if (pMob[conn].Mobs.Player.CurrentScore.Level < 400)
 			{
 				// LOG Request Illusion
 				return true;
@@ -526,13 +526,13 @@ bool RequestAction2(PacketHeader *Header)
 		// fmaster - savemana
 		int LOCAL_255 = SkillData[73].Mana;
 
-		if (pMob[conn].Mobs.Player.Status.curMP < LOCAL_255)
+		if (pMob[conn].Mobs.Player.CurrentScore.Mp < LOCAL_255)
 		{
 			SendSetHpMp(conn);
 			return false;
 		}
 
-		pMob[conn].Mobs.Player.Status.curMP -= LOCAL_255;
+		pMob[conn].Mobs.Player.CurrentScore.Mp -= LOCAL_255;
 		pUser[conn].Potion.CountMp -= LOCAL_255; // 752C438 
 		// 0x752C0C0
 		if (pUser[conn].IllusionTime != 0x0E0A1ACA)
@@ -606,13 +606,13 @@ bool RequestAction2(PacketHeader *Header)
 
 	pMob[conn].GetCurrentScore(conn);
 
-	unsigned int LOCAL_256 = GetSpeed(&pMob[conn].Mobs.Player.Status);
+	unsigned int LOCAL_256 = GetSpeed(&pMob[conn].Mobs.Player.CurrentScore);
 
 	if (p->MoveSpeed > LOCAL_256)
 	{
 		// log different moviemtn
 
-		p->MoveSpeed = pMob[conn].Mobs.Player.Status.Move.Value & 15;
+		p->MoveSpeed = pMob[conn].Mobs.Player.CurrentScore.Move.Value & 15;
 	}
 
 	/* if (p->MoveType != 1 && p->MoveType != 2)

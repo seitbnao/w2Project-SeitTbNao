@@ -17,7 +17,7 @@
 
 #ifndef UNDER_CE
 //-----------------------------------------------------------------------------
-// Name: DXUtil_GetDXSDKMediaPath() and DXUtil_FindMediaFile() 
+// ItemName: DXUtil_GetDXSDKMediaPath() and DXUtil_FindMediaFile() 
 // Desc: Returns the DirectX SDK path, as stored in the system registry
 //       during the SDK install.
 //-----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ HRESULT DXUtil_FindMediaFileCb(TCHAR* szDestPath, int cbDest, TCHAR* strFilename
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_Read*RegKey() and DXUtil_Write*RegKey()
+// ItemName: DXUtil_Read*RegKey() and DXUtil_Write*RegKey()
 // Desc: Helper functions to read/write a string registry key 
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteStringRegKey(HKEY hKey, TCHAR* strRegName, TCHAR* strValue);
@@ -45,7 +45,7 @@ HRESULT DXUtil_ReadBoolRegKey(HKEY hKey, TCHAR* strRegName, BOOL* pbValue, BOOL 
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_Timer()
+// ItemName: DXUtil_Timer()
 // Desc: Performs timer opertations. Use the following commands:
 //          TIMER_RESET           - to reset the timer
 //          TIMER_START           - to start the timer
@@ -107,7 +107,7 @@ VOID    DXUtil_Trace(TCHAR* strMsg, ...);
 
 
 //-----------------------------------------------------------------------------
-// Name: ArrayListType
+// ItemName: ArrayListType
 // Desc: Indicates how data should be stored in a CArrayList
 //-----------------------------------------------------------------------------
 enum ArrayListType
@@ -118,7 +118,7 @@ enum ArrayListType
 
 
 //-----------------------------------------------------------------------------
-// Name: CArrayList
+// ItemName: CArrayList
 // Desc: A growable array
 //-----------------------------------------------------------------------------
 class CArrayList

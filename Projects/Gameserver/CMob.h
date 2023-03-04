@@ -31,10 +31,10 @@ enum class eBag
 
 struct TransBonus
 {
-	INT32 MinAttack; // Unknown_00; // Min Attack
-	INT32 MaxAttack; // Unknown_04; // Max Attack
-	INT32 MinDefense; // Unknown_08; // Min Defense
-	INT32 MaxDefense; // Unknown_12; // Max Defense
+	INT32 MinAttack; // Unknown_00; // Min Damage
+	INT32 MaxAttack; // Unknown_04; // Max Damage
+	INT32 MinDefense; // Unknown_08; // Min Ac
+	INT32 MaxDefense; // Unknown_12; // Max Ac
 	INT32 MinHp; // Unknown_16; // Min Hp
 	INT32 MaxHp; // Unknown_20; // Max Hp
 	INT32 SpeedMove;

@@ -78,12 +78,12 @@ bool CUser::HandleAdminCommand(p334* p)
 	{
 		for (int i = 1000; i < 30000; i++)
 		{
-			if (!pMob[i].Mobs.Player.Status.curHP || pMob[i].Mode == 0)
+			if (!pMob[i].Mobs.Player.CurrentScore.Hp || pMob[i].Mode == 0)
 				continue;
 
-			if (!strcmp(nickName, pMob[i].Mobs.Player.Name))
+			if (!strcmp(nickName, pMob[i].Mobs.Player.MobName))
 			{
-				pMob[i].Mobs.Player.Status.curHP = x;
+				pMob[i].Mobs.Player.CurrentScore.Hp = x;
 
 				p363 sm;
 				GetCreateMob(i, (BYTE*)&sm);
@@ -133,7 +133,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			if (memcmp(pUser[userId].MacAddress, user.MacAddress, 8) != 0)
 				continue;
 
-			str << pMob[user.clientId].Mobs.Player.Name << " Level " << pMob[user.clientId].Mobs.Player.bStatus.Level << " ";
+			str << pMob[user.clientId].Mobs.Player.MobName << " Level " << pMob[user.clientId].Mobs.Player.BaseScore.Level << " ";
 			if (str.str().length() >= 80)
 			{
 				SendClientMessage(clientId, str.str().c_str());
@@ -185,7 +185,7 @@ bool CUser::HandleAdminCommand(p334* p)
 	}
 	else if (sscanf_s(p->eValue, "+set name %s", nickName, 16))
 	{
-		strcpy_s(pMob[clientId].Mobs.Player.Name, nickName);
+		strcpy_s(pMob[clientId].Mobs.Player.MobName, nickName);
 
 		CharLogOut(clientId);
 	}
@@ -195,7 +195,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		int count = 0;
 		for (INT32 t = 1; t < MAX_PLAYER; t++)
 		{
-			if (pUser[t].Status < USER_SELCHAR || pUser[t].AccessLevel != 0)
+			if (pUser[t].CurrentScore < USER_SELCHAR || pUser[t].AccessLevel != 0)
 				continue;
 
 			SendClientMessage(t, "Servidor entrando em manutenaao...");
@@ -211,7 +211,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		for (INT32 x = 1; x < MAX_PLAYER; x++)
 		{
-			if (pUser[x].Status < USER_SELCHAR)
+			if (pUser[x].CurrentScore < USER_SELCHAR)
 				continue;
 
 			totalOn++;
@@ -219,7 +219,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			INT32 t = x;
 			for (; t < MAX_PLAYER; t++)
 			{
-				if (pUser[t].Status < 11)
+				if (pUser[t].CurrentScore < 11)
 					continue;
 
 				if (t == x)
@@ -271,7 +271,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		}
 
 		GenerateMob(generate, 0, 0);
-		SendClientMessage(clientId, "Criado o mob %s em %dx %dy", mGener.pList[generate].Leader.Name, mGener.pList[generate].Segment_X[0], mGener.pList[generate].Segment_Y[0]);
+		SendClientMessage(clientId, "Criado o mob %s em %dx %dy", mGener.pList[generate].Leader.MobName, mGener.pList[generate].Segment_X[0], mGener.pList[generate].Segment_Y[0]);
 	}
 	else if (sscanf_s(p->eValue, "+gate check %d", &x))
 	{
@@ -404,7 +404,7 @@ bool CUser::HandleAdminCommand(p334* p)
 	}
 	else if (!strcmp(p->eValue, "+rvr start"))
 	{
-		sServer.RvR.Status = 1;
+		sServer.RvR.CurrentScore = 1;
 		SendNotice("Guerra entre Reinos iniciada. Acesse o teleporte de Noatun!");
 
 		GenerateMob(TORRE_RVR_BLUE, 0, 0);
@@ -450,7 +450,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		sServer.RvR.Bonus = winner;
 
-		sServer.RvR.Status = 0;
+		sServer.RvR.CurrentScore = 0;
 		sServer.RvR.Annoucement = 0;
 
 		ClearArea(1041, 1950, 1248, 2158);
@@ -470,7 +470,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		{
 			for (int i = 0; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].Status != USER_PLAY)
+				if (pUser[i].CurrentScore != USER_PLAY)
 					continue;
 
 				if (pMob[i].Mobs.Player.CapeInfo == winner)
@@ -544,7 +544,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		int correct = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY || pUser[i].IsAdmin)
+			if (pUser[i].CurrentScore != USER_PLAY || pUser[i].IsAdmin)
 				continue;
 
 			CMob* mob = &pMob[i];
@@ -598,8 +598,8 @@ bool CUser::HandleAdminCommand(p334* p)
 			return true;
 		}
 
-		pMob[clientId].Mobs.Player.bStatus.Level = x;
-		pMob[clientId].Mobs.Player.Status.Level = x;
+		pMob[clientId].Mobs.Player.BaseScore.Level = x;
+		pMob[clientId].Mobs.Player.CurrentScore.Level = x;
 
 		if (pMob[clientId].Mobs.Player.Equip[0].EFV2 >= 0 && pMob[clientId].Mobs.Player.Equip[0].EFV2 <= SUBCELESTIAL && x >= 0 && x < 400)
 			pMob[clientId].Mobs.Player.Exp = g_pNextLevel[pMob[clientId].Mobs.Player.Equip[0].EFV2][x];
@@ -734,7 +734,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			return true;
 		}
 
-		pMob[clientId].Mobs.Player.bStatus.Mastery[x] = y;
+		pMob[clientId].Mobs.Player.BaseScore.Special[x] = y;
 
 		pMob[clientId].GetCurrentScore(clientId);
 		SendScore(clientId);
@@ -756,20 +756,20 @@ bool CUser::HandleAdminCommand(p334* p)
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
 
-		sServer.AutoTradeEvent.Status = x;
+		sServer.AutoTradeEvent.CurrentScore = x;
 
 		SendClientMessage(clientId, "O evento de autovenda foi %s", (x == 0) ? "desligado" : "ligado");
 		Log(SERVER_SIDE, LOG_INGAME, "O evento de autovenda foi %s", (x == 0) ? "desligado" : "ligado");
 	}
-	else if (sscanf_s(p->eValue, "+set lojaitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.Index, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->eValue, "+set lojaitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
 
 		memcpy(&sServer.AutoTradeEvent.item, &Item, 8);
-		SendClientMessage(clientId, "SET EVENT AUTOLOJA ITEM - %s", (Item.Index != 0) ? ItemList[Item.Index].Name : "Nenhum");
+		SendClientMessage(clientId, "SET EVENT AUTOLOJA ITEM - %s", (Item.sIndex != 0) ? g_pItemList[Item.sIndex].ItemName : "Nenhum");
 
-		Log(SERVER_SIDE, LOG_INGAME, "%s - Item evento: %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.Name, ItemList[Item.Index].Name, Item.Index, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3, Item.EFV3);
+		Log(SERVER_SIDE, LOG_INGAME, "%s - Item evento: %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.MobName, g_pItemList[Item.sIndex].ItemName, Item.sIndex, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3, Item.EFV3);
 	}
 	else if (sscanf_s(p->eValue, "+set lojarate %d", &x))
 	{
@@ -795,7 +795,7 @@ bool CUser::HandleAdminCommand(p334* p)
 #pragma region COMANDOS EVENTO EM aREA
 	else if (sscanf_s(p->eValue, "+eventarea status %d", &x))
 	{
-		sServer.DropArea.Status = x;
+		sServer.DropArea.CurrentScore = x;
 
 		SendClientMessage(clientId, "O evento foi %s", x ? "ativado" : "desativado");
 		return true;
@@ -823,7 +823,7 @@ bool CUser::HandleAdminCommand(p334* p)
 				area->Rate = rate;
 				area->Limit = limit;
 				area->Item = STRUCT_ITEM{ };
-				area->Item.Index = slot;
+				area->Item.sIndex = slot;
 
 				SendClientMessage(clientId, "Foi feito a alteraaao");
 				return true;
@@ -842,7 +842,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		area.index = id;
 
 		area.Item = STRUCT_ITEM{ };
-		area.Item.Index = slot;
+		area.Item.sIndex = slot;
 
 		SendClientMessage(clientId, "area: %d %d %d %d - %d - rate: %d. Limite: %d", x, y, x2, y2, slot, rate, limit);
 		return true;
@@ -895,22 +895,22 @@ bool CUser::HandleAdminCommand(p334* p)
 	}
 #pragma endregion
 #pragma region COMANDOS BOSS EVENTO
-	else if (sscanf_s(p->eValue, "+set evitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.Index, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->eValue, "+set evitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
 
 		memcpy(&sServer.BossEvent.item, &Item, 8);
-		SendClientMessage(clientId, "SET EVENT ITEM - %s", (Item.Index != 0) ? ItemList[Item.Index].Name : "Nenhum");
+		SendClientMessage(clientId, "SET EVENT ITEM - %s", (Item.sIndex != 0) ? g_pItemList[Item.sIndex].ItemName : "Nenhum");
 
-		Log(SERVER_SIDE, LOG_INGAME, "%s - Item evento: %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.Name, ItemList[Item.Index].Name, Item.Index, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3, Item.EFV3);
+		Log(SERVER_SIDE, LOG_INGAME, "%s - Item evento: %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.MobName, g_pItemList[Item.sIndex].ItemName, Item.sIndex, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3, Item.EFV3);
 	}
 	else if (sscanf_s(p->eValue, "+set evstatus %d", &x))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
 
-		sServer.BossEvent.Status = x;
+		sServer.BossEvent.CurrentScore = x;
 
 		SendClientMessage(clientId, "O evento foi %s", (x == 0) ? "desligado" : "ligado");
 		Log(SERVER_SIDE, LOG_INGAME, "O evento foi %s", (x == 0) ? "desligado" : "ligado");
@@ -939,7 +939,7 @@ bool CUser::HandleAdminCommand(p334* p)
 #pragma region PREMIUMTIME
 	else if (sscanf_s(p->eValue, "+set premium gold %d", &id))
 	{
-		sServer.PremiumTime.Gold = id;
+		sServer.PremiumTime.Coin = id;
 
 		Log(SERVER_SIDE, LOG_INGAME, "Gold por tempo setado para %d", id);
 		SendClientMessage(clientId, "SET PREMIUM GOLD");
@@ -959,7 +959,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		Log(SERVER_SIDE, LOG_INGAME, "Tempo de item por tempo setado para %d", id);
 		SendClientMessage(clientId, "SET PREMIUM STATUS");
 	}
-	else if (sscanf_s(p->eValue, "+set premium item %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.Index, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->eValue, "+set premium item %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		memcpy(&sServer.PremiumTime.Item, &Item, sizeof STRUCT_ITEM);
 
@@ -978,7 +978,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			if (pMob[i].Mode == 0)
 				continue;
 
-			if (!strncmp(pMob[i].Mobs.Player.Name, nickName, len))
+			if (!strncmp(pMob[i].Mobs.Player.MobName, nickName, len))
 			{
 				MobKilled(i, clientId, 0, 0);
 				count++;
@@ -998,7 +998,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			if (pMob[i].Mode == 0)
 				continue;
 
-			if (!strncmp(pMob[i].Mobs.Player.Name, nickName, len))
+			if (!strncmp(pMob[i].Mobs.Player.MobName, nickName, len))
 			{
 				MobKilled(i, clientId, 0, 0);
 
@@ -1009,7 +1009,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Mob nao encontrado");
 	}
-	else if (sscanf_s(p->eValue, "+giveall %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.Index, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->eValue, "+giveall %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		if (AccessLevel < 100)
 			return true;
@@ -1017,7 +1017,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		int x = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != 22)
+			if (pUser[i].CurrentScore != 22)
 				continue;
 
 			slot = GetFirstSlot(i, 0);
@@ -1027,7 +1027,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			x++;
 			memcpy(&pMob[i].Mobs.Player.Inventory[slot], &Item, 8);
 
-			Log(SERVER_SIDE, LOG_ADMIN, "%s- Criou o item para %s - %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.Name, pMob[i].Mobs.Player.Name, ItemList[Item.Index].Name, Item.Index, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3,
+			Log(SERVER_SIDE, LOG_ADMIN, "%s- Criou o item para %s - %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.MobName, pMob[i].Mobs.Player.MobName, g_pItemList[Item.sIndex].ItemName, Item.sIndex, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3,
 				Item.EFV3);
 
 			SendItem(i, SlotType::Inv, slot, &pMob[i].Mobs.Player.Inventory[slot]);
@@ -1050,7 +1050,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		INT32 total = 0;
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			if (i == clientId)
@@ -1083,7 +1083,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		}
 
 		Teleportar(userId, pMob[clientId].Target.X, pMob[clientId].Target.Y);
-		SendClientMessage(clientId, "Summonou %s para %dx %dy", pMob[userId].Mobs.Player.Name, pMob[clientId].Target.X, pMob[clientId].Target.Y);
+		SendClientMessage(clientId, "Summonou %s para %dx %dy", pMob[userId].Mobs.Player.MobName, pMob[clientId].Target.X, pMob[clientId].Target.Y);
 	}
 	else if (sscanf_s(p->eValue, "+kick %s", nickName, 16))
 	{
@@ -1097,8 +1097,8 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		CloseUser(userId);
 
-		SendClientMessage(clientId, "%s - %s foi kickado - ClientId %d", pMob[clientId].Mobs.Player.Name, nickName, userId);
-		Log(SERVER_SIDE, LOG_ADMIN, "%s - %s foi kickado - ClientId %d", pMob[clientId].Mobs.Player.Name, nickName, userId);
+		SendClientMessage(clientId, "%s - %s foi kickado - ClientId %d", pMob[clientId].Mobs.Player.MobName, nickName, userId);
+		Log(SERVER_SIDE, LOG_ADMIN, "%s - %s foi kickado - ClientId %d", pMob[clientId].Mobs.Player.MobName, nickName, userId);
 	}
 	else if (sscanf_s(p->eValue, "+teleport %36s %d %d", nickName, 16, &x, &y))
 	{
@@ -1111,7 +1111,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		}
  
 		Teleportar(userId, x, y);
-		Log(SERVER_SIDE, LOG_ADMIN, "%s - Teleportou %s para %dx %dy", pMob[clientId].Mobs.Player.Name, nickName, x, y);
+		Log(SERVER_SIDE, LOG_ADMIN, "%s - Teleportou %s para %dx %dy", pMob[clientId].Mobs.Player.MobName, nickName, x, y);
 	}
 	else if (sscanf_s(p->eValue, "+set weather %d", &x))
 	{
@@ -1126,23 +1126,23 @@ bool CUser::HandleAdminCommand(p334* p)
 			Taxes[i] = x;
 
 		SendClientMessage(clientId, "Drop setado para: %d.", x);
-		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o drop para %d.", pMob[clientId].Mobs.Player.Name, x);
+		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o drop para %d.", pMob[clientId].Mobs.Player.MobName, x);
 	}
 	else if (sscanf_s(p->eValue, "+set bonusexp %d", &x))
 	{
 		sServer.BonusEXP = x;
 
 		SendClientMessage(clientId, "Banus exp setado para: %d.", x);
-		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o banusexp para %d.", pMob[clientId].Mobs.Player.Name, x);
+		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o banusexp para %d.", pMob[clientId].Mobs.Player.MobName, x);
 	}
 	else if (sscanf_s(p->eValue, "+set coin %d", &x))
 	{
-		pMob[clientId].Mobs.Player.Gold = x;
+		pMob[clientId].Mobs.Player.Coin = x;
 
 		SendEtc(clientId);
 
 		SendClientMessage(clientId, "Gold setado para: %d.", x);
-		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o Gold para %d.", pMob[clientId].Mobs.Player.Name, x);
+		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o Gold para %d.", pMob[clientId].Mobs.Player.MobName, x);
 	}
 	else if (!strncmp(p->eValue, "+reloadpacitem", 10))
 	{
@@ -1228,13 +1228,13 @@ bool CUser::HandleAdminCommand(p334* p)
 			STRUCT_ITEM item;
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
-			item.Index = itemID;
-			item.Effect[0].Index = (ef[0] & 255);
-			item.Effect[0].Value = (efv[0] & 255);
-			item.Effect[1].Index = (ef[1] & 255);
-			item.Effect[1].Value = (efv[1] & 255);
-			item.Effect[2].Index = (ef[2] & 255);
-			item.Effect[2].Value = (efv[2] & 255);
+			item.sIndex = itemID;
+			item.stEffect[0].cEffect = (ef[0] & 255);
+			item.stEffect[0].cValue = (efv[0] & 255);
+			item.stEffect[1].cEffect = (ef[1] & 255);
+			item.stEffect[1].cValue = (efv[1] & 255);
+			item.stEffect[2].cEffect = (ef[2] & 255);
+			item.stEffect[2].cValue = (efv[2] & 255);
 
 			memcpy(&pMob[clientId].Mobs.Player.Equip[index], &item, sizeof STRUCT_ITEM);
 
@@ -1245,19 +1245,19 @@ bool CUser::HandleAdminCommand(p334* p)
 		switch (mode)
 		{
 		case 0:
-			pMob[clientId].Mobs.Player.bStatus.STR = x;
+			pMob[clientId].Mobs.Player.BaseScore.Str = x;
 			break;
 
 		case 1:
-			pMob[clientId].Mobs.Player.bStatus.DEX = x;
+			pMob[clientId].Mobs.Player.BaseScore.Dex = x;
 			break;
 
 		case 2:
-			pMob[clientId].Mobs.Player.bStatus.INT = x;
+			pMob[clientId].Mobs.Player.BaseScore.Int = x;
 			break;
 
 		case 3:
-			pMob[clientId].Mobs.Player.bStatus.CON = x;
+			pMob[clientId].Mobs.Player.BaseScore.Con = x;
 			break;
 		}
 
@@ -1297,20 +1297,20 @@ bool CUser::HandleAdminCommand(p334* p)
 		STRUCT_ITEM item;
 		memset(&item, 0, sizeof STRUCT_ITEM);
 
-		item.Index = itemID;
-		item.Effect[0].Index = (ef[0] & 255);
-		item.Effect[0].Value = (efv[0] & 255);
-		item.Effect[1].Index = (ef[1] & 255);
-		item.Effect[1].Value = (efv[1] & 255);
-		item.Effect[2].Index = (ef[2] & 255);
-		item.Effect[2].Value = (efv[2] & 255);
+		item.sIndex = itemID;
+		item.stEffect[0].cEffect = (ef[0] & 255);
+		item.stEffect[0].cValue = (efv[0] & 255);
+		item.stEffect[1].cEffect = (ef[1] & 255);
+		item.stEffect[1].cValue = (efv[1] & 255);
+		item.stEffect[2].cEffect = (ef[2] & 255);
+		item.stEffect[2].cValue = (efv[2] & 255);
 
 		if (ef[0] == 99)
 		{
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
-			item.Index = itemID;
-			SetItemBonus(&item, pMob[clientId].Mobs.Player.Status.Level, 0, 100);
+			item.sIndex = itemID;
+			SetItemBonus(&item, pMob[clientId].Mobs.Player.CurrentScore.Level, 0, 100);
 		}
 
 		for (int i = 0; i < x; ++i)
@@ -1327,8 +1327,8 @@ bool CUser::HandleAdminCommand(p334* p)
 			SendItem(clientId, SlotType::Inv, slotId, &item);
 		}
 
-		Log(clientId, LOG_ADMIN, "%s criou o item %s [%hu] [%hhu %hhu %hhu %hhu %hhu %hhu] %d vezes", pMob[clientId].Mobs.Player.Name, ItemList[item.Index].Name, item.Index, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3, x);
-		Log(SERVER_SIDE, LOG_ADMIN, "%s criou o item %s [%hu] [%hhu %hhu %hhu %hhu %hhu %hhu]  %d vezes", pMob[clientId].Mobs.Player.Name, ItemList[item.Index].Name, item.Index, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3, x);
+		Log(clientId, LOG_ADMIN, "%s criou o item %s [%hu] [%hhu %hhu %hhu %hhu %hhu %hhu] %d vezes", pMob[clientId].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, item.sIndex, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3, x);
+		Log(SERVER_SIDE, LOG_ADMIN, "%s criou o item %s [%hu] [%hhu %hhu %hhu %hhu %hhu %hhu]  %d vezes", pMob[clientId].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, item.sIndex, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3, x);
 		return true;
 	}
 	else if(!strncmp(p->eValue, "+item", 5))
@@ -1349,20 +1349,20 @@ bool CUser::HandleAdminCommand(p334* p)
 		STRUCT_ITEM item;
 		memset(&item, 0, sizeof STRUCT_ITEM);
 
-		item.Index = itemID;
-		item.Effect[0].Index = (ef[0] & 255);
-		item.Effect[0].Value = (efv[0] & 255);
-		item.Effect[1].Index = (ef[1] & 255);
-		item.Effect[1].Value = (efv[1] & 255);
-		item.Effect[2].Index = (ef[2] & 255);
-		item.Effect[2].Value = (efv[2] & 255);
+		item.sIndex = itemID;
+		item.stEffect[0].cEffect = (ef[0] & 255);
+		item.stEffect[0].cValue = (efv[0] & 255);
+		item.stEffect[1].cEffect = (ef[1] & 255);
+		item.stEffect[1].cValue = (efv[1] & 255);
+		item.stEffect[2].cEffect = (ef[2] & 255);
+		item.stEffect[2].cValue = (efv[2] & 255);
 
 		if (ef[0] == 99)
 		{
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
-			item.Index = itemID;
-			SetItemBonus(&item, pMob[clientId].Mobs.Player.Status.Level, 0, 100);
+			item.sIndex = itemID;
+			SetItemBonus(&item, pMob[clientId].Mobs.Player.CurrentScore.Level, 0, 100);
 		}
 
 		int i = GetFirstSlot(clientId, 0);
@@ -1376,8 +1376,8 @@ bool CUser::HandleAdminCommand(p334* p)
 		memcpy(&pMob[clientId].Mobs.Player.Inventory[i], &item, sizeof STRUCT_ITEM);
 
 		SendItem(clientId, SlotType::Inv, i, &item);
-		Log(clientId, LOG_ADMIN, "%s criou o item %s [%d] [%d %d %d %d %d %d]", pMob[clientId].Mobs.Player.Name, ItemList[item.Index].Name, item.Index, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3);
-		Log(SERVER_SIDE, LOG_ADMIN, "%s criou o item %s [%d] [%d %d %d %d %d %d]", pMob[clientId].Mobs.Player.Name, ItemList[item.Index].Name, item.Index, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3);
+		Log(clientId, LOG_ADMIN, "%s criou o item %s [%d] [%d %d %d %d %d %d]", pMob[clientId].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, item.sIndex, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3);
+		Log(SERVER_SIDE, LOG_ADMIN, "%s criou o item %s [%d] [%d %d %d %d %d %d]", pMob[clientId].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, item.sIndex, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3);
 	}
 
 	else if (!strncmp(p->eValue, "+resetcities", 12))
@@ -1409,18 +1409,18 @@ bool CUser::HandleAdminCommand(p334* p)
 		if (x < 32)
 		{
 			auto learnInfo = (1 << x);
-			if (pMob[clientId].Mobs.Player.Learn[0] & learnInfo)
-				pMob[clientId].Mobs.Player.Learn[0] -= learnInfo;
+			if (pMob[clientId].Mobs.Player.LearnedSkill[0] & learnInfo)
+				pMob[clientId].Mobs.Player.LearnedSkill[0] -= learnInfo;
 			else
-				pMob[clientId].Mobs.Player.Learn[0] |= learnInfo;
+				pMob[clientId].Mobs.Player.LearnedSkill[0] |= learnInfo;
 		}
 		else
 		{
 			auto learnInfo = (1 << (x - 32));
-			if (pMob[clientId].Mobs.Player.Learn[1] & learnInfo)
-				pMob[clientId].Mobs.Player.Learn[1] -= learnInfo;
+			if (pMob[clientId].Mobs.Player.LearnedSkill[1] & learnInfo)
+				pMob[clientId].Mobs.Player.LearnedSkill[1] -= learnInfo;
 			else
-				pMob[clientId].Mobs.Player.Learn[1] |= learnInfo;
+				pMob[clientId].Mobs.Player.LearnedSkill[1] |= learnInfo;
 		}
 
 		SendEtc(clientId);

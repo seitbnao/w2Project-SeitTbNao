@@ -5,10 +5,10 @@
 
 bool CUser::RequestDropItem(PacketHeader *Header)
 {
-	// fUNÇão original fica em : 42d484 : DESCOMPILAR
+	// fUNÃ§Ã£o original fica em : 42d484 : DESCOMPILAR
 	p272 *p = (p272*)Header;
 
-	if(pMob[clientId].Mobs.Player.Status.curHP <= 0 || Status != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || CurrentScore != USER_PLAY)
 	{
 		AddCrackError(clientId, 1, 14);
 		SendHpMode(clientId);
@@ -79,10 +79,10 @@ bool CUser::RequestDropItem(PacketHeader *Header)
 	else
 		return false;
 
-	if(slot->Index <= 0 || slot->Index >= MAX_ITEMLIST)
+	if(slot->sIndex <= 0 || slot->sIndex >= MAX_ITEMLIST)
 		return true;
 	 
-	if(slot->Index == 0x1FC || slot->Index == 0x1FD || slot->Index == 0x20A || (slot->Index >= 0x20E && slot->Index < 0x219) || slot->Index == 0x1BE || slot->Index == 0x2EB)
+	if(slot->sIndex == 0x1FC || slot->sIndex == 0x1FD || slot->sIndex == 0x20A || (slot->sIndex >= 0x20E && slot->sIndex < 0x219) || slot->sIndex == 0x1BE || slot->sIndex == 0x2EB)
 	{
 		SendClientMessage(clientId, g_pLanguageString[_NN_Guild_Medal_Cant_Be_Droped]);
 
@@ -98,8 +98,8 @@ bool CUser::RequestDropItem(PacketHeader *Header)
 	}
 
 	Log(clientId, LOG_INGAME, "Derrubou o item %s [%d] [%d %d %d %d %d %d] em %dx %dy - InvType: %d - InvSlot: %d", 
-		ItemList[slot->Index].Name, slot->Index, slot->Effect[0].Index, slot->Effect[0].Value,
-		slot->Effect[1].Index, slot->Effect[1].Value, slot->Effect[2].Index, slot->Effect[2].Value,
+		g_pItemList[slot->sIndex].ItemName, slot->sIndex, slot->stEffect[0].cEffect, slot->stEffect[0].cValue,
+		slot->stEffect[1].cEffect, slot->stEffect[1].cValue, slot->stEffect[2].cEffect, slot->stEffect[2].cValue,
 		p->posX, p->posY, p->invType, p->InvSlot);
 
 	memset(slot, 0, sizeof STRUCT_ITEM);
@@ -119,7 +119,7 @@ bool CUser::RequestDropItem(PacketHeader *Header)
 
 	AddMessage((BYTE*)&p2, sizeof p175);
 
-	if(pMob[clientId].Mobs.Player.Equip[6].Index == 0 && pMob[clientId].Mobs.Player.Equip[7].Index != 0)
+	if(pMob[clientId].Mobs.Player.Equip[6].sIndex == 0 && pMob[clientId].Mobs.Player.Equip[7].sIndex != 0)
 	{
 		p376 packet;
 		packet.Header.PacketId = 0x376;

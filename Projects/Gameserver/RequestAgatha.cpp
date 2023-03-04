@@ -28,8 +28,8 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 
 			if(p->slot[i] == p->slot[y])
 			{
-				Log(clientId, LOG_HACK, " Banido por enviar item com mesmo slotId - NPC Agatha - %d", p->items[i].Index);
-				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Agatha - %d", player->Name, p->items[i].Index);
+				Log(clientId, LOG_HACK, " Banido por enviar item com mesmo slotId - NPC Agatha - %d", p->items[i].sIndex);
+				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Agatha - %d", player->MobName, p->items[i].sIndex);
 				
 				SendCarry(clientId);
 				return true;
@@ -52,9 +52,9 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 
 	for(int i = 0 ; i < 6; i ++)
 	{
-		Log(clientId, LOG_COMP, "Agatha - %d - %s [%d] [%d %d %d %d %d %d] - %d", i, ItemList[p->items[i].Index].Name, p->items[i].Index,
-			p->items[i].Effect[0].Index, p->items[i].Effect[0].Value, p->items[i].Effect[1].Index, p->items[i].Effect[1].Value, p->items[i].Effect[2].Index,
-			p->items[i].Effect[2].Value, p->slot[i]);
+		Log(clientId, LOG_COMP, "Agatha - %d - %s [%d] [%d %d %d %d %d %d] - %d", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].sIndex,
+			p->items[i].stEffect[0].cEffect, p->items[i].stEffect[0].cValue, p->items[i].stEffect[1].cEffect, p->items[i].stEffect[1].cValue, p->items[i].stEffect[2].cEffect,
+			p->items[i].stEffect[2].cValue, p->slot[i]);
 	}
 
 	if (Trade.ClientId != 0)
@@ -67,25 +67,25 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 
 	STRUCT_ITEM *item = p->items;
 
-	if(GetEffectValueByIndex(item[0].Index, EF_MOBTYPE) != 1)
+	if(GetEffectValueByIndex(item[0].sIndex, EF_MOBTYPE) != 1)
 	{
-		SendClientMessage(clientId, "Utilize apenas itens archs na composição");
+		SendClientMessage(clientId, "Utilize apenas itens archs na composiÃ§Ã£o");
 		return true;
 	}
 
-	int itemClass = GetEffectValueByIndex(item[1].Index, EF_UNKNOW1);
+	int itemClass = GetEffectValueByIndex(item[1].sIndex, EF_UNKNOW1);
 	if(itemClass < 4)
 	{
 		SendClientMessage(clientId, "Utilize apenas itens [D] ou superior");
 		return true;
 	}
 
-	const STRUCT_ITEMLIST& itemArch = ItemList[item[0].Index];
-	const STRUCT_ITEMLIST& itemMortal = ItemList[item[1].Index];
+	const STRUCT_ITEMLIST& itemArch = g_pItemList[item[0].sIndex];
+	const STRUCT_ITEMLIST& itemMortal = g_pItemList[item[1].sIndex];
 
 	if(GetItemSanc(&item[0]) >= 10)
 	{
-		SendClientMessage(clientId, "Não é possível transferir para itens acima de +9");
+		SendClientMessage(clientId, "NÃªo Ãª possÃªvel transferir para itens acima de +9");
 
 		return true;
 	}
@@ -98,13 +98,13 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 
 	if(itemArch.Pos > 32)
 	{
-		SendClientMessage(clientId, "Posição do item invalido");
+		SendClientMessage(clientId, "PosiÃ§Ã£o do item invalido");
 
 		return true;
 	}
 	
-	int reqClassArch = GetEffectValueByIndex(item[0].Index, EF_CLASS);
-	int reqClassMortal = GetEffectValueByIndex(item[1].Index, EF_CLASS);
+	int reqClassArch = GetEffectValueByIndex(item[0].sIndex, EF_CLASS);
+	int reqClassMortal = GetEffectValueByIndex(item[1].sIndex, EF_CLASS);
 
 	if(reqClassArch != reqClassMortal)
 	{
@@ -114,7 +114,7 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 	}
 	for(int i = 2;i < 6;i++)
 	{
-		if(item[i].Index != 3140)
+		if(item[i].sIndex != 3140)
 		{
 			SendClientMessage(clientId, "Utilize 4 Pedras da Luz");
 
@@ -124,7 +124,7 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 	
 	int _rand = Rand() % 100;
 	int totalChance = 12;
-	int grade = ItemList[item[1].Index].Grade;
+	int grade = g_pItemList[item[1].sIndex].nGrade;
 
 	constexpr std::array rateByGrade = { 20, 25, 35, 45 };
 
@@ -137,32 +137,32 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 
 	if(_rand <= totalChance)
 	{
-		Log(clientId, LOG_COMP, "Agatha - Sucesso na transferência de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
-			ItemList[item[1].Index].Name, item[1].Index, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, ItemList[item[0].Index].Name,
-			item[0].Index, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
+		Log(clientId, LOG_COMP, "Agatha - Sucesso na transferÃªncia de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
+			g_pItemList[item[1].sIndex].ItemName, item[1].sIndex, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, g_pItemList[item[0].sIndex].ItemName,
+			item[0].sIndex, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
 
-		Log(SERVER_SIDE, LOG_COMP, "[%s] - Agatha - Sucesso na transferência de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
-			User.Username, ItemList[item[1].Index].Name, item[1].Index, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, ItemList[item[0].Index].Name,
-			item[0].Index, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
+		Log(SERVER_SIDE, LOG_COMP, "[%s] - Agatha - Sucesso na transferÃªncia de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
+			User.Username, g_pItemList[item[1].sIndex].ItemName, item[1].sIndex, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, g_pItemList[item[0].sIndex].ItemName,
+			item[0].sIndex, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
 
-		LogPlayer(clientId, "Sucesso na transferência de adicional de %s para %s", ItemList[item[1].Index].Name, ItemList[item[0].Index].Name);
+		LogPlayer(clientId, "Sucesso na transferÃªncia de adicional de %s para %s", g_pItemList[item->sIndex].ItemName, g_pItemList[item->sIndex].ItemName);
 
 		int sanc = GetItemSanc(&item[1]);
 		for(int i = 0 ;i < 3;i++)
 		{
-			if(item[1].Effect[i].Index == EF_SANC || (item[1].Effect[i].Index >= 116 && item[1].Effect[i].Index <= 125))
+			if(item[1].stEffect[i].cEffect == EF_SANC || (item[1].stEffect[i].cEffect >= 116 && item[1].stEffect[i].cEffect <= 125))
 			{
-				item[1].Effect[i].Value = 7;
+				item[1].stEffect[i].cValue = 7;
 
 				break;
 			}
 		}
 
-		int index = item[1].Index;
-		item[1].Index = item[0].Index;
+		int index = item[1].sIndex;
+		item[1].sIndex = item[0].sIndex;
 
-		SendNotice(".%s transferiu com sucesso adicional para %s", player->Name, ItemList[item[0].Index].Name);
-		SendClientMessage(clientId, "Jogador %s obteve sucesso na composição de %s (%d/%d)", player->Name, ItemList[item[1].Index].Name, _rand, totalChance);
+		SendNotice(".%s transferiu com sucesso adicional para %s", player->MobName, g_pItemList[item[0].sIndex].ItemName);
+		SendClientMessage(clientId, "Jogador %s obteve sucesso na composiÃ§Ã£o de %s (%d/%d)", player->MobName, g_pItemList[item->sIndex].ItemName, _rand, totalChance);
 
 		for(int i = 2;i < 6;i++)
 		{
@@ -181,8 +181,8 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 	{
 		memset(&player->Inventory[p->slot[0]], 0, sizeof STRUCT_ITEM);
 
-		SendNotice(".%s falhou na transferência de adicional para %s", player->Name, ItemList[item[0].Index].Name);
-		SendClientMessage(clientId, "Falha na composição do item. (%d/%d)", _rand, totalChance);
+		SendNotice(".%s falhou na transferÃªncia de adicional para %s", player->MobName, g_pItemList[item->sIndex].ItemName);
+		SendClientMessage(clientId, "Falha na composiÃ§Ã£o do item. (%d/%d)", _rand, totalChance);
 
 		for(int i = 2;i<6;i++)
 		{
@@ -193,14 +193,14 @@ bool CUser::RequestAgatha(PacketHeader *Header)
 		
 		SendItem(clientId, SlotType::Inv, p->slot[0], &player->Inventory[p->slot[0]]);
 
-		LogPlayer(clientId, "Falha na transferência de adicional de %s para %s", ItemList[item[1].Index].Name, ItemList[item[0].Index].Name);
-		Log(clientId, LOG_COMP, "Agatha - Falha na transferência de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
-			ItemList[item[1].Index].Name, item[1].Index, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, ItemList[item[0].Index].Name, 
-			item[0].Index, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
+		LogPlayer(clientId, "Falha na transferÃªncia de adicional de %s para %s", g_pItemList[item->sIndex].ItemName, g_pItemList[item->sIndex].ItemName);
+		Log(clientId, LOG_COMP, "Agatha - Falha na transferÃªncia de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
+			g_pItemList[item[1].sIndex].ItemName, item[1].sIndex, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, g_pItemList[item[0].sIndex].ItemName,
+			item[0].sIndex, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
 
-		Log(SERVER_SIDE, LOG_COMP, "[%s] - Agatha - Falha na transferência de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
-			User.Username, ItemList[item[1].Index].Name, item[1].Index, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, ItemList[item[0].Index].Name,
-			item[0].Index, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
+		Log(SERVER_SIDE, LOG_COMP, "[%s] - Agatha - Falha na transferÃªncia de add: %s [%d] [%d %d %d %d %d %d] para %s [%d] [%d %d %d %d %d %d] - %d/%d",
+			User.Username, g_pItemList[item[1].sIndex].ItemName, item[1].sIndex, item[1].EF1, item[1].EFV1, item[1].EF2, item[1].EFV2, item[1].EF3, item[1].EFV3, g_pItemList[item[0].sIndex].ItemName,
+			item[0].sIndex, item[0].EF1, item[0].EFV1, item[0].EF2, item[0].EFV2, item[0].EF3, item[0].EFV3, _rand, totalChance);
 	}
 
 	SaveUser(clientId, 0);

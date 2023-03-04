@@ -21,7 +21,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 
 	int clientId = p->Header.ClientId;
 
-	if (pMob[clientId].Mobs.Player.Status.curHP == 0 || pUser[clientId].Status != USER_PLAY)
+	if (pMob[clientId].Mobs.Player.CurrentScore.Hp == 0 || pUser[clientId].CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 		AddCrackError(clientId, 10, 20);
@@ -38,7 +38,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 
 	if (p->Mode == 0)
 	{
-		if (pMob[clientId].Mobs.Player.StatusPoint <= 0)
+		if (pMob[clientId].Mobs.Player.ScoreBonus <= 0)
 		{
 			SendEtc(clientId);
 			return true;
@@ -52,22 +52,22 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 		}
 
 		int addPoints = 1;
-		if (pMob[clientId].Mobs.Player.StatusPoint > 200)
+		if (pMob[clientId].Mobs.Player.ScoreBonus > 200)
 			addPoints = 100;
 
-		pMob[clientId].Mobs.Player.StatusPoint -= addPoints;
+		pMob[clientId].Mobs.Player.ScoreBonus -= addPoints;
 
 		if (p->Info == 0)
-			pMob[clientId].Mobs.Player.bStatus.STR += addPoints;
+			pMob[clientId].Mobs.Player.BaseScore.Str += addPoints;
 
 		if (p->Info == 1)
-			pMob[clientId].Mobs.Player.bStatus.INT += addPoints;
+			pMob[clientId].Mobs.Player.BaseScore.Int += addPoints;
 
 		if (p->Info == 2)
-			pMob[clientId].Mobs.Player.bStatus.DEX += addPoints;
+			pMob[clientId].Mobs.Player.BaseScore.Dex += addPoints;
 
 		if (p->Info == 3)
-			pMob[clientId].Mobs.Player.bStatus.CON += addPoints;
+			pMob[clientId].Mobs.Player.BaseScore.Con += addPoints;
 
 		pMob[clientId].GetCurrentScore(clientId);
 		SendScore(clientId);
@@ -76,7 +76,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 	}
 	else if (p->Mode == 1)
 	{
-		if (pMob[clientId].Mobs.Player.MasterPoint <= 0)
+		if (pMob[clientId].Mobs.Player.SpecialBonus <= 0)
 		{
 			SendEtc(clientId);
 
@@ -91,7 +91,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 		}
 
 		// info mastery[0] level
-		if (pMob[clientId].Mobs.Player.bStatus.Mastery[p->Info] >= (((pMob[clientId].Mobs.Player.bStatus.Level + 1) * 3) >> 1) && pMob[clientId].Mobs.Player.Equip[0].EFV2 < CELESTIAL)
+		if (pMob[clientId].Mobs.Player.BaseScore.Special[p->Info] >= (((pMob[clientId].Mobs.Player.BaseScore.Level + 1) * 3) >> 1) && pMob[clientId].Mobs.Player.Equip[0].EFV2 < CELESTIAL)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Maximum_Point_Now]);
 			return true;
@@ -101,17 +101,17 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 		if (pMob[clientId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL)
 			max = 200;
 
-		int has = pMob[clientId].Mobs.Player.Learn[0] & (1 << (8 * p->Info - 1));
+		int has = pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << (8 * p->Info - 1));
 		max = (has) ? 255 : 200;
 
-		if (pMob[clientId].Mobs.Player.bStatus.Mastery[p->Info] >= max)
+		if (pMob[clientId].Mobs.Player.BaseScore.Special[p->Info] >= max)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Maximum_Point_200_Now]);
 			return true;
 		}
 
-		pMob[clientId].Mobs.Player.MasterPoint -= 1;
-		pMob[clientId].Mobs.Player.bStatus.Mastery[p->Info] += 1;
+		pMob[clientId].Mobs.Player.SpecialBonus -= 1;
+		pMob[clientId].Mobs.Player.BaseScore.Special[p->Info] += 1;
 
 		pMob[clientId].GetCurrentScore(clientId);
 		SendScore(clientId);
@@ -121,7 +121,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 
 	else if (p->Mode == 2)
 	{
-		int classInfo = pMob[clientId].Mobs.Player.ClassInfo;
+		int classInfo = pMob[clientId].Mobs.Player.Class;
 
 		int skillClass = (p->Info - 5000) / 24;
 		int skillPos = (p->Info - 5000) % 24;
@@ -155,22 +155,22 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 		}
 
 		unsigned int learned = 1 << skillPos;
-		if ((learned & pMob[clientId].Mobs.Player.Learn[0]) != 0)
+		if ((learned & pMob[clientId].Mobs.Player.LearnedSkill[0]) != 0)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Already_Learned_It]);
 			return true;
 		}
 
-		unsigned int level = ItemList[p->Info].Level;
-		if (level > pMob[clientId].Mobs.Player.Status.Level && pMob[clientId].Mobs.Player.Equip[0].EFV2 < CELESTIAL)
+		unsigned int level = g_pItemList[p->Info].Level;
+		if (level > pMob[clientId].Mobs.Player.CurrentScore.Level && pMob[clientId].Mobs.Player.Equip[0].EFV2 < CELESTIAL)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Need_More_Level_To_Learn]);
 			return true;
 		}
 
-		if (pMob[clientId].Mobs.Player.Status.Mastery[1] < ItemList[p->Info].Int ||
-			pMob[clientId].Mobs.Player.Status.Mastery[2] < ItemList[p->Info].Dex ||
-			pMob[clientId].Mobs.Player.Status.Mastery[3] < ItemList[p->Info].Con)
+		if (pMob[clientId].Mobs.Player.CurrentScore.Special[1] < g_pItemList[p->Info].Int ||
+			pMob[clientId].Mobs.Player.CurrentScore.Special[2] < g_pItemList[p->Info].Dex ||
+			pMob[clientId].Mobs.Player.CurrentScore.Special[3] < g_pItemList[p->Info].Con)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Need_More_Mastery_To_Learn]);
 			return true;
@@ -188,7 +188,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 		{
 			for (int i = 1; i < 8; i++)
 			{
-				int have = pMob[clientId].Mobs.Player.Learn[0] & (1 << (skillPos - i));
+				int have = pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << (skillPos - i));
 				if (!have)
 				{
 					SendClientMessage(clientId, g_pLanguageString[_NN_Need_All_Skill_Lineage]);
@@ -203,7 +203,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 				if (i == skillDiv)
 					continue;
 
-				int have = pMob[clientId].Mobs.Player.Learn[0] & (1 << ((i * 8) - 1));
+				int have = pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << ((i * 8) - 1));
 				if (have)
 				{
 					SendClientMessage(clientId, g_pLanguageString[_NN_Only_A_8th_Per_Char]);
@@ -212,7 +212,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 				}
 			}
 
-			if (pMob[clientId].Mobs.Player.Gold < gold[pMob[clientId].Mobs.Player.Equip[0].EFV2 - 1])
+			if (pMob[clientId].Mobs.Player.Coin < gold[pMob[clientId].Mobs.Player.Equip[0].EFV2 - 1])
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Need_X_Gold_To_Buy_Skill]);
 
@@ -220,14 +220,14 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 			}
 		}
 
-		Log(clientId, LOG_INGAME, "Comprou uma skill %s. Learn antigo: %llu, Learn atual: %llu. Learn da skill: %d.", ItemList[p->Info].Name,
-			pMob[clientId].Mobs.Player.Learn, pMob[clientId].Mobs.Player.Learn[0] | learned, learned);
+		Log(clientId, LOG_INGAME, "Comprou uma skill %s. Learn antigo: %llu, Learn atual: %llu. Learn da skill: %d.", g_pItemList[p->Info].ItemName,
+			pMob[clientId].Mobs.Player.LearnedSkill, pMob[clientId].Mobs.Player.LearnedSkill[0] | learned, learned);
 
-		pMob[clientId].Mobs.Player.Learn[0] = pMob[clientId].Mobs.Player.Learn[0] | learned;
+		pMob[clientId].Mobs.Player.LearnedSkill[0] = pMob[clientId].Mobs.Player.LearnedSkill[0] | learned;
 		pMob[clientId].Mobs.Player.SkillPoint -= skillBonus;
 
 		if ((skillPos % 24) % 8 == 7)
-			pMob[clientId].Mobs.Player.Gold -= gold[pMob[clientId].Mobs.Player.Equip[0].EFV2 - 1];
+			pMob[clientId].Mobs.Player.Coin -= gold[pMob[clientId].Mobs.Player.Equip[0].EFV2 - 1];
 
 		pMob[clientId].GetCurrentScore(clientId);
 		SendScore(clientId);

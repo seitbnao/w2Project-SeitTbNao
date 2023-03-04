@@ -13,8 +13,8 @@ bool CUser::RequestLindy(PacketHeader *Header)
 	{
 		if (p->slot[i] < 0 || p->slot[i] > 60)
 		{
-			Log(clientId, LOG_HACK, "[HACK] Banido por enviar índice invalido - NPC Lindy - %d", p->slot[i]);
-			Log(SERVER_SIDE, LOG_HACK, "[HACK] %s - Banido por enviar índice invalido - NPC Lindy - %d", player->Name, p->slot[i]);
+			Log(clientId, LOG_HACK, "[HACK] Banido por enviar Ãªndice invalido - NPC Lindy - %d", p->slot[i]);
+			Log(SERVER_SIDE, LOG_HACK, "[HACK] %s - Banido por enviar Ãªndice invalido - NPC Lindy - %d", player->MobName, p->slot[i]);
 
 			SendCarry(clientId);
 
@@ -23,8 +23,8 @@ bool CUser::RequestLindy(PacketHeader *Header)
 
 		if (memcmp(&player->Inventory[p->slot[i]], &p->items[i], 8) != 0)
 		{
-			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Lindy - %d", p->items[i].Index);
-			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Lindy - %d", player->Name, p->items[i].Index);
+			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Lindy - %d", p->items[i].sIndex);
+			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Lindy - %d", player->MobName, p->items[i].sIndex);
 
 			SendCarry(clientId);
 
@@ -38,8 +38,8 @@ bool CUser::RequestLindy(PacketHeader *Header)
 
 			if (p->slot[i] == p->slot[y])
 			{
-				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Lindy - %d", p->items[i].Index);
-				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Lindy- %d", player->Name, p->items[i].Index);
+				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Lindy - %d", p->items[i].sIndex);
+				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Lindy- %d", player->MobName, p->items[i].sIndex);
 
 				CloseUser(clientId);
 				return true;
@@ -57,9 +57,9 @@ bool CUser::RequestLindy(PacketHeader *Header)
 
 	for (int i = 0; i < 7; i++)
 	{
-		Log(clientId, LOG_COMP, "Lindy - %d - %s [%d] [%d %d %d %d %d %d] - %d", i, ItemList[p->items[i].Index].Name, p->items[i].Index,
-			p->items[i].Effect[0].Index, p->items[i].Effect[0].Value, p->items[i].Effect[1].Index, p->items[i].Effect[1].Value, p->items[i].Effect[2].Index,
-			p->items[i].Effect[2].Value, p->slot[i]);
+		Log(clientId, LOG_COMP, "Lindy - %d - %s [%d] [%d %d %d %d %d %d] - %d", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].sIndex,
+			p->items[i].stEffect[0].cEffect, p->items[i].stEffect[0].cValue, p->items[i].stEffect[1].cEffect, p->items[i].stEffect[1].cValue, p->items[i].stEffect[2].cEffect,
+			p->items[i].stEffect[2].cValue, p->slot[i]);
 	}
 
 	if (Trade.ClientId != 0)
@@ -70,10 +70,10 @@ bool CUser::RequestLindy(PacketHeader *Header)
 		return true;
 	}
 
-	if (((player->bStatus.Level == 354 && !pMob[clientId].Mobs.Info.Unlock354) || (player->bStatus.Level == 369 && !pMob[clientId].Mobs.Info.Unlock369)) && pMob[clientId].Mobs.Info.LvBlocked)
+	if (((player->BaseScore.Level == 354 && !pMob[clientId].Mobs.Info.Unlock354) || (player->BaseScore.Level == 369 && !pMob[clientId].Mobs.Info.Unlock369)) && pMob[clientId].Mobs.Info.LvBlocked)
 	{
-		if (p->items[0].Index == 413 && p->items[1].Index == 413 && p->items[2].Index == 4127 && p->items[3].Index == 413 && p->items[4].Index == 413 &&
-			p->items[5].Index == 413 && p->items[6].Index == 413)
+		if (p->items[0].sIndex == 413 && p->items[1].sIndex == 413 && p->items[2].sIndex == 4127 && p->items[3].sIndex == 413 && p->items[4].sIndex == 413 &&
+			p->items[5].sIndex == 413 && p->items[6].sIndex == 413)
 		{
 			// Fecha o inventario
 			SendSignalParm(clientId, SERVER_SIDE, 0x3A7, 2);
@@ -82,14 +82,14 @@ bool CUser::RequestLindy(PacketHeader *Header)
 			INT32 amount_1 = GetItemAmount(&p->items[0]);
 			INT32 amount_2 = GetItemAmount(&p->items[1]);
 
-			if (amount_1 != 10 || amount_2 != 10 || !pMob[clientId].Mobs.Info.LvBlocked || (player->bStatus.Level == 369 && pMob[clientId].Mobs.Fame < 1))
+			if (amount_1 != 10 || amount_2 != 10 || !pMob[clientId].Mobs.Info.LvBlocked || (player->BaseScore.Level == 369 && pMob[clientId].Mobs.Fame < 1))
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_IncorrectComp]);
 
 				return true;
 			}
 
-			// Remove os itens, independente se deu certo ou não
+			// Remove os itens, independente se deu certo ou nÃªo
 			for (int i = 0; i < 7; i++)
 			{
 				memset(&player->Inventory[p->slot[i]], 0, sizeof STRUCT_ITEM);
@@ -97,7 +97,7 @@ bool CUser::RequestLindy(PacketHeader *Header)
 				SendItem(clientId, SlotType::Inv, p->slot[i], &player->Inventory[p->slot[i]]);
 			}
 
-			if (player->bStatus.Level == 369)
+			if (player->BaseScore.Level == 369)
 				pMob[clientId].Mobs.Fame -= 1;
 
 			INT32 _rand = Rand() % 100;
@@ -107,12 +107,12 @@ bool CUser::RequestLindy(PacketHeader *Header)
 			{
 				pMob[clientId].Mobs.Info.LvBlocked = false;
 
-				if (pMob[clientId].Mobs.Player.bStatus.Level == 354)
+				if (pMob[clientId].Mobs.Player.BaseScore.Level == 354)
 					pMob[clientId].Mobs.Info.Unlock354 = TRUE;
 				else
 					pMob[clientId].Mobs.Info.Unlock369 = TRUE;
 
-				INT32 capeId = pMob[clientId].Mobs.Player.Equip[15].Index;
+				INT32 capeId = pMob[clientId].Mobs.Player.Equip[15].sIndex;
 				if ((capeId != 3191 && capeId != 3192 && capeId != 3193) || capeId == 0)
 				{
 					INT32 newCape = 0;
@@ -125,23 +125,23 @@ bool CUser::RequestLindy(PacketHeader *Header)
 
 					memset(&pMob[clientId].Mobs.Player.Equip[15], 0, sizeof STRUCT_ITEM);
 
-					pMob[clientId].Mobs.Player.Equip[15].Index = newCape;
-					pMob[clientId].Mobs.Player.Equip[15].Effect[0].Index = EF_SANC;
-					pMob[clientId].Mobs.Player.Equip[15].Effect[0].Value = 0;
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = newCape;
+					pMob[clientId].Mobs.Player.Equip[15].stEffect[0].cEffect = EF_SANC;
+					pMob[clientId].Mobs.Player.Equip[15].stEffect[0].cValue = 0;
 
 					Log(clientId, LOG_INGAME, "Alterado a capa para %d", newCape);
 				}
 
-				if (player->bStatus.Level == 369)
+				if (player->BaseScore.Level == 369)
 				{
-					pMob[clientId].Mobs.Player.Equip[15].Effect[1].Index = EF_RESISTALL;
-					pMob[clientId].Mobs.Player.Equip[15].Effect[1].Value = 10;
+					pMob[clientId].Mobs.Player.Equip[15].stEffect[1].cEffect = EF_RESISTALL;
+					pMob[clientId].Mobs.Player.Equip[15].stEffect[1].cValue = 10;
 
-					Log(clientId, LOG_INGAME, "Adicionado adicional de resistência na capa");
+					Log(clientId, LOG_INGAME, "Adicionado adicional de resistÃªncia na capa");
 				}
 
 				SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
-				Log(clientId, LOG_COMP, "Composição de desbloqueio 355 efetuada com SUCESSO 0- %d/90", _rand);
+				Log(clientId, LOG_COMP, "ComposiÃ§Ã£o de desbloqueio 355 efetuada com SUCESSO 0- %d/90", _rand);
 
 				SendItem(clientId, SlotType::Equip, 15, &pMob[clientId].Mobs.Player.Equip[15]);
 			}
@@ -149,7 +149,7 @@ bool CUser::RequestLindy(PacketHeader *Header)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_CombineFailed]);
 
-				Log(clientId, LOG_COMP, "Composição de desbloqueio 355 efetuada com FALHA - %d/90", _rand);
+				Log(clientId, LOG_COMP, "ComposiÃ§Ã£o de desbloqueio 355 efetuada com FALHA - %d/90", _rand);
 			}
 		}
 	}

@@ -36,7 +36,7 @@ void TMessageSender::MessageSender()
 		{
 			for (int i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].Status == USER_EMPTY)
+				if (pUser[i].CurrentScore == USER_EMPTY)
 					continue;
 
 				CUser& user = pUser[i];
@@ -56,7 +56,7 @@ void TMessageSender::MessageSender()
 		}
 		catch (const std::exception& e)
 		{
-			Log(SERVER_SIDE, LOG_ERROR, "Exce��o ocorrida em MessageSender. Mensagem> %s", e.what());
+			Log(SERVER_SIDE, LOG_ERROR, "Exceção ocorrida em MessageSender. Mensagem> %s", e.what());
 		}
 	}
 }

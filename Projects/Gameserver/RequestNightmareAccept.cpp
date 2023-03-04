@@ -13,7 +13,7 @@ bool CUser::RequestNightmareAccept(PacketHeader* header)
 	}
 
 	int nightmareIndex = packet->Value;
-	std::string playerName{ pMob[clientId].Mobs.Player.Name };
+	std::string playerName{ pMob[clientId].Mobs.Player.MobName };
 	auto& nightmare = sServer.Nightmare[nightmareIndex];
 
 	auto it = std::find(std::begin(nightmare.MembersName), std::end(nightmare.MembersName), playerName);
@@ -25,7 +25,7 @@ bool CUser::RequestNightmareAccept(PacketHeader* header)
 	}
 
 	int memberIndex = std::distance(std::begin(nightmare.MembersName), it);
-	if (pMob[clientId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL && pMob[clientId].Mobs.Player.bStatus.Level >= sServer.MaximumPesaLevel)
+	if (pMob[clientId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL && pMob[clientId].Mobs.Player.BaseScore.Level >= sServer.MaximumPesaLevel)
 	{
 		SendClientMessage(clientId, "Limite de nível atingido. Não é possível entrar na area do Pesadelo");
 

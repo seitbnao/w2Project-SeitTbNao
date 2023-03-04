@@ -58,43 +58,17 @@ struct MSG_STANDARDPARM3
 	int Parm3;
 };
 
-struct STRUCT_SCORE
-{
-	short Level;
-	int Ac;
-	int Damage;
-	char Reserved;
-	char AttackRun;
-	int MaxHp;
-	int MaxMp;
-	int Hp;
-	int Mp;
-	short Str;
-	short Int;
-	short Dex;
-	short Con;
-	unsigned short Special[4];
-};
+ 
 
-union STRUCT_BONUSEFFECT
-{
-	struct
-	{
-		unsigned char cEffect;
-		unsigned char cValue;
-	};
-	short sValue;
-};
 
-struct STRUCT_ITEM
-{
-	short sIndex;
-	STRUCT_BONUSEFFECT stEffect[3];
-};
+
+ 
 
 struct STRUCT_SELCHAR
 {
+ 
 	unsigned short HomeTownX[4];
+ 
 	unsigned short HomeTownY[4];
 	char MobName[4][16];
 	STRUCT_SCORE Score[4];
@@ -104,52 +78,9 @@ struct STRUCT_SELCHAR
 	long long Exp[4];
 };
 
-struct STRUCT_MOB
-{
-	char MobName[16];
-	char Clan;
-	char Merchant;
-	unsigned short Guild;
-	char Class;
-	char Rsv;
-	unsigned short Quest;
-	int Coin;
-	long long Exp;
-	unsigned short HomeTownX;
-	unsigned short HomeTownY;
-	STRUCT_SCORE BaseScore;
-	STRUCT_SCORE CurrentScore;
-	STRUCT_ITEM Equip[16];
-	STRUCT_ITEM Carry[64];
-	unsigned int LearnedSkill[2];
-	short ScoreBonus;
-	short SpecialBonus;
-	short SkillBonus;
-	char Critical;
-	char SaveMana;
-	char ShortSkill[4];
-	char GuildLevel;
-	char Magic;
-	char RegenHP;
-	char RegenMP;
-	char Resist[4];
-	char dummy[212];
-	unsigned short CurrentKill;
-	unsigned short TotalKill;
+ 
 
-	bool HasSoulSkill() const
-	{
-		return this->LearnedSkill[0] & 0x40000000;
-	}
-};
 
-struct STRUCT_AFFECT
-{
-	char Type;
-	char Level;
-	short Value;
-	int Time;
-};
 
 struct STRUCT_MYBONUSEFFECT
 {
@@ -170,11 +101,7 @@ struct STRUCT_NEEDITEM
 	int dINDEX;
 };
 
-struct STRUCT_POSITION
-{
-	int X;
-	int Y;
-};
+
 
 struct STRUCT_RESULT_ITEMLIST
 {
@@ -214,7 +141,7 @@ struct STRUCT_MIXHELP
 	short Color[9];
 	short Icon;
 	char Help[9][128];
-	char Name[128];
+	char MobName[128];
 };
 
 struct STRUCT_MISSIONITEM
@@ -230,30 +157,9 @@ struct STRUCT_REPURCHASEITEM
 	int Price;
 };
 
-struct STRUCT_STATICEFFECT
-{
-	short sEffect;
-	short sValue;
-};
 
-struct STRUCT_ITEMLIST
-{
-	char Name[64];
-	short nIndexMesh;
-	short nIndexTexture;
-	short nIndexVisualEffect;
-	short nReqLvl;
-	short nReqStr;
-	short nReqInt;
-	short nReqDex;
-	short nReqCon;
-	STRUCT_STATICEFFECT stEffect[12];
-	int nPrice;
-	short nUnique;
-	short nPos;
-	short nExtra;
-	short nGrade;
-};
+
+ 
 
 struct STRUCT_EXT1
 {
@@ -342,25 +248,7 @@ struct STRUCT_LOTTO
 	short sIndex;
 	char Num[6];
 };
-
-struct STRUCT_SCORE_OLD
-{
-	short Level;
-	short Ac;
-	short Damage;
-	char Reserved;
-	char AttackRun;
-	unsigned short MaxHp;
-	unsigned short MaxMp;
-	unsigned short Hp;
-	unsigned short Mp;
-	short Str;
-	short Int;
-	short Dex;
-	short Con;
-	char Special[4];
-};
-
+ 
 struct STRUCT_M_CHECK
 {
 	int Type;
@@ -370,7 +258,7 @@ struct STRUCT_M_CHECK
 
 struct STRUCT_GUILDLIST
 {
-	int GuildIndex;
+	int Guild;
 	char GuildName[4][12];
 	char GCount;
 	char Citizen;
@@ -396,54 +284,8 @@ struct STRUCT_TOTODATA
 	int towshare;
 };
 
-struct STRUCT_ACCOUNT
-{
-	char AccountName[16];
-	char AccountPass[16];
-	char RealName[24];
-	unsigned int SSN1;
-	unsigned int SSN2;
-	char Temp[102];
-	STRUCT_AFFECT Affect[2];
-	unsigned int AccountIndex;
-	unsigned int AccountLastConnectTime;
-	char ItemPassWord[16];
-	unsigned short GameServer;
-	unsigned short Rsv;
-};
-
-struct STRUCT_ACCOUNTFILE
-{
-	STRUCT_ACCOUNT Account;
-	STRUCT_MOB Char[4];
-	STRUCT_ITEM Cargo[MAX_CARGO];
-	int Coin;
-	char ShortSkill[4][16];
-	STRUCT_EXT1 Ext1[4];
-	STRUCT_EXT2 Ext2[4];
-};
-
-struct STRUCT_SUBCLASS_OLD
-{
-	unsigned int LearnedSkill;
-	STRUCT_ITEM Equip;
-	STRUCT_SCORE_OLD CurrentScore;
-	unsigned int Exp;
-	char ShortSkill[20];
-	short ScoreBonus;
-	short SkillBonus;
-};
-
-struct STRUCT_EXT2_OLD
-{
-	char Quest[12];
-	unsigned int LastConnectTime;
-	STRUCT_SUBCLASS_OLD SubClass[2];
-	char ItemPassWord[16];
-	unsigned int ItemPos;
-	int SendLevItem;
-	char dummy[112];
-};
+ 
+ 
 
 struct STRUCT_REQ
 {
@@ -473,36 +315,7 @@ struct STRUCT_ITEMHELP
 	char Help[9][128];
 };
 
-struct STRUCT_MOB_OLD
-{
-	char MobName[16];
-	char Clan;
-	char Merchant;
-	unsigned short Guild;
-	char Class;
-	char Rsv;
-	unsigned short Quest;
-	int Coin;
-	unsigned int Exp;
-	unsigned short HomeTownX;
-	unsigned short HomeTownY;
-	STRUCT_SCORE_OLD BaseScore;
-	STRUCT_SCORE_OLD CurrentScore;
-	STRUCT_ITEM Equip[16];
-	STRUCT_ITEM Carry[64];
-	unsigned int LearnedSkill;
-	short ScoreBonus;
-	short SpecialBonus;
-	short SkillBonus;
-	char Critical;
-	char SaveMana;
-	char ShortSkill[4];
-	char GuildLevel;
-	char Magic;
-	char RegenHP;
-	char RegenMP;
-	char Resist[4];
-};
+ 
 
 struct STRUCT_COMBINE
 {
@@ -539,22 +352,8 @@ struct STRUCT_EXT
 	char Quest[32];
 };
 
-struct STRUCT_ACCOUNTFILE_OLD
-{
-	STRUCT_ACCOUNT Account;
-	STRUCT_MOB_OLD Char[4];
-	STRUCT_ITEM Cargo[MAX_CARGO];
-	int Coin;
-	char ShortSkill[4][16];
-	STRUCT_EXT Ext[4];
-};
-
-struct STRUCT_EXT1_OLD
-{
-	int Data[8];
-	STRUCT_AFFECT Affect[16];
-};
-
+ 
+ 
 struct STRUCT_MISSION
 {
 	int Arrival;
@@ -565,16 +364,7 @@ struct STRUCT_MISSION
 	STRUCT_M_CHECK Reward[10];
 };
 
-struct STRUCT_ACCOUNTFILE_OLD2
-{
-	STRUCT_ACCOUNT Account;
-	STRUCT_MOB_OLD Char[4];
-	STRUCT_ITEM Cargo[MAX_CARGO];
-	int Coin;
-	char ShortSkill[4][16];
-	STRUCT_EXT1_OLD Ext1[4];
-	STRUCT_EXT2_OLD Ext2[4];
-};
+ 
 
 struct STRUCT_GUILDZONE
 {
@@ -599,45 +389,8 @@ struct STRUCT_GUILDZONE
 	int ChargeClan;
 	int ChargeCount;
 };
-
-struct STRUCT_SELCHAR_OLD
-{
-	unsigned short HomeTownX[4];
-	unsigned short HomeTownY[4];
-	char MobName[4][16];
-	STRUCT_SCORE_OLD Score[4];
-	STRUCT_ITEM Equip[4][16];
-	unsigned short Guild[4];
-	int Coin[4];
-	unsigned int Exp[4];
-};
-
-struct STRUCT_ACCOUNT_NEW
-{
-	char AccountName[16];
-	char AccountPass[16];
-	char RealName[24];
-	unsigned int SSN1;
-	unsigned int SSN2;
-	char Temp[102];
-	STRUCT_AFFECT Affect[2];
-	unsigned int AccountIndex;
-	unsigned int AccountLastConnectTime;
-	char ItemPassWord[16];
-	unsigned short GameServer;
-	unsigned short Rsv;
-};
-
-struct STRUCT_ACCOUNTFILE_OLD_NEW
-{
-	STRUCT_ACCOUNT_NEW Account;
-	STRUCT_MOB_OLD Char[4];
-	STRUCT_ITEM Cargo[MAX_CARGO];
-	int Coin;
-	char ShortSkill[4][16];
-	STRUCT_EXT Ext[4];
-};
-
+ 
+ 
 struct STRUCT_SAME
 {
 	short dINDEX[8];
@@ -659,27 +412,7 @@ struct STRUCT_ADMINGUILDITEM
 	STRUCT_ITEM item;
 };
 
-struct STRUCT_ACCOUNTFILE_NEW
-{
-	STRUCT_ACCOUNT_NEW Account;
-	STRUCT_MOB Char[4];
-	STRUCT_ITEM Cargo[MAX_CARGO];
-	int Coin;
-	char ShortSkill[4][16];
-	STRUCT_EXT1 Ext1[4];
-	STRUCT_EXT2 Ext2[4];
-};
-
-struct STRUCT_ACCOUNTFILE_OLD2_NEW
-{
-	STRUCT_ACCOUNT_NEW Account;
-	STRUCT_MOB_OLD Char[4];
-	STRUCT_ITEM Cargo[MAX_CARGO];
-	int Coin;
-	char ShortSkill[4][16];
-	STRUCT_EXT1_OLD Ext1[4];
-	STRUCT_EXT2_OLD Ext2[4];
-};
+ 
 
 struct STRUCT_RUNEQUESTZONE
 {
@@ -703,7 +436,7 @@ struct MSG_Action
 	PacketHeader Header;
 	short PosX;
 	short PosY;
-	int Effect;
+	int stEffect;
 	int Speed;
 	char Route[24];
 	unsigned short TargetX;
@@ -729,7 +462,7 @@ struct MSG_CAPSULEINFO
 	short sInt;
 	short sDex;
 	short sCon;
-	short Mastery[4];
+	short Special[4];
 	short skill[9];
 	short Quest;
 };
@@ -1011,19 +744,7 @@ struct MSG_CNFDeleteCharacter
 };
 
 constexpr auto MSG_CNFCharacterLogin_Opcode = 0x114;
-struct MSG_CNFCharacterLogin
-{
-	PacketHeader Header;
-	short PosX;
-	short PosY;
-	STRUCT_MOB MOB;
-	unsigned short Slot;
-	unsigned short ClientID;
-	unsigned short Weather;
-	char ShortSkill[16];
-	STRUCT_EXT1 Ext1;
-	STRUCT_EXT2 Ext2;
-};
+ 
 
 constexpr auto MSG_InitGuldName_Opcode = 0x1D6;
 struct MSG_INITGULDNAME
@@ -1041,43 +762,10 @@ struct MSG_MessageLog
 };
 
 constexpr auto MSG_CreateMob_Opcode = 0x364;
-struct MSG_CreateMob
-{
-	PacketHeader Header;
-	short PosX;
-	short PosY;
-	unsigned short MobID;
-	char MobName[16];
-	unsigned short Equip[16];
-	unsigned short Affect[32];
-	unsigned short Guild;
-	char GuildLevel;
-	STRUCT_SCORE Score;
-	unsigned short CreateType;
-	char Equip2[16];
-	char Nick[26];
-	char Server;
-};
+ 
 
 constexpr auto MSG_CreateMobTrade_Opcode = 0x363;
-struct MSG_CreateMobTrade
-{
-	PacketHeader Header;
-	short PosX;
-	short PosY;
-	unsigned short MobID;
-	char MobName[16];
-	unsigned short Equip[16];
-	unsigned short Affect[32];
-	unsigned short Guild;
-	char GuildLevel;
-	STRUCT_SCORE Score;
-	unsigned short CreateType;
-	char Equip2[16];
-	char Nick[26];
-	char Desc[24];
-	char Server;
-};
+ 
 
 constexpr auto MSG_REQMobByID_Opcode = 0x369;
 struct MSG_REQMobByID
@@ -1227,7 +915,7 @@ struct PARTY
 	short MaxHp;
 	short Hp;
 	unsigned short ID;
-	char Name[16];
+	char MobName[16];
 };
 
 constexpr auto MSG_REQParty_Opcode = 0x37F;
@@ -1313,7 +1001,7 @@ struct MSG_SetHpDam
 struct MSG_Carry
 {
 	PacketHeader Header;
-	STRUCT_ITEM Carry[64];
+	STRUCT_ITEM Inventory[64];
 	int Coin;
 };
 
@@ -1340,7 +1028,7 @@ struct MSG_ReqSummon
 {
 	PacketHeader Header;
 	int Result;
-	char Name[16];
+	char MobName[16];
 };
 
 struct MSG_CNFRemoveServerLogin
@@ -1371,7 +1059,7 @@ struct MSG_EnvEffect
 	short y1;
 	short x2;
 	short y2;
-	short Effect;
+	short stEffect;
 	short EffectParm;
 };
 

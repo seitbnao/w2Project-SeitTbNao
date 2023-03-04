@@ -20,7 +20,7 @@ public:
 	int    Level;
 	int    Encode1;
 	int    Encode2;
-	char   Name[16];
+	char   MobName[16];
 	int    DisableID;
 
 	int Year;

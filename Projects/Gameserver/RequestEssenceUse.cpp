@@ -24,7 +24,7 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 
 	STRUCT_ITEM* srcItem = &pMob[clientId].Mobs.Player.Inventory[p->Slot];
 	STRUCT_ITEM* dstItem = GetItemPointer(clientId, (int)SlotType::Equip, 14);
-	if (dstItem->Index < 2330 || dstItem->Index > 2389)
+	if (dstItem->sIndex < 2330 || dstItem->sIndex > 2389)
 	{
 		SendClientMessage(clientId, g_pLanguageString[_NN_Mount_Not_Match]);
 
@@ -34,7 +34,7 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 
 	STRUCT_MOB* player = &pMob[clientId].Mobs.Player;
 
-	int mount = player->Equip[14].Index;
+	int mount = player->Equip[14].sIndex;
 	int mountIndex = 0;
 	if (mount >= 2360 && mount <= 2389)
 		mountIndex = mount - 2360;
@@ -45,7 +45,7 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 	if (mount == 2387 || mount == 2388)
 		amagoId = 2417 + (mount - 2387);
 
-	if (amagoId != srcItem->Index)
+	if (amagoId != srcItem->sIndex)
 	{
 		SendClientMessage(clientId, g_pLanguageString[_NN_Mount_Not_Match]);
 
@@ -59,19 +59,19 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 		SendClientMessage(clientId, "Valor incorreto");
 
 		SendItem(clientId, SlotType::Inv, p->Slot, srcItem);
-		Log(SERVER_SIDE, LOG_INGAME, "Valor para uso de âmagos incorreto. Total de amount: %d. Valor enviado: %d", amount, p->Amount);
+		Log(SERVER_SIDE, LOG_INGAME, "Valor para uso de Ãªmagos incorreto. Total de amount: %d. Valor enviado: %d", amount, p->Amount);
 		return true;
 	}
 
 	if (player->Equip[14].EFV2 <= 5)
 	{
-		SendClientMessage(clientId, "Vitalidade mínima para aumentar o nível da montaria é 6.");
+		SendClientMessage(clientId, "Vitalidade mÃªnima para aumentar o nÃªvel da montaria Ãª 6.");
 
 		SendItem(clientId, SlotType::Inv, p->Slot, srcItem);
 		return true;
 	}
 
-	Log(clientId, LOG_INGAME, "Solicitado o uso de %d âmagos", p->Amount);
+	Log(clientId, LOG_INGAME, "Solicitado o uso de %d Ãªmagos", p->Amount);
 
 	int success = 0;
 	int fail = 0;
@@ -89,7 +89,7 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 			{
 				mountIndex = mount - 2330;
 
-				player->Equip[14].Index = 2360 + mountIndex;
+				player->Equip[14].sIndex = 2360 + mountIndex;
 
 				*(short*)& player->Equip[14].EF1 = 5000;
 
@@ -101,7 +101,7 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 
 				SendClientMessage(clientId, g_pLanguageString[_NN_INCUBATED]);
 
-				Log(clientId, LOG_INGAME, "Montaria cresceu: %s %s", ItemList[player->Equip[14].Index].Name, player->Equip[14].toString().c_str());
+				Log(clientId, LOG_INGAME, "Montaria cresceu: %s %s", g_pItemList[player->Equip[14].sIndex].ItemName, player->Equip[14].toString().c_str());
 
 				MountProcess(clientId, 0);
 				success++;
@@ -109,8 +109,8 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 			}
 			else
 			{
-				Log(clientId, LOG_INGAME, "Âmago obteve sucesso de %s %s.",
-					ItemList[srcItem->Index].Name,
+				Log(clientId, LOG_INGAME, "Ãªmago obteve sucesso de %s %s.",
+					g_pItemList[srcItem->sIndex].ItemName,
 					player->Equip[14].toString().c_str());
 
 				success ++;
@@ -139,9 +139,9 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 			int _bonus = 0;
 			for (int i = 0; i < 3; i++)
 			{
-				if (srcItem->Effect[i].Index == 210)
+				if (srcItem->stEffect[i].cEffect == 210)
 				{
-					_bonus = srcItem->Effect[i].Value;
+					_bonus = srcItem->stEffect[i].cValue;
 					break;
 				}
 			}
@@ -155,16 +155,16 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 			{
 				if ((Rand() % 3) != 0 || (player->Equip[14].EF2 % 2) != 0)
 				{
-					Log(clientId, LOG_INGAME, "Falhou %s e nada aconteceu. %s. Level atual: %hhu. Bônus: %d", 
-						ItemList[srcItem->Index].Name,
+					Log(clientId, LOG_INGAME, "Falhou %s e nada aconteceu. %s. Level atual: %hhu. BÃªnus: %d", 
+						g_pItemList[srcItem->sIndex].ItemName,
 						player->Equip[14].toString().c_str(), 
 						player->Equip[14].EF2,
 						_bonus);
 				}
 				else if (player->Equip[14].EF2)
 				{
-					Log(clientId, LOG_INGAME, "%s falhou e level baixou %s. Level atual: %hhu, Level novo: %hhu BÔnus: %d", 
-						ItemList[srcItem->Index].Name,
+					Log(clientId, LOG_INGAME, "%s falhou e level baixou %s. Level atual: %hhu, Level novo: %hhu BÃªnus: %d", 
+						g_pItemList[srcItem->sIndex].ItemName,
 						player->Equip[14].toString().c_str(), 
 						player->Equip[14].EF2, 
 						player->Equip[14].EF2 - 1, 
@@ -178,8 +178,8 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 			else
 			{
 				player->Equip[14].EF2++;
-				Log(clientId, LOG_INGAME, "%s obteve sucesso de %s. Level atual: %hhu, Level novo: %hhu. Bônus %d", 
-					ItemList[srcItem->Index].Name,
+				Log(clientId, LOG_INGAME, "%s obteve sucesso de %s. Level atual: %hhu, Level novo: %hhu. BÃªnus %d", 
+					g_pItemList[srcItem->sIndex].ItemName,
 					player->Equip[14].toString().c_str(), 
 					player->Equip[14].EF2 - 1,
 					player->Equip[14].EF2);
@@ -194,7 +194,7 @@ bool CUser::RequestEssenceUse(PacketHeader* header)
 	SendItem(clientId, SlotType::Equip, 14, &pMob[clientId].Mobs.Player.Equip[14]);
 	SendItem(clientId, SlotType::Inv, p->Slot, srcItem);
 
-	SendClientMessage(clientId, "Âmagos usados: %d. Com sucesso: %d. Com falha: %d Leveis ganhos: %d", success + fail, success, fail, player->Equip[14].EF2 - lastLevel);
+	SendClientMessage(clientId, "Ãªmagos usados: %d. Com sucesso: %d. Com falha: %d Leveis ganhos: %d", success + fail, success, fail, player->Equip[14].EF2 - lastLevel);
 	SendEmotion(clientId, 14, 3);
 	return true;
 }

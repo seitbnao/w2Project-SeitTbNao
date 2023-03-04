@@ -237,10 +237,10 @@ int BASE_ReadInitItem()
 
 void BASE_InitialItemRePrice()
 {
-    g_pItemList[412].nPrice = 4000000;
-    g_pItemList[413].nPrice = 8000000;
-    g_pItemList[419].nPrice = 400000;
-    g_pItemList[420].nPrice = 800000;
+    g_pItemList[412].Price = 4000000;
+    g_pItemList[413].Price = 8000000;
+    g_pItemList[419].Price = 400000;
+    g_pItemList[420].Price = 800000;
 }
 
 int BASE_GetSum(char* p, int size)
@@ -376,8 +376,8 @@ void BASE_ReadItemPrice()
     for (int k = 0; k < MAX_ITEM_PRICE_REPLACE && itemprice[k][0]; ++k)
     {
         int idx = itemprice[k][0];
-        int bufprice = g_pItemList[idx].nPrice;
-        g_pItemList[idx].nPrice = itemprice[k][1];   
+        int bufprice = g_pItemList[idx].Price;
+        g_pItemList[idx].Price = itemprice[k][1];   
     }
 }
 
@@ -483,8 +483,8 @@ int BASE_GetItemAbility(STRUCT_ITEM* item, char Type)
     if (idx <= 0 || idx > MAX_ITEMLIST)
         return 0;
 
-    int nUnique = g_pItemList[idx].nUnique;
-    int nPos = g_pItemList[idx].nPos;
+    int nUnique = g_pItemList[idx].Unique;
+    int nPos = g_pItemList[idx].Pos;
 
     if ((Type == EF_DAMAGEADD || Type == EF_MAGICADD) && (nUnique < 41 || nUnique > 50))
         return 0;
@@ -505,22 +505,22 @@ int BASE_GetItemAbility(STRUCT_ITEM* item, char Type)
         Type = EF_ACADD2;
 
     if (Type == EF_LEVEL)
-        value = g_pItemList[idx].nReqLvl;
+        value = g_pItemList[idx].Level;
 
     if (Type == EF_REQ_STR)
-        value += g_pItemList[idx].nReqStr;
+        value += g_pItemList[idx].Str;
 
     if (Type == EF_REQ_INT)
-        value += g_pItemList[idx].nReqInt;
+        value += g_pItemList[idx].Int;
 
     if (Type == EF_REQ_DEX)
-        value += g_pItemList[idx].nReqDex;
+        value += g_pItemList[idx].Dex;
 
     if (Type == EF_REQ_CON)
-        value += g_pItemList[idx].nReqCon;
+        value += g_pItemList[idx].Con;
 
     if (Type == EF_POS)
-        value += g_pItemList[idx].nPos;
+        value += g_pItemList[idx].Pos;
 
     if (Type != EF_INCUBATE)
     {
@@ -1112,7 +1112,7 @@ int BASE_GetSpeed(STRUCT_SCORE* score)
 {
     int Run;
 
-    Run = score->AttackRun & 0xF;
+    Run = score->Move.Value & 0xF;
     if (Run < 1)
         Run = 1;
     if (Run > 7)
@@ -1144,24 +1144,24 @@ void ReadItemName()
 
     for (int i = 0; i < MAX_ITEMLIST; ++i)
     {
-        int Index = -1;
-        char Name[256]{};
+        int sIndex = -1;
+        char MobName[256]{};
 
-        if (!fread(&Index, 4, 1, fpBin) || !fread(Name, 64, 1, fpBin))
+        if (!fread(&sIndex, 4, 1, fpBin) || !fread(MobName, 64, 1, fpBin))
             break;
 
         for (int nTemp = 0; nTemp < 62; ++nTemp)
-            Name[nTemp] -= nTemp;
+            MobName[nTemp] -= nTemp;
 
-        if (Index != -1 && Index < 6500)
+        if (sIndex != -1 && sIndex < 6500)
         {
-            if (strlen(Name) >= 63)
+            if (strlen(MobName) >= 63)
             {
-                Name[63] = 0;
-                Name[62] = 0;
+                MobName[63] = 0;
+                MobName[62] = 0;
             }
 
-            strcpy(g_pItemList[Index].Name, Name);
+            strcpy(g_pItemList[sIndex].ItemName, MobName);
         }
     }
 
@@ -1179,13 +1179,13 @@ void ReadUIString()
 		while (fgets(str, sizeof str, pFile))
 		{
 			char part[64]{ 0 };
-			int Index = 0;
+			int sIndex = 0;
 
-			int ret = sscanf_s(str, "%d %s", &Index, part, 64);
+			int ret = sscanf_s(str, "%d %s", &sIndex, part, 64);
 			if (ret != 2)
 				continue;
 
-			strncpy_s(g_UIString[Index], part, sizeof part);
+			strncpy_s(g_UIString[sIndex], part, sizeof part);
 		}
 
 		fclose(pFile);
@@ -1500,25 +1500,25 @@ int BASE_GetStaticItemAbility(STRUCT_ITEM* item, char Type)
     if (idx >= 3200 && idx <= 3300)
         return 0;
 
-    int nPos = g_pItemList[idx].nPos;
+    int nPos = g_pItemList[idx].Pos;
 
     if (Type == EF_LEVEL)
-        value += g_pItemList[idx].nReqLvl;
+        value += g_pItemList[idx].Level;
 
     if (Type == EF_REQ_STR)
-        value += g_pItemList[idx].nReqStr;
+        value += g_pItemList[idx].Str;
 
     if (Type == EF_REQ_INT)
-        value += g_pItemList[idx].nReqInt;
+        value += g_pItemList[idx].Int;
 
     if (Type == EF_REQ_DEX)
-        value += g_pItemList[idx].nReqDex;
+        value += g_pItemList[idx].Dex;
 
     if (Type == EF_REQ_CON)
-        value += g_pItemList[idx].nReqCon;
+        value += g_pItemList[idx].Con;
 
     if (Type == EF_POS)
-        value += g_pItemList[idx].nPos;
+        value += g_pItemList[idx].Pos;
 
     if (Type != EF_INCUBATE)
     {
@@ -1820,7 +1820,7 @@ int BASE_CanEquip(STRUCT_ITEM* item, STRUCT_SCORE* score, int Pos, int Class, ST
     if (idx <= 0 || idx >= 6500)
         return FALSE;
 
-    int nUnique = g_pItemList[idx].nUnique;
+    int nUnique = g_pItemList[idx].Unique;
     if (Pos == 15)
         return FALSE;
 
@@ -1839,7 +1839,7 @@ int BASE_CanEquip(STRUCT_ITEM* item, STRUCT_SCORE* score, int Pos, int Class, ST
 
             if (OtherIdx > 0 && OtherIdx < MAX_ITEMLIST)
             {
-                int nUnique2 = g_pItemList[OtherIdx].nUnique;
+                int nUnique2 = g_pItemList[OtherIdx].Unique;
                 int otherpos = BASE_GetItemAbility(&pBaseEquip[OtherPos], EF_POS);
 
                 if (tpos == 64 || otherpos == 64)
@@ -2165,7 +2165,7 @@ int BASE_GetSkillDamage(int skillnum, STRUCT_MOB* mob, int weather, int weaponda
             if (!mob->Class && skind == 1 || mob->Class == 3)
                 dam = 5 * dam / 4;
             else
-                dam = 5 * (dam * (4 * (unsigned __int8)mob->Magic + 100) / 100) / 4;
+                dam = 5 * (dam * (4 * (unsigned __int8)mob->MagicIncrement + 100) / 100) / 4;
         }
         if ((1 << (8 * skillclass + 7)) & mob->LearnedSkill[0])
         {
@@ -2211,7 +2211,7 @@ int BASE_GetSkillDamage(int skillnum, STRUCT_MOB* mob, int weather, int weaponda
     else if (instanceindex == 11)
         dam = g_pSpell[skillnum].InstanceValue;
     else
-        dam = 2 * (unsigned char)mob->Magic;
+        dam = 2 * (unsigned char)mob->MagicIncrement;
 
     return dam;
 }
@@ -2230,7 +2230,7 @@ int BASE_CanEquip_RecvRes(STRUCT_REQ* req, STRUCT_ITEM* item, STRUCT_SCORE* scor
 
     if (idx <= 0 || idx >= 6500)
         return 0;
-    int nUnique = g_pItemList[idx].nUnique;
+    int nUnique = g_pItemList[idx].Unique;
     if (Pos == 15)
         return 0;
     int grade = g_pItemList[idx].nGrade;
@@ -2248,7 +2248,7 @@ int BASE_CanEquip_RecvRes(STRUCT_REQ* req, STRUCT_ITEM* item, STRUCT_SCORE* scor
 
             if (OtherIdx > 0 && OtherIdx < 6500)
             {
-                int nUnique2 = g_pItemList[OtherIdx].nUnique;
+                int nUnique2 = g_pItemList[OtherIdx].Unique;
                 int otherpos = BASE_GetItemAbility(&pBaseEquip[OtherPos], 17);
                 if (nPos == 64 || otherpos == 64)
                 {
@@ -2400,7 +2400,7 @@ int BASE_GetBonusItemAbility(STRUCT_ITEM* item, char Type)
 
     int value = 0;
 
-    int nPos = g_pItemList[item->sIndex].nPos;
+    int nPos = g_pItemList[item->sIndex].Pos;
 
     for (int i = 0; i < 3; ++i)
     {
@@ -2478,8 +2478,8 @@ int BASE_GetItemAbilityNosanc(STRUCT_ITEM* item, char type)
     if (itemId < 0 || itemId >= MAX_ITEMLIST)
         return value;
 
-    int nUnique = g_pItemList[itemId].nUnique;
-    int nPos = g_pItemList[itemId].nPos;
+    int nUnique = g_pItemList[itemId].Unique;
+    int nPos = g_pItemList[itemId].Pos;
 
     if (type == EF_DAMAGEADD || type == EF_MAGICADD)
     {
@@ -2518,22 +2518,22 @@ int BASE_GetItemAbilityNosanc(STRUCT_ITEM* item, char type)
     }
 
     if (type == EF_LEVEL)
-        value += g_pItemList[itemId].nReqLvl;
+        value += g_pItemList[itemId].Level;
 
     if (type == EF_REQ_STR)
-        value += g_pItemList[itemId].nReqStr;
+        value += g_pItemList[itemId].Str;
 
     if (type == EF_REQ_INT)
-        value += g_pItemList[itemId].nReqInt;
+        value += g_pItemList[itemId].Int;
 
     if (type == EF_REQ_DEX)
-        value += g_pItemList[itemId].nReqDex;
+        value += g_pItemList[itemId].Dex;
 
     if (type == EF_REQ_CON)
-        value += g_pItemList[itemId].nReqCon;
+        value += g_pItemList[itemId].Con;
 
     if (type == EF_POS)
-        value += g_pItemList[itemId].nPos;
+        value += g_pItemList[itemId].Pos;
 
     if (type != EF_INCUBATE)
     {
@@ -2800,7 +2800,7 @@ int BASE_GetMobAbility(STRUCT_MOB* mob, char Type)
             continue;
 
         if (i >= 1 && i <= 5)
-            nUnique[i] = g_pItemList[mob->Equip[i].sIndex].nUnique;
+            nUnique[i] = g_pItemList[mob->Equip[i].sIndex].Unique;
 
         if ((Type == 2 && i == 6) || (Type == 60 || i == 7))
             continue;
@@ -2815,11 +2815,11 @@ int BASE_GetMobAbility(STRUCT_MOB* mob, char Type)
 
             int ltype = 0;
             if (lidx > 0 && lidx < 6500)
-                ltype = g_pItemList[lidx].nUnique;
+                ltype = g_pItemList[lidx].Unique;
 
             int rtype = 0;
             if (ridx > 0 && ridx < 6500)
-                rtype = g_pItemList[ridx].nUnique;
+                rtype = g_pItemList[ridx].Unique;
 
             if (!ltype || !rtype)
             {
@@ -3066,7 +3066,7 @@ int BASE_GetDoubleCritical(STRUCT_MOB* mob, unsigned short* sProgress, unsigned 
 
     int hitvalue[2] = 
     {
-        100 * (((int)(unsigned char)mob->CurrentScore.AttackRun >> 4) - 5),
+        100 * (((int)(unsigned char)mob->CurrentScore.Move.Value >> 4) - 5),
         4 * (unsigned char)mob->Critical
     };
    
@@ -3218,10 +3218,10 @@ int BASE_GetMeshIndex(short sIndex)
     int nPos = BASE_GetItemAbility(&item, 17);
     int nClassType = BASE_GetItemAbility(&item, 18);
     int nClassIndex = 0;
-    if (g_pItemList[sIndex].nIndexMesh >= 40 && g_pItemList[sIndex].nIndexMesh < 50
+    if (g_pItemList[sIndex].IndexMesh >= 40 && g_pItemList[sIndex].nIndexTexture < 50
         && (nPos & 4 || nPos & 8 || nPos & 0x10 || nPos & 0x20))
     {
-        if (g_pItemList[sIndex].nIndexMesh == 40)
+        if (g_pItemList[sIndex].nIndexTexture == 40)
             return 0;
 
         switch (nClassType)
@@ -3249,7 +3249,7 @@ int BASE_GetMeshIndex(short sIndex)
         else if (nPos & 0x20)
             nPos = 3;
 
-        return nPos + 4 * (g_pItemList[sIndex].nIndexMesh + nClassIndex - 41) + 1401;
+        return nPos + 4 * (g_pItemList[sIndex].nIndexTexture + nClassIndex - 41) + 1401;
     }
 
     switch (nClassType)
@@ -3271,18 +3271,18 @@ int BASE_GetMeshIndex(short sIndex)
     if (nClassType <= 8)
     {
         if (nPos & 2)
-            return g_pItemList[sIndex].nIndexMesh + nClassIndex + 1001;
+            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1001;
         if (nPos & 4)
-            return g_pItemList[sIndex].nIndexMesh + nClassIndex + 1041;
+            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1041;
         if (nPos & 8)
-            return g_pItemList[sIndex].nIndexMesh + nClassIndex + 1081;
+            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1081;
         if (nPos & 0x10)
-            return g_pItemList[sIndex].nIndexMesh + nClassIndex + 1121;
+            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1121;
         if (nPos & 0x20)
-            return g_pItemList[sIndex].nIndexMesh + nClassIndex + 1161;
+            return g_pItemList[sIndex].nIndexTexture + nClassIndex + 1161;
     }
 
-    return g_pItemList[sIndex].nIndexMesh;
+    return g_pItemList[sIndex].nIndexTexture;
 }
 
 bool BASE_CanRefine(STRUCT_ITEM* item)

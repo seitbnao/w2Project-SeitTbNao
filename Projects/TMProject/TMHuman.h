@@ -115,8 +115,8 @@ public:
     void MoveTo(TMVector2 vecPos);
     void MoveAttack(TMHuman* pTarget);
     void MoveGet(TMItem* pTarget);
-    void Attack(ECHAR_MOTION eMotion, TMVector2 vecTarget, char cSkillIndex);
-    void Attack(ECHAR_MOTION eMotion, TMHuman* pTarget, short cSkillIndex);
+    void Damage(ECHAR_MOTION eMotion, TMVector2 vecTarget, char cSkillIndex);
+    void Damage(ECHAR_MOTION eMotion, TMHuman* pTarget, short cSkillIndex);
     void Punched(int nDamage, TMVector2 vecFrom);
     void Punched(int nDamage, TMHuman* pFrom);
     void Fire(TMObject* pTarget, int nSkill);
@@ -239,7 +239,7 @@ public:
     TMVector2 m_vecRouteBuffer[48];
     int m_nMaxRouteIndex;
     int m_nLastRouteIndex;
-    STRUCT_ITEM TempCarry[64];
+    STRUCT_ITEM TempInventory[64];
     SText* m_pNameLabel;
     SText* m_pKillLabel;
     SPanel* m_pAutoTradePanel;

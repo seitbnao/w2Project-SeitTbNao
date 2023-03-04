@@ -7,8 +7,8 @@ bool CUser::RequestOpenAutoTrade(PacketHeader *Header)
 {
 	p39A *p = (p39A*)(Header);
 
-	INT32 idx = p->Index;
-	if (pMob[clientId].Mobs.Player.Status.curHP == 0 || pUser[clientId].Status != USER_PLAY)
+	INT32 idx = p->sIndex;
+	if (pMob[clientId].Mobs.Player.CurrentScore.Hp == 0 || pUser[clientId].CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 		AddCrackError(clientId, 10, 87);
@@ -21,7 +21,7 @@ bool CUser::RequestOpenAutoTrade(PacketHeader *Header)
 	if (!pUser[idx].IsAutoTrading)
 		return false;
 
-	SendClientMessage(idx, "%s abriu sua loja", pMob[clientId].Mobs.Player.Name);
+	SendClientMessage(idx, "%s abriu sua loja", pMob[clientId].Mobs.Player.MobName);
 
 	SendAutoTrade(clientId, idx);
 	return true;

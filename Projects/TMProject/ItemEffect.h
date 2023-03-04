@@ -23,8 +23,8 @@
 ////////////////      REQUIREMENT        //////////////////////////////////////////
 #define EF_POS                   17  // 위치 입을수 있는 장소 bit값         - 디폴트 NOWHERE (0비트 가 EQUIP 0)
 #define EF_CLASS                 18  // 직업 입을수 있는 (성별)클래스 bit값 - 디폴트 YES
-#define EF_R1SIDC                19  // 한손 1핸드 또는 갑옷의 입을수 있는 STR INT DEC CON         - 디폴트 0
-#define EF_R2SIDC                20  // 두손 2핸드          의 입을수 있는 STR INT DEC CON         - 디폴트 불가
+#define EF_R1SIDC                19  // 한손 1핸드 또는 갑옷의 입을수 있는 Str Int DEC Con         - 디폴트 0
+#define EF_R2SIDC                20  // 두손 2핸드          의 입을수 있는 Str Int DEC Con         - 디폴트 불가
 ////////////////   BONUS  ////////////////////////////////
 #define EF_WTYPE         	     21	 // 무류 무기분류 (애니메이션) 
                                      //  1:소검(클럽)

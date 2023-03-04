@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pugixml.hpp"
-#include "stBase.h"
+#include <SharedStructs.h>
 
 bool ReadSealInfo(int id, STRUCT_SEALFILE& info);
 bool WriteSealInfo(int id, const STRUCT_SEALFILE& info);

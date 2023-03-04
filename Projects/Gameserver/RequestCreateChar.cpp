@@ -17,7 +17,7 @@ bool CUser::RequestCreateChar(PacketHeader *Header)
 	// BUG Da própria TMsrv
 	// Checagem se o usuario esta logado
 	// Caso não esteja, ele retorna falso pois não é possível criar personagem ingame.
-	if(Status != USER_SELCHAR)
+	if(CurrentScore != USER_SELCHAR)
 		return false;
 
 	// Null character
@@ -28,7 +28,7 @@ bool CUser::RequestCreateChar(PacketHeader *Header)
 	AddMessageDB((BYTE*)Header, sizeof p20F);
 
 	// Seta como quem esta criando um personagem
-	Status = USER_CREWAIT;
+	CurrentScore = USER_CREWAIT;
 
 	return true;
 }

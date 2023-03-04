@@ -1950,7 +1950,7 @@ constexpr int GUARDIAN_TOWER_RED = 383;
 #define TICKET_ITEMID 4520
 #pragma endregion
 
-#pragma region MessageString Index
+#pragma region MessageString sIndex
 #define _NN_Get_Skill_Point 1
 #define _NN_Weapon_Enchanted 2
 #define _NN_Get_Watching_Town_Mission 3
@@ -2223,10 +2223,10 @@ constexpr int GUARDIAN_TOWER_RED = 383;
 typedef struct
 {
 	// Clients
-	// [SALA][GRUPO][VALOR] = Index
+	// [SALA][GRUPO][VALOR] = sIndex
 	INT16 Clients[MAX_PARTYPISTA][13];
 	// Timers da Pista
-	BOOL Status;
+	BOOL CurrentScore;
 	INT16 Timer;
 	// Centro, ou seja, onde são teleportados
 	STRUCT_POSITION CenterPos;
@@ -2444,7 +2444,7 @@ extern int BaseSIDCHM[4][6];
 extern char g_pHeightGrid[4096][4096];
 extern eMapAttribute g_pAttributeMap[1024][1024];
 extern WORD g_pItemGrid[4096][4096];
-extern STRUCT_ITEMLIST ItemList[MAX_ITEMLIST];
+extern STRUCT_ITEMLIST g_pItemList[MAX_ITEMLIST];
 extern STRUCT_SKILLDATA SkillData[256];
 extern char EffectName[256][32];
 extern STRUCT_TELEPORT mTeleport[MAX_TELEPORT];
@@ -2514,8 +2514,8 @@ CUser *GetUserBySocket(DWORD socket);
 
 // Leitura de arquivos
 //Envia pacotes ao redor
-void GridMulticast(int Index, unsigned int posX, unsigned int posY, BYTE *buf);
-void GridMulticast_2(short posX, short posY, BYTE *sendPak, int Index);
+void GridMulticast(int sIndex, unsigned int posX, unsigned int posY, BYTE *buf);
+void GridMulticast_2(short posX, short posY, BYTE *sendPak, int sIndex);
 
 // Teleporta o usuario
 void Teleportar(int clientId, unsigned int posX, unsigned int posY);
@@ -2558,8 +2558,8 @@ void ClearGuildPKZone();
 int CreateItem(int posX, int posY, STRUCT_ITEM *item, int unknow, int arg4, int status = 1);
 
 //
-void SetCurKill(int Index, int cFrag);
-void SetTotKill(int Index, int tFrag);
+void SetCurKill(int sIndex, int cFrag);
+void SetTotKill(int sIndex, int tFrag);
 void SetGuilty(int Cid, int arg_2);
 void SetPKPoint(int clientId,int points);
 void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus);

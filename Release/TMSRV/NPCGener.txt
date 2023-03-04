@@ -6853,10 +6853,10 @@
 	Formation:	0
 	StartX:		3818
 	StartY:		2881
-	FightAction1:	Acha_que_o_seu_ataque_esta_surtindo_efeito?_Força!
-	FightAction2:	Os_Gremlins_sao_bem_mais_fortes_que_você!
+	FightAction1:	Acha_que_o_seu_ataque_esta_surtindo_efeito?_Forï¿½a!
+	FightAction2:	Os_Gremlins_sao_bem_mais_fortes_que_vocï¿½!
 	FightAction3:	Ja_enfrentei_guerreiros_bem_mais_fortes!
-	FightAction4:	ZzZzz_..._O_cavaleiro_das_sombras_nunca_morrerá!
+	FightAction4:	ZzZzz_..._O_cavaleiro_das_sombras_nunca_morrerï¿½!
 	StartRange:	0
 	StartWait:	0
 	Segment1X:	3818
@@ -93108,7 +93108,7 @@
 // Perzen - Itens Variados
 // ********************************************
 #	[3276]
-	MinuteGenerate:	1
+	MinuteGenerate:	-1
 	MaxNumMob:	1
 	MinGroup:	0
 	MaxGroup:	0

@@ -128,7 +128,7 @@ void CDuelLetter::CheckUsers()
 {
 	_users.erase(std::remove_if(_users.begin(), _users.end(), [](const CUser* user) 
 	{
-		if (user->Status != USER_PLAY)
+		if (user->CurrentScore != USER_PLAY)
 			return true;
 
 		CMob& mob = pMob[user->clientId];
@@ -184,14 +184,14 @@ bool CDuelLetter::Register(CUser& user, STRUCT_ITEM* item)
 
 		_users.push_back(&pUser[mobId]);
 
-		Log(user.clientId, LOG_INGAME, "Carta de Duelo N - Grupo %s (%d)", pMob[mobId].Mobs.Player.Name, i);
+		Log(user.clientId, LOG_INGAME, "Carta de Duelo N - Grupo %s (%d)", pMob[mobId].Mobs.Player.MobName, i);
 	}
 
 	_room = eDuelLetter_Room::FirstRoom;
 	_timer = DefaultTime;
 	_type = GetType(item);
 
-	if (pMob[user.clientId].Mobs.Player.Equip[10].Index == 1732)
+	if (pMob[user.clientId].Mobs.Player.Equip[10].sIndex == 1732)
 	{
 		_haveCourageSymbol = true;
 		Log(user.clientId, LOG_INGAME, "Consumido Sambolo da Coragem");
@@ -214,7 +214,7 @@ bool CDuelLetter::Register(CUser& user, STRUCT_ITEM* item)
 		SendSignalParm(users->clientId, 0x7530, 0x3A1, DefaultTime);
 		SendSignalParm(users->clientId, 0x7530, 0x3B0, totalMob);
 
-		Log(users->clientId, LOG_INGAME, "Teleportado para quest %s no grupo de %s", ItemList[item->Index].Name, pMob[user.clientId].Mobs.Player.Name);
+		Log(users->clientId, LOG_INGAME, "Teleportado para quest %s no grupo de %s", g_pItemList[item->sIndex].ItemName, pMob[user.clientId].Mobs.Player.MobName);
 	}
 
 	_status = true;
@@ -224,9 +224,9 @@ bool CDuelLetter::Register(CUser& user, STRUCT_ITEM* item)
 eDuelLetterType CDuelLetter::GetType(STRUCT_ITEM* item) const
 {
 	eDuelLetterType type = eDuelLetterType::Arcane;
-	if (item->Index == 3172)
+	if (item->sIndex == 3172)
 		type = eDuelLetterType::Normal;
-	else if (item->Index == 3171)
+	else if (item->sIndex == 3171)
 		type = eDuelLetterType::Mystical;
 
 	return type;
@@ -250,10 +250,10 @@ void CDuelLetter::GenerateRune()
 
 	STRUCT_ITEM rune{};
 	if (!(Rand() % 15))
-		rune.Index = 1736;
+		rune.sIndex = 1736;
 	// Repetir a 1a runa gerada
 	if (!(Rand() % 6) && _runesId.size() != 0)
-		rune.Index = _runesId.begin()->second;
+		rune.sIndex = _runesId.begin()->second;
 	else
 	{
 		int missingRune = 1733;
@@ -265,16 +265,16 @@ void CDuelLetter::GenerateRune()
 				if (std::find_if(_runesId.begin(), _runesId.end(), [&](std::pair<eDuelLetter_Room, int> rune) { return rune.second == i; }) != std::end(_runesId))
 					continue;
 
-				rune.Index = i;
+				rune.sIndex = i;
 			}
 		}
 		
-		if(rune.Index == 0)
-			rune.Index = 1733 + Rand() % 3;
+		if(rune.sIndex == 0)
+			rune.sIndex = 1733 + Rand() % 3;
 	}
 
-	_runesId[_room] = rune.Index;
-	LogGroup("Runa %hu gerada na sala %d", rune.Index, static_cast<int>(_room));
+	_runesId[_room] = rune.sIndex;
+	LogGroup("Runa %hu gerada na sala %d", rune.sIndex, static_cast<int>(_room));
 
 	std::vector<eDuelLetter_Room> rooms;
 	if (_room == eDuelLetter_Room::FirstRoom)
@@ -307,7 +307,7 @@ void CDuelLetter::GenerateRune()
 		const auto& runePos = runePositions[_room][index];
 
 		STRUCT_ITEM item{};
-		item.Index = _runesId[rooms[index]];
+		item.sIndex = _runesId[rooms[index]];
 
 		int initIndex = CreateItem(runePos.first, runePos.second, &item, 0, 0, 0);
 		if (initIndex == 0)

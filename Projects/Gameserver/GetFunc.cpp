@@ -37,55 +37,55 @@ void GetCreateMob(int clientId, BYTE *bufPak)
 	p->Header.PacketId = 0x364;
 	p->Header.Size = sizeof p364;
 
-	memcpy(&p->Status, &mob->Mobs.Player.Status, sizeof STRUCT_STATUS);
+	memcpy(&p->CurrentScore, &mob->Mobs.Player.CurrentScore, sizeof STRUCT_SCORE);
 
-	int len = strlen(mob->Mobs.Player.Name);
+	int len = strlen(mob->Mobs.Player.MobName);
 	if(clientId >= MAX_PLAYER)
 	{
 		if(len >= 16)
 			len = 15;
 
-		p364_Mob *packetMob = reinterpret_cast<p364_Mob*>(bufPak);
-		strncpy_s(packetMob->Name, 16, mob->Mobs.Player.Name, 16);
+		p364 *packetMob = reinterpret_cast<p364*>(bufPak);
+		strncpy_s(packetMob->MobName, 16, mob->Mobs.Player.MobName, 16);
 
 		for(INT32 i = len; i > 0; i--)
 		{
-			if(packetMob->Name[i] != ' ' && packetMob->Name[i] != '_' && packetMob->Name[i] != 0)
+			if(packetMob->MobName[i] != ' ' && packetMob->MobName[i] != '_' && packetMob->MobName[i] != 0)
 				break;
 
-			packetMob->Name[i] = 0;
+			packetMob->MobName[i] = 0;
 		}
 
-		packetMob->Name[len] = 0;
+		packetMob->MobName[len] = 0;
 
 		if(pMob[clientId].Mobs.Player.CapeInfo == 4)
-			packetMob->Status.Defense = 0;
+			packetMob->CurrentScore.Ac = 0;
 		else
-			packetMob->Status.Defense = 1;
+			packetMob->CurrentScore.Ac = 1;
 	}
 	else
 	{
 		if (len >= 12)
 		{
-			p364_Mob* packetMob = reinterpret_cast<p364_Mob*>(bufPak);
+			p364* packetMob = reinterpret_cast<p364*>(bufPak);
 
-			strncpy_s(packetMob->Name, 16, mob->Mobs.Player.Name, 16);
+			strncpy_s(packetMob->MobName, 16, mob->Mobs.Player.MobName, 16);
 		}
 		else
-			strncpy_s(p->Name, 12, mob->Mobs.Player.Name, 16);
+			strncpy_s(p->MobName, 12, mob->Mobs.Player.MobName, 16);
 	}
 	p->Spawn.Type = mob->SpawnType;
 	
 	if(pMob[clientId].Motion != 0)
 		p->Spawn.Type |= (pMob[clientId].Motion << 4);
 
-	p->Index = clientId;
+	p->sIndex = clientId;
 
 	p->Current.X = pMob[clientId].Target.X;
 	p->Current.Y = pMob[clientId].Target.Y;
 	p->Header.TimeStamp = CurrentTime;
 
-	bool isUsingCostume = pMob[clientId].Mobs.Player.Equip[12].Index != 0;
+	bool isUsingCostume = pMob[clientId].Mobs.Player.Equip[12].sIndex != 0;
 	for(int i = 0; i < 16; i++)
 	{
 		short effValue = 0;
@@ -93,9 +93,9 @@ void GetCreateMob(int clientId, BYTE *bufPak)
 
 		if(i == 14)
 		{
-			if(eqItem.Index >= 2360 && eqItem.Index <= 2390)
+			if(eqItem.sIndex >= 2360 && eqItem.sIndex <= 2390)
 			{
-				if(*(INT16*)&eqItem.Effect[0].Index <= 0)
+				if(*(INT16*)&eqItem.stEffect[0].cEffect <= 0)
 				{
 					p->Item_Refine[i] = 0;
 					p->pAnctCode[i] = 0;
@@ -108,8 +108,8 @@ void GetCreateMob(int clientId, BYTE *bufPak)
 		if (i == 0)
 		{
 			// se tiver um traje equipado
-			if (pMob[clientId].Mobs.Player.Equip[12].Index != 0 && pMob[clientId].Mobs.Player.ClassInfo == 2)
-				eqItem.Index = eqItem.EF2;
+			if (pMob[clientId].Mobs.Player.Equip[12].sIndex != 0 && pMob[clientId].Mobs.Player.Class == 2)
+				eqItem.sIndex = eqItem.EF2;
 		}
 
 		p->Item_Refine[i] = GetItemIDAndEffect(&eqItem, i, isUsingCostume);
@@ -129,19 +129,19 @@ void GetCreateMob(int clientId, BYTE *bufPak)
 		p->Affect[i].Time = mob->Mobs.Affects[i].Time & 255;
 	}
 	
-	p->GuildIndex = mob->Mobs.Player.GuildIndex;
-	p->GuildMemberType = mob->Mobs.Player.GuildMemberType;
+	p->Guild = mob->Mobs.Player.Guild;
+	p->GuildLevel = mob->Mobs.Player.GuildLevel;
 
 	if(pMob[clientId].GuildDisable == 1)
 	{
-		p->GuildMemberType = 0;
-		p->GuildIndex = 0;
+		p->GuildLevel = 0;
+		p->Guild = 0;
 	}
 
-	if (mob->Mobs.Player.GuildMemberType == 9)
+	if (mob->Mobs.Player.GuildLevel == 9)
 		p->Spawn.Type |= 0x80;
 
-	else if (mob->Mobs.Player.GuildMemberType >= 6)
+	else if (mob->Mobs.Player.GuildLevel >= 6)
 		p->Spawn.Type |= 0x40;
 
 	if(clientId < MAX_PLAYER)
@@ -154,7 +154,7 @@ void GetCreateMob(int clientId, BYTE *bufPak)
 			p->ChaosPoints = 0;
 
 		if(pMob[clientId].Mobs.Player.Info.Merchant & 1)
-			p->Status.Merchant.Merchant = 1;
+			p->CurrentScore.Merchant.Merchant = 1;
 
 		p->Life = pMob[clientId].Lifes;
 	}
@@ -168,8 +168,8 @@ void GetCreateMob(int clientId, BYTE *bufPak)
 
 	if(pMob[clientId].Target.X >= 2604 && pMob[clientId].Target.Y >= 1708 && pMob[clientId].Target.X <= 2648 && pMob[clientId].Target.Y <= 1744)
 	{
-		p->GuildIndex = 0;
-		p->GuildMemberType = 0;
+		p->Guild = 0;
+		p->GuildLevel = 0;
 
 		p->Item_Refine[15] = 0;
 		p->pAnctCode[15]   = 0;
@@ -187,31 +187,31 @@ void GetCreateMobTrade(int clientId, BYTE *bufPak)
 	p->Header.ClientId = 0x7530;
 	p->Header.PacketId = 0x363;
 
-	memcpy(&p->Status, &mob->Mobs.Player.Status, sizeof STRUCT_STATUS);
+	memcpy(&p->CurrentScore, &mob->Mobs.Player.CurrentScore, sizeof STRUCT_SCORE);
 	
 	for (int i = 0; i < 12; i++)
-		p->Name[i] = mob->Mobs.Player.Name[i];
+		p->MobName[i] = mob->Mobs.Player.MobName[i];
 
-	p->Index = clientId;
+	p->sIndex = clientId;
 	
 	p->Spawn.Type = mob->SpawnType;
 	
-	p->GuildIndex = mob->Mobs.Player.GuildIndex;
-	p->Unknow = mob->Mobs.Player.GuildMemberType;
+	p->Guild = mob->Mobs.Player.Guild;
+	p->GuildLevel = mob->Mobs.Player.GuildLevel;
 
 	p->Current.X = mob->Target.X;
 	p->Current.Y = mob->Target.Y;
 
-	bool isUsingCostume = pMob[clientId].Mobs.Player.Equip[12].Index != 0;
+	bool isUsingCostume = pMob[clientId].Mobs.Player.Equip[12].sIndex != 0;
 	for(int i = 0;i < 16; i++)
 	{
 		short effValue = 0;
 		STRUCT_ITEM eqItem{ mob->Mobs.Player.Equip[i] };
 
 		if(i == 14)
-			if(eqItem.Index >= 2360 && eqItem.Index <= 2390)
-				if(*(short*)&eqItem.Effect[0].Index <= 0)
-					eqItem.Index = 0;
+			if(eqItem.sIndex >= 2360 && eqItem.sIndex <= 2390)
+				if(*(short*)&eqItem.stEffect[0].cEffect <= 0)
+					eqItem.sIndex = 0;
 		
 		p->Item_Refine[i] = GetItemIDAndEffect(&eqItem, i, isUsingCostume);
 		p->pAnctCode[i] = GetAnctCode(&eqItem, isUsingCostume);
@@ -238,7 +238,7 @@ void GetCreateMobTrade(int clientId, BYTE *bufPak)
 		p->ChaosPoints = 0;
 
 	if (pMob[clientId].Mobs.Player.Info.Merchant & 1)
-		p->Status.Merchant.Merchant = 1;
+		p->CurrentScore.Merchant.Merchant = 1;
 	
 	strncpy_s(p->pTab, mob->Tab, 26);
 	strncpy_s(p->StoreName, pUser[clientId].AutoTradeName, 24);
@@ -248,7 +248,7 @@ int GetAnctCode(STRUCT_ITEM *item, bool usingCostume)
 {
 	int value = 0;
 
-	if(item->Index >= 2360 && item->Index < 2389)
+	if(item->sIndex >= 2360 && item->sIndex < 2389)
 	{
 		if(item->EFV3 >= 11)
 			return item->EFV3;
@@ -295,7 +295,7 @@ int GetItemIDAndEffect(STRUCT_ITEM* Item, int mnt, bool usingCostume)
 
 	if(mnt == 14)
 	{
-		return Item->Index | (Item->EF2 / 10 * 4096);
+		return Item->sIndex | (Item->EF2 / 10 * 4096);
 	}
 	else
 	{
@@ -336,7 +336,7 @@ int GetItemIDAndEffect(STRUCT_ITEM* Item, int mnt, bool usingCostume)
 		else if (Item->EF3 == 43)
 			value = Item->EFV3;
 		else
-			return Item->Index;
+			return Item->sIndex;
 	}
 
 	if(value > 9 && mnt != 14 && !colored)
@@ -360,14 +360,14 @@ int GetItemIDAndEffect(STRUCT_ITEM* Item, int mnt, bool usingCostume)
 		if(value >= 9) 
 			value = 9;
 	
-	return Item->Index | (value * 0x1000);
+	return Item->sIndex | (value * 0x1000);
 }
-bool GetEmptyMobGrid(int Index, unsigned int *posX, unsigned int *posY)
+bool GetEmptyMobGrid(int sIndex, unsigned int *posX, unsigned int *posY)
 {
 	if (*posX < 0 || *posX >= 4096 || *posY < 0 || *posY >= 4096)
 		return false;
 
-	if (g_pMobGrid[*posY][*posX] == Index)
+	if (g_pMobGrid[*posY][*posX] == sIndex)
 		return true;
 	
 	int LOCAL1 = g_pMobGrid[*posY][*posX];
@@ -613,7 +613,7 @@ void GetAction(int clientId, short posX, short posY, void *buf)
 	p->Destiny.X = posX;
 	p->Destiny.Y = posY;
 
-	p->MoveSpeed = GetSpeed(&mob->Mobs.Player.Status);
+	p->MoveSpeed = GetSpeed(&mob->Mobs.Player.CurrentScore);
 	p->MoveType = 0;
 	
 	memcpy(&p->Command[0], &pMob[clientId].Route, 24);
@@ -624,10 +624,10 @@ int GetItemSanc(STRUCT_ITEM *item)
 {
     int value = 0;
 
-    if(item->Index >= 2360 && item->Index <= 2389)
+    if(item->sIndex >= 2360 && item->sIndex <= 2389)
     {
         //Montarias.
-        value = (item->Effect[2].Index / 10);
+        value = (item->stEffect[2].cEffect / 10);
 
         if(value > 9)
             value = 9;
@@ -635,25 +635,25 @@ int GetItemSanc(STRUCT_ITEM *item)
         return value;
     }
 
-    if(item->Index >= 2330 && item->Index <= 2359)
+    if(item->sIndex >= 2330 && item->sIndex <= 2359)
     {
         //Crias.
         return 0;
     }
 
-    if(item->Effect[0].Index == 43)
-        value = item->Effect[0].Value;
-    else if(item->Effect[1].Index == 43)
-        value = item->Effect[1].Value;
-    else if(item->Effect[2].Index == 43)
-        value = item->Effect[2].Value;
+    if(item->stEffect[0].cEffect == 43)
+        value = item->stEffect[0].cValue;
+    else if(item->stEffect[1].cEffect == 43)
+        value = item->stEffect[1].cValue;
+    else if(item->stEffect[2].cEffect == 43)
+        value = item->stEffect[2].cValue;
 	else
 	{
 		for(INT32 i = 0; i < 3; i++)
 		{
-			if(item->Effect[i].Index >= 116 && item->Effect[i].Index <= 125)
+			if(item->stEffect[i].cEffect >= 116 && item->stEffect[i].cEffect <= 125)
 			{
-				value = item->Effect[i].Value;
+				value = item->stEffect[i].cValue;
 
 				break;
 			}
@@ -674,16 +674,16 @@ int GetItemSanc(STRUCT_ITEM *item)
 
 bool IsImpossibleToRefine(STRUCT_ITEM* item)
 {
-	if (item->Index <= 0 || item->Index >= MAX_ITEMLIST)
+	if (item->sIndex <= 0 || item->sIndex >= MAX_ITEMLIST)
 		return false;
 
 	bool haveRef = false;
 	for (int i = 0; i < 3; i++)
 	{
-		if (item->Effect[i].Index == 0)
+		if (item->stEffect[i].cEffect == 0)
 			return false;
 
-		if (item->Effect[i].Index == 43 || (item->Effect[i].Index >= 116 && item->Effect[i].Index <= 125))
+		if (item->stEffect[i].cEffect == 43 || (item->stEffect[i].cEffect >= 116 && item->stEffect[i].cEffect <= 125))
 			return false;
 	}
 
@@ -704,13 +704,13 @@ int GetInfoClass (int face)
 	return 4;
 }
 
-short GetEffectValueByIndex(int ItemID, int Index)
+short GetEffectValueByIndex(int ItemID, int sIndex)
 {
-	STRUCT_ITEMLIST *item = &ItemList[ItemID];
+	STRUCT_ITEMLIST *item = &g_pItemList[ItemID];
 	for(int i = 0; i < 12; i++)
 	{
-		if(item->Effect[i].Index == Index)
-			return item->Effect[i].Value;
+		if(item->stEffect[i].sEffect == sIndex)
+			return item->stEffect[i].sValue;
 	}
 	return 0;
 }
@@ -727,7 +727,7 @@ eMapAttribute GetAttribute(int posX, int posY)
 	return g_pAttributeMap[gridY][gridX];
 }
 
-int GetSpeed(STRUCT_STATUS *status)
+int GetSpeed(STRUCT_SCORE *status)
 {
 	int speed = status->Move.Speed;
 
@@ -753,7 +753,7 @@ int GetDistance(int x1,int y1,int x2,int y2)
 		y = y2 - y1;
 
 	if(x <= 7 && y <= 7)
-		return g_pDistanceTable[y][x]; // array com dist�ncias
+		return g_pDistanceTable[y][x]; // array com distências
 
 	if(x > y)
 		return x + 1;
@@ -1282,18 +1282,18 @@ INT32 GetParryRate(CMob *mob, INT32 bonus, INT32 dex, INT32 *info)
 	if(bonus < 0)
 		bonus = 0;
 
-	INT32 LOCAL_1 = mob->Mobs.Player.Status.DEX;
+	INT32 LOCAL_1 = mob->Mobs.Player.CurrentScore.Dex;
 	if(LOCAL_1 > 1000)
 		LOCAL_1 = 1000;
 
-	INT32 LOCAL_2 = mob->Mobs.Player.Status.DEX - 1000;
+	INT32 LOCAL_2 = mob->Mobs.Player.CurrentScore.Dex - 1000;
 	if(LOCAL_2 < 0)
 		LOCAL_2 = 0;
 
 	if(LOCAL_2 > 2000)
 		LOCAL_2 = 2000;
 
-	INT32 LOCAL_3 = mob->Mobs.Player.Status.DEX - 3000;
+	INT32 LOCAL_3 = mob->Mobs.Player.CurrentScore.Dex - 3000;
 	if(LOCAL_3 < 0)
 		LOCAL_3 = 0;
 
@@ -1324,7 +1324,7 @@ INT32 GetParryRate(int clientId, int mobId, int type)
 		0, 10, 0, 0, 10, 0, 0, 10, 0, 16, 10, 0, 0, 60, 60, 50, 60, 0, 0, 0
 	};
 	
-	INT32 dex = pMob[clientId].Mobs.Player.Status.DEX / 5; // arg3?
+	INT32 dex = pMob[clientId].Mobs.Player.CurrentScore.Dex / 5; // arg3?
 	if(pMob[clientId].Mobs.Player.AffectInfo.Evasion)
 		dex += 150;
 
@@ -1334,18 +1334,18 @@ INT32 GetParryRate(int clientId, int mobId, int type)
 	if(pMob[clientId].Mobs.Player.AffectInfo.SpeedMov)
 		dex += 50;
 	
-	INT32 targetDex = pMob[mobId].Mobs.Player.Status.DEX; // local1
+	INT32 targetDex = pMob[mobId].Mobs.Player.CurrentScore.Dex; // local1
 	if(targetDex > 1000)
 		targetDex = 1000;
 
-	INT32 targetDexCalc1 = pMob[mobId].Mobs.Player.Status.DEX - 1000; // local2
+	INT32 targetDexCalc1 = pMob[mobId].Mobs.Player.CurrentScore.Dex - 1000; // local2
 	if(targetDexCalc1 < 0)
 		targetDexCalc1 = 0;
 
 	if(targetDexCalc1 > 2000)
 		targetDexCalc1 = 2000;
 
-	INT32 targetDexCalc2 = pMob[mobId].Mobs.Player.Status.DEX - 3000;
+	INT32 targetDexCalc2 = pMob[mobId].Mobs.Player.CurrentScore.Dex - 3000;
 	if(targetDexCalc2 < 0)
 		targetDexCalc2 = 0;
 
@@ -1356,25 +1356,25 @@ INT32 GetParryRate(int clientId, int mobId, int type)
 	INT32 calcParry = (targetDex >> 1) + (targetDexCalc1 >> 2) + (targetDexCalc2 >> 3);//(LOCAL_3 >> 3) + ((LOCAL_2 + (LOCAL_1 >> 1)) >> 2 + player[clientId].Parry);
 	calcParry -= dex;
 
-	if (pMob[mobId].Mobs.Player.Equip[14].Index >= 3980 && pMob[mobId].Mobs.Player.Equip[14].Index <= 3999)
+	if (pMob[mobId].Mobs.Player.Equip[14].sIndex >= 3980 && pMob[mobId].Mobs.Player.Equip[14].sIndex <= 3999)
 	{
-		int itemId = pMob[mobId].Mobs.Player.Equip[14].Index - 3980;
+		int itemId = pMob[mobId].Mobs.Player.Equip[14].sIndex - 3980;
 		calcParry += pEvadeEsfera[itemId];
 	}
 
-	if (pMob[clientId].Mobs.Player.Equip[14].Index >= 3980 && pMob[clientId].Mobs.Player.Equip[14].Index <= 3999)
+	if (pMob[clientId].Mobs.Player.Equip[14].sIndex >= 3980 && pMob[clientId].Mobs.Player.Equip[14].sIndex <= 3999)
 	{
-		int itemId = pMob[clientId].Mobs.Player.Equip[14].Index - 3980;
+		int itemId = pMob[clientId].Mobs.Player.Equip[14].sIndex - 3980;
 		calcParry += pEvadeEsfera[itemId];
 	}
 
 	if (calcParry > 750)
 		calcParry = 750;
 
-	if (pMob[clientId].Mobs.Player.ClassInfo == 1 && (pMob[clientId].Mobs.Player.Learn[0] & (1 << (47 % 24))) && type == -2)
+	if (pMob[clientId].Mobs.Player.Class == 1 && (pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << (47 % 24))) && type == -2)
 		calcParry -= 50;
 
-	if (pMob[clientId].Mobs.Player.ClassInfo == 0 && ((pMob[clientId].Mobs.Player.Learn[0] & (1 << 7)) || (pMob[clientId].Mobs.Player.Learn[0] & (1 << 23))) && type == -1)
+	if (pMob[clientId].Mobs.Player.Class == 0 && ((pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << 7)) || (pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << 23))) && type == -1)
 		calcParry -= 75;
 
 	calcParry += pMob[mobId].Parry;
@@ -1383,7 +1383,7 @@ INT32 GetParryRate(int clientId, int mobId, int type)
 	if (jewelIndex >= 0 && jewelIndex < 32 && (pMob[clientId].Mobs.Affects[jewelIndex].Value & 64) != 0)
 		calcParry -= 50;
 
-	if ((pMob[clientId].Mobs.Player.Learn[0] & (1 << 28)))
+	if ((pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << 28)))
 		calcParry -= 75;
 
 	calcParry -= pMob[clientId].HitRate;
@@ -1394,9 +1394,9 @@ INT32 GetParryRate(int clientId, int mobId, int type)
 	return calcParry;
 }
 
-int GetPKPoint(int Index)
+int GetPKPoint(int sIndex)
 {
-	return pMob[Index].Mobs.Player.Inventory[63].Effect[0].Index;
+	return pMob[sIndex].Mobs.Player.Inventory[63].stEffect[0].cEffect;
 }
 
 INT32 GetSkillDamage_PvP(INT32 skillId, CMob *player, INT32 weather, INT32 weaponDamage)
@@ -1410,7 +1410,7 @@ INT32 GetSkillDamage_PvP(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 	INT32 mod = skillId % 0x18;
 	value[0] = (mod >> 3) + 1; // local2  - 3 
 
-	value[1] = mob->Status.Level; // local3  - 199
+	value[1] = mob->CurrentScore.Level; // local3  - 199
 	if (mob->Equip[0].EFV2 >= CELESTIAL)
 		value[1] += 400;
 
@@ -1420,7 +1420,7 @@ INT32 GetSkillDamage_PvP(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 	if (value[1] > 600)
 		value[1] = 600;
 
-	value[2] = mob->Status.Mastery[value[0]]; //local4
+	value[2] = mob->CurrentScore.Special[value[0]]; //local4
 
 	damage[0] = SkillData[skillId].InstanceValue; //local5
 	damage[1] = SkillData[skillId].AffectValue; //local6 - TickValue old
@@ -1460,37 +1460,37 @@ INT32 GetSkillDamage_PvP(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 
 		if (skillId == 97)
 			retn = value[1] * 15 + damage[0];
-		else if (mob->ClassInfo == 0 && local8 == 1) // TK
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.DEX * 2) + (weaponDamage * 3);
-		else if (mob->ClassInfo == 0 && local8 != 1)
+		else if (mob->Class == 0 && local8 == 1) // TK
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Dex * 2) + (weaponDamage * 3);
+		else if (mob->Class == 0 && local8 != 1)
 		{
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + (mob->Status.INT / 2);
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + (mob->CurrentScore.Int / 2);
 
-			if (skillId == 7 || skillId >= 17 && skillId <= 23 && (mob->Learn[0] & 0x800000))
-				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->Status.INT / 2) * 110 / 100);
+			if (skillId == 7 || skillId >= 17 && skillId <= 23 && (mob->LearnedSkill[0] & 0x800000))
+				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->CurrentScore.Int / 2) * 110 / 100);
 
 			if (skillId == 7)
 				retn += (retn * 10 / 100);
 		}
-		else if (mob->ClassInfo == 1)
+		else if (mob->Class == 1)
 		{
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.INT / 2) + weaponDamage;
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Int / 2) + weaponDamage;
 
 			if (skillId == 28) // CHOQUE DIVINO
-				retn += (mob->Status.curHP * 10 / 100);
+				retn += (mob->CurrentScore.Hp * 10 / 100);
 		}
-		else if (mob->ClassInfo == 2)
+		else if (mob->Class == 2)
 		{
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.INT / 2);
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Int / 2);
 
 			// Com oitava habilidade
-			if (skillId == 48 || skillId == 50 || skillId == 52 || skillId == 55 && (mob->Learn[0] & 0x80))
-				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->Status.INT / 2) * 108 / 100);
+			if (skillId == 48 || skillId == 50 || skillId == 52 || skillId == 55 && (mob->LearnedSkill[0] & 0x80))
+				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->CurrentScore.Int / 2) * 108 / 100);
 
 			retn += (retn * 5 / 100);
 		}
-		else if (mob->ClassInfo == 3)
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.STR * 3) + (weaponDamage * 3);
+		else if (mob->Class == 3)
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Str * 3) + (weaponDamage * 3);
 
 		if (weather == 1)
 		{
@@ -1509,9 +1509,9 @@ INT32 GetSkillDamage_PvP(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 			retn = retn;
 			return retn;
 		}
-		else if (mob->ClassInfo || local8 != 1)
+		else if (mob->Class || local8 != 1)
 		{
-			if (mob->ClassInfo == 3)
+			if (mob->Class == 3)
 				retn = (retn * 5 / 4);
 			else
 			{
@@ -1533,7 +1533,7 @@ INT32 GetSkillDamage_PvP(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 		retn = player->MagicIncrement;
 
 	if (skillId == 79)
-		retn = mob->Status.Attack * 85 / 100;
+		retn = mob->CurrentScore.Damage * 85 / 100;
 
 	return retn;
 }
@@ -1549,7 +1549,7 @@ INT32 GetSkillDamage_PvM(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 
 	INT32 mod = skillId % 0x18;
 	value[0] = (mod >> 3) + 1; // local2  - 3 
-	value[1] = mob->Status.Level; // local3  - 199
+	value[1] = mob->CurrentScore.Level; // local3  - 199
 
 	if (mob->Equip[0].EFV2 >= CELESTIAL)
 		value[1] += 400;
@@ -1560,7 +1560,7 @@ INT32 GetSkillDamage_PvM(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 	if (value[1] > 600)
 		value[1] = 600;
 
-	value[2] = mob->Status.Mastery[value[0]]; //local4
+	value[2] = mob->CurrentScore.Special[value[0]]; //local4
 
 	damage[0] = SkillData[skillId].InstanceValue; //local5
 	damage[1] = SkillData[skillId].AffectValue; //local6 - TickValue old
@@ -1600,43 +1600,43 @@ INT32 GetSkillDamage_PvM(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 
 		if (skillId == 97)
 			retn = value[1] * 15 + damage[0];
-		else if (mob->ClassInfo == 0 && local8 == 1) // TK
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.DEX) + (weaponDamage * 3);
-		else if (mob->ClassInfo == 0 && local8 != 1)
+		else if (mob->Class == 0 && local8 == 1) // TK
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Dex) + (weaponDamage * 3);
+		else if (mob->Class == 0 && local8 != 1)
 		{
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + (mob->Status.INT / 2);
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + (mob->CurrentScore.Int / 2);
 
-			if (skillId == 7 || skillId >= 17 && skillId <= 23 && (mob->Learn[0] & 0x800000))
-				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->Status.INT / 2) * 108 / 100);
+			if (skillId == 7 || skillId >= 17 && skillId <= 23 && (mob->LearnedSkill[0] & 0x800000))
+				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->CurrentScore.Int / 2) * 108 / 100);
 
 			if (skillId == 7)
 				retn += (retn * 10 / 100);
 		}
-		else if (mob->ClassInfo == 1)
+		else if (mob->Class == 1)
 		{
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.INT / 2) + weaponDamage;
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Int / 2) + weaponDamage;
 
-			if (skillId >= 32 && skillId <= 39 && (mob->Learn[0] & 0x8000))
-				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->Status.INT / 2) * 115 / 100);
+			if (skillId >= 32 && skillId <= 39 && (mob->LearnedSkill[0] & 0x8000))
+				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->CurrentScore.Int / 2) * 115 / 100);
 
-			if (skillId == 40 && (mob->Learn[0] & 0x800000))
-				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->Status.INT / 2) * 115 / 100);
+			if (skillId == 40 && (mob->LearnedSkill[0] & 0x800000))
+				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->CurrentScore.Int / 2) * 115 / 100);
 
 			if (skillId == 28) // CHOQUE DIVINO
-				retn += (mob->Status.curHP * 10 / 100);
+				retn += (mob->CurrentScore.Hp * 10 / 100);
 		}
-		else if (mob->ClassInfo == 2)
+		else if (mob->Class == 2)
 		{
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.INT / 2);
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Int / 2);
 
 			// Com oitava habilidade
-			if (skillId == 48 || skillId == 50 || skillId == 52 || skillId == 55 && (mob->Learn[0] & 0x80))
-				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->Status.INT / 2) * 115 / 100);
+			if (skillId == 48 || skillId == 50 || skillId == 52 || skillId == 55 && (mob->LearnedSkill[0] & 0x80))
+				retn = (damage[0] + value[2]) + (value[1] >> 1) + weaponDamage + ((mob->CurrentScore.Int / 2) * 115 / 100);
 
 			retn += (retn * 8 / 100);
 		}
-		else if (mob->ClassInfo == 3)
-			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->Status.STR * 3) + (weaponDamage * 3);
+		else if (mob->Class == 3)
+			retn = (damage[0] + value[2]) + (value[1] >> 1) + (mob->CurrentScore.Str * 3) + (weaponDamage * 3);
 
 		if (weather == 1)
 		{
@@ -1655,9 +1655,9 @@ INT32 GetSkillDamage_PvM(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 			retn = retn;
 			return retn;
 		}
-		else if (mob->ClassInfo || local8 != 1)
+		else if (mob->Class || local8 != 1)
 		{
-			if (mob->ClassInfo == 3)
+			if (mob->Class == 3)
 				retn = (retn * 5 / 4);
 			else
 			{
@@ -1679,7 +1679,7 @@ INT32 GetSkillDamage_PvM(INT32 skillId, CMob *player, INT32 weather, INT32 weapo
 		retn = player->MagicIncrement;
 
 	if (skillId == 79)
-		retn = mob->Status.Attack;
+		retn = mob->CurrentScore.Damage;
 
 	return retn;
 }
@@ -1743,26 +1743,26 @@ int GetEmptyAffect(int mobId, int buffId)
 	return -1;
 }
 
-int GetCurKill(int Index)
+int GetCurKill(int sIndex)
 {
-	return pMob[Index].Mobs.Player.Inventory[63].EFV1;
+	return pMob[sIndex].Mobs.Player.Inventory[63].EFV1;
 }
 
-int GetTotKill(int Index)
+int GetTotKill(int sIndex)
 {
-	unsigned char f_tFrag =  pMob[Index].Mobs.Player.Inventory[63].EFV2;
-	unsigned char s_tFrag =  pMob[Index].Mobs.Player.Inventory[63].EFV3;
+	unsigned char f_tFrag =  pMob[sIndex].Mobs.Player.Inventory[63].EFV2;
+	unsigned char s_tFrag =  pMob[sIndex].Mobs.Player.Inventory[63].EFV3;
 	return f_tFrag + (s_tFrag << 8);
 }
 
-int GetGuilty(int Index)
+int GetGuilty(int sIndex)
 {// 0x004012CB
-	int guilty = pMob[Index].Mobs.Player.Inventory[63].EF2; 
+	int guilty = pMob[sIndex].Mobs.Player.Inventory[63].EF2; 
 	int value = guilty & 0xFF;
 
 	if(value > 50)
 	{
-        pMob[Index].Mobs.Player.Inventory[63].EF2 = 0; // 0041E775  |. C680 906C5C01 >MOV BYTE PTR DS:[EAX+15C6C90],0
+        pMob[sIndex].Mobs.Player.Inventory[63].EF2 = 0; // 0041E775  |. C680 906C5C01 >MOV BYTE PTR DS:[EAX+15C6C90],0
 		value = 0;
 	}
 
@@ -1987,14 +1987,14 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 	if(attackerId >= MAX_PLAYER)
 	{
 		INT32 _rand = Rand() % 100;
-		if(pMob[attackerId].Mobs.Player.SkillBar1[0] != -1 && _rand >= 25 && _rand <= 40)
-			p->skillId = pMob[attackerId].Mobs.Player.SkillBar1[0];
-		else if(pMob[attackerId].Mobs.Player.SkillBar1[1] != -1 && _rand >= 0 && _rand <= 49)
-			p->skillId = pMob[attackerId].Mobs.Player.SkillBar1[1];
-		else if(pMob[attackerId].Mobs.Player.SkillBar1[2] != -1 && _rand >= 50 && _rand <= 84)
-			p->skillId = pMob[attackerId].Mobs.Player.SkillBar1[2];
-		else if(pMob[attackerId].Mobs.Player.SkillBar1[3] != -1 && _rand >= 85 && _rand <= 99)
-			p->skillId = pMob[attackerId].Mobs.Player.SkillBar1[3];
+		if(pMob[attackerId].Mobs.Player.ShortSkill[0] != -1 && _rand >= 25 && _rand <= 40)
+			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[0];
+		else if(pMob[attackerId].Mobs.Player.ShortSkill[1] != -1 && _rand >= 0 && _rand <= 49)
+			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[1];
+		else if(pMob[attackerId].Mobs.Player.ShortSkill[2] != -1 && _rand >= 50 && _rand <= 84)
+			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[2];
+		else if(pMob[attackerId].Mobs.Player.ShortSkill[3] != -1 && _rand >= 85 && _rand <= 99)
+			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[3];
 
 		if(p->skillId != -1)
 		{
@@ -2006,7 +2006,7 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 					leader = attackerId;
 
 				// Pega 5% do HP do leader
-				INT32 heal = pMob[leader].Mobs.Player.Status.maxHP  * 5 / 100;
+				INT32 heal = pMob[leader].Mobs.Player.CurrentScore.MaxHp  * 5 / 100;
 				
 				p->Target[0].Index = leader;
 				p->Target[0].Damage = -heal;
@@ -2030,10 +2030,10 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 		{
 			damage = GetSkillDamage_PvM(p->skillId, &pMob[attackerId], sServer.Weather, pMob[attackerId].WeaponDamage);
 
-			damage = GetSkillDamage_2(damage, pMob[attackerId].Mobs.Player.Status.Defense, 15);
+			damage = GetSkillDamage_2(damage, pMob[attackerId].Mobs.Player.CurrentScore.Ac, 15);
 		}
 		else
-			damage = GetDamage(pMob[attackerId].Mobs.Player.Status.Attack, pMob[mobId].Mobs.Player.Status.Defense, 0);
+			damage = GetDamage(pMob[attackerId].Mobs.Player.CurrentScore.Damage, pMob[mobId].Mobs.Player.CurrentScore.Ac, 0);
 
 		if(damage > 0 && mobId < MAX_PLAYER && pMob[mobId].ReflectDamage > 0)
 		{
@@ -2091,13 +2091,13 @@ void GetAttack(int clientId, int mobId, p39D* p)
 		INT32 LOCAL_4;
 		if(LOCAL_2 < 3)
 		{
-			LOCAL_3 = pMob[clientId].Mobs.Player.Status.Mastery[0];
-			LOCAL_4 = pMob[clientId].Mobs.Player.Status.Mastery[1];
+			LOCAL_3 = pMob[clientId].Mobs.Player.CurrentScore.Special[0];
+			LOCAL_4 = pMob[clientId].Mobs.Player.CurrentScore.Special[1];
 		}
 		else
 		{
-			LOCAL_3 = pMob[clientId].Mobs.Player.Status.Mastery[2];
-			LOCAL_4 = pMob[clientId].Mobs.Player.Status.Mastery[3];
+			LOCAL_3 = pMob[clientId].Mobs.Player.CurrentScore.Special[2];
+			LOCAL_4 = pMob[clientId].Mobs.Player.CurrentScore.Special[3];
 		}
 
 		p->Motion= 0;
@@ -2214,21 +2214,21 @@ void GetAttack(int clientId, int mobId, p39D* p)
 		}
 
 		INT32 LOCAL_6 = Rand() % 100;
-		if(pMob[clientId].Mobs.Player.SkillBar1[3] != -1 && LOCAL_6 >= 0x19 && LOCAL_6 <= 40)
+		if(pMob[clientId].Mobs.Player.ShortSkill[3] != -1 && LOCAL_6 >= 0x19 && LOCAL_6 <= 40)
 		{// skillData base = 7DCDD8
-			INT32 LOCAL_7 = pMob[clientId].Mobs.Player.SkillBar1[3];
+			INT32 LOCAL_7 = pMob[clientId].Mobs.Player.ShortSkill[3];
 			INT32 LOCAL_8 = SkillData[LOCAL_7].InstanceType;
 			INT32 LOCAL_9 = pMob[clientId].Leader;
 
 			if(LOCAL_9 <= 0)
 				LOCAL_9 = clientId;
 
-			INT32 LOCAL_10 = pMob[clientId].Mobs.Player.Status.curHP;
+			INT32 LOCAL_10 = pMob[clientId].Mobs.Player.CurrentScore.Hp;
 			LOCAL_10 = LOCAL_10 * 10;
-			LOCAL_10 = LOCAL_10 / pMob[clientId].Mobs.Player.Status.maxHP;
-			INT32 LOCAL_11 = pMob[LOCAL_9].Mobs.Player.Status.curHP;
+			LOCAL_10 = LOCAL_10 / pMob[clientId].Mobs.Player.CurrentScore.MaxHp;
+			INT32 LOCAL_11 = pMob[LOCAL_9].Mobs.Player.CurrentScore.Hp;
 			LOCAL_11 = LOCAL_11 * 10;
-			LOCAL_11 = LOCAL_11 / pMob[clientId].Mobs.Player.Status.maxHP;
+			LOCAL_11 = LOCAL_11 / pMob[clientId].Mobs.Player.CurrentScore.MaxHp;
 
 			if(LOCAL_8 == 6 && LOCAL_10 <= 8 && LOCAL_11 <= 8)
 			{
@@ -2238,7 +2238,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 				if(LOCAL_10 > LOCAL_11)
 					LOCAL_12 = LOCAL_9;
 
-				INT32 LOCAL_13 = pMob[LOCAL_12].Mobs.Player.Status.curHP / 10;
+				INT32 LOCAL_13 = pMob[LOCAL_12].Mobs.Player.CurrentScore.Hp / 10;
 
 				p->Target.Index = LOCAL_12;
 				p->Target.Damage = -LOCAL_13;
@@ -2247,36 +2247,36 @@ void GetAttack(int clientId, int mobId, p39D* p)
 			}
 		}
 		
-		if(pMob[clientId].Mobs.Player.SkillBar1[0] != -1 && LOCAL_6 >= 0 && LOCAL_6 <= 25)
+		if(pMob[clientId].Mobs.Player.ShortSkill[0] != -1 && LOCAL_6 >= 0 && LOCAL_6 <= 25)
 		{
-			INT32 LOCAL_14 = pMob[clientId].Mobs.Player.SkillBar1[0];
+			INT32 LOCAL_14 = pMob[clientId].Mobs.Player.ShortSkill[0];
 			INT32 LOCAL_15 = SkillData[LOCAL_14].InstanceType;
 
 			LOCAL_1 = LOCAL_15 - 2;
 
 			p->skillId = LOCAL_14;
 		}
-		else if(pMob[clientId].Mobs.Player.SkillBar1[1] != -1 && LOCAL_6 >= 26 && LOCAL_6 <= 50)
+		else if(pMob[clientId].Mobs.Player.ShortSkill[1] != -1 && LOCAL_6 >= 26 && LOCAL_6 <= 50)
 		{
-			INT32 LOCAL_16 = pMob[clientId].Mobs.Player.SkillBar1[1];
+			INT32 LOCAL_16 = pMob[clientId].Mobs.Player.ShortSkill[1];
 			INT32 LOCAL_17 = SkillData[LOCAL_16].InstanceType;
 
 			LOCAL_1 = LOCAL_17 - 2;
 
 			p->skillId = LOCAL_16;
 		}
-		else if(pMob[clientId].Mobs.Player.SkillBar1[2] != -1 && LOCAL_6 >= 51 && LOCAL_6 <= 75)
+		else if(pMob[clientId].Mobs.Player.ShortSkill[2] != -1 && LOCAL_6 >= 51 && LOCAL_6 <= 75)
 		{
-			INT32 LOCAL_16 = pMob[clientId].Mobs.Player.SkillBar1[2];
+			INT32 LOCAL_16 = pMob[clientId].Mobs.Player.ShortSkill[2];
 			INT32 LOCAL_17 = SkillData[LOCAL_16].InstanceType;
 
 			LOCAL_1 = LOCAL_17 - 2;
 
 			p->skillId = LOCAL_16;
 		}
-		else if(pMob[clientId].Mobs.Player.SkillBar1[3] != -1 && LOCAL_6 >= 51 && LOCAL_6 <= 75)
+		else if(pMob[clientId].Mobs.Player.ShortSkill[3] != -1 && LOCAL_6 >= 51 && LOCAL_6 <= 75)
 		{
-			INT32 LOCAL_16 = pMob[clientId].Mobs.Player.SkillBar1[3];
+			INT32 LOCAL_16 = pMob[clientId].Mobs.Player.ShortSkill[3];
 			INT32 LOCAL_17 = SkillData[LOCAL_16].InstanceType;
 
 			LOCAL_1 = LOCAL_17 - 2;
@@ -2285,9 +2285,9 @@ void GetAttack(int clientId, int mobId, p39D* p)
 		}
 	}
 
-	INT32 LOCAL_20 = pMob[clientId].Mobs.Player.Status.Attack;
+	INT32 LOCAL_20 = pMob[clientId].Mobs.Player.CurrentScore.Damage;
 
-	LOCAL_20 = GetDamage(LOCAL_20, pMob[mobId].Mobs.Player.Status.Defense, 0);
+	LOCAL_20 = GetDamage(LOCAL_20, pMob[mobId].Mobs.Player.CurrentScore.Ac, 0);
 
 	if(LOCAL_1 >= 0 && LOCAL_1 <= 3)
 		LOCAL_20 = LOCAL_20 * (100 - *(BYTE*)(&pMob[mobId].Mobs.Player.Resist + LOCAL_1)) / 100;
@@ -2327,8 +2327,8 @@ void GetAttack(int clientId, int mobId, p39D* p)
 		if(LOCAL_24 == 0)
 			LOCAL_24 = mobId;
 
-		INT32 LOCAL_25 = pMob[clientId].Mobs.Player.GuildIndex; 
-		INT32 LOCAL_26 = pMob[mobId].Mobs.Player.GuildIndex;    // quem esta sendo atacado
+		INT32 LOCAL_25 = pMob[clientId].Mobs.Player.Guild; 
+		INT32 LOCAL_26 = pMob[mobId].Mobs.Player.Guild;    // quem esta sendo atacado
 		INT32 ally = g_pGuildAlly[LOCAL_25];
 		if(ally == 0)
 			ally = -1;
@@ -2340,7 +2340,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 			LOCAL_26 = -2;
 
 		if (pMob[LOCAL_23].Target.X >= 1041 && pMob[LOCAL_23].Target.X <= 1248 &&
-			pMob[LOCAL_23].Target.Y >= 1950 && pMob[LOCAL_23].Target.Y <= 2158 && sServer.RvR.Status == 1)
+			pMob[LOCAL_23].Target.Y >= 1950 && pMob[LOCAL_23].Target.Y <= 2158 && sServer.RvR.CurrentScore == 1)
 		{ // se estiver dentro da area
 			if(pMob[LOCAL_23].Mobs.Player.CapeInfo == pMob[LOCAL_24].Mobs.Player.CapeInfo)
 			{
@@ -2410,9 +2410,9 @@ bool GetEmptyItemGrid(int *posX, int *posY)
     return false;
 }
 
-void GetCreateItem(int Index, p26E *p)
+void GetCreateItem(int sIndex, p26E *p)
 {
-	const STRUCT_INITITEM *init = &g_pInitItem[Index];
+	const STRUCT_INITITEM *init = &g_pInitItem[sIndex];
 
 	p->Header.Size = sizeof p26E;
 	p->Header.PacketId = 0x26E;
@@ -2421,12 +2421,12 @@ void GetCreateItem(int Index, p26E *p)
 	p->Init.X = init->PosX;
 	p->Init.Y = init->PosY;
 
-	p->Index = (Index + 10000);
+	p->sIndex = (sIndex + 10000);
 
 	memcpy(&p->Item, &init->Item, 8);
 
 	p->Rotation = init->Rotation;
-	p->Status = init->Status;
+	p->CurrentScore = init->CurrentScore;
 	p->Unknow = 0;
 	p->HeightGrid = init->HeightGrid;
 }
@@ -2435,10 +2435,10 @@ INT32 GetUserByName(char *name)
 {
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].Status != USER_PLAY)
+		if(pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
-		if(!strcmp(pMob[i].Mobs.Player.Name, name))
+		if(!strcmp(pMob[i].Mobs.Player.MobName, name))
 			return i;
 	}
 
@@ -2461,8 +2461,8 @@ long long GetExpApply(long long exp, int attackerId, int targetId)
 	CMob *spwAttacker = &pMob[attackerId];
 	CMob *spwTarget   = &pMob[ targetId ];
 	
-	long long attacker = spwAttacker->Mobs.Player.Status.Level;
-	long long target = spwTarget->Mobs.Player.Status.Level;
+	long long attacker = spwAttacker->Mobs.Player.CurrentScore.Level;
+	long long target = spwTarget->Mobs.Player.CurrentScore.Level;
 	long long ev = spwAttacker->Mobs.Player.Equip[0].EFV2;
 	if((ev <= ARCH && attacker >= MAX_LEVEL) || (ev >= CELESTIAL && attacker >= MAX_LEVEL_CELESTIAL))
 		return 0;
@@ -2548,11 +2548,11 @@ long long GetExpApply_2(long long exp, int receiver, int attackerId, bool useBox
 	if(exp == 0)
 		return 0;
 	
-	long long level = pMob[receiver].Mobs.Player.Status.Level;
+	long long level = pMob[receiver].Mobs.Player.CurrentScore.Level;
 	eClass classMaster = pMob[receiver].Mobs.Player.GetEvolution();
 
 	auto checkIsBlocked = [](int receiver) -> bool {
-		long long level = pMob[receiver].Mobs.Player.Status.Level;
+		long long level = pMob[receiver].Mobs.Player.CurrentScore.Level;
 		eClass classMaster = pMob[receiver].Mobs.Player.GetEvolution();
 
 		bool isBlocked = false;
@@ -2571,7 +2571,7 @@ long long GetExpApply_2(long long exp, int receiver, int attackerId, bool useBox
 	if (classMaster >= eClass::Celestial && level >= MAX_LEVEL_CELESTIAL)
 		return 0;
 
-	// Somente batedores celestiais ou superior podem dar experi�ncia para celestiais ou superior 200+
+	// Somente batedores celestiais ou superior podem dar experiência para celestiais ou superior 200+
 	auto attackerClassMaster = pMob[attackerId].Mobs.Player.GetEvolution();
 	if (classMaster >= CELESTIAL && level >= 199 && attackerClassMaster < eClass::Celestial)
 		return 0;
@@ -2649,7 +2649,7 @@ long long GetExpApply_2(long long exp, int receiver, int attackerId, bool useBox
 	{
 		for (INT32 i = 0; i < 32; i++)
 		{
-			if (pMob[attackerId].Mobs.Affects[i].Index == 39) // ba� de experi�ncia
+			if (pMob[attackerId].Mobs.Affects[i].Index == 39) // baê de experiência
 			{
 				exp *= 2LL;
 				break;
@@ -2657,7 +2657,7 @@ long long GetExpApply_2(long long exp, int receiver, int attackerId, bool useBox
 		}
 	}
 
-	if ((classMaster == eClass::Celestial && pMob[receiver].Mobs.Player.bStatus.Level >= 64) || classMaster >= eClass::SubCelestial)
+	if ((classMaster == eClass::Celestial && pMob[receiver].Mobs.Player.BaseScore.Level >= 64) || classMaster >= eClass::SubCelestial)
 	{
 		for (int t = 0; t < 9; t++)
 		{
@@ -2670,7 +2670,7 @@ long long GetExpApply_2(long long exp, int receiver, int attackerId, bool useBox
 		}
 	}
 
-	if (classMaster >= eClass::Celestial && pMob[receiver].Mobs.Player.bStatus.Level >= 199)
+	if (classMaster >= eClass::Celestial && pMob[receiver].Mobs.Player.BaseScore.Level >= 199)
 	{
 		for (int t = 0; t < 9; t++)
 		{
@@ -2699,7 +2699,7 @@ long long GetExpApply_2(long long exp, int receiver, int attackerId, bool useBox
 
  
 
-	exp += GetFairyExpBonus(exp, pMob[attackerId].Mobs.Player.Equip[13].Index);
+	exp += GetFairyExpBonus(exp, pMob[attackerId].Mobs.Player.Equip[13].sIndex);
 
 	if (pMob[receiver].IndividualExpBonus > 0 && pMob[receiver].IndividualExpBonus < 100)
 		exp += (exp * static_cast<long long>(pMob[receiver].IndividualExpBonus) / 100LL);
@@ -2788,9 +2788,9 @@ INT32 GetItemAmount(STRUCT_ITEM *item)
 	
 	for(INT8 i = 0; i < 3; i++)
 	{
-		if(item->Effect[i].Index == EF_AMOUNT)
+		if(item->stEffect[i].cEffect == EF_AMOUNT)
 		{
-			amount = item->Effect[i].Value;
+			amount = item->stEffect[i].cValue;
 			if(amount == 0)
 				amount = 1;
 
@@ -2808,7 +2808,7 @@ int GetUserInArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned in
 
 	for(; LOCAL_2 < MAX_PLAYER; LOCAL_2 ++)
 	{
-		if(pUser[LOCAL_2].Status != USER_PLAY)
+		if(pUser[LOCAL_2].CurrentScore != USER_PLAY)
 			continue;
 
 		if(pMob[LOCAL_2].Mode == 0)
@@ -2818,7 +2818,7 @@ int GetUserInArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned in
 			continue;
 
 		if(LOCAL_1 == 0)
-			strncpy_s(first, 16, pMob[LOCAL_2].Mobs.Player.Name, 12);
+			strncpy_s(first, 16, pMob[LOCAL_2].Mobs.Player.MobName, 12);
 
 		LOCAL_1++;
 	}
@@ -2833,7 +2833,7 @@ INT32 GetInventoryAmount(int clientId, int itemId)
 	INT32 total = 0;
 	for(INT32 i = 0; i < 30; i++)
 	{
-		if(item[i].Index == itemId)
+		if(item[i].sIndex == itemId)
 			total += GetItemAmount(&item[i]);
 	}
 	
@@ -2844,7 +2844,7 @@ INT32 GetInventoryAmount(int clientId, int itemId)
 	{
 		for(INT32 i = 30; i < 45; i++)
 		{
-			if(item[i].Index == itemId)
+			if(item[i].sIndex == itemId)
 				total += GetItemAmount(&item[i]);
 		}
 	}
@@ -2853,7 +2853,7 @@ INT32 GetInventoryAmount(int clientId, int itemId)
 	{
 		for(INT32 i = 45; i < 60; i++)
 		{
-			if(item[i].Index == itemId)
+			if(item[i].sIndex == itemId)
 				total += GetItemAmount(&item[i]);
 		}
 	}
@@ -2866,13 +2866,13 @@ void GetGuild(int clientId)
 	STRUCT_ITEM *LOCAL_1 = &pMob[clientId].Mobs.Player.Equip[12];
 
 /*	if(pMob[clientId].Mobs.MedalId == 509)
-		pMob[clientId].Mobs.Player.GuildMemberType = 9;
+		pMob[clientId].Mobs.Player.GuildLevel = 9;
 	else if(pMob[clientId].Mobs.MedalId >= 526 && pMob[clientId].Mobs.MedalId <= 531)
-		pMob[clientId].Mobs.Player.GuildMemberType = (3 + pMob[clientId].Mobs.MedalId - 526);
+		pMob[clientId].Mobs.Player.GuildLevel = (3 + pMob[clientId].Mobs.MedalId - 526);
 	else if(pMob[clientId].Mobs.MedalId == 508)
-		pMob[clientId].Mobs.Player.GuildMemberType = 1;
+		pMob[clientId].Mobs.Player.GuildLevel = 1;
 	else 
-		pMob[clientId].Mobs.Player.GuildMemberType = 0;*/
+		pMob[clientId].Mobs.Player.GuildLevel = 0;*/
 }
 
 unsigned int GetWeekNumber()
@@ -2932,24 +2932,24 @@ INT32 GetBonusSet(STRUCT_MOB *player, INT32 defense)
 		item = &player->Equip[1];
 	}
 
-	// O primeiro item ja n�o existe, logo, n�o ha porque aplicar o b�nus
-	if(item->Index <= 0 || item->Index >= MAX_ITEMLIST)
+	// O primeiro item ja nêo existe, logo, nêo ha porque aplicar o bênus
+	if(item->sIndex <= 0 || item->sIndex >= MAX_ITEMLIST)
 		return 0;
 
-	INT32 mobType = GetEffectValueByIndex(item->Index, EF_MOBTYPE),
-		  _class  = GetEffectValueByIndex(item->Index, EF_CLASS),
-		  letter  = GetEffectValueByIndex(item->Index, EF_UNKNOW1);
+	INT32 mobType = GetEffectValueByIndex(item->sIndex, EF_MOBTYPE),
+		  _class  = GetEffectValueByIndex(item->sIndex, EF_CLASS),
+		  letter  = GetEffectValueByIndex(item->sIndex, EF_UNKNOW1);
 
 	INT32 i;
 	for(i = start; i < 6; i++)
 	{
 		STRUCT_ITEM *tmpItem = &player->Equip[i];
-		if(tmpItem->Index <= 0 || tmpItem->Index >= 6500)
+		if(tmpItem->sIndex <= 0 || tmpItem->sIndex >= 6500)
 			break;
 
-		if(mobType != GetEffectValueByIndex(tmpItem->Index, EF_MOBTYPE) ||
-			_class != GetEffectValueByIndex(tmpItem->Index, EF_CLASS) ||
-			letter != GetEffectValueByIndex(tmpItem->Index, EF_UNKNOW1))
+		if(mobType != GetEffectValueByIndex(tmpItem->sIndex, EF_MOBTYPE) ||
+			_class != GetEffectValueByIndex(tmpItem->sIndex, EF_CLASS) ||
+			letter != GetEffectValueByIndex(tmpItem->sIndex, EF_UNKNOW1))
 			break;
 	}
 
@@ -2962,41 +2962,41 @@ INT32 GetBonusSet(STRUCT_MOB *player, INT32 defense)
 int GetStaticItemAbility(STRUCT_ITEM *item, unsigned char Type)
 {
 	int value = 0;
-	int idx = item->Index;
+	int idx = item->sIndex;
 
 	if(idx <= 0 || idx > MAX_ITEMLIST)
 		return value;
 
-	int nPos = ItemList[idx].Pos;
+	int nPos = g_pItemList[idx].Pos;
 
 	if(Type == EF_LEVEL && idx >= 2330 && idx < 2360)
-		value = item->Effect[1].Index - 1;
+		value = item->stEffect[1].cEffect - 1;
 	else if(Type == EF_LEVEL)
-		value += ItemList[idx].Level;
+		value += g_pItemList[idx].Level;
 
 	if(Type == EF_REQ_STR)
-		value += ItemList[idx].Str;
+		value += g_pItemList[idx].Str;
 
 	if(Type == EF_REQ_INT)
-		value += ItemList[idx].Int;
+		value += g_pItemList[idx].Int;
 
 	if(Type == EF_REQ_DEX)
-		value += ItemList[idx].Dex;
+		value += g_pItemList[idx].Dex;
 
 	if(Type == EF_REQ_CON)
-		value += ItemList[idx].Con;
+		value += g_pItemList[idx].Con;
 
 	if(Type == EF_POS)
-		value += ItemList[idx].Pos;
+		value += g_pItemList[idx].Pos;
 
 	if(Type != EF_INCUBATE)
 	{
 		for(int i = 0; i < 12; i++)
 		{
-			if(ItemList[idx].Effect[i].Index != Type)
+			if(g_pItemList[idx].stEffect[i].sEffect != Type)
                 		continue;
 
-			int tvalue = ItemList[idx].Effect[i].Value;
+			int tvalue = g_pItemList[idx].stEffect[i].sValue;
 
             if(Type == EF_ATTSPEED && tvalue == 1)
                 tvalue = 10;
@@ -3009,39 +3009,39 @@ int GetStaticItemAbility(STRUCT_ITEM *item, unsigned char Type)
 	{
 		for(int i = 0; i < 12; i++)
 		{
-			if(ItemList[idx].Effect[i].Index == EF_RESISTALL)
-				value += ItemList[idx].Effect[i].Value;
+			if(g_pItemList[idx].stEffect[i].sEffect == EF_RESISTALL)
+				value += g_pItemList[idx].stEffect[i].sValue;
 		}
 
 		for(int i = 0; i < 3; i++)
 		{
-			if(item->Effect[i].Index == EF_RESISTALL)
-				value += item->Effect[i].Value;
+			if(item->stEffect[i].cEffect == EF_RESISTALL)
+				value += item->stEffect[i].cValue;
 		}
 	}
 
 	if(idx >= 2330 && idx < 2390)
 	{
 		if(Type == EF_MOUNTHP)
-			return item->Effect[0].Value;
+			return item->stEffect[0].cValue;
 
 		else if(Type == EF_MOUNTSANC)
-			return item->Effect[1].Index;
+			return item->stEffect[1].cEffect;
 
 		else if(Type == EF_MOUNTLIFE)
-			return item->Effect[1].Value;
+			return item->stEffect[1].cValue;
 
 		else if(Type == EF_MOUNTFEED)
-			return item->Effect[2].Index;
+			return item->stEffect[2].cEffect;
 
 		else if(Type == EF_MOUNTKILL)
-			return item->Effect[2].Value;
+			return item->stEffect[2].cValue;
 
-		if(idx < 2362 || idx >= 2390 || item->Effect[0].Value <= 0)
+		if(idx < 2362 || idx >= 2390 || item->stEffect[0].cValue <= 0)
 			return value;
 
-		int lv = item->Effect[1].Index;
-		int cd = item->Index - 2360;
+		int lv = item->stEffect[1].cEffect;
+		int cd = item->sIndex - 2360;
 
 		if(Type == EF_DAMAGE)
 			return (lv + 20) * mMont[cd].atkFisico / 100; //Retorna o DN da montaria no level atual
@@ -3099,7 +3099,7 @@ INT32 GetCompounderDeal(INT32 clientId)
 	SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
 
 	INT32 value = ((Rand() % 5) + 15);
-	Log(clientId, LOG_INGAME, "Utilizado o item Escritura de Composi��o - %d", value);
+	Log(clientId, LOG_INGAME, "Utilizado o item Escritura de Composição - %d", value);
 	return value;
 }
 
@@ -3133,7 +3133,7 @@ int GetDamageByJewel(int clientId, int damage)
 	if (clientId < MAX_PLAYER)
 		return damage;
 
-	INT32 itemId = pMob[clientId].Mobs.Player.Equip[13].Index;
+	INT32 itemId = pMob[clientId].Mobs.Player.Equip[13].sIndex;
 	if (itemId == 786 || itemId == 1936 || itemId == 1937)
 	{
 		INT32 sanc = GetItemSanc(&pMob[clientId].Mobs.Player.Equip[13]); // local209
@@ -3174,7 +3174,7 @@ int ReturnChance(STRUCT_ITEM *item)
 
 int GetMaxAmountItem(const STRUCT_ITEM* item)
 {
-	switch (item->Index)
+	switch (item->sIndex)
 	{
 	case 412:
 	case 413:
@@ -3256,7 +3256,7 @@ int GetMaxAmountItem(const STRUCT_ITEM* item)
 
 bool IsWarTime()
 {
-	return (sServer.TowerWar.Status || sServer.WeekMode == 3 || sServer.ForceWeekDay == 3 || sServer.CastleState != 0);
+	return (sServer.TowerWar.CurrentScore || sServer.WeekMode == 3 || sServer.ForceWeekDay == 3 || sServer.CastleState != 0);
 
 }
 
@@ -3288,7 +3288,7 @@ int GetSpiritRessBonus(int sanc)
 
 bool IsCostume(const STRUCT_ITEM* item)
 {
-	return (item->Index >= 4151 && item->Index <= 4189) || (item->Index >= 4210 && item->Index <= 4229) || (item->Index >= 4230 && item->Index <= 4247);
+	return (item->sIndex >= 4151 && item->sIndex <= 4189) || (item->sIndex >= 4210 && item->sIndex <= 4229) || (item->sIndex >= 4230 && item->sIndex <= 4247);
 }
 
 std::vector<CUser*> GetSameMACUsers(const CUser& thisUser, std::function<bool(CUser& user)> function)
@@ -3296,7 +3296,7 @@ std::vector<CUser*> GetSameMACUsers(const CUser& thisUser, std::function<bool(CU
 	std::vector<CUser*> users;
 	for (auto& user : pUser)
 	{
-		if (&thisUser == &user || user.Status != USER_PLAY || memcmp(user.MacAddress, thisUser.MacAddress, 8) != 0 || (function != nullptr && !function(user)))
+		if (&thisUser == &user || user.CurrentScore != USER_PLAY || memcmp(user.MacAddress, thisUser.MacAddress, 8) != 0 || (function != nullptr && !function(user)))
 			continue;
 
 		users.push_back(&user);
@@ -3311,7 +3311,7 @@ eValley GetValleyWithMinimum()
 
 	for (const auto& user : pUser)
 	{
-		if (user.Status != USER_PLAY)
+		if (user.CurrentScore != USER_PLAY)
 			continue;
 
 		auto& mob = pMob[user.clientId];

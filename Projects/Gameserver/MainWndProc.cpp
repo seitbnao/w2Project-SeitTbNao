@@ -60,7 +60,7 @@ LONG APIENTRY WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 
 		}
 		break;
-		// Aceita��o de um usuario ao tentar-se conectar
+		// Aceitação de um usuario ao tentar-se conectar
 		case WSA_ACCEPT:
 		{
 			if (WSAGETSELECTERROR(lParam) == 0)
@@ -100,7 +100,7 @@ LONG APIENTRY WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 
 			if (WSAGETSELECTEVENT(lParam) != FD_READ)
 			{
-				Log(user->clientId, LOG_INGAME, "Recebeu lParam (WndProc) como %hu. Erro poss�vel: %hu. Desconectando o usuario.", WSAGETSELECTEVENT(lParam), WSAGETSELECTERROR(lParam));
+				Log(user->clientId, LOG_INGAME, "Recebeu lParam (WndProc) como %hu. Erro possêvel: %hu. Desconectando o usuario.", WSAGETSELECTEVENT(lParam), WSAGETSELECTERROR(lParam));
 
 				CloseUser(user->clientId);
 				break;
@@ -192,7 +192,7 @@ LONG APIENTRY WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 						STRUCT_ITEM LOCAL_7;
 						memset(&LOCAL_7, 0, sizeof STRUCT_ITEM);
 
-						LOCAL_7.Index = g_pInitItemFile[LOCAL_5].Index;
+						LOCAL_7.sIndex = g_pInitItemFile[LOCAL_5].sIndex;
 
 						INT32 LOCAL_8 = CreateItem(g_pInitItem[LOCAL_5].PosX, g_pInitItem[LOCAL_5].PosY, &LOCAL_7, g_pInitItemFile[LOCAL_5].Rotate, 3);
 						if (LOCAL_8 >= 4096 || LOCAL_8 <= 0)
@@ -214,7 +214,7 @@ LONG APIENTRY WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 						STRUCT_ITEM item;
 						memset(&item, 0, sizeof STRUCT_ITEM);
 
-						item.Index = 3145 + (zone->win_count);
+						item.sIndex = 3145 + (zone->win_count);
 
 						if (ChargedGuildList[sServer.Channel - 1][i] != 0)
 						{
@@ -233,7 +233,7 @@ LONG APIENTRY WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 
 					SetArenaDoor(3);
 
-					// L� os arquivos de itens
+					// Lê os arquivos de itens
 					mGener.ReadNPCGener();
 				}
 				else

@@ -11,7 +11,7 @@ bool CUser::RequestOpenShop(PacketHeader *Header)
 
 	STRUCT_MOB *spw = &pMob[p->npcID].Mobs.Player;
 
-	int merch = spw->bStatus.Merchant.Merchant;
+	int merch = spw->BaseScore.Merchant.Merchant;
 	if(merch != 1 && merch != 3 && merch != 19)
 		return false;
 
@@ -44,7 +44,7 @@ bool CUser::RequestOpenShop(PacketHeader *Header)
 	for(int i = 0;i<27;i++)
 		memcpy(&packet.Item[i], &spw->Inventory[(i % 9) + ((i / 9) * 27)], sizeof STRUCT_ITEM);
 
-	if(pMob[p->npcID].Mobs.Player.bStatus.INT == 4001)
+	if(pMob[p->npcID].Mobs.Player.BaseScore.Int == 4001)
 		packet.Taxes = 0;
 	else
 		packet.Taxes = g_pCityZone[cityZone].perc_impost;

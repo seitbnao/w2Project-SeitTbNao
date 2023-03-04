@@ -150,7 +150,7 @@ int ProcessAdminMessage(int conn, char *msg)
 		sm.Result = 0;
 
 		strncpy_s(sm.Account, m->Account, ACCOUNTNAME_LENGTH);
-		strncpy_s(sm.Name, m->Mob.Name, 16);
+		strncpy_s(sm.MobName, m->Mob.MobName, 16);
 
 		char *account = m->Account;
 		int slot = m->Slot;
@@ -184,7 +184,7 @@ int ProcessAdminMessage(int conn, char *msg)
 
 		for (empty = 0; empty < 4; empty++)
 		{
-			if (file.Mob[empty].Player.Name[0] == 0)
+			if (file.Mob[empty].Player.MobName[0] == 0)
 				break;
 		}
 
@@ -197,7 +197,7 @@ int ProcessAdminMessage(int conn, char *msg)
 			return TRUE;
 		}
 
-		ret = cFileDB.CreateCharacter(m->Account, m->Mob.Name);
+		ret = cFileDB.CreateCharacter(m->Account, m->Mob.MobName);
 
 		if (ret == FALSE)
 		{
@@ -217,7 +217,7 @@ int ProcessAdminMessage(int conn, char *msg)
 			else
 				sour = &m->Mob.Inventory[i];
 
-			int sidx = sour->Index;
+			int sidx = sour->sIndex;
 
 			//if (sidx == 446 || (sidx >= 508 && sidx <= 509) || (sidx >= 526 && sidx <= 537) || sidx == 522)
 			//	ConvertGuildNumber(conn, sour);
@@ -363,8 +363,8 @@ int ProcessAdminMessage(int conn, char *msg)
 
 		for (int i = 0; i < 4; i++)
 		{
-			if (file.Mob[i].Player.Name[0] != 0 && file.Mob[i].Player.bStatus.Level > maxlevel)
-				maxlevel = file.Mob[i].Player.bStatus.Level;
+			if (file.Mob[i].Player.MobName[0] != 0 && file.Mob[i].Player.BaseScore.Level > maxlevel)
+				maxlevel = file.Mob[i].Player.BaseScore.Level;
 		}
 
 		if (maxlevel < 1000)
@@ -375,11 +375,11 @@ int ProcessAdminMessage(int conn, char *msg)
 		pAdmin[conn].Level = admin;
 		pAdmin[conn].DisableID = 0;
 
-		strncpy_s(pAdmin[conn].Name, m->Account, ACCOUNTNAME_LENGTH);
+		strncpy_s(pAdmin[conn].MobName, m->Account, ACCOUNTNAME_LENGTH);
 
 		char temp[256];
 		sprintf_s(temp, "sys,Admin Login Success - Level: %d", admin);
-		//Log(temp, pAdmin[conn].Name, pAdmin[conn].IP);
+		//Log(temp, pAdmin[conn].ItemName, pAdmin[conn].IP);
 		SendAdminMessage(conn, 0, temp);
 
 	} break;
@@ -432,14 +432,14 @@ int ProcessAdminMessage(int conn, char *msg)
 
 		sm.Session = IdxName;
 
-		file.Mob[0].Player.Name[16 - 1] = 0;
-		file.Mob[0].Player.Name[16 - 2] = 0;
-		file.Mob[1].Player.Name[16 - 1] = 0;
-		file.Mob[1].Player.Name[16 - 2] = 0;
-		file.Mob[2].Player.Name[16 - 1] = 0;
-		file.Mob[2].Player.Name[16 - 2] = 0;
-		file.Mob[3].Player.Name[16 - 1] = 0;
-		file.Mob[3].Player.Name[16 - 2] = 0;
+		file.Mob[0].Player.MobName[16 - 1] = 0;
+		file.Mob[0].Player.MobName[16 - 2] = 0;
+		file.Mob[1].Player.MobName[16 - 1] = 0;
+		file.Mob[1].Player.MobName[16 - 2] = 0;
+		file.Mob[2].Player.MobName[16 - 1] = 0;
+		file.Mob[2].Player.MobName[16 - 2] = 0;
+		file.Mob[3].Player.MobName[16 - 1] = 0;
+		file.Mob[3].Player.MobName[16 - 2] = 0;
 		file.Username[16 - 1] = 0;
 		file.Username[16 - 2] = 0;
 
@@ -450,8 +450,8 @@ int ProcessAdminMessage(int conn, char *msg)
 
 		for (int i = 0; i < 4; i++)
 		{
-			if (file.Mob[i].Player.Name[0] != 0 && file.Mob[i].Player.bStatus.Level > maxlevel)
-				maxlevel = file.Mob[i].Player.bStatus.Level;
+			if (file.Mob[i].Player.MobName[0] != 0 && file.Mob[i].Player.BaseScore.Level > maxlevel)
+				maxlevel = file.Mob[i].Player.BaseScore.Level;
 
 		}
 
@@ -479,7 +479,7 @@ int ProcessAdminMessage(int conn, char *msg)
 		}
 
 		char temp[256];
-		sprintf_s(temp, "%s < %s | %s | %s | %s> - %s", file.Username, file.Mob[0].Player.Name, file.Mob[1].Player.Name, file.Mob[2].Player.Name, file.Mob[3].Player.Name, accountstate);
+		sprintf_s(temp, "%s < %s | %s | %s | %s> - %s", file.Username, file.Mob[0].Player.MobName, file.Mob[1].Player.MobName, file.Mob[2].Player.MobName, file.Mob[3].Player.MobName, accountstate);
 
 		temp[128 - 1] = 0;
 		temp[128 - 2] = 0;
@@ -520,8 +520,8 @@ int ProcessAdminMessage(int conn, char *msg)
 		for (int i = 0; i < 4; i++)
 		{
 
-			if (m->account.Mob[i].Player.Name[0] != 0 && m->account.Mob[i].Player.bStatus.Level > maxlevel)
-				maxlevel = m->account.Mob[i].Player.bStatus.Level;
+			if (m->account.Mob[i].Player.MobName[0] != 0 && m->account.Mob[i].Player.BaseScore.Level > maxlevel)
+				maxlevel = m->account.Mob[i].Player.BaseScore.Level;
 
 		}
 
@@ -536,7 +536,7 @@ int ProcessAdminMessage(int conn, char *msg)
 				return TRUE;
 			}
 
-			if (pAdmin[conn].Level == admin && strcmp(pAdmin[conn].Name, m->account.Username))
+			if (pAdmin[conn].Level == admin && strcmp(pAdmin[conn].MobName, m->account.Username))
 			{
 				SendAdminMessage(conn, 0, "Set admin level error.");
 
@@ -1188,13 +1188,13 @@ void ImportItem()
 
 			strncpy_s(packet.Username, accountName, 16);
 
-			packet.item.Index = itemId;
-			packet.item.Effect[0].Index = ef1;
-			packet.item.Effect[0].Value = efv1;
-			packet.item.Effect[1].Index = ef2;
-			packet.item.Effect[1].Value = efv2;
-			packet.item.Effect[2].Index = ef3;
-			packet.item.Effect[2].Value = efv3;
+			packet.item.sIndex = itemId;
+			packet.item.stEffect[0].cEffect = ef1;
+			packet.item.stEffect[0].cValue = efv1;
+			packet.item.stEffect[1].cEffect = ef2;
+			packet.item.stEffect[1].cValue = efv2;
+			packet.item.stEffect[2].cEffect = ef3;
+			packet.item.stEffect[2].cValue = efv3;
 
 			pUser[srv].Sock.SendOneMessage((char*)&packet, sizeof pCOF);
 			runTimeSent = 1;
@@ -1225,18 +1225,18 @@ void ImportItem()
 
 
 			STRUCT_ITEM item{};
-			item.Index = itemId;
-			item.Effect[0].Index = ef1;
-			item.Effect[0].Value = efv1;
-			item.Effect[1].Index = ef2;
-			item.Effect[1].Value = efv2;
-			item.Effect[2].Index = ef3;
-			item.Effect[2].Value = efv3;
+			item.sIndex = itemId;
+			item.stEffect[0].cEffect = ef1;
+			item.stEffect[0].cValue = efv1;
+			item.stEffect[1].cEffect = ef2;
+			item.stEffect[1].cValue = efv2;
+			item.stEffect[2].cEffect = ef3;
+			item.stEffect[2].cValue = efv3;
 
 			INT32 pos = -1;
 			for (INT32 i = 0; i < 120; i++)
 			{
-				if (account.Storage.Item[i].Index != 0)
+				if (account.Storage.Item[i].sIndex != 0)
 					continue;
 
 				pos = i;

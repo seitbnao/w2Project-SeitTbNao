@@ -15,8 +15,8 @@ bool CUser::RequestShany(PacketHeader *Header)
 	{
 		if(p->slot[i] < 0 || p->slot[i] >= 60)
 		{
-			Log(clientId, LOG_HACK, "Banido por enviar índice invalido - NPC Shany - %d", p->slot[i]);
-			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar índice invalido - NPC Shany - %d", player->Name, p->slot[i]);
+			Log(clientId, LOG_HACK, "Banido por enviar Ãªndice invalido - NPC Shany - %d", p->slot[i]);
+			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar Ãªndice invalido - NPC Shany - %d", player->MobName, p->slot[i]);
 			
 			SendCarry(clientId);
 			return true;
@@ -24,8 +24,8 @@ bool CUser::RequestShany(PacketHeader *Header)
 
 		if(memcmp(&player->Inventory[p->slot[i]], &p->items[i], 8) != 0)
 		{
-			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Ehre - %d", p->items[i].Index);
-			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Shany - %d", player->Name, p->items[i].Index);
+			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Ehre - %d", p->items[i].sIndex);
+			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Shany - %d", player->MobName, p->items[i].sIndex);
 			
 			SendCarry(clientId);
 			return true;
@@ -38,8 +38,8 @@ bool CUser::RequestShany(PacketHeader *Header)
 
 			if(p->slot[i] == p->slot[y])
 			{
-				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Ehre - %d", p->items[i].Index);
-				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Shany - %d", player->Name, p->items[i].Index);
+				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Ehre - %d", p->items[i].sIndex);
+				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Shany - %d", player->MobName, p->items[i].sIndex);
 				
 				SendCarry(clientId);
 				return true;
@@ -63,7 +63,7 @@ bool CUser::RequestShany(PacketHeader *Header)
 			continue;
 		}
 
-		Log(clientId, LOG_COMP, "Shany - %d - %s %s - %hhd", i, ItemList[p->items[i].Index].Name, p->items[i].toString().c_str(), p->slot[i]);
+		Log(clientId, LOG_COMP, "Shany - %d - %s %s - %hhd", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].toString().c_str(), p->slot[i]);
 	}
 
 	if (Trade.ClientId != 0)
@@ -78,7 +78,7 @@ bool CUser::RequestShany(PacketHeader *Header)
 	SendSignalParm(clientId, SERVER_SIDE, 0x3A7, 2);
 	for(int i = 0; i < 3; i++)
 	{
-		int itemId = items[i].Index;
+		int itemId = items[i].sIndex;
 		if(itemId != 540 && itemId != 541)
 		{
 			SendClientMessage(clientId, "Insira a Pedra Espiritual [E] nos dois primeiros slots");
@@ -100,7 +100,7 @@ bool CUser::RequestShany(PacketHeader *Header)
 
 	for(int i = 3; i < 7;i++)
 	{
-		if(items[i].Index != 413)
+		if(items[i].sIndex != 413)
 		{
 			SendClientMessage(clientId, "Insira [04] Poeiras de Lactolerium");
 
@@ -108,9 +108,9 @@ bool CUser::RequestShany(PacketHeader *Header)
 		}
 	}
 
-	if(player->Equip[0].EFV2 == 1 || (player->Equip[0].EFV2 == 2 && player->bStatus.Level < 255))
+	if(player->Equip[0].EFV2 == 1 || (player->Equip[0].EFV2 == 2 && player->BaseScore.Level < 255))
 	{
-		SendClientMessage(clientId, "Necessario ser no mínimo arch nivel 256");
+		SendClientMessage(clientId, "Necessario ser no mÃªnimo arch nivel 256");
 
 		return true;
 	}
@@ -119,7 +119,7 @@ bool CUser::RequestShany(PacketHeader *Header)
 
 	for(int i = 0; i < 7; i ++)
 	{
-		Log(clientId, LOG_COMP, "NPC Shany - Espiritual: %s [%d] [%d %d %d %d %d %d] - Slot %d", ItemList[items[i].Index].Name, items[i].Index, items[i].EF1, items[i].EFV1, items[i].EF2,
+		Log(clientId, LOG_COMP, "NPC Shany - Espiritual: %s [%d] [%d %d %d %d %d %d] - Slot %d", g_pItemList[items[i].sIndex].ItemName, items[i].sIndex, items[i].EF1, items[i].EFV1, items[i].EF2,
 			items[i].EFV2, items[i].EF3, items[i].EFV3, i);
 	}
 
@@ -132,16 +132,16 @@ bool CUser::RequestShany(PacketHeader *Header)
 			SendItem(clientId, SlotType::Inv, p->slot[i], &player->Inventory[p->slot[i]]);
 		}
 		
-		SendClientMessage(clientId, "Houve uma falha na composição");
+		SendClientMessage(clientId, "Houve uma falha na composiÃ§Ã£o");
 
-		Log(clientId, LOG_COMP, "Falha na composiçaõ Shany - %d", _rand);
-		LogPlayer(clientId, "Falha na composição de Pedra Espiritual [F]");
+		Log(clientId, LOG_COMP, "Falha na composiÃªaÃª Shany - %d", _rand);
+		LogPlayer(clientId, "Falha na composiÃ§Ã£o de Pedra Espiritual [F]");
 
 		SaveUser(clientId, 0);
 		return true;
 	}
 
-	SendClientMessage(clientId, "Sucesso na composição");
+	SendClientMessage(clientId, "Sucesso na composiÃ§Ã£o");
 
 	if(player->Exp <= 2000000)
 		player->Exp = 0;
@@ -150,13 +150,13 @@ bool CUser::RequestShany(PacketHeader *Header)
 
 	if(player->Equip[0].EFV2 >= 3)
 	{
-		while(player->Exp < g_pNextLevel[2][player->bStatus.Level - 1])
-			player->bStatus.Level --;
+		while(player->Exp < g_pNextLevel[2][player->BaseScore.Level - 1])
+			player->BaseScore.Level --;
 	}
 	else
 	{
-		while(player->bStatus.Level > 0 && player->Exp < g_pNextLevel[0][player->bStatus.Level - 1])
-			player->bStatus.Level --;
+		while(player->BaseScore.Level > 0 && player->Exp < g_pNextLevel[0][player->BaseScore.Level - 1])
+			player->BaseScore.Level --;
 	}
 
 	for(int i = 3; i < 7; i++)
@@ -176,16 +176,16 @@ bool CUser::RequestShany(PacketHeader *Header)
 	_rand = Rand() % 100;
 
 	if(_rand <= 33)
-		items[2].Index = 631;
+		items[2].sIndex = 631;
 	else if(_rand <= 66)
-		items[2].Index = 632;
+		items[2].sIndex = 632;
 	else 
-		items[2].Index = 633;
+		items[2].sIndex = 633;
 
 	memcpy(&player->Inventory[p->slot[2]], &items[2], sizeof STRUCT_ITEM);
 
-	Log(clientId, LOG_COMP, "Sucesso na composição - SHANY : %d ", items[2].Index);
-	LogPlayer(clientId, "Sucesso na composição de Pedra Espiritual [F]");
+ 
+	LogPlayer(clientId, "Sucesso na composiÃ§Ã£o de Pedra Espiritual [F]");
 
 	SendItem(clientId, SlotType::Inv, p->slot[2], &player->Inventory[p->slot[2]]);
 

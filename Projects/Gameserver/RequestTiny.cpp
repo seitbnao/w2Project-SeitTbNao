@@ -18,16 +18,16 @@ bool CUser::RequestTiny(PacketHeader *Header)
 
 		if((p->slot[i] < 0 || p->slot[i] >= 60))
 		{
-			Log(clientId, LOG_HACK, "Banido por enviar índice invalido - NPC Tiny - %d", p->slot[i]);
-			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar índice invalido - NPC Tiny - %d", player->Name, p->slot[i]);
+			Log(clientId, LOG_HACK, "Banido por enviar Ãªndice invalido - NPC Tiny - %d", p->slot[i]);
+			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar Ãªndice invalido - NPC Tiny - %d", player->MobName, p->slot[i]);
 			
 			SendCarry(clientId);
 			return true;
 		}
 		if(memcmp(&player->Inventory[p->slot[i]], &p->items[i], 8) != 0)
 		{
-			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Tiny - %d", p->items[i].Index);
-			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Tiny - %d", player->Name, p->items[i].Index);
+			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Tiny - %d", p->items[i].sIndex);
+			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Tiny - %d", player->MobName, p->items[i].sIndex);
 			
 			SendCarry(clientId);
 			return true;
@@ -39,8 +39,8 @@ bool CUser::RequestTiny(PacketHeader *Header)
 
 			if(p->slot[i] == p->slot[y])
 			{
-				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Tiny - %d", p->items[i].Index);
-				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Tiny - %d", player->Name, p->items[i].Index);
+				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Tiny - %d", p->items[i].sIndex);
+				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Tiny - %d", player->MobName, p->items[i].sIndex);
 				
 				SendCarry(clientId);
 				return true;
@@ -64,7 +64,7 @@ bool CUser::RequestTiny(PacketHeader *Header)
 			continue;
 		}
 
-		Log(clientId, LOG_COMP, "Tiny - %d - %s %s - %hhd", i, ItemList[p->items[i].Index].Name, p->items[i].toString().c_str(), p->slot[i]);
+		Log(clientId, LOG_COMP, "Tiny - %d - %s %s - %hhd", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].toString().c_str(), p->slot[i]);
 	}
 
 	if (Trade.ClientId)
@@ -82,12 +82,12 @@ bool CUser::RequestTiny(PacketHeader *Header)
 	int chanceTotal = 25;
 	if (p->slot[2] != -1)
 	{
-		STRUCT_ITEMLIST *itemD = (STRUCT_ITEMLIST*)&ItemList[items[2].Index];
+		STRUCT_ITEMLIST *itemD = (STRUCT_ITEMLIST*)&g_pItemList[items[2].sIndex];
 
-		int itemType = GetEffectValueByIndex(items[2].Index, EF_UNKNOW1);
+		int itemType = GetEffectValueByIndex(items[2].sIndex, EF_UNKNOW1);
 		if (itemType < 4)
 		{
-			SendClientMessage(clientId, "Utilize um item [D] ou superior na composição!");
+			SendClientMessage(clientId, "Utilize um item [D] ou superior na composiÃ§Ã£o!");
 			return true;
 		}
 
@@ -96,10 +96,10 @@ bool CUser::RequestTiny(PacketHeader *Header)
 
 	for(int i = 0; i < 2; i++)
 	{		
-		STRUCT_ITEMLIST *item = (STRUCT_ITEMLIST*)&ItemList[items[i].Index];
-		if(item->Grade < 5 || item->Grade > 8)
+		STRUCT_ITEMLIST *item = (STRUCT_ITEMLIST*)&g_pItemList[items[i].sIndex];
+		if(item->nGrade < 5 || item->nGrade > 8)
 		{
-			SendClientMessage(clientId, "Utilize itens ancts na composição");
+			SendClientMessage(clientId, "Utilize itens ancts na composiÃ§Ã£o");
 
 			return true;
 		}
@@ -107,23 +107,23 @@ bool CUser::RequestTiny(PacketHeader *Header)
 		int ref = GetItemSanc(&player->Inventory[p->slot[i]]);
 		if(ref < 9)
 		{
-			SendClientMessage(clientId, "Utilize itens +9 na composição");
+			SendClientMessage(clientId, "Utilize itens +9 na composiÃ§Ã£o");
 
 			return true;
 		}
 	}
 
-	if(player->Gold < 100000000)
+	if(player->Coin < 100000000)
 	{
-		SendClientMessage(clientId, "São necessarios 100 milhões de gold para a composição");
+		SendClientMessage(clientId, "SÃªo necessarios 100 milhÃªes de gold para a composiÃ§Ã£o");
 
 		return true;
 	}
 
 	int _rand = Rand() % 100;	
-	player->Gold -= 100000000;
+	player->Coin -= 100000000;
 
-	SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+	SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 
 	if (p->slot[2] != -1)
 	{
@@ -133,19 +133,19 @@ bool CUser::RequestTiny(PacketHeader *Header)
 
 	if(_rand <= chanceTotal)
 	{
-		//Sucesso na composição
+		//Sucesso na composiÃ§Ã£o
 		STRUCT_ITEM *itemArch = (STRUCT_ITEM*)&player->Inventory[p->slot[0]];
 		STRUCT_ITEM *itemMortal = (STRUCT_ITEM*)&player->Inventory[p->slot[1]];
 
-		Log(clientId, LOG_COMP, "Tiny - Sucesso na transferência de add para %s [%d] [%d %d %d %d %d %d]", ItemList[itemArch->Index].Name, itemMortal->Index, itemMortal->EF1, itemMortal->EFV1,
+		Log(clientId, LOG_COMP, "Tiny - Sucesso na transferÃªncia de add para %s [%d] [%d %d %d %d %d %d]", g_pItemList[itemArch->sIndex].ItemName, itemMortal->sIndex, itemMortal->EF1, itemMortal->EFV1,
 			itemMortal->EF2, itemMortal->EFV2, itemMortal->EF3, itemMortal->EFV3);
-		Log(SERVER_SIDE, LOG_COMP, "[%s] - Tiny - Sucesso na transferência de add para %s [%d] [%d %d %d %d %d %d]", 
-			User.Username, ItemList[itemArch->Index].Name, itemMortal->Index, itemMortal->EF1, itemMortal->EFV1, itemMortal->EF2, itemMortal->EFV2, itemMortal->EF3, itemMortal->EFV3);
-		LogPlayer(clientId, "Sucesso na transferência de adicional de %s para %s", ItemList[itemMortal->Index].Name, ItemList[itemArch->Index].Name);
+		Log(SERVER_SIDE, LOG_COMP, "[%s] - Tiny - Sucesso na transferÃªncia de add para %s [%d] [%d %d %d %d %d %d]", 
+			User.Username, g_pItemList[itemArch->sIndex].ItemName, itemMortal->sIndex, itemMortal->EF1, itemMortal->EFV1, itemMortal->EF2, itemMortal->EFV2, itemMortal->EF3, itemMortal->EFV3);
+		LogPlayer(clientId, "Sucesso na transferÃªncia de adicional de %s para %s", g_pItemList[itemMortal->sIndex].ItemName, g_pItemList[itemArch->sIndex].ItemName);
 
-		SendNotice(".%s transferiu com sucesso o adicional para %s", player->Name, ItemList[itemArch->Index].Name);
-		SendClientMessage(clientId, "Sucesso na transferência de adicional de %s para %s (%d/%d)", ItemList[itemMortal->Index].Name, ItemList[itemArch->Index].Name, _rand, chanceTotal);
-		itemMortal->Index = itemArch->Index;
+		SendNotice(".%s transferiu com sucesso o adicional para %s", player->MobName, g_pItemList[itemArch->sIndex].ItemName);
+		SendClientMessage(clientId, "Sucesso na transferÃªncia de adicional de %s para %s (%d/%d)", g_pItemList[itemMortal->sIndex].ItemName, g_pItemList[itemArch->sIndex].ItemName, _rand, chanceTotal);
+		itemMortal->sIndex = itemArch->sIndex;
 
 		SetItemSanc(itemMortal, 7, 0);
 
@@ -156,12 +156,9 @@ bool CUser::RequestTiny(PacketHeader *Header)
 	}
 	else
 	{
-		SendNotice(".%s falhou na transferência o adicional para %s", player->Name, ItemList[p->items[0].Index].Name);
-		SendClientMessage(clientId, "Falha na transferência de adicional (%d/%d)", _rand, chanceTotal);
-
-		LogPlayer(clientId, "Falha na transferência de adicional de %s para %s", ItemList[p->items[0].Index].Name, ItemList[p->items[1].Index].Name);
-		Log(clientId, LOG_COMP, "Falha na transferência de adicional de %s para %s", ItemList[p->items[0].Index].Name, ItemList[p->items[1].Index].Name);
-		Log(SERVER_SIDE, LOG_COMP, "[%s] - Falha na transferência de adicional de %s para %s", User.Username, ItemList[p->items[0].Index].Name, ItemList[p->items[1].Index].Name);
+		 
+		SendClientMessage(clientId, "Falha na transferÃªncia de adicional (%d/%d)", _rand, chanceTotal);
+ 
 	}
 
 	SaveUser(clientId, 0);

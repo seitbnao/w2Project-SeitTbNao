@@ -90,7 +90,7 @@ public:
 	} aHack;
 
 	INT32 clientId;
-	INT32 Status;
+	INT32 CurrentScore;
 	INT32 LastWhisper;
 	INT32 hashIncrement; 
 	INT32 CharLoginTime; // regen mob
@@ -148,12 +148,12 @@ public:
 	struct
 	{
 		PacketHeader Header; // 1592
-		char Name[24]; // 1604
+		char MobName[24]; // 1604
 		STRUCT_ITEM Item[12]; // 1628
 		INT8 Slots[12]; // 1724
 		INT32 Price[12]; // 1736
 		INT16 Unknown_1784; // 1784
-		INT16 Index; // 1786
+		INT16 sIndex; // 1786
 	} AutoTrade; 
 
 	struct
@@ -190,14 +190,14 @@ public:
 		INT16 PositionX[4];
 		INT16 PositionY[4];
 
-		char Name[4][16];
+		char MobName[4][16];
 
-		STRUCT_STATUS Status[4];
+		STRUCT_SCORE CurrentScore[4];
 		STRUCT_ITEM Equip[4][16];
 
-		UINT32 GuildIndex[4];
+		UINT32 Guild[4];
 
-		int Gold[4];
+		int Coin[4];
 		INT64 Exp[4];
 	} CharList;
 	
@@ -213,7 +213,7 @@ public:
 	{
 
 		INT32 Mode; // 2708
-		INT32 Index; // 2712
+		INT32 sIndex; // 2712
 
 		INT32 Type; // 2716 - confirmar.
 	} Challenger; 
@@ -239,7 +239,7 @@ public:
 
 	INT32 TimerCount; // 7B32380
 
-	INT32 Gold;
+	INT32 Coin;
 	INT32 GoldCount;
 
 	struct
@@ -256,7 +256,7 @@ public:
 	struct 
 	{
 		// Se esta valendo o fucking premio
-		INT32 Status;
+		INT32 CurrentScore;
 
 		// O tempo que ja rolou o bagulhete!!
 		INT32 Time;

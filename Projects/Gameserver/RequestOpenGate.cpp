@@ -7,7 +7,7 @@ bool CUser::RequestOpenGate(PacketHeader *Header)
 { // 00430C81
 	p374 *p = (p374*)Header; // LOCAL1154
 
-	if(!pMob[clientId].Mobs.Player.Status.curHP || pUser[clientId].Status != USER_PLAY)
+	if(!pMob[clientId].Mobs.Player.CurrentScore.Hp || pUser[clientId].CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 
@@ -26,7 +26,7 @@ bool CUser::RequestOpenGate(PacketHeader *Header)
 	}
 
 	INT32 packetStatus = p->status ; // LOCAL1156
-	INT32 initItemStatus = g_pInitItem[gateId].Status; // LOCAL1157
+	INT32 initItemStatus = g_pInitItem[gateId].CurrentScore; // LOCAL1157
 
 	if (initItemStatus == 3 || packetStatus == 3)
 	{
@@ -50,7 +50,7 @@ bool CUser::RequestOpenGate(PacketHeader *Header)
 			// 00430E1A
 			if (keySlot != itemAbility)
 			{
-				if(g_pInitItem[gateId].Item.Index != 773)
+				if(g_pInitItem[gateId].Item.sIndex != 773)
 					SendClientMessage(clientId, g_pLanguageString[_NN_No_Key]);
 
 				return true;

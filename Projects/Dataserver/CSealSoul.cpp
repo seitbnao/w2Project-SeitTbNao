@@ -24,12 +24,12 @@ bool ReadSealInfo(int id, STRUCT_SEALFILE& info)
 	}
 
 	auto sealNode = doc.child("seal");
-	info.Seal.Status = id;
+	info.Seal.CurrentScore = id;
 
-	info.Seal.CON = static_cast<short>(std::stoi(sealNode.child_value("CON")));
-	info.Seal.STR = static_cast<short>(std::stoi(sealNode.child_value("STR")));
-	info.Seal.DEX = static_cast<short>(std::stoi(sealNode.child_value("DEX")));
-	info.Seal.INT = static_cast<short>(std::stoi(sealNode.child_value("INT")));
+	info.Seal.Con = static_cast<short>(std::stoi(sealNode.child_value("CON")));
+	info.Seal.Str = static_cast<short>(std::stoi(sealNode.child_value("STR")));
+	info.Seal.Dex = static_cast<short>(std::stoi(sealNode.child_value("DEX")));
+	info.Seal.Int = static_cast<short>(std::stoi(sealNode.child_value("INT")));
 
 	info.Seal.Face = static_cast<short>(std::stoi(sealNode.child_value("face")));
 	info.Seal.Level = static_cast<short>(std::stoi(sealNode.child_value("level")));
@@ -65,10 +65,10 @@ bool WriteSealInfo(int id, const STRUCT_SEALFILE& info)
 	pugi::xml_document doc;
 	auto sealNode = doc.append_child("seal");
 	
-	sealNode.append_child("CON").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.CON).c_str());
-	sealNode.append_child("STR").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.STR).c_str());
-	sealNode.append_child("DEX").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.DEX).c_str());
-	sealNode.append_child("INT").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.INT).c_str());
+	sealNode.append_child("CON").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.Con).c_str());
+	sealNode.append_child("STR").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.Str).c_str());
+	sealNode.append_child("DEX").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.Dex).c_str());
+	sealNode.append_child("INT").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.Int).c_str());
 
 	sealNode.append_child("face").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.Face).c_str());
 	sealNode.append_child("level").append_child(pugi::node_pcdata).set_value(std::to_string(info.Seal.Level).c_str());

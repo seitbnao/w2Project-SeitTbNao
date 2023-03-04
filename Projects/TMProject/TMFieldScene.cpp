@@ -1378,8 +1378,8 @@ int TMFieldScene::InitializeScene()
 	memset(m_szEventTextTemp, 0, sizeof(m_szEventTextTemp));
 
 	STRUCT_MOB* pMobData = &g_pObjectManager->m_stMobData;
-	int nTownX = (int)g_pObjectManager->m_stMobData.HomeTownX >> 7;
-	int nTownY = (int)g_pObjectManager->m_stMobData.HomeTownY >> 7;
+	int nTownX = (int)g_pObjectManager->m_stMobData.Last.X >> 7;
+	int nTownY = (int)g_pObjectManager->m_stMobData.Last.Y >> 7;
 	char szMapPath[128]{};
 	char szDataPath[128]{};
 	sprintf(szMapPath, "env\\Field%02d%02d.trn", nTownX, nTownY);
@@ -1665,10 +1665,10 @@ int TMFieldScene::InitializeScene()
 
 	for (int nCarryIndex = 0; nCarryIndex < 64; ++nCarryIndex)
 	{
-		if (pMobData->Carry[nCarryIndex].sIndex > 40)
+		if (pMobData->Inventory[nCarryIndex].sIndex > 40)
 		{
 			STRUCT_ITEM* pItemCarry = new STRUCT_ITEM;
-			memcpy(pItemCarry, &pMobData->Carry[nCarryIndex], 8);
+			memcpy(pItemCarry, &pMobData->Inventory[nCarryIndex], 8);
 			
 			int Page = nCarryIndex / 15;
 			if (nCarryIndex / 15 > -1 && Page < 4)
@@ -1718,11 +1718,11 @@ int TMFieldScene::InitializeScene()
 	m_pMyHuman->InitObject(); 
 	m_pMyHuman->CheckWeapon(pMobData->Equip[6].sIndex, pMobData->Equip[7].sIndex);
 	m_pMyHuman->InitAngle(0.0f, 0.39269909f, 0.0f);
-	m_pMyHuman->InitPosition((float)pMobData->HomeTownX + 0.5f, 0, (float)pMobData->HomeTownY + 0.5f);
+	m_pMyHuman->InitPosition((float)pMobData->Last.X + 0.5f, 0, (float)pMobData->Last.Y + 0.5f);
 
 	g_pObjectManager->m_pCamera->SetFocusedObject(m_pMyHuman);
 	g_pObjectManager->m_pCamera->m_nQuaterView = 0;
-	m_bLastMyAttr = BASE_GetAttr(pMobData->HomeTownX, pMobData->HomeTownY);
+	m_bLastMyAttr = BASE_GetAttr(pMobData->Last.X, pMobData->Last.Y);
 	UpdateScoreUI(0);
 	UpdateSkillBelt();
 	g_pObjectManager->m_cSelectShortSkill = 0;
@@ -1772,7 +1772,7 @@ int TMFieldScene::InitializeScene()
 
 	SetSanc();
 
-	m_pMyHuman->m_cHide = (m_pMyHuman->m_dwID >= 0 && m_pMyHuman->m_dwID < 1000) == 1 && m_pMyHuman->m_stScore.Reserved & 1;
+	m_pMyHuman->m_cHide = (m_pMyHuman->m_dwID >= 0 && m_pMyHuman->m_dwID < 1000) == 1 && m_pMyHuman->m_stScore.Merchant.Value & 1;
 	m_pHumanContainer->AddChild(m_pMyHuman);
 
 	auto pSoundManager = g_pSoundManager;
@@ -3479,12 +3479,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		m_pInvPageBtn1->SetTextureSetIndex(527);
 		m_pInvPageBtn2->SetTextureSetIndex(528);
 
-		if (g_pObjectManager->m_stMobData.Carry[60].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[60].sIndex == 3467)
 			m_pInvPageBtn3->SetTextureSetIndex(528);
 		else
 			m_pInvPageBtn3->SetTextureSetIndex(549);
 
-		if (g_pObjectManager->m_stMobData.Carry[61].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[61].sIndex == 3467)
 			m_pInvPageBtn4->SetTextureSetIndex(528);
 		else
 			m_pInvPageBtn4->SetTextureSetIndex(549);
@@ -3506,12 +3506,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		m_pInvPageBtn1->SetTextureSetIndex(528);
 		m_pInvPageBtn2->SetTextureSetIndex(527);
 
-		if (g_pObjectManager->m_stMobData.Carry[60].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[60].sIndex == 3467)
 			m_pInvPageBtn3->SetTextureSetIndex(528);
 		else
 			m_pInvPageBtn3->SetTextureSetIndex(549);
 
-		if (g_pObjectManager->m_stMobData.Carry[61].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[61].sIndex == 3467)
 			m_pInvPageBtn4->SetTextureSetIndex(528);
 		else
 			m_pInvPageBtn4->SetTextureSetIndex(549);
@@ -3533,12 +3533,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		m_pInvPageBtn1->SetTextureSetIndex(528);
 		m_pInvPageBtn2->SetTextureSetIndex(528);
 
-		if (g_pObjectManager->m_stMobData.Carry[60].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[60].sIndex == 3467)
 			m_pInvPageBtn3->SetTextureSetIndex(527);
 		else
 			m_pInvPageBtn3->SetTextureSetIndex(548);
 
-		if (g_pObjectManager->m_stMobData.Carry[61].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[61].sIndex == 3467)
 			m_pInvPageBtn4->SetTextureSetIndex(528);
 		else
 			m_pInvPageBtn4->SetTextureSetIndex(549);
@@ -3560,12 +3560,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		m_pInvPageBtn1->SetTextureSetIndex(528);
 		m_pInvPageBtn2->SetTextureSetIndex(528);
 
-		if (g_pObjectManager->m_stMobData.Carry[60].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[60].sIndex == 3467)
 			m_pInvPageBtn3->SetTextureSetIndex(528);
 		else
 			m_pInvPageBtn3->SetTextureSetIndex(549);
 
-		if (g_pObjectManager->m_stMobData.Carry[61].sIndex == 3467)
+		if (g_pObjectManager->m_stMobData.Inventory[61].sIndex == 3467)
 			m_pInvPageBtn4->SetTextureSetIndex(527);
 		else
 			m_pInvPageBtn4->SetTextureSetIndex(548);
@@ -4713,7 +4713,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 					}
 					else if (m_stPotalItem.SourType == 1)
 					{
-						memset(&g_pObjectManager->m_stMobData.Carry[m_stPotalItem.SourPos], 0, sizeof(STRUCT_ITEM));
+						memset(&g_pObjectManager->m_stMobData.Inventory[m_stPotalItem.SourPos], 0, sizeof(STRUCT_ITEM));
 					}
 					else if (m_stPotalItem.SourType == 2)
 					{
@@ -4803,7 +4803,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			stReqParty.Leader.Hp = m_pMyHuman->m_stScore.Hp;
 			stReqParty.Leader.MaxHp = m_pMyHuman->m_stScore.MaxHp;
 			stReqParty.Leader.ID = m_pMyHuman->m_dwID;
-			sprintf(stReqParty.Leader.Name, "%s", m_pMyHuman->m_szName);
+			sprintf(stReqParty.Leader.MobName, "%s", m_pMyHuman->m_szName);
 			stReqParty.TargetID = m_dwOpID;
 			SendOneMessage((char*)&stReqParty, sizeof(stReqParty));
 			m_dwOpID = 0;
@@ -5973,7 +5973,7 @@ int TMFieldScene::OnKeyDownEvent(unsigned int iKeyCode)
 				}
 
 				if (nAmount <= 1)
-					memset(&g_pObjectManager->m_stMobData.Carry[SourPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stMobData.Inventory[SourPos], 0, sizeof(STRUCT_ITEM));
 
 				if (g_pSoundManager)
 				{
@@ -6360,7 +6360,7 @@ int TMFieldScene::OnPacketEvent(unsigned int dwCode, char* buf)
 	case 0x10A:
 		return OnPacketCNFAccountLogin(reinterpret_cast<MSG_CNFRemoveServerLogin*>(pStd));
 	case 0x114:
-		return OnPacketCNFCharacterLogin(reinterpret_cast<MSG_CNFCharacterLogin*>(pStd));
+		return OnPacketCNFCharacterLogin(reinterpret_cast<p114*>(pStd));
 	case 0x3E8:
 		return OnPacketUndoSellItem(reinterpret_cast<MSG_RepurchaseItems*>(pStd));
 	case 0x39B:
@@ -7119,7 +7119,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 
 	for (int i = 0; i < 32; ++i)
 	{
-		if ((unsigned char)m_pMyHuman->m_stAffect[i].Type > 0)
+		if ((unsigned char)m_pMyHuman->m_stAffect[i].Index > 0)
 		{
 			char szVal[128]{};
 			short sTime = 8 * m_pMyHuman->m_stAffect[i].Time - (dwServerTime - m_dwStartAffectTime[i]) / 1000;
@@ -7210,8 +7210,8 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 				m_pAffectL[i]->SetVisible(0);
 			if (m_pMiniPanel)
 			{
-				if ((unsigned char)m_pMyHuman->m_stAffect[i].Type < 50)
-					m_pAffectIcon[i]->m_GCPanel.nTextureIndex = g_AffectSkillType[(unsigned char)m_pMyHuman->m_stAffect[i].Type];
+				if ((unsigned char)m_pMyHuman->m_stAffect[i].Index < 50)
+					m_pAffectIcon[i]->m_GCPanel.nTextureIndex = g_AffectSkillType[(unsigned char)m_pMyHuman->m_stAffect[i].Index];
 				else
 					m_pAffectIcon[i]->m_GCPanel.nTextureIndex = 0;
 				m_pAffectIcon[i]->m_GCPanel.nLayer = 29;
@@ -7260,7 +7260,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 					Msg.Header.ClientId = m_pMyHuman->m_dwID;
 					Msg.PosX = m_stMoveStop.NextX;
 					Msg.PosY = m_stMoveStop.NextY;
-					Msg.Effect = 0;
+					Msg.stEffect = 0;
 					Msg.Header.PacketId = MSG_Action_Opcode;
 					Msg.Speed = g_nMyHumanSpeed;
 					Msg.TargetX = m_pMyHuman->m_LastSendTargetPos.x;
@@ -7296,7 +7296,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 				stAction.Header.ClientId = m_pMyHuman->m_dwID;
 				stAction.PosX = m_pMyHuman->m_LastSendTargetPos.x;
 				stAction.PosY = m_pMyHuman->m_LastSendTargetPos.y;
-				stAction.Effect = 0;
+				stAction.stEffect = 0;
 				stAction.Header.PacketId = MSG_Action_Opcode;
 				stAction.Speed = g_nMyHumanSpeed;
 				stAction.TargetX = m_pMyHuman->m_LastSendTargetPos.x;
@@ -9172,7 +9172,7 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 					stAction.Header.ClientId = m_pMyHuman->m_dwID;
 					stAction.PosX = x;
 					stAction.PosY = y;
-					stAction.Effect = 6;
+					stAction.stEffect = 6;
 					stAction.Header.PacketId = MSG_Action2_Opcode;
 					stAction.Speed = g_nMyHumanSpeed;
 					stAction.TargetX = targetx;
@@ -9435,7 +9435,7 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 	{
 		return GetItemFromGround(dwServerTime);
 	}
-	if ((pOver->m_stScore.Reserved & 0xF) == 15 && g_pSpell[(unsigned char)cSkillIndex].Aggressive == 1)
+	if ((pOver->m_stScore.Merchant.Value & 0xF) == 15 && g_pSpell[(unsigned char)cSkillIndex].Aggressive == 1)
 	{
 		if (!m_pMyHuman->m_cMantua)
 			return 1;
@@ -10605,7 +10605,7 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 		return 0;
 	if (pOver->m_TradeDesc[0])
 		return 0;
-	if ((pOver->m_stScore.Reserved & 0xF) == 15 && g_pSpell[(unsigned char)cSkillIndex].Aggressive == 1)
+	if ((pOver->m_stScore.Merchant.Value & 0xF) == 15 && g_pSpell[(unsigned char)cSkillIndex].Aggressive == 1)
 	{
 		if (!m_pMyHuman->m_cMantua)
 			return 0;
@@ -10903,7 +10903,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 		(int)m_pMyHuman->m_vecPosition.y >> 7 == 28)
 		return 1;
 
-	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Reserved & 0xF) == 1)
+	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Merchant.Value & 0xF) == 1)
 	{
 		if (!m_pShopPanel->IsVisible())
 		{
@@ -10934,7 +10934,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 		return 1;
 	}
 
-	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Reserved & 0xF) == 3)
+	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Merchant.Value & 0xF) == 3)
 	{
 		if (!m_pShopPanel->IsVisible())
 		{
@@ -10965,7 +10965,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 		return 1;
 	}
 	
-	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Reserved & 0xF) == 2 && pOver->m_sHeadIndex != 51)
+	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Merchant.Value & 0xF) == 2 && pOver->m_sHeadIndex != 51)
 	{
 		if (!m_pCargoPanel->IsVisible())
 		{
@@ -10976,7 +10976,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 		return 1;
 	}
 	
-	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Reserved & 0xF) == 3)
+	if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Merchant.Value & 0xF) == 3)
 	{
 		MouseClick_SkillMasterNPC(dwServerTime, pOver);
 		return 1;
@@ -11013,7 +11013,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 
 		if (pOver->m_dwID >= 1000 && 
 			pOver->m_sHeadIndex == 63 &&
-			(pOver->m_stScore.Reserved & 0xF) == 7 && 
+			(pOver->m_stScore.Merchant.Value & 0xF) == 7 &&
 			m_pGround->m_vecOffsetIndex.x == 16 &&
 			m_pGround->m_vecOffsetIndex.y == 16)
 		{
@@ -11021,13 +11021,13 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 			return 1;
 		}
 		
-		if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Reserved & 0xF) == 4 || (pOver->m_stScore.Reserved & 0xF) >= 8 && (pOver->m_stScore.Reserved & 0xF) <= 15)
+		if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Merchant.Value & 0xF) == 4 || (pOver->m_stScore.Merchant.Value & 0xF) >= 8 && (pOver->m_stScore.Merchant.Value & 0xF) <= 15)
 		{
 			MouseClick_QuestNPC(dwServerTime, pOver);
 			return 1;
 		}
 		
-		if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Reserved & 0xF) >= 6 && (pOver->m_stScore.Reserved & 0xF) <= 8)
+		if (pOver->m_dwID >= 1000 && (pOver->m_stScore.Merchant.Value & 0xF) >= 6 && (pOver->m_stScore.Merchant.Value & 0xF) <= 8)
 		{
 			MSG_STANDARDPARM stPacket{};
 
@@ -11074,11 +11074,11 @@ int TMFieldScene::CheckMerchant(TMHuman* pOver)
 
 	if (pOver->m_TradeDesc[0])
 		return 1;
-	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Reserved & 0xF) == 1)
+	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Merchant.Value & 0xF) == 1)
 		return 1;
-	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Reserved & 0xF) == 2)
+	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Merchant.Value & 0xF) == 2)
 		return 1;
-	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Reserved & 0xF) == 3)
+	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Merchant.Value & 0xF) == 3)
 		return 1;
 	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && pOver->m_sHeadIndex == 67 && m_pGround->m_vecOffsetIndex.x == 13 && m_pGround->m_vecOffsetIndex.y == 13)
 		return 1;
@@ -11096,10 +11096,10 @@ int TMFieldScene::CheckMerchant(TMHuman* pOver)
 		return 1;
 
 
-	if (((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Reserved & 0xF) == 4) ||
-		(pOver->m_stScore.Reserved & 0xF) >= 8 && (pOver->m_stScore.Reserved & 0xF) <= 15)
+	if (((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Merchant.Value & 0xF) == 4) ||
+		(pOver->m_stScore.Merchant.Value & 0xF) >= 8 && (pOver->m_stScore.Merchant.Value & 0xF) <= 15)
 	{
-		if ((pOver->m_stScore.Reserved & 0xF) == 15)
+		if ((pOver->m_stScore.Merchant.Value & 0xF) == 15)
 		{
 			if (!m_pMyHuman->IsInTown())
 			{
@@ -11122,15 +11122,15 @@ int TMFieldScene::CheckMerchant(TMHuman* pOver)
 			}
 		}
 
-		if ((pOver->m_stScore.Reserved & 0xF) == 13)
+		if ((pOver->m_stScore.Merchant.Value & 0xF) == 13)
 			return 1;
-		if ((pOver->m_stScore.Reserved & 0xF) == 14)
+		if ((pOver->m_stScore.Merchant.Value & 0xF) == 14)
 			return 1;
 
 		return 1;
 	}
 
-	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Reserved & 0xF) >= 6 && (pOver->m_stScore.Reserved & 0xF) <= 8)
+	if ((pOver->m_dwID < 0 || pOver->m_dwID >= 1000) && (pOver->m_stScore.Merchant.Value & 0xF) >= 6 && (pOver->m_stScore.Merchant.Value & 0xF) <= 8)
 		return 1;
 
 	return 0;
@@ -11200,7 +11200,7 @@ int TMFieldScene::MobAttack(unsigned int wParam, D3DXVECTOR3 vec, unsigned int d
 			if (pOver->IsMerchant())
 				return 0;
 
-			if ((pOver->m_stScore.Reserved & 0xF) == 15)
+			if ((pOver->m_stScore.Merchant.Value & 0xF) == 15)
 			{
 				if (!m_pMyHuman->m_cMantua || m_pMyHuman->m_cMantua == 3)
 					return 0;
@@ -11328,15 +11328,15 @@ int TMFieldScene::MobAttack(unsigned int wParam, D3DXVECTOR3 vec, unsigned int d
 				else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 102)
 				{
 					stAttack.SkillIndex = 152;
-					if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 871)
+					if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 871)
 						stAttack.SkillParm = 0;
-					else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 872)
+					else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 872)
 						stAttack.SkillParm = 1;
 				}
 				else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 103)
 				{
 					stAttack.SkillIndex = 153;
-					switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh)
+					switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture)
 					{
 					case 873:
 						stAttack.SkillParm = 0;
@@ -11379,9 +11379,9 @@ int TMFieldScene::MobAttack(unsigned int wParam, D3DXVECTOR3 vec, unsigned int d
 				else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 104)
 				{
 					stAttack.SkillIndex = 104;
-					if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 878)
+					if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 878)
 						stAttack.SkillParm = 0;
-					else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 879)
+					else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 879)
 						stAttack.SkillParm = 1;
 				}
 
@@ -13852,16 +13852,16 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 		sprintf(szStr, "%d.%d%%", nCriticalValue / 10, nCriticalValue % 10);
 		if (m_pCritical)
 			m_pCritical->SetText(szStr, 0);
-		sprintf(szStr, "%d", pMobData->Resist[2]);
+		sprintf(szStr, "%d", pMobData->Resistence[2]);
 		if (m_pRegist1)
 			m_pRegist1->SetText(szStr, 0);
-		sprintf(szStr, "%d", pMobData->Resist[3]);
+		sprintf(szStr, "%d", pMobData->Resistence[3]);
 		if (m_pRegist2)
 			m_pRegist2->SetText(szStr, 0);
-		sprintf(szStr, "%d", pMobData->Resist[0]);
+		sprintf(szStr, "%d", pMobData->Resistence[0]);
 		if (m_pRegist3)
 			m_pRegist3->SetText(szStr, 0);
-		sprintf(szStr, "%d", pMobData->Resist[1]);
+		sprintf(szStr, "%d", pMobData->Resistence[1]);
 		if (m_pRegist4)
 			m_pRegist4->SetText(szStr, 0);
 
@@ -13881,7 +13881,7 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 
 		for (int i = 0; i < 32; ++i)
 		{
-			if (m_pMyHuman->m_stAffect[i].Type > 0)
+			if (m_pMyHuman->m_stAffect[i].Index > 0)
 			{
 				if (m_pMyHuman->m_stAffect[i].Time < 1000000)
 				{
@@ -13936,8 +13936,8 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 				}
 				if (m_pMiniPanel)
 				{
-					if (m_pMyHuman->m_stAffect[i].Type < 50)
-						m_pAffectIcon[i]->m_GCPanel.nTextureIndex = g_AffectSkillType[m_pMyHuman->m_stAffect[i].Type];
+					if (m_pMyHuman->m_stAffect[i].Index < 50)
+						m_pAffectIcon[i]->m_GCPanel.nTextureIndex = g_AffectSkillType[m_pMyHuman->m_stAffect[i].Index];
 					else
 						m_pAffectIcon[i]->m_GCPanel.nTextureIndex = 0;
 					m_pAffectIcon[i]->m_GCPanel.nLayer = 29;
@@ -13979,7 +13979,7 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 			}
 
 			m_pKingDomFlag->m_GCPanel.nTextureIndex = m_pMyHuman->UnSetCitizenMantle(m_pKingDomFlag->m_GCPanel.nTextureIndex);
-			m_pFlagDescText[0]->SetText(g_pItemList[pMobData->Equip[15].sIndex].Name, 0);
+			m_pFlagDescText[0]->SetText(g_pItemList[pMobData->Equip[15].sIndex].ItemName, 0);
 
 			sprintf(szTemp, "%s %d", g_pMessageStringTable[80], BASE_GetItemAbility(&pMobData->Equip[15], 3));
 			m_pFlagDescText[1]->SetText(szTemp, 0);
@@ -14251,7 +14251,7 @@ void TMFieldScene::SetShortSkill(int nIndex, SGridControlItem* pGridItem)
 		SAFE_DELETE(pReturnItem3);
 	}
 
-	g_pObjectManager->m_cShortSkill[nIndex] = static_cast<char>(g_pItemList[pGridItem->m_pItem->sIndex].nIndexTexture);
+	g_pObjectManager->m_cShortSkill[nIndex] = static_cast<char>(g_pItemList[pGridItem->m_pItem->sIndex].IndexMesh);
 	MSG_SetShortSkill stSetShortSkill{};
 	stSetShortSkill.Header.ClientId = m_pMyHuman->m_dwID;
 	stSetShortSkill.Header.PacketId = MSG_SetShortSkill_Opcode;
@@ -14972,7 +14972,7 @@ void TMFieldScene::CreateGate(int nZoneIndex, int bInit)
 	TMItem* pItem = nullptr;
 	if (pOldItem)
 		pItem = pOldItem;
-	else if (g_pItemList[pCreateItem->Item.sIndex].nIndexMesh == 1607)
+	else if (g_pItemList[pCreateItem->Item.sIndex].nIndexTexture == 1607)
 	{
 		pItem = new TMCannon();
 		pItem->m_dwObjType = 1607;
@@ -15071,8 +15071,8 @@ int TMFieldScene::GetWeaponDamage()
 	auto pMobData = &g_pObjectManager->m_stMobData;
 	int w1 = BASE_GetItemAbility(&g_pObjectManager->m_stMobData.Equip[6], 2);
 	int w2 = BASE_GetItemAbility(&pMobData->Equip[7], 2);
-	int t1 = g_pItemList[pMobData->Equip[6].sIndex].nUnique;
-	int t2 = g_pItemList[pMobData->Equip[7].sIndex].nUnique;
+	int t1 = g_pItemList[pMobData->Equip[6].sIndex].Unique;
+	int t2 = g_pItemList[pMobData->Equip[7].sIndex].Unique;
 
 	int nWeaponDamage = 0;
 	if (t1 == 47 && t2 == 45)
@@ -15083,20 +15083,20 @@ int TMFieldScene::GetWeaponDamage()
 		nWeaponDamage = w1 + w2 / 3;
 
 	int idx1 = pMobData->Equip[6].sIndex;
-	int nPos1 = g_pItemList[idx1].nPos;
+	int nPos1 = g_pItemList[idx1].Pos;
 
 	if ((idx1 >= 0 || idx1 < 6500) && (nPos1 == 64 || nPos1 == 192) && t1 != 44 && t2 != 47 && BASE_GetItemSanc(&pMobData->Equip[6]) >= 9)
 	{
-		int nu = g_pItemList[idx1].nUnique;
+		int nu = g_pItemList[idx1].Unique;
 		if (nu != 47 && nu != 44)
 			nWeaponDamage += 40;
 	}
 
 	int idx2 = pMobData->Equip[7].sIndex;
-	int nPos2 = g_pItemList[idx2].nPos;
+	int nPos2 = g_pItemList[idx2].Pos;
 	if ((idx2 >= 0 || idx2 < 6500) && (nPos2 == 64 || nPos2 == 192) && t1 != 44 && t2 != 47 && BASE_GetItemSanc(&pMobData->Equip[7]) >= 9)
 	{
-		int nu = g_pItemList[idx2].nUnique;
+		int nu = g_pItemList[idx2].Unique;
 		if (nu != 47 && nu != 44)
 			nWeaponDamage += 40;
 	}
@@ -15538,7 +15538,7 @@ char TMFieldScene::UseHPotion()
 			pItem->m_GCText.pFont->SetText(pItem->m_GCText.strString, pItem->m_GCText.dwColor, 0);
 		}
 		if (nAmount <= 1)
-			memset(&g_pObjectManager->m_stMobData.Carry[SourPosa], 0, sizeof(STRUCT_ITEM));
+			memset(&g_pObjectManager->m_stMobData.Inventory[SourPosa], 0, sizeof(STRUCT_ITEM));
 
 		GetSoundAndPlay(41, 0, 0);
 	}
@@ -15634,7 +15634,7 @@ char TMFieldScene::UseMPotion()
 			pItem->m_GCText.pFont->SetText(pItem->m_GCText.strString, pItem->m_GCText.dwColor, 0);
 		}
 		if (nAmount <= 1)
-			memset(&g_pObjectManager->m_stMobData.Carry[SourPosa], 0, sizeof(STRUCT_ITEM));
+			memset(&g_pObjectManager->m_stMobData.Inventory[SourPosa], 0, sizeof(STRUCT_ITEM));
 
 		GetSoundAndPlay(41, 0, 0);
 	}
@@ -15772,7 +15772,7 @@ char TMFieldScene::FeedMount()
 			pItem->m_GCText.pFont->SetText(pItem->m_GCText.strString, pItem->m_GCText.dwColor, 0);
 		}
 		if (nAmount <= 1)
-			memset(&g_pObjectManager->m_stMobData.Carry[SourPosa], 0, sizeof(STRUCT_ITEM));
+			memset(&g_pObjectManager->m_stMobData.Inventory[SourPosa], 0, sizeof(STRUCT_ITEM));
 	}
 
 	UpdateScoreUI(0);
@@ -15844,7 +15844,7 @@ void TMFieldScene::UseTicket(int nCellX, int nCellY)
 
 	UpdateScoreUI(0);
 	if (nAmount <= 1)
-		memset(&g_pObjectManager->m_stMobData.Carry[SourPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Inventory[SourPos], 0, sizeof(STRUCT_ITEM));
 }
 
 char TMFieldScene::UseQuickSloat(char key)
@@ -15985,7 +15985,7 @@ char TMFieldScene::UseQuickSloat(char key)
 		}
 	}
 	if (nAmount <= 1)
-		memset(&g_pObjectManager->m_stMobData.Carry[SourPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Inventory[SourPos], 0, sizeof(STRUCT_ITEM));
 
 	GetSoundAndPlay(41, 0, 0);
 	UpdateScoreUI(16);
@@ -16098,7 +16098,7 @@ void TMFieldScene::UseFireWork()
 	UpdateScoreUI(0);
 
 	if (nAmount <= 1)
-		memset(&g_pObjectManager->m_stMobData.Carry[SourPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Inventory[SourPos], 0, sizeof(STRUCT_ITEM));
 }
 
 void TMFieldScene::DrawCustomFireWork(int nIndex)
@@ -16185,7 +16185,7 @@ void TMFieldScene::MobStop(D3DXVECTOR3 vec)
 		stAction.Header.ClientId = m_pMyHuman->m_dwID;
 		stAction.PosX = nSX;
 		stAction.PosY = nSY;
-		stAction.Effect = 0;
+		stAction.stEffect = 0;
 		stAction.Header.PacketId = MSG_Action_Stop_Opcode;
 		stAction.Speed = g_nMyHumanSpeed;
 		stAction.TargetX = m_pMyHuman->m_LastSendTargetPos.x;
@@ -16396,7 +16396,7 @@ void TMFieldScene::UseItem(SGridControlItem* pItem, int nType, int nItemSIndex, 
 		UpdateScoreUI(0);
 
 		if (nAmount <= delAmountCnt)
-			memset(&g_pObjectManager->m_stMobData.Carry[SourPos], 0, sizeof(STRUCT_ITEM));
+			memset(&g_pObjectManager->m_stMobData.Inventory[SourPos], 0, sizeof(STRUCT_ITEM));
 	}
 }
 
@@ -16457,7 +16457,7 @@ void TMFieldScene::SendCapsuleItem()
 	SAFE_DELETE(pPickedItem);
 
 	UpdateScoreUI(0);
-	memset(&g_pObjectManager->m_stMobData.Carry[m_stCapsuleItem.SourPos], 0, sizeof(STRUCT_ITEM));
+	memset(&g_pObjectManager->m_stMobData.Inventory[m_stCapsuleItem.SourPos], 0, sizeof(STRUCT_ITEM));
 }
 
 void TMFieldScene::SetQuestStatus(bool bStart)
@@ -17292,7 +17292,7 @@ int TMFieldScene::OnKeyGuildOnOff(char iCharCode, int lParam)
 int TMFieldScene::OnKeyShortSkill(char iCharCode, int lParam)
 {
 	if ((iCharCode < '0' || iCharCode > '9') && iCharCode != '!' && iCharCode != '@' && 
-		iCharCode != '#' && iCharCode != '$' && iCharCode != '%' && iCharCode != '¨' && 
+		iCharCode != '#' && iCharCode != '$' && iCharCode != '%' && iCharCode != 'Ãª' && 
 		iCharCode != '&' && iCharCode != '*' && iCharCode != '(' && iCharCode != ')')
 	{
 		return 0;
@@ -17329,7 +17329,7 @@ int TMFieldScene::OnKeyShortSkill(char iCharCode, int lParam)
 		case '%':
 			g_pObjectManager->m_cSelectShortSkill = 4;
 			break;
-		case '¨':
+		case 'Ãª':
 			g_pObjectManager->m_cSelectShortSkill = 5;
 			break;
 		case '&':
@@ -17916,11 +17916,11 @@ int TMFieldScene::OnPacketLongMessagePanel(MSG_LongMessagePanel* pMsg)
 
 int TMFieldScene::OnPacketReqSummon(MSG_ReqSummon* pStd)
 {
-	pStd->Name[15] = 0;
+	pStd->MobName[15] = 0;
 
 	m_pHelpSummon->SetVisible(1);
 
-	sprintf(m_szSummoner, pStd->Name);
+	sprintf(m_szSummoner, pStd->MobName);
 	return 1;
 }
 
@@ -17957,17 +17957,17 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 	if (m_pHumanContainer == nullptr)
 		return 1;
 
-	auto pCreateMob = (MSG_CreateMob*)pStd;
-	auto pCreateMobTrade = (MSG_CreateMobTrade*)pStd;
+	auto pCreateMob = (p364*)pStd;
+	auto pCreateMobTrade = (p363*)pStd;
 
-	auto pNode = (TMHuman*)g_pObjectManager->GetHumanByID(pCreateMob->MobID);
+	auto pNode = (TMHuman*)g_pObjectManager->GetHumanByID(pCreateMob->sIndex);
 
 	std::string qwe{ pCreateMob->MobName };
 
 	STRUCT_AFFECT tempAffect[32]{};
 
 	TMHuman* pHuman = nullptr;
-	if (pCreateMob->MobID == m_pMyHuman->m_dwID)
+	if (pCreateMob->sIndex == m_pMyHuman->m_dwID)
 	{
 		for (int l = 0; l < 32; ++l)
 			memcpy(&tempAffect[l], &m_pMyHuman->m_stAffect[l], sizeof(STRUCT_AFFECT));
@@ -17976,29 +17976,29 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		g_nTempArray2[2] = (int)&m_pMyHuman->m_vecPosition;
 		if (!m_stMoveStop.NextX)
 		{
-			m_stMoveStop.NextX = pCreateMob->PosX;
-			m_stMoveStop.NextY = pCreateMob->PosY;
+			m_stMoveStop.NextX = pCreateMob->Current.X;
+			m_stMoveStop.NextY = pCreateMob->Current.Y;
 		}
 	}
-	if (pStd->PacketId == MSG_CreateMobTrade_Opcode && pCreateMobTrade->Desc[0])
+	if (pStd->PacketId == MSG_CreateMobTrade_Opcode && pCreateMobTrade->StoreName[0])
 	{
-		int len = strlen(pCreateMobTrade->Desc);
+		int len = strlen(pCreateMobTrade->StoreName);
 		if (len > 0)
 		{
 			for (int i = 1; i < 16; ++i)
 			{
-				pCreateMob->Equip[i] &= 0xFFF;
-				pCreateMob->Equip2[i] = 0;
+				pCreateMob->Item_Refine[i] &= 0xFFF;
+				pCreateMob->pAnctCode[i] = 0;
 			}
 
 			for (int i = 1; i < 32; ++i)
-				pCreateMob->Affect[i] = 0;
+				pCreateMob->Affect[i].Index = 0;
 
-			pCreateMob->Equip[0] = 230;
-			pCreateMob->Equip[6] = 0;
-			pCreateMob->Equip[7] = 0;
-			pCreateMob->Equip[14] = 0;
-			pCreateMob->Score.Con = 15000;
+			pCreateMob->Item_Refine[0] = 230;
+			pCreateMob->Item_Refine[6] = 0;
+			pCreateMob->Item_Refine[7] = 0;
+			pCreateMob->Item_Refine[14] = 0;
+			pCreateMob->CurrentScore.Con = 15000;
 		}
 	}
 	if (!pNode)
@@ -18007,10 +18007,10 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		if (pHuman == nullptr)
 			return 1;
 
-		pHuman->m_dwID = pCreateMob->MobID;
+		pHuman->m_dwID = pCreateMob->sIndex;
 		pHuman->m_usGuild = pCreateMob->Guild;
 
-		if (pCreateMob->MobID > 0 && pCreateMob->MobID < 1000)
+		if (pCreateMob->sIndex > 0 && pCreateMob->sIndex < 1000)
 		{
 			char cCurrent = pCreateMob->MobName[13];
 			short* sTotal = (short*)&pCreateMob->MobName[14];
@@ -18019,9 +18019,9 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 			pHuman->m_ucChaosLevel = pCreateMob->MobName[12];
 			pCreateMob->MobName[12] = 0;
 			pCreateMob->MobName[15] = 0;
-			pCreateMob->Nick[25] = 0;
+			pCreateMob->pTab[25] = 0;
 			sprintf(pHuman->m_szName, "%s", pCreateMob->MobName);
-			sprintf(pHuman->m_szNickName, "%s", pCreateMob->Nick);
+			sprintf(pHuman->m_szNickName, "%s", pCreateMob->pTab);
 			pHuman->m_citizen = pCreateMob->Server;
 		}
 		else
@@ -18030,40 +18030,40 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 			pHuman->m_nTotalKill = 0;
 			pHuman->m_ucChaosLevel = 75;
 			pCreateMob->MobName[15] = 0;
-			pCreateMob->Nick[25] = 0;
+			pCreateMob->pTab[25] = 0;
 			sprintf(pHuman->m_szName, "%s", pCreateMob->MobName);
-			sprintf(pHuman->m_szNickName, "%s", pCreateMob->Nick);
+			sprintf(pHuman->m_szNickName, "%s", pCreateMob->pTab);
 			pHuman->m_citizen = 0;
 		}
 
 		memcpy(pHuman->m_usAffect, pCreateMob->Affect, sizeof(pHuman->m_usAffect));
 
-		pHuman->SetPacketEquipItem(pCreateMob->Equip);
+		pHuman->SetPacketEquipItem(pCreateMob->Item_Refine);
 
-		if ((pCreateMob->Equip[14] & 0xFFF) && pCreateMob->Equip2[14] && 
-			((pCreateMob->Equip2[14] & 0xFFF)< 3980 || (pCreateMob->Equip2[14] & 0xFFF) >= 3999))
+		if ((pCreateMob->Item_Refine[14] & 0xFFF) && pCreateMob->pAnctCode[14] &&
+			((pCreateMob->Item_Refine[14] & 0xFFF)< 3980 || (pCreateMob->pAnctCode[14] & 0xFFF) >= 3999))
 		{
-			pHuman->SetMountCostume((unsigned char)pCreateMob->Equip2[14]);
+			pHuman->SetMountCostume((unsigned char)pCreateMob->pAnctCode[14]);
 		}
 
-		pHuman->SetColorItem(pCreateMob->Equip2);
+		pHuman->SetColorItem(pCreateMob->pAnctCode);
 		pHuman->m_fMaxSpeed = 2.0f;
 
-		memcpy(&pHuman->m_stScore, &pCreateMob->Score, sizeof(pHuman->m_stScore));
+		memcpy(&pHuman->m_stScore, &pCreateMob->CurrentScore, sizeof(pHuman->m_stScore));
 
 		float fCon = (float)pHuman->m_stScore.Con;
 		pHuman->SetCharHeight(fCon);
-		if (pCreateMob->Equip[0] < 40)
+		if (pCreateMob->Item_Refine[0] < 40)
 			pHuman->m_fScale = pHuman->m_fScale * 0.89999998f;
 
-		pHuman->SetRace(pCreateMob->Equip[0] & 0xFFF);
+		pHuman->SetRace(pCreateMob->Item_Refine[0] & 0xFFF);
 
 		STRUCT_ITEM tepFace{};
-		memcpy(&tepFace, &pCreateMob->Equip[0], sizeof(tepFace));
-		tepFace.sIndex = pCreateMob->Equip[0];
+		memcpy(&tepFace, &pCreateMob->Item_Refine[0], sizeof(tepFace));
+		tepFace.sIndex = pCreateMob->Item_Refine[0];
 
 		STRUCT_ITEM itemL{};
-		itemL.sIndex = pCreateMob->Equip[6] & 0xFFF;
+		itemL.sIndex = pCreateMob->Item_Refine[6] & 0xFFF;
 		int nWeaponTypeL = BASE_GetItemAbility(&itemL, 21);
 
 		if (nWeaponTypeL == 41)
@@ -18083,7 +18083,7 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		}
 
 		pHuman->CheckAffect();
-		pHuman->CheckWeapon(pCreateMob->Equip[6] & 0xFFF, pCreateMob->Equip[7] & 0xFFF);
+		pHuman->CheckWeapon(pCreateMob->Item_Refine[6] & 0xFFF, pCreateMob->Item_Refine[7] & 0xFFF);
 
 		pHuman->m_sGuildLevel = (unsigned char)pCreateMob->GuildLevel;
 		unsigned short usGuild = pCreateMob->Guild;
@@ -18134,7 +18134,7 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		}
 
 		float fAngle = 0.0f;
-		unsigned char nDir = ((unsigned char)pHuman->m_stScore.Reserved >> 4);
+		unsigned char nDir = ((unsigned char)pHuman->m_stScore.Merchant.Value >> 4);
 		if (nDir == 6)
 			fAngle = D3DXToRadian(180);
 		if (nDir == 9)
@@ -18154,20 +18154,20 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 
 		pHuman->InitAngle(0.0f, fAngle, 0.0f);
 
-		TMVector2 vecPosition{ (float)pCreateMob->PosX + 0.5f, (float)pCreateMob->PosY + 0.5f };
+		TMVector2 vecPosition{ (float)pCreateMob->Current.X + 0.5f, (float)pCreateMob->Current.Y + 0.5f };
 				
 		pHuman->InitPosition(vecPosition.x, GroundGetMask(vecPosition) * 0.1f, vecPosition.y);
 
-		pHuman->m_cHide = (pHuman->m_dwID >= 0 && pHuman->m_dwID < 1000) && pHuman->m_stScore.Reserved & 1;
-		if ((pHuman->m_dwID < 0 || pHuman->m_dwID > 1000) && (pHuman->IsMerchant() || (pHuman->m_stScore.Reserved & 0xF) == 15))
+		pHuman->m_cHide = (pHuman->m_dwID >= 0 && pHuman->m_dwID < 1000) && pHuman->m_stScore.Merchant.Value & 1;
+		if ((pHuman->m_dwID < 0 || pHuman->m_dwID > 1000) && (pHuman->IsMerchant() || (pHuman->m_stScore.Merchant.Value & 0xF) == 15))
 			pHuman->m_pNameLabel->SetTextColor(0xFFAAFFAA);
 
-		int nItemCode = pCreateMob->Equip[13] & 0xFFF;
+		int nItemCode = pCreateMob->Item_Refine[13] & 0xFFF;
 		int nHP = 0;
 		if (nItemCode == 786 || nItemCode == 1936 || nItemCode == 1937)
 		{
 			int nHp = 0;
-			int nSanc = (int)pCreateMob->Equip[13] >> 12;
+			int nSanc = (int)pCreateMob->Item_Refine[13] >> 12;
 			if (nSanc < 2)
 				nSanc = 2;
 			if (nItemCode == 1936)
@@ -18179,12 +18179,12 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 				nSanc *= 1000;
 			}
 			
-			int tmp = pCreateMob->Score.Hp * nSanc;
+			int tmp = pCreateMob->CurrentScore.Hp * nSanc;
 			if (tmp > 2000000000)
 				tmp = 2000000000;
 
 			pHuman->m_BigHp = tmp;
-			tmp = pCreateMob->Score.MaxHp * nSanc;
+			tmp = pCreateMob->CurrentScore.MaxHp * nSanc;
 			if (tmp > 2000000000)
 				tmp = 2000000000;
 			pHuman->m_MaxBigHp = tmp;
@@ -18212,10 +18212,10 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		pHuman = pNode;
 		pHuman->Init();
 
-		pHuman->m_dwID = pCreateMob->MobID;
+		pHuman->m_dwID = pCreateMob->sIndex;
 		pHuman->m_usGuild = pCreateMob->Guild;
 
-		if (pCreateMob->MobID > 0 && pCreateMob->MobID < 1000)
+		if (pCreateMob->sIndex > 0 && pCreateMob->sIndex < 1000)
 		{
 			char cCurrent = pCreateMob->MobName[13];
 			short* sTotal = (short*)&pCreateMob->MobName[14];
@@ -18235,12 +18235,12 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 			pCreateMob->MobName[15] = 0;
 			sprintf(pHuman->m_szName, "%s", pCreateMob->MobName);
 
-			int nItemCode = pCreateMob->Equip[13] & 0xFFF;
+			int nItemCode = pCreateMob->Item_Refine[13] & 0xFFF;
 			int nHP = 0;
 			if (nItemCode == 786 || nItemCode == 1936 || nItemCode == 1937)
 			{
 				int nHp = 0;
-				int nSanc = (int)pCreateMob->Equip[13] >> 12;
+				int nSanc = (int)pCreateMob->Item_Refine[13] >> 12;
 				if (nSanc < 2)
 					nSanc = 2;
 				if (nItemCode == 1936)
@@ -18252,12 +18252,12 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 					nSanc *= 1000;
 				}
 
-				int tmp = pCreateMob->Score.Hp * nSanc;
+				int tmp = pCreateMob->CurrentScore.Hp * nSanc;
 				if (tmp > 2000000000)
 					tmp = 2000000000;
 
 				pHuman->m_BigHp = tmp;
-				tmp = pCreateMob->Score.MaxHp * nSanc;
+				tmp = pCreateMob->CurrentScore.MaxHp * nSanc;
 				if (tmp > 2000000000)
 					tmp = 2000000000;
 				pHuman->m_MaxBigHp = tmp;
@@ -18265,23 +18265,23 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 			}
 		}
 
-		pCreateMob->Nick[25] = 0;
+		pCreateMob->pTab[25] = 0;
 
-		sprintf(pHuman->m_szNickName, "%s", pCreateMob->Nick);
+		sprintf(pHuman->m_szNickName, "%s", pCreateMob->pTab);
 		memcpy(pHuman->m_usAffect, pCreateMob->Affect, sizeof(pHuman->m_usAffect));
 
-		pHuman->SetPacketEquipItem(pCreateMob->Equip);
+		pHuman->SetPacketEquipItem(pCreateMob->Item_Refine);
 
-		if ((pCreateMob->Equip[14] & 0xFFF) && pCreateMob->Equip2[14] &&
-			((pCreateMob->Equip2[14] & 0xFFF) < 3980 || (pCreateMob->Equip2[14] & 0xFFF) >= 3999))
+		if ((pCreateMob->Item_Refine[14] & 0xFFF) && pCreateMob->pAnctCode[14] &&
+			((pCreateMob->Item_Refine[14] & 0xFFF) < 3980 || (pCreateMob->pAnctCode[14] & 0xFFF) >= 3999))
 		{
-			pHuman->SetMountCostume((unsigned char)pCreateMob->Equip2[14]);
+			pHuman->SetMountCostume((unsigned char)pCreateMob->pAnctCode[14]);
 		}
 
-		pHuman->SetColorItem(pCreateMob->Equip2);
+		pHuman->SetColorItem(pCreateMob->pAnctCode);
 		pHuman->m_fMaxSpeed = 2.0f;
 
-		memcpy(&pHuman->m_stScore, &pCreateMob->Score, sizeof(pHuman->m_stScore));
+		memcpy(&pHuman->m_stScore, &pCreateMob->CurrentScore, sizeof(pHuman->m_stScore));
 
 		float fCon = (float)pHuman->m_stScore.Con;
 		pHuman->SetCharHeight(fCon);
@@ -18291,13 +18291,13 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		if (pHuman->m_nClass == 29)
 			bWasMobTrade = true;
 
-		pHuman->SetRace(pCreateMob->Equip[0] & 0xFFF);
+		pHuman->SetRace(pCreateMob->Item_Refine[0] & 0xFFF);
 
 		if (pStd->PacketId != MSG_CreateMobTrade_Opcode && !bWasMobTrade)
 			pHuman->m_nSkinMeshType = SkinMeshType;
 
 		STRUCT_ITEM itemL{};
-		itemL.sIndex = pCreateMob->Equip[6] & 0xFFF;
+		itemL.sIndex = pCreateMob->Item_Refine[6] & 0xFFF;
 		int nWeaponTypeL = BASE_GetItemAbility(&itemL, 21);
 
 		if (nWeaponTypeL == 41)
@@ -18315,11 +18315,11 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 
 
 		pHuman->CheckAffect();
-		pHuman->CheckWeapon(pCreateMob->Equip[6] & 0xFFF, pCreateMob->Equip[7] & 0xFFF);
+		pHuman->CheckWeapon(pCreateMob->Item_Refine[6] & 0xFFF, pCreateMob->Item_Refine[7] & 0xFFF);
 		pHuman->InitObject();
 
 		float fAngle = 0.0f;
-		unsigned char nDir = ((unsigned char)pHuman->m_stScore.Reserved >> 4);
+		unsigned char nDir = ((unsigned char)pHuman->m_stScore.Merchant.Value >> 4);
 		if (nDir == 6)
 			fAngle = D3DXToRadian(180);
 		if (nDir == 9)
@@ -18339,7 +18339,7 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 
 		pHuman->InitAngle(0.0f, fAngle, 0.0f);
 
-		TMVector2 vecPosition{ (float)pCreateMob->PosX + 0.5f, (float)pCreateMob->PosY + 0.5f };
+		TMVector2 vecPosition{ (float)pCreateMob->Current.X + 0.5f, (float)pCreateMob->Current.Y + 0.5f };
 
 		pHuman->InitPosition(vecPosition.x, GroundGetMask(vecPosition) * 0.1f, vecPosition.y);
 
@@ -18391,8 +18391,8 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 				Guildmark_Create(&pHuman->m_stGuildMark);
 		}
 
-		pHuman->m_cHide = (pHuman->m_dwID >= 0 && pHuman->m_dwID < 1000) && pHuman->m_stScore.Reserved & 1;
-		if ((pHuman->m_dwID < 0 || pHuman->m_dwID > 1000) && (pHuman->m_stScore.Reserved & 0xF) >= 1 && (pHuman->m_stScore.Reserved & 0xF) <= 15)
+		pHuman->m_cHide = (pHuman->m_dwID >= 0 && pHuman->m_dwID < 1000) && pHuman->m_stScore.Merchant.Value & 1;
+		if ((pHuman->m_dwID < 0 || pHuman->m_dwID > 1000) && (pHuman->m_stScore.Merchant.Value & 0xF) >= 1 && (pHuman->m_stScore.Merchant.Value & 0xF) <= 15)
 			pHuman->m_pNameLabel->SetTextColor(0xFFAAFFAA);
 
 		if ((pHuman->m_dwID < 0 || pHuman->m_dwID > 1000) && pHuman->m_sHeadIndex == 54)
@@ -18408,12 +18408,12 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		pNode->m_nWillDie = -1;
 		pNode->m_dwDeadTime = 0;
 
-		int nItemCode = pCreateMob->Equip[13] & 0xFFF;
+		int nItemCode = pCreateMob->Item_Refine[13] & 0xFFF;
 		int nHP = 0;
 		if (nItemCode == 786 || nItemCode == 1936 || nItemCode == 1937)
 		{
 			int nHp = 0;
-			int nSanc = (int)pCreateMob->Equip[13] >> 12;
+			int nSanc = (int)pCreateMob->Item_Refine[13] >> 12;
 			if (nSanc < 2)
 				nSanc = 2;
 			if (nItemCode == 1936)
@@ -18425,12 +18425,12 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 				nSanc *= 1000;
 			}
 
-			int tmp = pCreateMob->Score.Hp * nSanc;
+			int tmp = pCreateMob->CurrentScore.Hp * nSanc;
 			if (tmp > 2000000000)
 				tmp = 2000000000;
 
 			pNode->m_BigHp = tmp;
-			tmp = pCreateMob->Score.MaxHp * nSanc;
+			tmp = pCreateMob->CurrentScore.MaxHp * nSanc;
 			if (tmp > 2000000000)
 				tmp = 2000000000;
 			pNode->m_MaxBigHp = tmp;
@@ -18449,10 +18449,10 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		}
 		if (pStd->PacketId == MSG_CreateMobTrade_Opcode)
 		{
-			pCreateMobTrade->Desc[22] = 0;
-			pCreateMobTrade->Desc[21] = 0;
+			pCreateMobTrade->StoreName[22] = 0;
+			pCreateMobTrade->StoreName[21] = 0;
 
-			sprintf(pHuman->m_TradeDesc, pCreateMobTrade->Desc);
+			sprintf(pHuman->m_TradeDesc, pCreateMobTrade->StoreName);
 			pHuman->m_pAutoTradeDesc->SetText(pHuman->m_TradeDesc, 0);
 		}
 		else
@@ -18470,11 +18470,11 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 	
 	if (pHuman && !pHuman->m_cHide)
 	{
-		if (!pHuman->m_cHide && ((pCreateMob->CreateType & 0x7FFF) == 2 || (pCreateMob->CreateType & 0x7FFF) == 3))
+		if (!pHuman->m_cHide && ((pCreateMob->Spawn.Type & 0x7FFF) == 2 || (pCreateMob->Spawn.Type & 0x7FFF) == 3))
 		{
-			TMVector3 vecEffectPos = TMVector3((float)pCreateMob->PosX + 0.5f, 
+			TMVector3 vecEffectPos = TMVector3((float)pCreateMob->Current.X + 0.5f, 
 				GroundGetMask(pHuman->m_vecPosition) * 0.1f + 0.05000000f,
-				(float)pCreateMob->PosY + 0.5f);
+				(float)pCreateMob->Current.Y + 0.5f);
 
 			if (!pHuman->m_nSkinMeshType || pHuman->m_nSkinMeshType == 1)
 			{
@@ -18483,7 +18483,7 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 				if (pEffect && m_pEffectContainer)
 					m_pEffectContainer->AddChild(pEffect);
 			}
-			else if ((pCreateMob->CreateType & 0x7FFF) != 3 && pHuman->m_nSkinMeshType != 35 && pHuman->m_nSkinMeshType != 36)
+			else if ((pCreateMob->Spawn.Type & 0x7FFF) != 3 && pHuman->m_nSkinMeshType != 35 && pHuman->m_nSkinMeshType != 36)
 			{
 				auto pChild = new TMEffectStart(vecEffectPos, 1, nullptr);
 
@@ -18497,11 +18497,11 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 					pSoundData->Play();
 				}
 			}
-			if ((pCreateMob->CreateType & 0x7FFF) == 3)
+			if ((pCreateMob->Spawn.Type & 0x7FFF) == 3)
 			{
 				if (pHuman->m_nClass == 62 && pHuman->m_stLookInfo.FaceMesh == 2)
 				{
-					TMVector2 effectPos{ (float)pCreateMob->PosX + 0.5f, (float)pCreateMob->PosY + 0.5f };
+					TMVector2 effectPos{ (float)pCreateMob->Current.X + 0.5f, (float)pCreateMob->Current.Y + 0.5f };
 					pHuman->InitPosition(effectPos.x,
 						(GroundGetMask(effectPos) * 0.1f) - 2.0f,
 						effectPos.y);
@@ -18574,9 +18574,9 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		}
 		if (!pHuman->m_nSkinMeshType || pHuman->m_nSkinMeshType == 1)
 		{
-			if ((pCreateMob->CreateType & 0xF0) == 16)
+			if ((pCreateMob->Spawn.Type & 0xF0) == 16)
 				pHuman->SetAnimation(ECHAR_MOTION::ECMOTION_PUNISHING, 1);
-			else if ((pCreateMob->CreateType & 0xF0) == 32)
+			else if ((pCreateMob->Spawn.Type & 0xF0) == 32)
 				pHuman->SetAnimation(ECHAR_MOTION::ECMOTION_SEATING, 1);
 		}
 	}
@@ -18593,7 +18593,7 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 		for (int n = 0; n < pPartyList->m_nNumItem; ++n)
 		{
 			auto pPartyItem = (SListBoxPartyItem*)pPartyList->m_pItemList[n];
-			if (pPartyItem->m_dwCharID == pCreateMob->MobID)
+			if (pPartyItem->m_dwCharID == pCreateMob->sIndex)
 			{
 				auto pPartyHuman = (TMHuman*)g_pObjectManager->GetHumanByID(pPartyItem->m_dwCharID);
 				if (pPartyHuman && pPartyItem->m_nState != 1)
@@ -18623,8 +18623,8 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 	}
 
 	if (pHuman && 
-		(_locationCheck((float)pCreateMob->PosX, (float)pCreateMob->PosY, 8, 15) || _locationCheck((float)pCreateMob->PosX, (float)pCreateMob->PosY, 8, 16)	|| 
-		 _locationCheck((float)pCreateMob->PosX, (float)pCreateMob->PosY, 9, 15) || _locationCheck((float)pCreateMob->PosX, (float)pCreateMob->PosY, 9, 16)))
+		(_locationCheck((float)pCreateMob->Current.X, (float)pCreateMob->Current.Y, 8, 15) || _locationCheck((float)pCreateMob->Current.X, (float)pCreateMob->Current.Y, 8, 16)	||
+		 _locationCheck((float)pCreateMob->Current.X, (float)pCreateMob->Current.Y, 9, 15) || _locationCheck((float)pCreateMob->Current.X, (float)pCreateMob->Current.Y, 9, 16)))
 	{
 		if (pHuman->m_cMantua == 1)
 			pHuman->SetInMiniMap(0xAA0000FF);
@@ -18740,18 +18740,18 @@ int TMFieldScene::OnPacketCNFAccountLogin(MSG_CNFRemoveServerLogin* pStd)
 	return 1;
 }
 
-int TMFieldScene::OnPacketCNFCharacterLogin(MSG_CNFCharacterLogin* pStd)
+int TMFieldScene::OnPacketCNFCharacterLogin(p114* pStd)
 {
 	m_pMessagePanel->SetVisible(0, 1);
 	g_pTimerManager->SetServerTime(pStd->Header.TimeStamp);
-	g_pObjectManager->m_dwCharID = pStd->ClientID;
-	memcpy(&g_pObjectManager->m_stMobData, &pStd->MOB, sizeof(pStd->MOB));
-	g_pObjectManager->m_nFakeExp = pStd->Ext1.Data[0];
-	g_pObjectManager->m_stMobData.HomeTownX = pStd->PosX;
-	g_pObjectManager->m_stMobData.HomeTownY = pStd->PosY;
+	g_pObjectManager->m_dwCharID = pStd->ClientIndex;
+	memcpy(&g_pObjectManager->m_stMobData, &pStd->Mob, sizeof(pStd->Mob));
+	g_pObjectManager->m_nFakeExp = 0;
+	g_pObjectManager->m_stMobData.Last.X = pStd->WorldPos.X;
+	g_pObjectManager->m_stMobData.Last.Y = pStd->WorldPos.Y;
 	memcpy(g_pObjectManager->m_cShortSkill, g_pObjectManager->m_stMobData.ShortSkill, sizeof(g_pObjectManager->m_stMobData.ShortSkill));
 
-	memcpy(&g_pObjectManager->m_cShortSkill[4], pStd->ShortSkill, sizeof(pStd->ShortSkill));
+	memcpy(&g_pObjectManager->m_cShortSkill[4], pStd->Mob.ShortSkill, sizeof(pStd->Mob.ShortSkill));
 	for (int i = 0; i < 20; ++i)
 	{
 		if ((unsigned char)g_pObjectManager->m_cShortSkill[i] < 24)
@@ -18861,7 +18861,7 @@ int TMFieldScene::OnPacketCreateItem(MSG_CreateItem* pMsg)
 	TMItem* pItem = nullptr;
 	if (pOldItem)
 		pItem = pOldItem;
-	else if (g_pItemList[pMsg->Item.sIndex].nIndexMesh == 1607)
+	else if (g_pItemList[pMsg->Item.sIndex].nIndexTexture == 1607)
 	{
 		pItem = new TMCannon();
 		pItem->m_dwObjType = 1607;
@@ -18941,7 +18941,7 @@ int TMFieldScene::OnPacketCNFDropItem(MSG_CNFDropItem* pMsg)
 	else if (pMsg->SourType == 1)
 	{
 		auto pGridItem = m_pGridInv->PickupAtItem(pMsg->SourPos % 5, pMsg->SourPos / 5);
-		memset(&g_pObjectManager->m_stMobData.Carry[pMsg->SourPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Inventory[pMsg->SourPos], 0, sizeof(STRUCT_ITEM));
 	}
 	else if (pMsg->SourType == 2)
 	{
@@ -18987,7 +18987,7 @@ int TMFieldScene::OnPacketCNFGetItem(MSG_CNFGetItem* pMsg)
 	else
 	{
 		pGrid->AddItem(new SGridControlItem(0, pStructItem, 0.0f, 0.0f), pMsg->DestPos % 5, pMsg->DestPos / 5);
-		memcpy(&g_pObjectManager->m_stMobData.Carry[pMsg->DestPos], pStructItem, sizeof(STRUCT_ITEM));
+		memcpy(&g_pObjectManager->m_stMobData.Inventory[pMsg->DestPos], pStructItem, sizeof(STRUCT_ITEM));
 	}
 
 	GetSoundAndPlay(45, 0, 0);
@@ -19133,7 +19133,7 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 	{
 		pSrcGrid = m_pGridInvList[pSwapItem->SourPos / 15];
 		pSrcItem = pSrcGrid->PickupAtItem(pSwapItem->SourPos % 15 % 5, pSwapItem->SourPos % 15 / 5);
-		memset(&g_pObjectManager->m_stMobData.Carry[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
 	}
 	else if (pSwapItem->SourType == 2)
 	{
@@ -19171,7 +19171,7 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 	{
 		pDestGrid = m_pGridInvList[pSwapItem->DestPos / 15];
 		pDestItem = pDestGrid->PickupAtItem(pSwapItem->DestPos % 15 % 5, pSwapItem->DestPos % 15 / 5);
-		memset(&g_pObjectManager->m_stMobData.Carry[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
 	}
 	else if (pSwapItem->DestType == 2)
 	{
@@ -19208,9 +19208,9 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 			{				
 				pSrcGrid->AddItem(pDestItem, pSwapItem->SourPos % 15 % 5, pSwapItem->SourPos % 15 / 5);
 				if (pDestItem)
-					memcpy(&g_pObjectManager->m_stMobData.Carry[pSwapItem->SourPos], pDestItem->m_pItem, sizeof(STRUCT_ITEM));
+					memcpy(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourPos], pDestItem->m_pItem, sizeof(STRUCT_ITEM));
 				else
-					memset(&g_pObjectManager->m_stMobData.Carry[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19265,9 +19265,9 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 			{
 				pDestGrid->AddItem(pSrcItem, pSwapItem->DestPos % 15 % 5, pSwapItem->DestPos % 15 / 5);
 				if (pSrcItem)
-					memcpy(&g_pObjectManager->m_stMobData.Carry[pSwapItem->DestPos], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
+					memcpy(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestPos], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
 				else
-					memset(&g_pObjectManager->m_stMobData.Carry[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19590,7 +19590,7 @@ int TMFieldScene::OnPacketSell(PacketHeader* pStd)
 			int nPrice = 0;
 
 			if (pDestItem->m_pItem->sIndex > 0 && pDestItem->m_pItem->sIndex < MAX_ITEMLIST)
-				nPrice = g_pItemList[pDestItem->m_pItem->sIndex].nPrice;
+				nPrice = g_pItemList[pDestItem->m_pItem->sIndex].Price;
 
 			nPrice = static_cast<int>((float)nPrice * 0.25f);
 
@@ -19615,7 +19615,7 @@ int TMFieldScene::OnPacketSell(PacketHeader* pStd)
 			int nPrice = 0;
 
 			if (pDestItem->m_pItem->sIndex > 0 && pDestItem->m_pItem->sIndex < MAX_ITEMLIST)
-				nPrice = g_pItemList[pDestItem->m_pItem->sIndex].nPrice;
+				nPrice = g_pItemList[pDestItem->m_pItem->sIndex].Price;
 
 			nPrice = static_cast<int>((float)nPrice * 0.25f);
 
@@ -19628,7 +19628,7 @@ int TMFieldScene::OnPacketSell(PacketHeader* pStd)
 				nPrice /= 2;
 			}
 
-			memset(&g_pObjectManager->m_stMobData.Carry[pSell->MyPos], 0, sizeof(STRUCT_ITEM));
+			memset(&g_pObjectManager->m_stMobData.Inventory[pSell->MyPos], 0, sizeof(STRUCT_ITEM));
 			g_pObjectManager->m_stMobData.Coin += nPrice;
 		}
 
@@ -19724,9 +19724,9 @@ int TMFieldScene::OnPacketCNFMobKill(MSG_CNFMobKill* pStd)
 int TMFieldScene::OnPacketREQParty(MSG_REQParty* pStd)
 {
 	auto pPartyList = m_pPartyList;
-	pStd->Leader.Name[15] = 0;
+	pStd->Leader.MobName[15] = 0;
 
-	auto pPartyItem = new SListBoxPartyItem(pStd->Leader.Name,
+	auto pPartyItem = new SListBoxPartyItem(pStd->Leader.MobName,
 		0xFFFFFFFF,
 		0.0f,
 		0.0f,
@@ -19759,13 +19759,13 @@ int TMFieldScene::OnPacketREQParty(MSG_REQParty* pStd)
 	auto pChatList = m_pChatList;
 
 	char szMsg[128]{};
-	sprintf(szMsg, g_pMessageStringTable[62], pStd->Leader.Name);
+	sprintf(szMsg, g_pMessageStringTable[62], pStd->Leader.MobName);
 
 	pChatList->AddItem(new SListBoxItem(szMsg, 0xFFCCAAFF, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0));
 
 	if (!m_bAutoParty)
 	{
-		sprintf(szMsg, g_pMessageStringTable[63], pStd->Leader.Name);
+		sprintf(szMsg, g_pMessageStringTable[63], pStd->Leader.MobName);
 
 		pChatList->AddItem(new SListBoxItem(szMsg, 0xFFCCAAFF, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0));
 		m_pPartyAutoButton->SetVisible(0);
@@ -19782,7 +19782,7 @@ int TMFieldScene::OnPacketREQParty(MSG_REQParty* pStd)
 		stCnfParty.Header.ClientId = m_pMyHuman->m_dwID;
 		stCnfParty.Header.PacketId = MSG_CNFParty2_Opcode;
 		stCnfParty.LeaderID = pStd->Leader.ID;
-		sprintf(stCnfParty.LeaderName, pStd->Leader.Name);
+		sprintf(stCnfParty.LeaderName, pStd->Leader.MobName);
 		
 		if (pNode)
 			pNode->m_bParty = 1;
@@ -19800,7 +19800,7 @@ int TMFieldScene::OnPacketREQParty(MSG_REQParty* pStd)
 int TMFieldScene::OnPacketAddParty(MSG_AddParty* pStd)
 {
 	auto pPartyList = m_pPartyList;
-	pStd->Party.Name[15] = 0;
+	pStd->Party.MobName[15] = 0;
 	for (int i = 0; i < pPartyList->m_nNumItem; ++i)
 	{
 		auto pPartyItem = (SListBoxPartyItem*)pPartyList->m_pItemList[i];
@@ -19815,7 +19815,7 @@ int TMFieldScene::OnPacketAddParty(MSG_AddParty* pStd)
 	if (!pStd->Party.PartyIndex)
 		dwColor = 0xFFAAAAFF;
 
-	auto pPartyItem = new SListBoxPartyItem(pStd->Party.Name,
+	auto pPartyItem = new SListBoxPartyItem(pStd->Party.MobName,
 		dwColor,
 		0.0f,
 		0.0f,
@@ -20106,7 +20106,7 @@ int TMFieldScene::OnPacketEnvEffect(PacketHeader* pStd)
 
 			TMVector2 vec{ (float)nX, (float)nY + 1.0f };
 			float fHeight = (float)GroundGetMask(vec) * 0.1f;
-			if (pEnvEffect->Effect == 32)
+			if (pEnvEffect->stEffect == 32)
 			{		
 				auto pExplosion = new TMSkillExplosion2(TMVector3(vec.x, fHeight, vec.y), 0, 1.5f, 210, dwColor);
 				m_pEffectContainer->AddChild(pExplosion);
@@ -20236,7 +20236,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 		if (pAttacker != m_pMyHuman || pAttack->FlagLocal == 1 && pAttacker == m_pMyHuman || !pAttack->FlagLocal && 
 			pAttacker == m_pMyHuman && (unsigned char)pAttack->Motion == 254)
 		{
-			if (pAttack->SkillIndex == 4) // Possuído
+			if (pAttack->SkillIndex == 4) // PossuÃªdo
 			{
 				pAttacker->m_cPunish = 1;
 				pAttacker->m_dwPunishedTime = g_pTimerManager->GetServerTime();
@@ -20245,13 +20245,13 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 			float fAngle = pAttacker->m_fWantAngle;
 
 			if (!pTarget)
-				pAttacker->Attack((ECHAR_MOTION)pAttack->Motion, TMVector2((float)pAttack->TargetX, (float)pAttack->TargetY), static_cast<char>(pAttack->SkillIndex));
+				pAttacker->Damage((ECHAR_MOTION)pAttack->Motion, TMVector2((float)pAttack->TargetX, (float)pAttack->TargetY), static_cast<char>(pAttack->SkillIndex));
 			else if ((unsigned char)pAttack->Motion != 254)
 			{
 				if (pAttacker->m_sHeadIndex <= 50)
-					pAttacker->Attack((ECHAR_MOTION)pAttack->Motion, pTarget, pAttack->SkillIndex);
+					pAttacker->Damage((ECHAR_MOTION)pAttack->Motion, pTarget, pAttack->SkillIndex);
 				else
-					pAttacker->Attack((ECHAR_MOTION)pAttack->Motion, pTarget, *(unsigned char*)&pAttack->SkillIndex);
+					pAttacker->Damage((ECHAR_MOTION)pAttack->Motion, pTarget, *(unsigned char*)&pAttack->SkillIndex);
 
 				fHeight = pTarget->m_fHeight + 1.5f;
 
@@ -20259,7 +20259,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					fAngle = atan2f(pTarget->m_vecPosition.x - pAttacker->m_vecPosition.x, pTarget->m_vecPosition.y - pAttacker->m_vecPosition.y) + D3DXToRadian(90);
 			}
 
-			if (pAttack->SkillIndex == 98) // Canhão Superior
+			if (pAttack->SkillIndex == 98) // CanhÃªo Superior
 				fAngle = atan2f((float)pAttack->TargetX - pAttacker->m_vecPosition.x, (float)pAttack->TargetY - pAttacker->m_vecPosition.y) + D3DXToRadian(90);
 			if (pAttack->DoubleCritical & 1)
 				pAttacker->m_bDoubleAttack = 1;
@@ -20329,7 +20329,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 				if (pEffect && m_pEffectContainer)
 					m_pEffectContainer->AddChild(pEffect);
 			}
-			else if (pAttack->SkillIndex == 3) // Perseguição
+			else if (pAttack->SkillIndex == 3) // PerseguiÃ§Ã£o
 			{
 				if (pAttacker)
 				{
@@ -20356,7 +20356,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					GetSoundAndPlay(151, 0, 0);
 				}
 			}
-			else if (pAttack->SkillIndex == 45) // Arma Mágica
+			else if (pAttack->SkillIndex == 45) // Arma MÃªgica
 			{
 				float fY = (float)pAttack->TargetY + 0.5f;
 				TMVector3 vecTarget{ (float)pAttack->TargetX + 0.5f, (float)GroundGetMask(TMVector2((float)pAttack->TargetX + 0.5f, fY)) * 0.1f, fY };
@@ -20614,7 +20614,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 			{
 				GetSoundAndPlay(34, 0, 0);
 			}
-			else if (pAttack->SkillIndex == 77) // Meditação
+			else if (pAttack->SkillIndex == 77) // MeditaÃ§Ã£o
 			{
 				GetSoundAndPlay(36, 0, 0);
 			}
@@ -20654,7 +20654,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					}
 				}
 			}
-			else if (pAttack->SkillIndex == 86) // Explosão Etérea
+			else if (pAttack->SkillIndex == 86) // ExplosÃªo EtÃªrea
 			{
 				if (pAttacker)
 				{
@@ -20834,7 +20834,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 
 				GetSoundAndPlay(1, 0, 0);
 			}
-			else if (pAttack->SkillIndex == 100) // Ressureição
+			else if (pAttack->SkillIndex == 100) // RessureiÃ§Ã£o
 			{
 				GetSoundAndPlay(156, 0, 0);
 			}
@@ -21015,7 +21015,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 							Msg.Header.PacketId = MSG_Action_Opcode;
 							Msg.PosX = targetx;
 							Msg.PosY = targety;
-							Msg.Effect = 2;
+							Msg.stEffect = 2;
 							Msg.TargetX = targetx;
 							Msg.TargetY = targety;
 
@@ -22447,8 +22447,8 @@ int TMFieldScene::OnPacketAutoKick(PacketHeader* pStd)
 
 int TMFieldScene::OnPacketItemPrice(MSG_STANDARDPARM2* pStd)
 {
-	g_pItemList[412].nPrice = pStd->Parm1;
-	g_pItemList[413].nPrice = pStd->Parm2;
+	g_pItemList[412].Price = pStd->Parm1;
+	g_pItemList[413].Price = pStd->Parm2;
 	return 1;
 }
 
@@ -22763,14 +22763,14 @@ void TMFieldScene::GetTimeString(char* szVal, int sTime, int nTime, int i)
 void TMFieldScene::Bag_View()
 {
 	char str[128]{};
-	if (g_pObjectManager->m_stMobData.Carry[60].sIndex == 3467)
+	if (g_pObjectManager->m_stMobData.Inventory[60].sIndex == 3467)
 	{
 		if (m_bJPNBag[2])
 			m_pInvPageBtn3->SetTextureSetIndex(527);
 		else
 			m_pInvPageBtn3->SetTextureSetIndex(528);
 
-		auto pEffect = g_pObjectManager->m_stMobData.Carry[60].stEffect;
+		auto pEffect = g_pObjectManager->m_stMobData.Inventory[60].stEffect;
 
 		char szStrDay[128]{};
 		char szStrMonth[128]{};
@@ -22814,14 +22814,14 @@ void TMFieldScene::Bag_View()
 		m_pInvPageBtn3->SetTextureSetIndex(549);
 	}
 
-	if (g_pObjectManager->m_stMobData.Carry[61].sIndex == 3467)
+	if (g_pObjectManager->m_stMobData.Inventory[61].sIndex == 3467)
 	{
 		if (m_bJPNBag[3])
 			m_pInvPageBtn3->SetTextureSetIndex(527);
 		else
 			m_pInvPageBtn3->SetTextureSetIndex(528);
 
-		auto pEffect = g_pObjectManager->m_stMobData.Carry[61].stEffect;
+		auto pEffect = g_pObjectManager->m_stMobData.Inventory[61].stEffect;
 
 		char szStrDay[128]{};
 		char szStrMonth[128]{};
@@ -23289,7 +23289,7 @@ int TMFieldScene::Affect_Main(unsigned int dwServerTime)
 	bool bomb = false;
 	for (int i = 0; i < 32; ++i)
 	{
-		if ((unsigned char)m_pMyHuman->m_stAffect[i].Type <= 50)
+		if ((unsigned char)m_pMyHuman->m_stAffect[i].Index <= 50)
 		{
 			if (!m_pAffectIcon[i]->IsVisible())
 				m_pAffect[i]->SetVisible(0);
@@ -23300,7 +23300,7 @@ int TMFieldScene::Affect_Main(unsigned int dwServerTime)
 			GetTimeString(szVal, sTime, m_pMyHuman->m_stAffect[i].Time, i);
 			int nTime = m_pMyHuman->m_stAffect[i].Time;
 
-			if (m_pAffectIcon[i] && i && (unsigned char)m_pMyHuman->m_stAffect[i].Type > 0 || !i && nTime > 0)
+			if (m_pAffectIcon[i] && i && (unsigned char)m_pMyHuman->m_stAffect[i].Index > 0 || !i && nTime > 0)
 			{
 				m_pAffectIcon[i]->m_nPosX = BASE_ScreenResize(30.0f);
 				m_pAffectIcon[i]->m_nPosX = ((float)(BASE_ScreenResize(1.0f) + m_pAffectIcon[i]->m_nWidth) * (float)(nAvailCount + 1))
@@ -23316,7 +23316,7 @@ int TMFieldScene::Affect_Main(unsigned int dwServerTime)
 					}
 
 					char strAffectString[128]{};
-					if (m_pMyHuman->m_stAffect[i].Type == 8)
+					if (m_pMyHuman->m_stAffect[i].Index == 8)
 					{
 						auto pScene = static_cast<TMFieldScene*>(g_pCurrentScene);
 						int efvalue = m_pMyHuman->m_stAffect[i].Value;
@@ -23344,7 +23344,7 @@ int TMFieldScene::Affect_Main(unsigned int dwServerTime)
 					}
 					else
 					{
-						sprintf(strAffectString, "%s : %s", g_pAffectTable[(unsigned char)m_pMyHuman->m_stAffect[i].Type], szVal);
+						sprintf(strAffectString, "%s : %s", g_pAffectTable[(unsigned char)m_pMyHuman->m_stAffect[i].Index], szVal);
 						m_pAffectDesc->SetText(strAffectString, 0);
 						m_pAffectDesc->m_nPosX = m_pAffectIcon[i]->m_nPosX;
 						if ((float)(m_pAffectDesc->m_nWidth + 60.0f) + m_pAffectDesc->m_nPosX > (float)g_pDevice->m_dwScreenWidth)
@@ -23858,18 +23858,18 @@ void TMFieldScene::GameAuto()
 			int useSkill = 1;
 			for (int j = 0; j < 32; ++j)
 			{
-				if ((unsigned char)m_pMyHuman->m_stAffect[j].Type <= 0)
+				if ((unsigned char)m_pMyHuman->m_stAffect[j].Index <= 0)
 					continue;
 
 				if (idxSkill == 64 || idxSkill == 66 || idxSkill == 68 || idxSkill == 70 || idxSkill == 71)
 				{
-					if (g_AffectSkillType[(unsigned char)m_pMyHuman->m_stAffect[j].Type] == 71 && m_pMyHuman->m_stAffect[j].Time > 3)
+					if (g_AffectSkillType[(unsigned char)m_pMyHuman->m_stAffect[j].Index] == 71 && m_pMyHuman->m_stAffect[j].Time > 3)
 					{
 						useSkill = 0;
 						break;
 					}
 				}
-				else if (g_AffectSkillType[(unsigned char)m_pMyHuman->m_stAffect[j].Type] == idxSkill && m_pMyHuman->m_stAffect[j].Time > 3)
+				else if (g_AffectSkillType[(unsigned char)m_pMyHuman->m_stAffect[j].Index] == idxSkill && m_pMyHuman->m_stAffect[j].Time > 3)
 				{
 					useSkill = 0;
 					break;
@@ -23925,7 +23925,7 @@ void TMFieldScene::GameAuto()
 				stAction.Header.ClientId = m_pMyHuman->m_dwID;
 				stAction.PosX = m_pMyHuman->m_LastSendTargetPos.x;
 				stAction.PosY = m_pMyHuman->m_LastSendTargetPos.y;
-				stAction.Effect = 0;
+				stAction.stEffect = 0;
 				stAction.Header.PacketId = MSG_Action_Opcode;
 				stAction.Speed = g_nMyHumanSpeed;
 				stAction.TargetX = m_AutoStartPointX;
@@ -24179,7 +24179,7 @@ int TMFieldScene::MouseClick_MixNPC(TMHuman* pOver)
 		return 1;
 	}
 	if (pOver->m_dwID <= 0 || pOver->m_dwID >= 1000 && pOver->m_sHeadIndex == 67 && 
-		(pOver->m_stScore.Reserved & 0xF) == 8 && 
+		(pOver->m_stScore.Merchant.Value & 0xF) == 8 &&
 		m_pGround->m_vecOffsetIndex.x == 25 && m_pGround->m_vecOffsetIndex.y == 13)
 	{
 		m_ItemMixClass.ResultItemListSet(67, 25, 13);
@@ -24232,7 +24232,7 @@ int TMFieldScene::MouseClick_SkillMasterNPC(unsigned int dwServerTime, TMHuman* 
 
 int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 {
-	if ((pOver->m_stScore.Reserved & 0xF) == 15 && !m_pMyHuman->IsInTown())
+	if ((pOver->m_stScore.Merchant.Value & 0xF) == 15 && !m_pMyHuman->IsInTown())
 	{
 		if (pOver->m_cMantua > 0 && m_pMyHuman->m_cMantua > 0 && pOver->m_cMantua != m_pMyHuman->m_cMantua && m_pMyHuman->m_cMantua != 3)
 			return 1;
@@ -24240,21 +24240,21 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 		if (m_pMyHuman->m_pMantua && 
 			((int)m_pMyHuman->m_pMantua->m_Look.Skin0 < 2 || (int)m_pMyHuman->m_pMantua->m_Look.Skin0 >= 8	&& (int)m_pMyHuman->m_pMantua->m_Look.Skin0 <= 14))
 		{
-			if (g_pObjectManager->m_stMobData.Equip[10].sIndex == 1742 && (g_pObjectManager->m_stMobData.Equip[11].sIndex < 1760 || 
+			if (g_pObjectManager->m_stMobData.Equip[10].sIndex == 1742 && (g_pObjectManager->m_stMobData.Equip[11].sIndex < 1760 ||
 				g_pObjectManager->m_stMobData.Equip[11].sIndex > 1763))
 			{
 				m_pMessagePanel->SetMessage(g_pMessageStringTable[241], 4000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
-			if (g_pObjectManager->m_stMobData.Equip[10].sIndex != 1742 || g_pObjectManager->m_stMobData.Equip[11].sIndex < 1760	|| 
+			if (g_pObjectManager->m_stMobData.Equip[10].sIndex != 1742 || g_pObjectManager->m_stMobData.Equip[11].sIndex < 1760	||
 				g_pObjectManager->m_stMobData.Equip[11].sIndex > 1763)
 			{
 				return 1;
 			}
 		}
 	}
-	if ((pOver->m_stScore.Reserved & 0xF) == 13)
+	if ((pOver->m_stScore.Merchant.Value & 0xF) == 13)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
@@ -24265,15 +24265,15 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 
 		return 1;
 	}
-	if ((pOver->m_stScore.Reserved & 0xF) == 14)
+	if ((pOver->m_stScore.Merchant.Value & 0xF) == 14)
 	{
 		char cLifeStone = 0;
 		char cSapha = 0;
 		for (int i = 0; i < 63; ++i)
 		{
-			if (g_pObjectManager->m_stMobData.Carry[i].sIndex == 1740 && g_pObjectManager->m_stMobData.Carry[i + 1].sIndex == 1741)
+			if (g_pObjectManager->m_stMobData.Inventory[i].sIndex == 1740 && g_pObjectManager->m_stMobData.Inventory[i + 1].sIndex == 1741)
 				cLifeStone = 1;
-			if (g_pObjectManager->m_stMobData.Carry[i].sIndex == 697)
+			if (g_pObjectManager->m_stMobData.Inventory[i].sIndex == 697)
 				++cSapha;
 			if (cLifeStone == 1 && cSapha >= 20 && m_pMyHuman->m_stScore.Level >= 299)
 			{
@@ -24287,14 +24287,14 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 			}
 		}
 	}
-	if ((pOver->m_stScore.Reserved & 0xF) == 15 || (pOver->m_stScore.Reserved & 0xF) == 10)
+	if ((pOver->m_stScore.Merchant.Value & 0xF) == 15 || (pOver->m_stScore.Merchant.Value & 0xF) == 10)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
 			if (pOver->m_sHeadIndex == 51 && _locationCheck(pOver->m_vecPosition, 16, 16))
-				m_pMessageBox->SetMessage(g_pMessageStringTable[404], pOver->m_stScore.Reserved & 0xF, 0);
+				m_pMessageBox->SetMessage(g_pMessageStringTable[404], pOver->m_stScore.Merchant.Value & 0xF, 0);
 			else
-				m_pMessageBox->SetMessage(g_pMessageStringTable[152], pOver->m_stScore.Reserved & 0xF, 0);
+				m_pMessageBox->SetMessage(g_pMessageStringTable[152], pOver->m_stScore.Merchant.Value & 0xF, 0);
 
 			m_pMessageBox->m_dwArg = pOver->m_dwID;
 			m_pMessageBox->SetVisible(1);
@@ -24302,7 +24302,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 
 		return 1;
 	}
-	if ((pOver->m_stScore.Reserved & 0xF) == 4 && pOver->m_sHeadIndex == 271)
+	if ((pOver->m_stScore.Merchant.Value & 0xF) == 4 && pOver->m_sHeadIndex == 271)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
@@ -24313,7 +24313,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 		return 1;
 	}
 
-	if (pOver->m_dwID <= 0 || pOver->m_dwID >= 1000 && (pOver->m_stScore.Reserved & 0xF) == 9 && pOver->m_sHeadIndex == 51)
+	if (pOver->m_dwID <= 0 || pOver->m_dwID >= 1000 && (pOver->m_stScore.Merchant.Value & 0xF) == 9 && pOver->m_sHeadIndex == 51)
 	{
 		m_pInputGoldPanel->SetVisible(1);
 		auto pText = (SText*)m_pControlContainer->FindControl(65888);
@@ -24325,7 +24325,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 			m_pControlContainer->SetFocusedControl((SControl*)pEdit);
 		}
 	}
-	else if (pOver->m_dwID <= 0 || pOver->m_dwID >= 1000 && pOver->m_sHeadIndex == 58 && (pOver->m_stScore.Reserved & 0xF) == 11)
+	else if (pOver->m_dwID <= 0 || pOver->m_dwID >= 1000 && pOver->m_sHeadIndex == 58 && (pOver->m_stScore.Merchant.Value & 0xF) == 11)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
@@ -24335,7 +24335,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 		}
 		return 1;
 	}
-	else if (pOver->m_dwID <= 0 || pOver->m_dwID >= 1000 && pOver->m_sHeadIndex == 58 && pOver->m_stScore.Reserved == 76)
+	else if (pOver->m_dwID <= 0 || pOver->m_dwID >= 1000 && pOver->m_sHeadIndex == 58 && pOver->m_stScore.Merchant.Value == 76)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{

@@ -438,11 +438,11 @@ int TMHuman::InitObject()
     int nCos = 0;
     if (m_sCostume >= 4150 && m_sCostume < 4200 || m_sCostume >= 6301 && m_sCostume <= 6400 && m_nClass != 29)
     {
-        m_stLookInfo.CoatMesh = g_pItemList[m_sCostume].nIndexMesh;
+        m_stLookInfo.CoatMesh = g_pItemList[m_sCostume].nIndexTexture;
         m_stLookInfo.PantsMesh = m_stLookInfo.CoatMesh;
         m_stLookInfo.GlovesMesh = m_stLookInfo.PantsMesh;
         m_stLookInfo.BootsMesh = m_stLookInfo.GlovesMesh;
-        m_stLookInfo.CoatSkin = g_pItemList[m_sCostume].nIndexTexture;
+        m_stLookInfo.CoatSkin = g_pItemList[m_sCostume].IndexMesh;
         m_stLookInfo.PantsSkin = m_stLookInfo.CoatSkin;
         m_stLookInfo.GlovesSkin = m_stLookInfo.PantsSkin;
         m_stLookInfo.BootsSkin = m_stLookInfo.GlovesSkin;
@@ -3421,11 +3421,11 @@ int TMHuman::OnPacketEvent(unsigned int dwCode, char* buf)
             LOG_WRITELOG("\nError Position [X:%d Y:%d] MSG Type : 0x%X\n", pAction->TargetX, pAction->TargetY, pAction->Header.PacketId);
         }
 
-        if (pAction->Effect == 0 || pAction->Effect == 2)
+        if (pAction->stEffect == 0 || pAction->stEffect == 2)
             return OnPacketMove(pAction);
-        else if (pAction->Effect == 7)
+        else if (pAction->stEffect == 7)
             return OnPacketChaosCube(pAction);
-        else if (pAction->Effect >= 1)
+        else if (pAction->stEffect >= 1)
             return OnPacketIllusion(pStandard);
         else
             return 1;
@@ -3519,7 +3519,7 @@ int TMHuman::OnPacketMove(MSG_Action* pAction)
 
     if (m_cDie == 1)
         return 1;
-    if (pAction->Effect == 2)
+    if (pAction->stEffect == 2)
         m_bSliding = 1;
 
     m_fMaxSpeed = (float)pAction->Speed;
@@ -3717,10 +3717,10 @@ int TMHuman::OnPacketIllusion(PacketHeader* pStd)
 
         g_pCurrentScene->m_pEffectContainer->AddChild(pEffect);
     }
-    else if (!m_cHide && pAction->Effect != 5)
+    else if (!m_cHide && pAction->stEffect != 5)
     {
         int nType = 1;
-        if (pAction->Effect == 6)
+        if (pAction->stEffect == 6)
             nType = 2;
 
         auto pPortal = new TMSkillTownPortal(TMVector3(m_vecPosition.x,
@@ -3805,7 +3805,7 @@ int TMHuman::OnPacketIllusion(PacketHeader* pStd)
     }
 
     m_cDie = 0;
-    if (!m_cHide && pAction->Effect != 5 && pStd->PacketId != 872)
+    if (!m_cHide && pAction->stEffect != 5 && pStd->PacketId != 872)
     {
         if (m_nClass != 1 && m_nClass != 2 && m_nClass != 4 && m_nClass != 8 && m_nClass != 26)
         {
@@ -3828,10 +3828,10 @@ int TMHuman::OnPacketIllusion(PacketHeader* pStd)
             GetSoundAndPlay(151, 0, 0);
 
         int nType = 1;
-        if (pAction->Effect == 6)
+        if (pAction->stEffect == 6)
             nType = 2;
 
-        if (pAction->Effect == 6 && m_nClass == 62 && m_stLookInfo.FaceMesh == 2)
+        if (pAction->stEffect == 6 && m_nClass == 62 && m_stLookInfo.FaceMesh == 2)
         {
             InitPosition(m_vecPosition.x, ((float)pScene->GroundGetMask(m_vecPosition) * 0.1f) - 2.0f, m_vecPosition.y);
             TMVector3 vecPos{ m_vecPosition.x, ((float)pScene->GroundGetMask(m_vecPosition) * 0.1f) + 0.2f, m_vecPosition.y };
@@ -4230,8 +4230,8 @@ int TMHuman::OnPacketSendItem(PacketHeader* pStd)
         }
         else if (pSendItem->DestType == 1)
         {
-            memcpy(&pMobData->Carry[pSendItem->DestPos], &pSendItem->Item, sizeof(STRUCT_ITEM));
-            memcpy(g_pObjectManager->m_stMobData.Carry, pMobData->Carry, sizeof(g_pObjectManager->m_stMobData.Carry));
+            memcpy(&pMobData->Inventory[pSendItem->DestPos], &pSendItem->Item, sizeof(STRUCT_ITEM));
+            memcpy(g_pObjectManager->m_stMobData.Inventory, pMobData->Inventory, sizeof(g_pObjectManager->m_stMobData.Inventory));
 
             int Page = pSendItem->DestPos / 15;
             int CellIndexX = pSendItem->DestPos % 15 % 5;
@@ -4341,7 +4341,7 @@ int TMHuman::OnPacketUpdateEquip(PacketHeader* pStd)
     item.sIndex = pEquip->sEquip[0] & 0xFFF;
 
     TMEffectParticle* pParticle = nullptr;
-    if (m_stLookInfo.FaceMesh != g_pItemList[item.sIndex].nIndexMesh || BASE_GetItemAbility(&item, EF_CLASS) != m_nClass)
+    if (m_stLookInfo.FaceMesh != g_pItemList[item.sIndex].nIndexTexture || BASE_GetItemAbility(&item, EF_CLASS) != m_nClass)
         pParticle = new TMEffectParticle(TMVector3{ m_vecPosition.x, m_fHeight + 1.0f, m_vecPosition.y }, 1, 3, 3.0f, 0, 1, 56, 1.0f, 1, TMVector3{}, 1000u);
 
     if (pParticle)
@@ -4454,13 +4454,13 @@ int TMHuman::OnPacketUpdateAffect(PacketHeader* pStd)
         for (int i = 0; i < 32; ++i)
         {
             if ((8 * pUpdateAffect->Affect[i].Time - 8 - (dwServerTime - pFScene->m_dwStartAffectTime[i]) / 1000) / 8 != pUpdateAffect->Affect[i].Time
-                || m_stAffect[i].Type != pUpdateAffect->Affect[i].Type)
+                || m_stAffect[i].Index != pUpdateAffect->Affect[i].Index)
             {
                 memcpy(&m_stAffect[i], &pUpdateAffect->Affect[i], sizeof(m_stAffect[i]));
                 pFScene->m_dwStartAffectTime[i] = g_pTimerManager->GetServerTime();
             }
 
-            if (pUpdateAffect->Affect[i].Type == 8)
+            if (pUpdateAffect->Affect[i].Index == 8)
             {
                 if (pUpdateAffect->Affect[i].Value & 0x1)
                     m_DilpunchJewel = 1;
@@ -4498,7 +4498,7 @@ int TMHuman::OnPacketUpdateScore(PacketHeader* pStd)
     if (g_pCurrentScene->m_eSceneType == ESCENE_TYPE::ESCENE_FIELD)
         static_cast<TMFieldScene*>(g_pCurrentScene)->Bag_View();
 
-    m_cHide = m_dwID < 1000 == 1 && pUpdateScore->Score.Reserved & 1;
+    m_cHide = m_dwID < 1000 == 1 && pUpdateScore->Score.Merchant.Value & 1;
     
     if (m_dwID >= 1000 && pUpdateScore->ReqHp == 1)
     {
@@ -4585,7 +4585,7 @@ int TMHuman::OnPacketUpdateScore(PacketHeader* pStd)
         }
         memcpy(&g_pObjectManager->m_stMobData.CurrentScore, &pUpdateScore->Score, sizeof(STRUCT_SCORE));
         m_sGuildLevel = static_cast<unsigned char>(g_pObjectManager->m_stMobData.GuildLevel);
-        g_pObjectManager->m_stMobData.Magic = static_cast<char>(pUpdateScore->Magic);
+        g_pObjectManager->m_stMobData.MagicIncrement = static_cast<char>(pUpdateScore->Magic);
     }
 
     unsigned short usGuild = pUpdateScore->Guild;
@@ -4660,7 +4660,7 @@ int TMHuman::OnPacketUpdateScore(PacketHeader* pStd)
     {
         auto pMobData = &g_pObjectManager->m_stMobData;
 
-        memcpy(pMobData->Resist, pUpdateScore->Resist, sizeof(pMobData->Resist));
+        memcpy(pMobData->Resistence, pUpdateScore->Resist, sizeof(pMobData->Resistence));
 
         g_pObjectManager->m_stSelCharData.Guild[g_pObjectManager->m_cCharacterSlot] = usGuild;
 
@@ -4736,7 +4736,7 @@ int TMHuman::OnPacketUpdateScore(PacketHeader* pStd)
         if (g_pCurrentScene->m_pMyHuman == this)
         {
             CheckWeapon(
-                g_pObjectManager->m_stMobData.Equip[6].sIndex, 
+                g_pObjectManager->m_stMobData.Equip[6].sIndex,
                 g_pObjectManager->m_stMobData.Equip[7].sIndex);
 
             InitAngle(0, m_fAngle, 0);
@@ -5197,7 +5197,7 @@ int TMHuman::OnPacketUpdateEtc(PacketHeader* pStd)
         g_pObjectManager->m_stMobData.Exp = pUpdateEtc->Exp;
         g_pObjectManager->m_stMobData.ScoreBonus = pUpdateEtc->ScoreBonus;
         g_pObjectManager->m_stMobData.SpecialBonus = pUpdateEtc->SpecialBonus;
-        g_pObjectManager->m_stMobData.SkillBonus = pUpdateEtc->SkillBonus;
+        g_pObjectManager->m_stMobData.SkillPoint = pUpdateEtc->SkillBonus;
         g_pObjectManager->m_stMobData.Coin = pUpdateEtc->Coin;
         g_pObjectManager->m_nFakeExp = pUpdateEtc->FakeExp;
         g_pObjectManager->m_stSelCharData.Coin[g_pObjectManager->m_cCharacterSlot] = pUpdateEtc->Coin;
@@ -5370,17 +5370,17 @@ int TMHuman::OnPacketCarry(MSG_Carry* pStd)
         pScene->m_pGridInvList[1]->Empty();
         pScene->m_pGridInvList[2]->Empty();
         pScene->m_pGridInvList[3]->Empty();
-        memcpy(g_pObjectManager->m_stMobData.Carry, pStd->Carry, sizeof(pStd->Carry));
+        memcpy(g_pObjectManager->m_stMobData.Inventory, pStd->Inventory, sizeof(pStd->Inventory));
 
         for (int nCarryIndex = 0; nCarryIndex < 63; ++nCarryIndex)
         {
-            if (pStd->Carry[nCarryIndex].sIndex > 40)
+            if (pStd->Inventory[nCarryIndex].sIndex > 40)
             {
                 auto pItemCarry = new STRUCT_ITEM;
                 if (pItemCarry)
                 {
                     memset(pItemCarry, 0, sizeof(STRUCT_ITEM));
-                    memcpy(pItemCarry, &pStd->Carry[nCarryIndex], sizeof(STRUCT_ITEM));                   
+                    memcpy(pItemCarry, &pStd->Inventory[nCarryIndex], sizeof(STRUCT_ITEM));                   
                     if (nCarryIndex / 15 < 4)
                         pScene->m_pGridInvList[nCarryIndex / 15]->AddItem(new SGridControlItem(0, pItemCarry, 0.0f, 0.0f), nCarryIndex % 15 % 5, nCarryIndex % 15 / 5);
                 }
@@ -5491,7 +5491,7 @@ int TMHuman::OnPacketVisualEffect(PacketHeader* pStd)
 
 int TMHuman::IsMerchant()
 {
-    if ((m_stScore.Reserved & 0xF) >= 1 && (m_stScore.Reserved & 0xF) <= 14)
+    if ((m_stScore.Merchant.Value & 0xF) >= 1 && (m_stScore.Merchant.Value & 0xF) <= 14)
         return 1;
 
     if (m_sHeadIndex == 54 || m_sHeadIndex == 55 || m_sHeadIndex == 56 || m_sHeadIndex == 57 || m_sHeadIndex == 51 || m_sHeadIndex == 68 || m_sHeadIndex == 67)
@@ -6302,7 +6302,7 @@ void TMHuman::SetColorMaterial()
 
         if (g_pCurrentScene->m_pMouseOverHuman == this && pFocused != this)
         {
-            if ((m_dwID >= 0 && m_dwID < 1000) || (m_stScore.Reserved & 0xF) != 15)
+            if ((m_dwID >= 0 && m_dwID < 1000) || (m_stScore.Merchant.Value & 0xF) != 15)
             {
                 if (m_dwID < 0 || m_dwID >= 1000 && IsMerchant())
                     m_dwEdgeColor = 0x8800FF00;
@@ -6326,7 +6326,7 @@ void TMHuman::SetColorMaterial()
                 m_dwEdgeColor = 0x8800FF00;
             }
 
-            if ((m_stScore.Reserved & 0xF) == 15 && pFocused->m_cMantua && pFocused->m_cMantua != 3 && m_pMantua && pFocused->m_pMantua
+            if ((m_stScore.Merchant.Value & 0xF) == 15 && pFocused->m_cMantua && pFocused->m_cMantua != 3 && m_pMantua && pFocused->m_pMantua
                 && m_cMantua != pFocused->m_cMantua)
             {
                 m_dwEdgeColor = 0x88FF0000;
@@ -6883,7 +6883,7 @@ void TMHuman::AnimationFrame(int nWalkSndIndex)
             itemL.sIndex = m_sLeftIndex;
 
             int nWeaponTypeL = m_nWeaponTypeL;
-            if (nWeaponTypeL == 1 && g_pItemList[m_sLeftIndex].nReqLvl > 90)
+            if (nWeaponTypeL == 1 && g_pItemList[m_sLeftIndex].Level > 90)
                 nWeaponTypeL = 2;
 
             PlayPunchedSound(nWeaponTypeL, 0);
@@ -7126,7 +7126,7 @@ void TMHuman::AnimationFrame(int nWalkSndIndex)
 
             if (nWeaponPosR != 0 && nWeaponPosR != 128 || !nWeaponPosR && !nWeaponPosL)
             {
-                if (nWeaponTypeR == 1 && g_pItemList[m_sRightIndex].nReqLvl > 90)
+                if (nWeaponTypeR == 1 && g_pItemList[m_sRightIndex].Level > 90)
                     nWeaponTypeR = 2;
                 PlayPunchedSound(nWeaponTypeR, 1);
 
@@ -7388,7 +7388,7 @@ void TMHuman::LabelPosition()
             m_bParty != 1 && 
             (int)m_usGuild <= 0 && 
             (m_dwID < 0 || m_dwID >= 1000) &&
-            (m_sHeadIndex != 271 || !(m_stScore.Reserved & 0xF)) && 
+            (m_sHeadIndex != 271 || !(m_stScore.Merchant.Value & 0xF)) &&
             bTargetMob != 1)
         {
             m_pNameLabel->SetVisible(0);
@@ -7638,7 +7638,7 @@ void TMHuman::LabelPosition()
                     }
 
                     else if (m_nClass == 1 || m_nClass == 2 || m_nClass == 4 || m_nClass == 8 || m_nClass == 26 || m_nClass == 33 && 
-                        !m_stLookInfo.FaceMesh || m_sHeadIndex == 271 && m_stScore.Reserved & 0xF)
+                        !m_stLookInfo.FaceMesh || m_sHeadIndex == 271 && m_stScore.Merchant.Value & 0xF)
                     {
                         if (_locationCheck(m_vecPosition, 14, 28) && m_sHeadIndex == 51)
                         {
@@ -7833,7 +7833,7 @@ void TMHuman::LabelPosition2()
             m_bParty != 1 &&
             (int)m_usGuild <= 0 &&
             (m_dwID < 0 || m_dwID >= 1000) &&
-            (m_sHeadIndex != 271 || !(m_stScore.Reserved & 0xF)) &&
+            (m_sHeadIndex != 271 || !(m_stScore.Merchant.Value & 0xF)) &&
             bTargetMob != 1)
         {
             m_pNameLabel->SetVisible(0);
@@ -8083,7 +8083,7 @@ void TMHuman::LabelPosition2()
                     }
 
                     else if (m_nClass == 1 || m_nClass == 2 || m_nClass == 4 || m_nClass == 8 || m_nClass == 26 || m_nClass == 33 &&
-                        !m_stLookInfo.FaceMesh || m_sHeadIndex == 271 && m_stScore.Reserved & 0xF)
+                        !m_stLookInfo.FaceMesh || m_sHeadIndex == 271 && m_stScore.Merchant.Value & 0xF)
                     {
                         if (_locationCheck(m_vecPosition, 14, 28) && m_sHeadIndex == 51)
                         {
@@ -10673,7 +10673,7 @@ void TMHuman::MoveAttack(TMHuman* pTarget)
         return;
 
     auto pFocused = g_pCurrentScene->m_pMyHuman;
-    if ((m_stScore.Reserved & 0xF) == 15 && m_cMantua > 0 && pFocused->m_cMantua > 0 && m_cMantua == pFocused->m_cMantua)
+    if ((m_stScore.Merchant.Value & 0xF) == 15 && m_cMantua > 0 && pFocused->m_cMantua > 0 && m_cMantua == pFocused->m_cMantua)
         return;
 
     if (m_cCantAttk)
@@ -10788,15 +10788,15 @@ void TMHuman::MoveAttack(TMHuman* pTarget)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 102)
         {
             stAttack.SkillIndex = 152;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 871)
+            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 871)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 872)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 872)
                 stAttack.SkillParm = 1;
         }
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 103)
         {
             stAttack.SkillIndex = 153;
-            switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh)
+            switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture)
             {
             case 873:
                 stAttack.SkillParm = 0;
@@ -10839,9 +10839,9 @@ void TMHuman::MoveAttack(TMHuman* pTarget)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 104)
         {
             stAttack.SkillIndex = 104;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 878)
+            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 878)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 879)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 879)
                 stAttack.SkillParm = 1;
         }
 
@@ -11084,7 +11084,7 @@ void TMHuman::MoveGet(TMItem* pTarget)
     pScene->m_dwGetItemTime = dwServerTime;
 }
 
-void TMHuman::Attack(ECHAR_MOTION eMotion, TMVector2 vecTarget, char cSkillIndex)
+void TMHuman::Damage(ECHAR_MOTION eMotion, TMVector2 vecTarget, char cSkillIndex)
 {
     if (m_dwDelayDel)
         return;
@@ -11121,7 +11121,7 @@ void TMHuman::Attack(ECHAR_MOTION eMotion, TMVector2 vecTarget, char cSkillIndex
         (float)(m_vecPosition.y * 0.2f) + (float)(vecTarget.y * 0.80000001f));
 }
 
-void TMHuman::Attack(ECHAR_MOTION eMotion, TMHuman* pTarget, short cSkillIndex)
+void TMHuman::Damage(ECHAR_MOTION eMotion, TMHuman* pTarget, short cSkillIndex)
 {
     if (m_dwDelayDel)
         return;
@@ -11643,7 +11643,7 @@ void TMHuman::OnlyMove(int nX, int nY, int nLocal)
     stAction.Header.ClientId = m_dwID;
     stAction.PosX = nX;
     stAction.PosY = nY;
-    stAction.Effect = 0;
+    stAction.stEffect = 0;
     stAction.Header.PacketId = MSG_Action_Opcode;
     if (g_pCurrentScene->m_pMyHuman == this)
         stAction.Speed = g_nMyHumanSpeed;
@@ -11723,10 +11723,10 @@ void TMHuman::CheckWeapon(short sIndexL, short sIndexR)
         LOG_WRITELOG("Check Weapon : L = %d R = %d", itemL.sIndex, itemR.sIndex);
         return;
     }
-    if (g_pItemList[itemR.sIndex].nIndexMesh >= 0 && g_pItemList[itemL.sIndex].nIndexMesh >= 0)
+    if (g_pItemList[itemR.sIndex].nIndexTexture >= 0 && g_pItemList[itemL.sIndex].nIndexTexture >= 0)
     {
-        TMMesh* pMesh1 = g_pMeshManager->GetCommonMesh(g_pItemList[itemR.sIndex].nIndexMesh, 0, 3_min);
-        TMMesh* pMesh2 = g_pMeshManager->GetCommonMesh(g_pItemList[itemL.sIndex].nIndexMesh, 0, 3_min);
+        TMMesh* pMesh1 = g_pMeshManager->GetCommonMesh(g_pItemList[itemR.sIndex].nIndexTexture, 0, 3_min);
+        TMMesh* pMesh2 = g_pMeshManager->GetCommonMesh(g_pItemList[itemL.sIndex].nIndexTexture, 0, 3_min);
 
         if (!pMesh1 || !pMesh2)
         {
@@ -12405,7 +12405,7 @@ void TMHuman::PlayAttackSound(ECHAR_MOTION eMotion, int nLR)
 
     if (m_nWeaponTypeL == 1 && !nLR || m_nWeaponTypeR == 1 && nLR == 1)
     {
-        if (g_pItemList[m_sLeftIndex].nReqLvl > 90 && !nLR || g_pItemList[m_sRightIndex].nReqLvl > 90 && !nLR)
+        if (g_pItemList[m_sLeftIndex].Level > 90 && !nLR || g_pItemList[m_sRightIndex].Level > 90 && !nLR)
         {
             if (!((int)eMotion % 2))
                 nSoundIndex = 124;
@@ -12655,7 +12655,7 @@ void TMHuman::GetRoute(IVector2 vecTarget, int nCount, int bStop)
                                 dst.Header.ClientId = m_dwID;
                                 dst.PosX = nSX;
                                 dst.PosY = nSY;
-                                dst.Effect = 0;
+                                dst.stEffect = 0;
                                 dst.Header.PacketId = MSG_Action_Opcode;
                                 dst.Speed = g_nMyHumanSpeed;
                                 dst.TargetX = vecTarget.x;
@@ -12734,7 +12734,7 @@ void TMHuman::GetRoute(IVector2 vecTarget, int nCount, int bStop)
                             stAction.Header.ClientId = m_dwID;
                             stAction.PosX = nSX;
                             stAction.PosY = nSY;
-                            stAction.Effect = 0;
+                            stAction.stEffect = 0;
 
                             if (bStop)
                                 stAction.Header.PacketId = MSG_Action_Stop_Opcode;
@@ -13325,8 +13325,8 @@ void TMHuman::SetPacketMOBItem(STRUCT_MOB* pMobData)
         m_sHelmIndex = pMobData->Equip[1].sIndex;
         m_citizen = static_cast<unsigned char>(pMobData->Equip[0].stEffect[2].cValue);
         m_cLegend = static_cast<char>(g_pItemList[pMobData->Equip[0].sIndex].nGrade);
-        m_stLookInfo.FaceMesh = g_pItemList[pMobData->Equip[0].sIndex].nIndexMesh;
-        m_stLookInfo.FaceSkin = g_pItemList[pMobData->Equip[0].sIndex].nIndexTexture;
+        m_stLookInfo.FaceMesh = g_pItemList[pMobData->Equip[0].sIndex].nIndexTexture;
+        m_stLookInfo.FaceSkin = g_pItemList[pMobData->Equip[0].sIndex].IndexMesh;
 
         if (pMobData->Equip[1].sIndex >= 3500 && (pMobData->Equip[1].sIndex <= 3502 || pMobData->Equip[1].sIndex == 3507))
         {
@@ -13335,27 +13335,27 @@ void TMHuman::SetPacketMOBItem(STRUCT_MOB* pMobData)
         }
         else
         {
-            m_stLookInfo.HelmMesh = g_pItemList[pMobData->Equip[1].sIndex].nIndexMesh;
-            m_stLookInfo.HelmSkin = g_pItemList[pMobData->Equip[1].sIndex].nIndexTexture;
+            m_stLookInfo.HelmMesh = g_pItemList[pMobData->Equip[1].sIndex].nIndexTexture;
+            m_stLookInfo.HelmSkin = g_pItemList[pMobData->Equip[1].sIndex].IndexMesh;
         }
 
-        m_stLookInfo.CoatMesh = g_pItemList[pMobData->Equip[2].sIndex].nIndexMesh;
-        m_stLookInfo.CoatSkin = g_pItemList[pMobData->Equip[2].sIndex].nIndexTexture;
-        m_stLookInfo.PantsMesh = g_pItemList[pMobData->Equip[3].sIndex].nIndexMesh;
-        m_stLookInfo.PantsSkin = g_pItemList[pMobData->Equip[3].sIndex].nIndexTexture;
-        m_stLookInfo.GlovesMesh = g_pItemList[pMobData->Equip[4].sIndex].nIndexMesh;
-        m_stLookInfo.GlovesSkin = g_pItemList[pMobData->Equip[4].sIndex].nIndexTexture;
-        m_stLookInfo.BootsMesh = g_pItemList[pMobData->Equip[5].sIndex].nIndexMesh;
-        m_stLookInfo.BootsSkin = g_pItemList[pMobData->Equip[5].sIndex].nIndexTexture;
-        m_stLookInfo.LeftMesh = g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh;
-        m_stLookInfo.LeftSkin = g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture;
-        m_stLookInfo.RightMesh = g_pItemList[pMobData->Equip[7].sIndex].nIndexMesh;
-        m_stLookInfo.RightSkin = g_pItemList[pMobData->Equip[7].sIndex].nIndexTexture;
+        m_stLookInfo.CoatMesh = g_pItemList[pMobData->Equip[2].sIndex].nIndexTexture;
+        m_stLookInfo.CoatSkin = g_pItemList[pMobData->Equip[2].sIndex].IndexMesh;
+        m_stLookInfo.PantsMesh = g_pItemList[pMobData->Equip[3].sIndex].nIndexTexture;
+        m_stLookInfo.PantsSkin = g_pItemList[pMobData->Equip[3].sIndex].IndexMesh;
+        m_stLookInfo.GlovesMesh = g_pItemList[pMobData->Equip[4].sIndex].nIndexTexture;
+        m_stLookInfo.GlovesSkin = g_pItemList[pMobData->Equip[4].sIndex].IndexMesh;
+        m_stLookInfo.BootsMesh = g_pItemList[pMobData->Equip[5].sIndex].nIndexTexture;
+        m_stLookInfo.BootsSkin = g_pItemList[pMobData->Equip[5].sIndex].IndexMesh;
+        m_stLookInfo.LeftMesh = g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture;
+        m_stLookInfo.LeftSkin = g_pItemList[pMobData->Equip[6].sIndex].IndexMesh;
+        m_stLookInfo.RightMesh = g_pItemList[pMobData->Equip[7].sIndex].nIndexTexture;
+        m_stLookInfo.RightSkin = g_pItemList[pMobData->Equip[7].sIndex].IndexMesh;
 
         if (pMobData->Equip[15].sIndex > 0)
         {
             m_sMantuaIndex = pMobData->Equip[15].sIndex;
-            m_wMantuaSkin = g_pItemList[pMobData->Equip[15].sIndex].nIndexTexture;
+            m_wMantuaSkin = g_pItemList[pMobData->Equip[15].sIndex].IndexMesh;
             SetMantua(m_wMantuaSkin);
             m_ucMantuaLegend = static_cast<char>(g_pItemList[m_sMantuaIndex].nGrade);
             m_ucMantuaSanc = m_nTotalKill / 1000;
@@ -13455,9 +13455,9 @@ void TMHuman::SetPacketMOBItem(STRUCT_MOB* pMobData)
                 int nMountSanc = BASE_GetItemAbility(&pMobData->Equip[14], 81) / 10;
                 int nClass = BASE_GetItemAbility(&item, 18);
                 m_nMountSkinMeshType = BASE_DefineSkinMeshType(nClass);
-                m_stMountLook.Mesh0 = g_pItemList[sIndex].nIndexMesh;
+                m_stMountLook.Mesh0 = g_pItemList[sIndex].nIndexTexture;
                 m_stMountLook.Mesh1 = m_stMountLook.Mesh0;
-                m_stMountLook.Skin0 = g_pItemList[sIndex].nIndexTexture;
+                m_stMountLook.Skin0 = g_pItemList[sIndex].IndexMesh;
                 m_stMountLook.Skin1 = m_stMountLook.Skin0;
                 m_sMountIndex = sIndex - 315;
                 if (_nEquipIdx == 3993)
@@ -13758,29 +13758,29 @@ void TMHuman::SetPacketEquipItem(unsigned short* sEquip)
         m_sHeadIndex = sEquip[0] & 0xFFF;
         m_sHelmIndex = sEquip[1] & 0xFFF;
         m_cLegend = static_cast<char>(g_pItemList[sEquip[0] & 0xFFF].nGrade);
-        m_stLookInfo.FaceMesh = g_pItemList[sEquip[0] & 0xFFF].nIndexMesh;
-        m_stLookInfo.FaceSkin = g_pItemList[sEquip[0] & 0xFFF].nIndexTexture;
+        m_stLookInfo.FaceMesh = g_pItemList[sEquip[0] & 0xFFF].nIndexTexture;
+        m_stLookInfo.FaceSkin = g_pItemList[sEquip[0] & 0xFFF].IndexMesh;
         if ((sEquip[1] & 0xFFF) < 3500 || (sEquip[1] & 0xFFF) > 3502 && (sEquip[1] & 0xFFF) != 3507)
         {
-            m_stLookInfo.HelmMesh = g_pItemList[sEquip[1] & 0xFFF].nIndexMesh;
-            m_stLookInfo.HelmSkin = g_pItemList[sEquip[1] & 0xFFF].nIndexTexture;
+            m_stLookInfo.HelmMesh = g_pItemList[sEquip[1] & 0xFFF].nIndexTexture;
+            m_stLookInfo.HelmSkin = g_pItemList[sEquip[1] & 0xFFF].IndexMesh;
         }
-        m_stLookInfo.CoatMesh = g_pItemList[sEquip[2] & 0xFFF].nIndexMesh;
-        m_stLookInfo.CoatSkin = g_pItemList[sEquip[2] & 0xFFF].nIndexTexture;
-        m_stLookInfo.PantsMesh = g_pItemList[sEquip[3] & 0xFFF].nIndexMesh;
-        m_stLookInfo.PantsSkin = g_pItemList[sEquip[3] & 0xFFF].nIndexTexture;
-        m_stLookInfo.GlovesMesh = g_pItemList[sEquip[4] & 0xFFF].nIndexMesh;
-        m_stLookInfo.GlovesSkin = g_pItemList[sEquip[4] & 0xFFF].nIndexTexture;
-        m_stLookInfo.BootsMesh = g_pItemList[sEquip[5] & 0xFFF].nIndexMesh;
-        m_stLookInfo.BootsSkin = g_pItemList[sEquip[5] & 0xFFF].nIndexTexture;
-        m_stLookInfo.LeftMesh = g_pItemList[sEquip[6] & 0xFFF].nIndexMesh;
-        m_stLookInfo.LeftSkin = g_pItemList[sEquip[6] & 0xFFF].nIndexTexture;
-        m_stLookInfo.RightMesh = g_pItemList[sEquip[7] & 0xFFF].nIndexMesh;
-        m_stLookInfo.RightSkin = g_pItemList[sEquip[7] & 0xFFF].nIndexTexture;
+        m_stLookInfo.CoatMesh = g_pItemList[sEquip[2] & 0xFFF].nIndexTexture;
+        m_stLookInfo.CoatSkin = g_pItemList[sEquip[2] & 0xFFF].IndexMesh;
+        m_stLookInfo.PantsMesh = g_pItemList[sEquip[3] & 0xFFF].nIndexTexture;
+        m_stLookInfo.PantsSkin = g_pItemList[sEquip[3] & 0xFFF].IndexMesh;
+        m_stLookInfo.GlovesMesh = g_pItemList[sEquip[4] & 0xFFF].nIndexTexture;
+        m_stLookInfo.GlovesSkin = g_pItemList[sEquip[4] & 0xFFF].IndexMesh;
+        m_stLookInfo.BootsMesh = g_pItemList[sEquip[5] & 0xFFF].nIndexTexture;
+        m_stLookInfo.BootsSkin = g_pItemList[sEquip[5] & 0xFFF].IndexMesh;
+        m_stLookInfo.LeftMesh = g_pItemList[sEquip[6] & 0xFFF].nIndexTexture;
+        m_stLookInfo.LeftSkin = g_pItemList[sEquip[6] & 0xFFF].IndexMesh;
+        m_stLookInfo.RightMesh = g_pItemList[sEquip[7] & 0xFFF].nIndexTexture;
+        m_stLookInfo.RightSkin = g_pItemList[sEquip[7] & 0xFFF].IndexMesh;
         if ((sEquip[15] & 0xFFF) > 0)
         {
             m_sMantuaIndex = sEquip[15] & 0xFFF;
-            m_wMantuaSkin = g_pItemList[sEquip[15] & 0xFFF].nIndexTexture;
+            m_wMantuaSkin = g_pItemList[sEquip[15] & 0xFFF].IndexMesh;
             SetMantua(m_wMantuaSkin);
             m_ucMantuaLegend = static_cast<char>(g_pItemList[sEquip[15] & 0xFFF].nGrade);
             m_ucMantuaSanc = m_nTotalKill / 1000;
@@ -13878,9 +13878,9 @@ void TMHuman::SetPacketEquipItem(unsigned short* sEquip)
             int nClass = BASE_GetItemAbility(&item, 18);
 
             m_nMountSkinMeshType = BASE_DefineSkinMeshType(nClass);
-            m_stMountLook.Mesh0 = g_pItemList[sIndex].nIndexMesh;
+            m_stMountLook.Mesh0 = g_pItemList[sIndex].nIndexTexture;
             m_stMountLook.Mesh1 = m_stMountLook.Mesh0;
-            m_stMountLook.Skin0 = g_pItemList[sIndex].nIndexTexture;
+            m_stMountLook.Skin0 = g_pItemList[sIndex].IndexMesh;
             m_stMountLook.Skin1 = m_stMountLook.Skin0;
             m_sMountIndex = sIndex - 315;
             if (nMountIndex == 3993)
@@ -15162,7 +15162,7 @@ int TMHuman::MAutoAttack(TMHuman* pTarget, int mode)
         return 0;
     if (pTarget->m_cSummons == 1)
         return 0;
-    if ((m_stScore.Reserved & 0xF) == 15)
+    if ((m_stScore.Merchant.Value & 0xF) == 15)
     {
         auto pFocused = g_pCurrentScene->m_pMyHuman;
         if (m_cMantua > 0 && pFocused->m_cMantua > 0 && m_cMantua == pFocused->m_cMantua)
@@ -15224,15 +15224,15 @@ int TMHuman::MAutoAttack(TMHuman* pTarget, int mode)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 102)
         {
             stAttack.SkillIndex = 152;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 871)
+            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 871)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 872)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 872)
                 stAttack.SkillParm = 1;
         }
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 103)
         {
             stAttack.SkillIndex = 153;
-            switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh)
+            switch (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture)
             {
             case 873:
                 stAttack.SkillParm = 0;
@@ -15275,9 +15275,9 @@ int TMHuman::MAutoAttack(TMHuman* pTarget, int mode)
         else if (BASE_GetItemAbility(&pMobData->Equip[6], 21) == 104)
         {
             stAttack.SkillIndex = 104;
-            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 878)
+            if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 878)
                 stAttack.SkillParm = 0;
-            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexMesh == 879)
+            else if (g_pItemList[pMobData->Equip[6].sIndex].nIndexTexture == 879)
                 stAttack.SkillParm = 1;
         }
         stAttack.Dam[0].TargetID = pTarget->m_dwID;

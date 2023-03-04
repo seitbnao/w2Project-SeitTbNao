@@ -10,7 +10,7 @@ bool CUser::RequestPickItem(PacketHeader *Header)
 	p270 *p = (p270*)Header;
 
 	constexpr std::array blockedToPick = { 1727, 4700, 4701, 794, 795, 796, 797, 798,  4703, 4705, 4704};
-	if(pMob[clientId].Mobs.Player.Status.curHP <= 0 || pUser[clientId].Status != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || pUser[clientId].CurrentScore != USER_PLAY)
 	{
 		AddCrackError(clientId, 1, CRACK_USER_STATUS);
 
@@ -60,14 +60,14 @@ bool CUser::RequestPickItem(PacketHeader *Header)
 	STRUCT_ITEM *item = &g_pInitItem[initItemId].Item; // LOCAL848
 
 	// 0042CBFF
-	if (std::find(blockedToPick.begin(), blockedToPick.end(), item->Index) != std::end(blockedToPick) && !IsAdmin)
+	if (std::find(blockedToPick.begin(), blockedToPick.end(), item->sIndex) != std::end(blockedToPick) && !IsAdmin)
 		return true;
 
-	INT32 itemIndex = item->Index;
+	INT32 itemIndex = item->sIndex;
 	if(itemIndex <= 0 || itemIndex >= MAX_ITEMLIST)
 		return true;
 
-	if(item->Index == 470)
+	if(item->sIndex == 470)
 	{
 		if(pMob[clientId].Mobs.Info.Pilula)
 		{
@@ -186,7 +186,7 @@ bool CUser::RequestPickItem(PacketHeader *Header)
 		memset(item, 0, sizeof STRUCT_ITEM);
 
 		SendItem(clientId, SlotType::Inv, slotId, invSlotItem);
-		Log(clientId, LOG_INGAME, "Pegou o item %s %s do chao", ItemList[invSlotItem->Index].Name, invSlotItem->toString().c_str());
+		Log(clientId, LOG_INGAME, "Pegou o item %s %s do chao", g_pItemList[invSlotItem->sIndex].ItemName, invSlotItem->toString().c_str());
 	}
 
 	GridMulticast_2(initItemPosX, initItemPosY, (BYTE*)&sm, 0);

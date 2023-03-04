@@ -751,7 +751,7 @@ void NewApp::MixHelp()
 	int ItemIndex = 0;
 	int Icon = 0;
 	int Color = 0;
-	char Name[256]{};
+	char MobName[256]{};
 
 	while (NumHelp < 11500)
 	{
@@ -760,7 +760,7 @@ void NewApp::MixHelp()
 		{
 			if (j == 0)
 			{
-				sscanf(szTemp, "%s %d %d", Name, &ItemIndex, &Icon);
+				sscanf(szTemp, "%s %d %d", MobName, &ItemIndex, &Icon);
 				continue;
 			}
 			
@@ -777,7 +777,7 @@ void NewApp::MixHelp()
 
 			g_pItemMixHelp[ItemIndex].Color[j - 1] = Color;
 			g_pItemMixHelp[ItemIndex].Icon = Icon;
-			strcpy(g_pItemMixHelp[ItemIndex].Name, Name);
+			strcpy(g_pItemMixHelp[ItemIndex].MobName, MobName);
 		}
 
 		++NumHelp;

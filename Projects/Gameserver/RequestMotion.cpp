@@ -7,7 +7,7 @@ bool CUser::RequestMotion(PacketHeader *Header)
 {
 	p36A *p = (p36A*)Header;
 
-	if (pMob[clientId].Mobs.Player.Status.curHP == 0 || pUser[clientId].Status != 22)
+	if (pMob[clientId].Mobs.Player.CurrentScore.Hp == 0 || pUser[clientId].CurrentScore != 22)
 	{
 		SendHpMode(clientId);
 

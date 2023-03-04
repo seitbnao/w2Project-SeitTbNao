@@ -404,7 +404,7 @@ int TMHouse::Render()
             g_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, 0);
             g_pDevice->SetRenderState(D3DRS_CULLMODE, 1u);
             pMesh1->m_bEffect = 1;
-            int Index = pMesh1->m_nTextureIndex[0];
+            int sIndex = pMesh1->m_nTextureIndex[0];
             pMesh1->m_nTextureIndex[0] = 234;
             pMesh1->Render(
                 m_vecPosition.x,
@@ -415,7 +415,7 @@ int TMHouse::Render()
                 0,
                 100,
                 0);
-            pMesh1->m_nTextureIndex[0] = Index;
+            pMesh1->m_nTextureIndex[0] = sIndex;
             pMesh1->m_bEffect = 0;
             g_pDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, 2u);
             g_pDevice->SetRenderState(D3DRS_CULLMODE, 3u);

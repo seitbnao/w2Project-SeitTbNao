@@ -6,7 +6,7 @@
 bool GoldBar(int clientId, SlotType slotType, int srcSlot, STRUCT_ITEM* srcItem)
 {
 	int sumGold = 0;
-	switch (srcItem->Index)
+	switch (srcItem->sIndex)
 	{
 	case 4010:
 		sumGold = 100000000;
@@ -36,7 +36,7 @@ bool GoldBar(int clientId, SlotType slotType, int srcSlot, STRUCT_ITEM* srcItem)
 		return false;
 	}
 
-	UINT64 goldTotal = (UINT64)pMob[clientId].Mobs.Player.Gold + (UINT64)sumGold;
+	UINT64 goldTotal = (UINT64)pMob[clientId].Mobs.Player.Coin + (UINT64)sumGold;
 	if (goldTotal > 2000000000)
 	{
 		SendClientMessage(clientId, g_pLanguageString[_NN_Cant_get_more_than_2G]);
@@ -45,12 +45,12 @@ bool GoldBar(int clientId, SlotType slotType, int srcSlot, STRUCT_ITEM* srcItem)
 		return false;
 	}
 
-	Log(clientId, LOG_INGAME, "Gold atual: %d.", pMob[clientId].Mobs.Player.Gold);
-	LogPlayer(clientId, "%s utilizado. Gold atual no inventario: %d", ItemList[srcItem->Index].Name, pMob[clientId].Mobs.Player.Gold);
+	Log(clientId, LOG_INGAME, "Gold atual: %d.", pMob[clientId].Mobs.Player.Coin);
+	LogPlayer(clientId, "%s utilizado. Gold atual no inventario: %d", g_pItemList[srcItem->sIndex].ItemName, pMob[clientId].Mobs.Player.Coin);
 
-	pMob[clientId].Mobs.Player.Gold += sumGold;
+	pMob[clientId].Mobs.Player.Coin += sumGold;
 
-	SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Gold);
+	SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Coin);
 
 	AmountMinus(srcItem);
 	return true;

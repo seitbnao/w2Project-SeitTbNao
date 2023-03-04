@@ -52,8 +52,8 @@ bool CUser::RequestChat(PacketHeader *Header)
 			return true;
 		}
 
-		INT32 guildIndex = pMob[clientId].Mobs.Player.GuildIndex;
-		if((guildIndex != ChargedGuildList[sServer.Channel - 1][cityId] || pMob[clientId].Mobs.Player.GuildMemberType != 9) && !pUser[clientId].IsAdmin)
+		INT32 guildIndex = pMob[clientId].Mobs.Player.Guild;
+		if((guildIndex != ChargedGuildList[sServer.Channel - 1][cityId] || pMob[clientId].Mobs.Player.GuildLevel != 9) && !pUser[clientId].IsAdmin)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Only_With_Guild_Master]);
 

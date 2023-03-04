@@ -24,19 +24,19 @@ bool CUser::SendCharList(PacketHeader *Header)
 
 	for (int iChar = 0; iChar < 4; ++iChar)
 	{
-		if (!p->CharList.Name[iChar][0])
+		if (!p->CharList.MobName[iChar][0])
 			continue;
 
-		if (p->CharList.Equip[iChar][12].Index == 0)
+		if (p->CharList.Equip[iChar][12].sIndex == 0)
 			continue;
 
 		for (int i = 1; i < 11; ++i)
 		{
 			for (int iEffect = 0; iEffect < 3; ++iEffect)
 			{
-				if (p->CharList.Equip[iChar][i].Effect[iEffect].Index >= 116 && p->CharList.Equip[iChar][i].Effect[iEffect].Index <= 125)
+				if (p->CharList.Equip[iChar][i].stEffect[iEffect].cEffect >= 116 && p->CharList.Equip[iChar][i].stEffect[iEffect].cEffect <= 125)
 				{
-					p->CharList.Equip[iChar][i].Effect[iEffect].Index = EF_SANC;
+					p->CharList.Equip[iChar][i].stEffect[iEffect].cEffect = EF_SANC;
 
 					break;
 				}
@@ -61,7 +61,7 @@ bool CUser::SendCharList(PacketHeader *Header)
 	IsAdmin = false;
 
 	// Seta como se o usuari oestivesse na charList
-	Status = USER_SELCHAR;
+	CurrentScore = USER_SELCHAR;
 
 	IsAutoTrading = false;
 
@@ -74,16 +74,16 @@ bool CUser::SendCharList(PacketHeader *Header)
 	LogPlayer(clientId, "Usuario logou no jogo");
 
 	std::stringstream str;
-	str << "[INFORMAÇÕES DO BANCO]\n";
+	str << "[INFORMAÃ§Ã£ES DO BANCO]\n";
 	str << "Gold: " << User.Storage.Coin << "\n";
 
 	for (int i = 0; i < 128; i++)
 	{
 		STRUCT_ITEM* item = &User.Storage.Item[i];
-		if (item->Index <= 0 || item->Index > MAX_ITEMLIST)
+		if (item->sIndex <= 0 || item->sIndex > MAX_ITEMLIST)
 			continue;
 
-		str << "[" << std::setw(3) << i << "] - " << ItemList[item->Index].Name << item->toString().c_str() << "\n";
+		str << "[" << std::setw(3) << i << "] - " << g_pItemList[item->sIndex].ItemName << item->toString().c_str() << "\n";
 	}
 
 	Log(clientId, LOG_INGAME, str.str().c_str());

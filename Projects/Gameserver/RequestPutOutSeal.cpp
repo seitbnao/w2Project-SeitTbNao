@@ -7,7 +7,7 @@ bool CUser::RequestPutOutSeal(PacketHeader* header)
 {
 	MSG_PUTOUTSEAL* p = reinterpret_cast<MSG_PUTOUTSEAL*>(header);
 
-	if (!pMob[clientId].Mobs.Player.Status.curHP || Status != USER_PLAY)
+	if (!pMob[clientId].Mobs.Player.CurrentScore.Hp || CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 
@@ -42,7 +42,7 @@ bool CUser::RequestPutOutSeal(PacketHeader* header)
 		return true;
 	}
 
-	if (srcItem->Index != 3443)
+	if (srcItem->sIndex != 3443)
 	{
 		Log(clientId, LOG_HACK, "Tentativa de usar Selo da Alma com outro item no slot enviado.", p->SrcType, p->SrcSlot);
 		Log(SERVER_SIDE, LOG_HACK, "%s Tentativa de usar Selo da Alma com outro item no slot enviado.", User.Username, p->SrcType, p->SrcSlot);
@@ -51,15 +51,15 @@ bool CUser::RequestPutOutSeal(PacketHeader* header)
 		return true;
 	}
 
-	if (pMob[clientId].Mobs.Player.bStatus.Level < 279)
+	if (pMob[clientId].Mobs.Player.BaseScore.Level < 279)
 	{
-		SendClientMessage(clientId, "Level m�nimo para tirar o selo do personagem � 280");
+		SendClientMessage(clientId, "Level mênimo para tirar o selo do personagem ê 280");
 
 		SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 		return true;
 	}
 
-	if (srcItem->Effect[0].Index == 0)
+	if (srcItem->stEffect[0].cEffect == 0)
 	{
 		Log(clientId, LOG_HACK, "Tentativa de usar Selo da Alma sem efeito.", p->SrcType, p->SrcSlot);
 		Log(SERVER_SIDE, LOG_HACK, "%s Tentativa de usar Selo da Alma sem efeito", User.Username, p->SrcType, p->SrcSlot);
@@ -71,7 +71,7 @@ bool CUser::RequestPutOutSeal(PacketHeader* header)
 	int newSlot = -1;
 	for (int i = 0; i < 4; i++)
 	{
-		if (!CharList.Name[i][0])
+		if (!CharList.MobName[i][0])
 		{
 			newSlot = i;
 
@@ -81,7 +81,7 @@ bool CUser::RequestPutOutSeal(PacketHeader* header)
 
 	if (newSlot == -1)
 	{
-		SendClientMessage(clientId, "N�o possui espa�o na sele��o de personagem");
+		SendClientMessage(clientId, "Nêo possui espaêo na seleção de personagem");
 
 		SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 		return true;

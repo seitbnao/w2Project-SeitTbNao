@@ -32,7 +32,7 @@ BOOL CUser::AcceptUser(int ListenSocket)
 
 	if (tSock < 0)
 	{
-		Status = USER_EMPTY;
+		CurrentScore = USER_EMPTY;
 		return FALSE;
 	}
 	if (WSAAsyncSelect(tSock, GUI.hGUI, WSA_READ, FD_READ | FD_CLOSE) > 0)
@@ -46,7 +46,7 @@ BOOL CUser::AcceptUser(int ListenSocket)
 	Socket.nRecvPosition = 0;
 	Socket.nProcPosition = 0;
 	Socket.nSendPosition = 0;
-	Status = USER_ACCEPT;
+	CurrentScore = USER_ACCEPT;
 
 	Socket.recvBuffer = new BYTE[MAX_BUFFER];
 	Socket.sendBuffer = new BYTE[MAX_BUFFER];

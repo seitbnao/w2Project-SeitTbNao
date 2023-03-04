@@ -14,7 +14,7 @@
 #include <d3dx9.h>
 
 //-----------------------------------------------------------------------------
-// Name: enum VertexProcessingType
+// ItemName: enum VertexProcessingType
 // Desc: Enumeration of all possible D3D vertex processing types.
 //-----------------------------------------------------------------------------
 enum VertexProcessingType
@@ -27,7 +27,7 @@ enum VertexProcessingType
 
 
 //-----------------------------------------------------------------------------
-// Name: struct D3DAdapterInfo
+// ItemName: struct D3DAdapterInfo
 // Desc: Info about a display adapter.
 //-----------------------------------------------------------------------------
 struct D3DAdapterInfo
@@ -41,7 +41,7 @@ struct D3DAdapterInfo
 
 
 //-----------------------------------------------------------------------------
-// Name: struct D3DDeviceInfo
+// ItemName: struct D3DDeviceInfo
 // Desc: Info about a D3D device, including a list of D3DDeviceCombos (see below) 
 //       that work with the device.
 //-----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ struct D3DDeviceInfo
 
 
 //-----------------------------------------------------------------------------
-// Name: struct D3DDSMSConflict
+// ItemName: struct D3DDSMSConflict
 // Desc: A depth/stencil buffer format that is incompatible with a
 //       multisample type.
 //-----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ struct D3DDSMSConflict
 
 
 //-----------------------------------------------------------------------------
-// Name: struct D3DDeviceCombo
+// ItemName: struct D3DDeviceCombo
 // Desc: A combination of adapter format, back buffer format, and windowed/fullscreen 
 //       that is compatible with a particular D3D device (and the app).
 //-----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ typedef bool(*CONFIRMDEVICECALLBACK)(D3DCAPS9* pCaps,
 
 
 //-----------------------------------------------------------------------------
-// Name: class CD3DEnumeration
+// ItemName: class CD3DEnumeration
 // Desc: Enumerates available D3D adapters, devices, modes, etc.
 //-----------------------------------------------------------------------------
 class CD3DEnumeration

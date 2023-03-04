@@ -44,7 +44,7 @@ constexpr const char* EffectString_Path = "UI\\EffectString.txt";
 constexpr const char* EffectSubString_Path = "UI\\EffectSubString.txt";
 constexpr const char* GuildString_Path = "UI\\GuildString.txt";
 
-//Effect Related
+//stEffect Related
 constexpr const char* EffectTextureList_Path = "Effect\\EffectTextureList.bin";
 
 //Mesh Related

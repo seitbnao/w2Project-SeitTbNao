@@ -8,7 +8,7 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 {
 	struct Item
 	{
-		int Index{ 0 };
+		int sIndex{ 0 };
 		short Sanc{ 0 };
 		short Amount{ 1 };
 	};
@@ -17,7 +17,7 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 	{
 		std::array<Item, 7> Required;
 
-		int Gold;
+		int Coin;
 		int Earned;
 	};
 
@@ -160,7 +160,7 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 			0,
 			3207
 		},*/
-		// Precisão
+		// PrecisÃªo
 		{
 			{
 				{
@@ -219,8 +219,8 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 
 			if (p->slot[i] == p->slot[y])
 			{
-				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Alchemy - %d", p->items[i].Index);
-				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Alchemy - %d", player->Name, p->items[i].Index);
+				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Alchemy - %d", p->items[i].sIndex);
+				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Alchemy - %d", player->MobName, p->items[i].sIndex);
 
 				SendCarry(clientId);
 				return true;
@@ -243,10 +243,10 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 
 	for (int i = 0; i < 7; i++)
 	{
-		if (p->items[i].Index == 0)
+		if (p->items[i].sIndex == 0)
 			continue;
 
-		Log(clientId, LOG_COMP, "Alchemy  - %d - %s %s - %d", i, ItemList[p->items[i].Index].Name, p->items[i].toString().c_str(), p->slot[i]);
+		Log(clientId, LOG_COMP, "Alchemy  - %d - %s %s - %d", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].toString().c_str(), p->slot[i]);
 	}
 
 	if (Trade.ClientId != 0)
@@ -263,10 +263,10 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 		bool itsThatComp = true;
 		for (int i = 0; i < 7; i++) 
 		{
-			if (comp.Required[i].Index == 0)
+			if (comp.Required[i].sIndex == 0)
 				continue;
 
-			if (comp.Required[i].Index != p->items[i].Index || GetItemSanc(&p->items[i]) != comp.Required[i].Sanc || GetItemAmount(&p->items[i]) != comp.Required[i].Amount)
+			if (comp.Required[i].sIndex != p->items[i].sIndex || GetItemSanc(&p->items[i]) != comp.Required[i].Sanc || GetItemAmount(&p->items[i]) != comp.Required[i].Amount)
 			{
 				itsThatComp = false;
 
@@ -288,15 +288,15 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 		return true;
 	}
 
-	if (alchemy->Gold != 0 && player->Gold < alchemy->Gold)
+	if (alchemy->Coin != 0 && player->Coin < alchemy->Coin)
 	{
 		SendClientMessage(clientId, g_pLanguageString[_NN_IncorrectComp]);
 
 		return true;
 	}
 
-	INT32 chance = 3 + (pMob[clientId].Mobs.Player.Status.Mastery[2] * 2 / 10);
-	if ((pMob[clientId].Mobs.Player.Learn[0] & 0x8000))
+	INT32 chance = 3 + (pMob[clientId].Mobs.Player.CurrentScore.Special[2] * 2 / 10);
+	if ((pMob[clientId].Mobs.Player.LearnedSkill[0] & 0x8000))
 		chance += 20;
 
 	int rand = Rand() % 100;
@@ -306,17 +306,17 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 		if (slotId == -1)
 			continue;
 
-		Log(clientId, LOG_INGAME, "Removido o item %s %s. Slot: %d", ItemList[p->items[i].Index].Name, p->items[i].toString().c_str(), (int)p->slot[i]);
+		Log(clientId, LOG_INGAME, "Removido o item %s %s. Slot: %d", g_pItemList[p->items[i].sIndex].ItemName, p->items[i].toString().c_str(), (int)p->slot[i]);
 		memset(&player->Inventory[slotId], 0, sizeof STRUCT_ITEM);
 		SendItem(clientId, SlotType::Inv, p->slot[i], &player->Inventory[p->slot[i]]);
 	}
 
-	if (alchemy->Gold != 0)
+	if (alchemy->Coin != 0)
 	{
-		player->Gold -= alchemy->Gold;
+		player->Coin -= alchemy->Coin;
 	
-		Log(clientId, LOG_INGAME, "Removido %d gold do personagem. Gold restante:", alchemy->Gold, player->Gold);
-		SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+		Log(clientId, LOG_INGAME, "Removido %d gold do personagem. Gold restante:", alchemy->Coin, player->Coin);
+		SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 	}
 
 	// Fecha o inventario
@@ -324,21 +324,21 @@ bool CUser::RequestAlchemy(PacketHeader* Header)
 
 	if (rand > chance)
 	{
-		Log(clientId, LOG_COMP, "Falha na composição na skill de Alquimia");
+		Log(clientId, LOG_COMP, "Falha na composiÃ§Ã£o na skill de Alquimia");
 
 		SendClientMessage(clientId, g_pLanguageString[_NN_CombineFailed]);
 	}
 	else
 	{
 		// Seta a Pedra Secreta
-		player->Inventory[p->slot[0]].Index = alchemy->Earned;
+		player->Inventory[p->slot[0]].sIndex = alchemy->Earned;
 
 		SendItem(clientId, SlotType::Inv, p->slot[0], &player->Inventory[p->slot[0]]);
 
 		// Envia a mensagem de sucesso
 		SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
 
-		Log(clientId, LOG_COMP, "Sucesso na composição do item %s [%d]", ItemList[alchemy->Earned].Name, alchemy->Earned);
+		Log(clientId, LOG_COMP, "Sucesso na composiÃ§Ã£o do item %s [%d]", g_pItemList[alchemy->Earned].ItemName, alchemy->Earned);
 	}
 
 	SaveUser(clientId, 0);

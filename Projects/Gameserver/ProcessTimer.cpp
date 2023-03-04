@@ -10,7 +10,7 @@ void ProcessSendTimer()
 {
 	for (int i = 1; i < MAX_PLAYER; ++i)
 	{
-		if (pUser[i].Status == USER_EMPTY)
+		if (pUser[i].CurrentScore == USER_EMPTY)
 			continue;
 
 		if (pUser[i].Socket.nSendPosition == 0)
@@ -50,7 +50,7 @@ void ProcessSecTimer()
 	{
 		for (auto& user : pUser)
 		{
-			if (user.Status < USER_SELCHAR)
+			if (user.CurrentScore < USER_SELCHAR)
 				continue;
 
 			user.Time++;
@@ -58,13 +58,13 @@ void ProcessSecTimer()
 		}
 	}
 
-	if (!(counter % 2) && sServer.AutoTradeEvent.Status)
+	if (!(counter % 2) && sServer.AutoTradeEvent.CurrentScore)
 	{
 		auto now = std::chrono::high_resolution_clock::now();
 		for (int clientId = 1; clientId < MAX_PLAYER; clientId++)
 		{
 			CUser& user = pUser[clientId];
-			if (user.Status != USER_PLAY)
+			if (user.CurrentScore != USER_PLAY)
 				continue;
 
 			if (!user.EventAutoTrade.IsValid || now - user.EventAutoTrade.LastTime <= user.EventAutoTrade.TimeToWin)
@@ -73,17 +73,17 @@ void ProcessSecTimer()
 			STRUCT_ITEM *item = &sServer.AutoTradeEvent.item;
 			if (PutItem(clientId, &sServer.AutoTradeEvent.item))
 			{
-				Log(clientId, LOG_INGAME, "[EVENTO] AutoLoja - Recebido [%s] [%d] [%d %d %d %d %d %d]", ItemList[item->Index].Name, item->Index,
+				Log(clientId, LOG_INGAME, "[EVENTO] AutoLoja - Recebido [%s] [%d] [%d %d %d %d %d %d]", g_pItemList[item->sIndex].ItemName, item->sIndex,
 					item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3);
 
-				SendClientMessage(clientId, "!Chegou um item [%s]", ItemList[item->Index].Name);
+				SendClientMessage(clientId, "!Chegou um item [%s]", g_pItemList[item->sIndex].ItemName);
 			}
 			else
 			{
-				Log(clientId, LOG_INGAME, "[EVENTO] AutoLoja - Nao recebeu por falta de espaao", ItemList[item->Index].Name, item->Index,
+				Log(clientId, LOG_INGAME, "[EVENTO] AutoLoja - Nao recebeu por falta de espaao", g_pItemList[item->sIndex].ItemName, item->sIndex,
 					item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3);
 
-				SendClientMessage(clientId, "!Chegou um item [%s]", ItemList[item->Index].Name);
+				SendClientMessage(clientId, "!Chegou um item [%s]", g_pItemList[item->sIndex].ItemName);
 			}
 
 			user.EventAutoTrade.LastTime = now;
@@ -92,18 +92,18 @@ void ProcessSecTimer()
 	}
 
 	// Se estiver com a RvR ativa
-	if (sServer.RvR.Status)
+	if (sServer.RvR.CurrentScore)
 	{
 		for (auto& user : pUser)
 		{
-			if (user.Status != USER_PLAY)
+			if (user.CurrentScore != USER_PLAY)
 				continue;
 
 			auto& mob = pMob[user.clientId];
 			if (mob.Mobs.Player.CapeInfo != CAPE_BLUE && mob.Mobs.Player.CapeInfo != CAPE_RED)
 				continue;
 
-			if (mob.Mobs.Player.Status.curHP >= mob.Mobs.Player.Status.maxHP)
+			if (mob.Mobs.Player.CurrentScore.Hp >= mob.Mobs.Player.CurrentScore.MaxHp)
 				continue;
 
 			bool isOnBase = false;
@@ -119,12 +119,12 @@ void ProcessSecTimer()
 			if (!isOnBase)
 				continue;
 
-			int heal = mob.Mobs.Player.Status.maxHP * 5 / 100;
-			INT32 totalHp = mob.Mobs.Player.Status.curHP + heal;
-			if (totalHp > mob.Mobs.Player.Status.maxHP)
-				totalHp = mob.Mobs.Player.Status.maxHP;
+			int heal = mob.Mobs.Player.CurrentScore.MaxHp * 5 / 100;
+			INT32 totalHp = mob.Mobs.Player.CurrentScore.Hp + heal;
+			if (totalHp > mob.Mobs.Player.CurrentScore.MaxHp)
+				totalHp = mob.Mobs.Player.CurrentScore.MaxHp;
 
-			pMob[user.clientId].Mobs.Player.Status.curHP = totalHp;
+			pMob[user.clientId].Mobs.Player.CurrentScore.Hp = totalHp;
 			user.Potion.CountHp += heal;
 
 			SetReqHp(user.clientId);
@@ -162,12 +162,12 @@ void ProcessSecTimer()
 					if (pMob[i].Mode == 0 || pMob[i].GenerateID != boss.GenerGenerated || pMob[i].Leader != 0)
 						continue;
 
-					pMob[i].BossInfoId = boss.Index;
+					pMob[i].BossInfoId = boss.sIndex;
 					break;
 				}
 
-				SendNotice("Boss %s renasceu", mGener.pList[generId].Leader.Name);
-				Log(SERVER_SIDE, LOG_INGAME, "Boss \"%s\" nasceu", mGener.pList[generId].Leader.Name);
+				SendNotice("Boss %s renasceu", mGener.pList[generId].Leader.MobName);
+				Log(SERVER_SIDE, LOG_INGAME, "Boss \"%s\" nasceu", mGener.pList[generId].Leader.MobName);
 			}
 			else
 			{
@@ -202,11 +202,11 @@ void ProcessSecTimer()
 	}
 
 	// a cada 1 segundo
-	if (!(counter % 2) && sServer.BossEvent.Status)
+	if (!(counter % 2) && sServer.BossEvent.CurrentScore)
 	{
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			INT32 has = -1;
@@ -231,17 +231,17 @@ void ProcessSecTimer()
 				memcpy(&item, &sServer.BossEvent.item, sizeof STRUCT_ITEM);
 
 				if ((Rand() % 100) <= 20)
-					item.Index++;
+					item.sIndex++;
 
 				if (PutItem(i, &item))
 				{
-					SendClientMessage(i, "!Chegou um item: [%s]", ItemList[item.Index].Name);
-					Log(i, LOG_INGAME, "Recebeu item [%s] apas 10 minutos online", ItemList[item.Index].Name);
+					SendClientMessage(i, "!Chegou um item: [%s]", g_pItemList[item.sIndex].ItemName);
+					Log(i, LOG_INGAME, "Recebeu item [%s] apas 10 minutos online", g_pItemList[item.sIndex].ItemName);
 				}
 				else
 				{
 					SendClientMessage(i, "!Nao recebeu o item do evento por falta de espaao");
-					Log(i, LOG_INGAME, "NaO Recebeu item [%s] apas 10 minutos online", ItemList[item.Index].Name);
+					Log(i, LOG_INGAME, "NaO Recebeu item [%s] apas 10 minutos online", g_pItemList[item.sIndex].ItemName);
 				}
 
 				pMob[i].Mobs.Affects[has].Value = 0;
@@ -259,7 +259,7 @@ void ProcessSecTimer()
 			GenerateMob(g_pPesaGenerate[2][i][0], 0, 0);
 		}
 
-		sServer.Nightmare[2].Status = 1;
+		sServer.Nightmare[2].CurrentScore = 1;
 		sServer.Nightmare[2].TimeLeft = 240;
 	}
 
@@ -273,7 +273,7 @@ void ProcessSecTimer()
 			GenerateMob(g_pPesaGenerate[1][i][0], 0, 0);
 		}
 
-		sServer.Nightmare[1].Status = 1;
+		sServer.Nightmare[1].CurrentScore = 1;
 		sServer.Nightmare[1].TimeLeft = 240;
 	}
 
@@ -287,7 +287,7 @@ void ProcessSecTimer()
 			GenerateMob(g_pPesaGenerate[0][i][0], 0, 0);
 		}
 
-		sServer.Nightmare[0].Status = 0;
+		sServer.Nightmare[0].CurrentScore = 0;
 		sServer.Nightmare[0].TimeLeft = 240;
 	}
 
@@ -295,10 +295,10 @@ void ProcessSecTimer()
 	{
 		for (INT32 LOCAL_103 = 1; LOCAL_103 < MAX_PLAYER; LOCAL_103++)
 		{
-			if (pUser[LOCAL_103].Status != USER_PLAY)
+			if (pUser[LOCAL_103].CurrentScore != USER_PLAY)
 				continue;
 
-			if (!pMob[LOCAL_103].Mobs.Player.Status.curHP)
+			if (!pMob[LOCAL_103].Mobs.Player.CurrentScore.Hp)
 				continue;
 
 			pUser[LOCAL_103].Potion.bQuaff = 0;
@@ -317,12 +317,12 @@ void ProcessSecTimer()
 	{
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			if (pMob[i].IsInsideValley())
 			{
-				if (pMob[i].Mobs.Player.Equip[13].Index != 3917 && pMob[i].Mobs.Player.Equip[13].Index != 3916)
+				if (pMob[i].Mobs.Player.Equip[13].sIndex != 3917 && pMob[i].Mobs.Player.Equip[13].sIndex != 3916)
 				{
 					DoRecall(i);
 
@@ -341,7 +341,7 @@ void ProcessSecTimer()
 			if (sServer.SaveCount >= MAX_PLAYER)
 				sServer.SaveCount = 1;
 
-			if (pUser[sServer.SaveCount].Status == USER_PLAY || pMob[sServer.SaveCount].Mode != 0)
+			if (pUser[sServer.SaveCount].CurrentScore == USER_PLAY || pMob[sServer.SaveCount].Mode != 0)
 			{
 				SaveUser(sServer.SaveCount, 0);
 
@@ -372,12 +372,12 @@ void ProcessSecTimer()
 		GuildProcess();
 	}
 
-	/*if(now.tm_hour == 21 && now.tm_min == 0 && sServer.RvR.Status == 0)
+	/*if(now.tm_hour == 21 && now.tm_min == 0 && sServer.RvR.CurrentScore == 0)
 	{
 		GenerateMob(TORRE_RVR, 0, 0);
 		GenerateMob(TORRE_RVR + 1, 0, 0);
 
-		sServer.RvR.Status = 1;
+		sServer.RvR.CurrentScore = 1;
 
 		SendNotice("Guerra RvR foi iniciada!");
 
@@ -386,9 +386,9 @@ void ProcessSecTimer()
 
 	if (now.tm_wday >= SEGUNDA && now.tm_wday <= SEXTA)
 	{
-		if (now.tm_hour == sServer.TowerWar.Hour && now.tm_min == 0 && sServer.TowerWar.Status == 0)
+		if (now.tm_hour == sServer.TowerWar.Hour && now.tm_min == 0 && sServer.TowerWar.CurrentScore == 0)
 			InitializeTowerWar();
-		else if (now.tm_hour == sServer.TowerWar.Hour && now.tm_min == 30 && sServer.TowerWar.Status == 1)
+		else if (now.tm_hour == sServer.TowerWar.Hour && now.tm_min == 30 && sServer.TowerWar.CurrentScore == 1)
 			FinalizeTowerWar();
 	}
 
@@ -401,9 +401,9 @@ void ProcessSecTimer()
 
 			sServer.RvR.Annoucement = 1;
 		}
-		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min == 0 && !sServer.RvR.Status)
+		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min == 0 && !sServer.RvR.CurrentScore)
 		{
-			sServer.RvR.Status = 1;
+			sServer.RvR.CurrentScore = 1;
 			SendNotice("Guerra entre Reinos iniciada. Acesse o teleporte de Noatun!");
 
 			GenerateMob(TORRE_RVR_BLUE, 0, 0);
@@ -411,7 +411,7 @@ void ProcessSecTimer()
 
 			Log(SERVER_SIDE, LOG_ADMIN, "Portal RvR liberado.");
 		}
-		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min < 30 && !(now.tm_min % 2) && !sServer.RvR.Annoucement_Point && sServer.RvR.Status == 1)
+		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min < 30 && !(now.tm_min % 2) && !sServer.RvR.Annoucement_Point && sServer.RvR.CurrentScore == 1)
 		{
 			pD1D packet;
 			memset(&packet, 0, sizeof packet);
@@ -427,9 +427,9 @@ void ProcessSecTimer()
 
 			sServer.RvR.Annoucement_Point = 1;
 		}
-		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min < 30 && (now.tm_min % 2) && sServer.RvR.Annoucement_Point && sServer.RvR.Status == 1)
+		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min < 30 && (now.tm_min % 2) && sServer.RvR.Annoucement_Point && sServer.RvR.CurrentScore == 1)
 			sServer.RvR.Annoucement_Point = 0;
-		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min == 30 && sServer.RvR.Status == 1)
+		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min == 30 && sServer.RvR.CurrentScore == 1)
 		{
 			for (INT32 i = 1000; i < MAX_MOB; i++)
 			{
@@ -466,7 +466,7 @@ void ProcessSecTimer()
 			sServer.RvR.Points[1] = 0;
 			sServer.RvR.Bonus = winner;
 
-			sServer.RvR.Status = 0;
+			sServer.RvR.CurrentScore = 0;
 			sServer.RvR.Annoucement = 0;
 
 			for (int i = 1; i < MAX_PLAYER; ++i)
@@ -529,7 +529,7 @@ void ProcessSecTimer()
 			{
 				for (int i = 1; i < MAX_PLAYER; i++)
 				{
-					if (pUser[i].Status != USER_PLAY)
+					if (pUser[i].CurrentScore != USER_PLAY)
 						continue;
 
 					if (pMob[i].Mobs.Player.CapeInfo == winner)
@@ -540,7 +540,7 @@ void ProcessSecTimer()
 				}
 			}
 		}
-		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min == 35 && sServer.RvR.Status == 0)
+		else if (now.tm_hour == sServer.RvR.Hour && now.tm_min == 35 && sServer.RvR.CurrentScore == 0)
 		{
 			for (int i = 1000; i < MAX_MOB; i++)
 			{
@@ -550,7 +550,7 @@ void ProcessSecTimer()
 		}
 	}
 	/*
-	else if(now.tm_hour == 22 && now.tm_min == 0 && sServer.RvR.Status == 1)
+	else if(now.tm_hour == 22 && now.tm_min == 0 && sServer.RvR.CurrentScore == 1)
 	{
 		for(INT32 i = 1000; i < MAX_MOB; i++)
 		{
@@ -591,7 +591,7 @@ void ProcessSecTimer()
 			sServer.RvR.Bonus = 0;
 		}
 
-		sServer.RvR.Status = 0;
+		sServer.RvR.CurrentScore = 0;
 		ClearArea(1025, 1920, 1280, 2175);
 	}
 	*/
@@ -600,10 +600,10 @@ void ProcessSecTimer()
 	{
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
-			int fadaId = pMob[i].Mobs.Player.Equip[13].Index;
+			int fadaId = pMob[i].Mobs.Player.Equip[13].sIndex;
 			if ((fadaId < 3900 || fadaId > 3908) && fadaId != 3914 && fadaId != 3915 && fadaId != 3916 && fadaId != 3917)
 				continue;
 
@@ -636,8 +636,8 @@ void ProcessSecTimer()
 			{
 				SendClientMessage(i, "!Sua fada expirou.");
 
-				Log(i, LOG_INGAME, "Fada %s expirou ... [%d] [%d %d %d %d %d %d]", ItemList[item->Index].Name, item->Index, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3);
-				LogPlayer(i, "Fada %s expirou...", ItemList[item->Index].Name);
+				Log(i, LOG_INGAME, "Fada %s expirou ... [%d] [%d %d %d %d %d %d]", g_pItemList[item->sIndex].ItemName, item->sIndex, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3);
+				LogPlayer(i, "Fada %s expirou...", g_pItemList[item->sIndex].ItemName);
 
 				memset(item, 0, sizeof STRUCT_ITEM);
 				SendItem(i, SlotType::Equip, 13, item);
@@ -670,10 +670,10 @@ void ProcessSecTimer()
 
 	for (; LOCAL_110 < MAX_PLAYER; LOCAL_110++)
 	{
-		if ((LOCAL_110 & 0x8000001F) == LOCAL_109 && pUser[LOCAL_110].Status != USER_EMPTY && pUser[LOCAL_110].Status != USER_SAVING4QUIT)
+		if ((LOCAL_110 & 0x8000001F) == LOCAL_109 && pUser[LOCAL_110].CurrentScore != USER_EMPTY && pUser[LOCAL_110].CurrentScore != USER_SAVING4QUIT)
 			CheckIdle(LOCAL_110);
 
-		if ((LOCAL_110 & 0x8000000F) == LOCAL_108 && pMob[LOCAL_110].Mobs.Player.Status.curHP && pUser[LOCAL_110].Status == USER_PLAY)
+		if ((LOCAL_110 & 0x8000000F) == LOCAL_108 && pMob[LOCAL_110].Mobs.Player.CurrentScore.Hp && pUser[LOCAL_110].CurrentScore == USER_PLAY)
 		{
 			RegenMob(LOCAL_110);
 
@@ -686,10 +686,10 @@ void ProcessSecTimer()
 	{
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY || pUser[i].AccessLevel != 0)
+			if (pUser[i].CurrentScore != USER_PLAY || pUser[i].AccessLevel != 0)
 				continue;
 
-			INT32 level = pMob[i].Mobs.Player.Status.Level,
+			INT32 level = pMob[i].Mobs.Player.CurrentScore.Level,
 				posX = pMob[i].Target.X,
 				posY = pMob[i].Target.Y,
 				evId = pMob[i].Mobs.Player.Equip[0].EFV2;
@@ -771,7 +771,7 @@ void ProcessSecTimer()
 
 		for (auto& user : pUser)
 		{
-			if (user.Status != USER_PLAY)
+			if (user.CurrentScore != USER_PLAY)
 				continue;
 
 			CMob& mob = pMob[user.clientId];
@@ -841,7 +841,7 @@ void ProcessSecTimer()
 
 		if (LOCAL_114 == 3)
 		{
-			if (!pMob[LOCAL_110].Mobs.Player.Status.curHP)
+			if (!pMob[LOCAL_110].Mobs.Player.CurrentScore.Hp)
 			{
 				Log(SERVER_SIDE, LOG_ERROR, "StandingByProcessor deletado mob com zero de HP.");
 				DeleteMob(LOCAL_110, 1);
@@ -854,9 +854,9 @@ void ProcessSecTimer()
 
 		if (LOCAL_114 == 4)
 		{
-			if (!pMob[LOCAL_110].Mobs.Player.Status.curHP)
+			if (!pMob[LOCAL_110].Mobs.Player.CurrentScore.Hp)
 			{
-				Log(SERVER_SIDE, LOG_ERROR, "standingby processer delete hp zero mob %s %d %dx %dy", pMob[LOCAL_110].Mobs.Player.Name, pMob[LOCAL_110].GenerateID, pMob[LOCAL_110].Target.X, pMob[LOCAL_110].Target.Y);
+				Log(SERVER_SIDE, LOG_ERROR, "standingby processer delete hp zero mob %s %d %dx %dy", pMob[LOCAL_110].Mobs.Player.MobName, pMob[LOCAL_110].GenerateID, pMob[LOCAL_110].Target.X, pMob[LOCAL_110].Target.Y);
 
 				DeleteMob(LOCAL_110, 1);
 				continue;
@@ -889,7 +889,7 @@ void ProcessSecTimer()
 					if (LOCAL_121 < MAX_PLAYER) // MAX_PLAYER
 						continue;
 
-					if (pMob[LOCAL_121].Mode == 0 || !pMob[LOCAL_121].Mobs.Player.Status.curHP)
+					if (pMob[LOCAL_121].Mode == 0 || !pMob[LOCAL_121].Mobs.Player.CurrentScore.Hp)
 					{
 						if (pMob[LOCAL_121].Mode != 0)
 							DeleteMob(LOCAL_121, 1);
@@ -912,7 +912,7 @@ void ProcessSecTimer()
 						if (LOCAL_124 < MAX_PLAYER)
 							continue;
 
-						if (pMob[LOCAL_124].Mode == 0 || !pMob[LOCAL_124].Mobs.Player.Status.curHP)
+						if (pMob[LOCAL_124].Mode == 0 || !pMob[LOCAL_124].Mobs.Player.CurrentScore.Hp)
 						{
 							if (pMob[LOCAL_124].Mode != 0)
 								DeleteMob(LOCAL_124, 1);
@@ -993,7 +993,7 @@ void ProcessSecTimer()
 		if (pMob[LOCAL_110].Mobs.Player.CapeInfo == 4)
 			INT32 LOCAL_156 = 0;
 
-		if (!pMob[LOCAL_110].Mobs.Player.Status.curHP)
+		if (!pMob[LOCAL_110].Mobs.Player.CurrentScore.Hp)
 		{
 			// TODO : error
 
@@ -1020,11 +1020,11 @@ void ProcessSecTimer()
 			if (LOCAL_159 == 0)
 				LOCAL_159 = LOCAL_157;
 
-			INT32 LOCAL_160 = pMob[LOCAL_110].Mobs.Player.GuildIndex;
+			INT32 LOCAL_160 = pMob[LOCAL_110].Mobs.Player.Guild;
 			if (pMob[LOCAL_110].GuildDisable)
 				LOCAL_160 = 0;
 
-			INT32 LOCAL_161 = pMob[LOCAL_157].Mobs.Player.GuildIndex;
+			INT32 LOCAL_161 = pMob[LOCAL_157].Mobs.Player.Guild;
 			if (pMob[LOCAL_157].GuildDisable)
 				LOCAL_161 = 0;
 
@@ -1079,7 +1079,7 @@ void ProcessSecTimer()
 				bool status = isAlive && mobIndex > 0 && mobIndex < MAX_MOB && pMob[mobIndex].GenerateID == searchedIndex && pMob[mobIndex].Mode == 5;
 				SendKingdomBattleInfo(SERVER_SIDE, CAPE_BLUE + index, status);
 
-				sServer.KingdomBattle.Info[index].Status = status;
+				sServer.KingdomBattle.Info[index].CurrentScore = status;
 
 				if (!status)
 					SendNotice("A paz situou no Reino %s", index == 0 ? "Blue" : "Red");
@@ -1088,7 +1088,7 @@ void ProcessSecTimer()
 
 		if (LOCAL_162 & 0x2000)
 		{
-			INT32 vision = pMob[LOCAL_110].Mobs.Player.Status.DEX;
+			INT32 vision = pMob[LOCAL_110].Mobs.Player.CurrentScore.Dex;
 			if (vision > 20)
 				vision = 20;
 
@@ -1122,7 +1122,7 @@ void ProcessSecTimer()
 						continue;
 
 					INT32 distance = GetDistance(tmpX, tmpY, pMob[mobId].Target.X, pMob[mobId].Target.Y);
-					if (!pMob[mobId].Mobs.Player.Status.curHP)
+					if (!pMob[mobId].Mobs.Player.CurrentScore.Hp)
 						continue;
 
 					if ((Rand() % 5) >= 3)
@@ -1144,7 +1144,7 @@ void ProcessSecTimer()
 					continue;
 
 				INT32 damage = packet.Target[i].Damage,
-					petId = pMob[mobId].Mobs.Player.Equip[14].Index;
+					petId = pMob[mobId].Mobs.Player.Equip[14].sIndex;
 
 				if (mobId < MAX_PLAYER && damage > 0)
 				{
@@ -1169,7 +1169,7 @@ void ProcessSecTimer()
 							INT32 tmpDamage = auxDam * 80 / 100;
 							if ((pUser[mobId].Potion.CountMp - tmpDamage) >= 300)
 							{
-								pMob[mobId].Mobs.Player.Status.curMP -= tmpDamage;
+								pMob[mobId].Mobs.Player.CurrentScore.Mp -= tmpDamage;
 								pUser[mobId].Potion.CountMp -= tmpDamage;
 
 								SetReqMp(mobId);
@@ -1206,7 +1206,7 @@ void ProcessSecTimer()
 						if (LOCAL_184 < MAX_PLAYER)
 							continue;
 
-						if (pMob[LOCAL_184].Mode == 0 || pMob[LOCAL_184].Mobs.Player.Status.curHP <= 0)
+						if (pMob[LOCAL_184].Mode == 0 || pMob[LOCAL_184].Mobs.Player.CurrentScore.Hp <= 0)
 						{
 							if (pMob[LOCAL_184].Mode == 0)
 								DeleteMob(LOCAL_184, 1);
@@ -1222,7 +1222,7 @@ void ProcessSecTimer()
 					// 00454A48
 					INT32 LOCAL_185 = pMob[LOCAL_110].Summoner;
 					/*
-					if(pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && mobId >= MAX_PLAYER && LOCAL_185 > 0 && LOCAL_185 < MAX_PLAYER && Users[LOCAL_185].Status == USER_PLAY)
+					if(pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && mobId >= MAX_PLAYER && LOCAL_185 > 0 && LOCAL_185 < MAX_PLAYER && Users[LOCAL_185].CurrentScore == USER_PLAY)
 					{
 						INT32 LOCAL_186 = pMob[LOCAL_185].Target.X;
 						INT32 LOCAL_187 = pMob[LOCAL_185].Target.Y;
@@ -1233,17 +1233,17 @@ void ProcessSecTimer()
 							&& pMob[LOCAL_110].Target.Y < (LOCAL_187 + LOCAL_188))
 						{	// 00454BCE
 							INT32 LOCAL_3AE;
-							if(pMob[mobId].Mobs.Player.Status.curHP < packet.Target[i].Damage)
-								LOCAL_3AE = pMob[mobId].Mobs.Player.Status.curHP;
+							if(pMob[mobId].Mobs.Player.CurrentScore.Hp < packet.Target[i].Damage)
+								LOCAL_3AE = pMob[mobId].Mobs.Player.CurrentScore.Hp;
 							else
 								LOCAL_3AE = packet.Target[i].Damage;
 
 							INT32 LOCAL_189 = LOCAL_3AE;
-							INT32 LOCAL_190 = pMob[mobId].Mobs.Player.Exp * LOCAL_189 / pMob[mobId].Mobs.Player.Status.maxHP;
+							INT32 LOCAL_190 = pMob[mobId].Mobs.Player.Exp * LOCAL_189 / pMob[mobId].Mobs.Player.CurrentScore.MaxHp;
 
-							if(pMob[LOCAL_185].Mobs.Player.Status.Level != pMob[LOCAL_110].Mobs.Player.Status.Level)
+							if(pMob[LOCAL_185].Mobs.Player.CurrentScore.Level != pMob[LOCAL_110].Mobs.Player.CurrentScore.Level)
 							{
-								LOCAL_190 = GetExpApply(LOCAL_190, pMob[LOCAL_110].Mobs.Player.Status.Level, pMob[mobId].Mobs.Player.Status.Level);
+								LOCAL_190 = GetExpApply(LOCAL_190, pMob[LOCAL_110].Mobs.Player.CurrentScore.Level, pMob[mobId].Mobs.Player.CurrentScore.Level);
 
 								if(pMob[mobId].Mobs.Player.CapeInfo == 4)
 									LOCAL_190 = 0;
@@ -1260,7 +1260,7 @@ void ProcessSecTimer()
 					INT32 LOCAL_191 = packet.Target[i].Damage;
 					INT32 LOCAL_192 = 0;
 
-					INT32 LOCAL_193 = pMob[mobId].Mobs.Player.Equip[14].Index;
+					INT32 LOCAL_193 = pMob[mobId].Mobs.Player.Equip[14].sIndex;
 
 					if (mobId < MAX_PLAYER)
 					{
@@ -1276,7 +1276,7 @@ void ProcessSecTimer()
 						}
 					}
 
-					INT32 itemId = pMob[mobId].Mobs.Player.Equip[13].Index;
+					INT32 itemId = pMob[mobId].Mobs.Player.Equip[13].sIndex;
 					if (itemId == 786 || itemId == 1936 || itemId == 1937)
 					{
 						INT32 LOCAL_194 = GetItemSanc(&pMob[mobId].Mobs.Player.Equip[13]);
@@ -1297,14 +1297,14 @@ void ProcessSecTimer()
 						}
 
 						multHP *= LOCAL_194;
-						pMob[mobId].Mobs.Player.Status.curHP = pMob[mobId].Mobs.Player.Status.curHP - (packet.Target[i].Damage / multHP);
+						pMob[mobId].Mobs.Player.CurrentScore.Hp = pMob[mobId].Mobs.Player.CurrentScore.Hp - (packet.Target[i].Damage / multHP);
 					}
 					else
 					{
-						if (packet.Target[i].Damage > pMob[mobId].Mobs.Player.Status.curHP)
-							pMob[mobId].Mobs.Player.Status.curHP = 0;
+						if (packet.Target[i].Damage > pMob[mobId].Mobs.Player.CurrentScore.Hp)
+							pMob[mobId].Mobs.Player.CurrentScore.Hp = 0;
 						else
-							pMob[mobId].Mobs.Player.Status.curHP = pMob[mobId].Mobs.Player.Status.curHP - packet.Target[i].Damage;
+							pMob[mobId].Mobs.Player.CurrentScore.Hp = pMob[mobId].Mobs.Player.CurrentScore.Hp - packet.Target[i].Damage;
 					}
 
 					if (mobId >= MAX_PLAYER && pMob[mobId].Mobs.Player.CapeInfo == 4)
@@ -1329,7 +1329,7 @@ void ProcessSecTimer()
 				if (mobId <= 0 || mobId >= MAX_MOB)
 					continue;
 
-				if (pMob[mobId].Mobs.Player.Status.curHP <= 0)
+				if (pMob[mobId].Mobs.Player.CurrentScore.Hp <= 0)
 					MobKilled(mobId, LOCAL_110, 0, 0);
 			}
 		}
@@ -1355,7 +1355,7 @@ void ProcessSecTimer()
 				INT32 LOCAL_177 = (((LOCAL_176 % 24) >> 3) + 1);
 				if (LOCAL_177 >= 1 && LOCAL_177 <= 3)
 				{
-					INT32 LOCAL_178 = pMob[LOCAL_110].Mobs.Player.Status.Mastery[LOCAL_177];
+					INT32 LOCAL_178 = pMob[LOCAL_110].Mobs.Player.CurrentScore.Special[LOCAL_177];
 
 					INT32 LOCAL_179 = 0;
 					if (SetAffect(LOCAL_164, LOCAL_176, 100, LOCAL_178))
@@ -1404,17 +1404,17 @@ void ProcessSecTimer()
 						if (pMob[LOCAL_164].Mobs.Affects[i].Index == 18)
 						{
 							INT32 tmpDamage = auxDam * 80 / 100;
-							if ((pMob[LOCAL_164].Mobs.Player.Status.curMP - tmpDamage) >= 300)
+							if ((pMob[LOCAL_164].Mobs.Player.CurrentScore.Mp - tmpDamage) >= 300)
 							{
 								if (pUser[LOCAL_164].Potion.CountMp - tmpDamage >= 0)
 									pUser[LOCAL_164].Potion.CountMp -= tmpDamage;
 								else
 									pUser[LOCAL_164].Potion.CountMp = 0;
 
-								if (pMob[LOCAL_164].Mobs.Player.Status.curMP - tmpDamage >= 0)
-									pMob[LOCAL_164].Mobs.Player.Status.curMP -= tmpDamage;
+								if (pMob[LOCAL_164].Mobs.Player.CurrentScore.Mp - tmpDamage >= 0)
+									pMob[LOCAL_164].Mobs.Player.CurrentScore.Mp -= tmpDamage;
 								else
-									pMob[LOCAL_164].Mobs.Player.Status.curMP = 0;
+									pMob[LOCAL_164].Mobs.Player.CurrentScore.Mp = 0;
 
 								auxDam -= tmpDamage;
 							}
@@ -1430,16 +1430,16 @@ void ProcessSecTimer()
 			}
 
 			INT32 summonerId = pMob[LOCAL_110].Summoner;
-			if (pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && summonerId > 0 && summonerId < MAX_PLAYER && pUser[summonerId].Status == USER_PLAY)
+			if (pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && summonerId > 0 && summonerId < MAX_PLAYER && pUser[summonerId].CurrentScore == USER_PLAY)
 			{
 				if (pMob[LOCAL_164].GenerateID == TORRE_ERION)
 				{
-					INT32 idGuild = pMob[summonerId].Mobs.Player.GuildIndex;
-					if (idGuild == 0 || (idGuild != 0 && idGuild == pMob[LOCAL_164].Mobs.Player.GuildIndex))
+					INT32 idGuild = pMob[summonerId].Mobs.Player.Guild;
+					if (idGuild == 0 || (idGuild != 0 && idGuild == pMob[LOCAL_164].Mobs.Player.Guild))
 						continue;
 
 					INT32 ally = g_pGuildAlly[idGuild];
-					if (ally != 0 && ally == pMob[LOCAL_164].Mobs.Player.GuildIndex)
+					if (ally != 0 && ally == pMob[LOCAL_164].Mobs.Player.Guild)
 						continue;
 				}
 
@@ -1476,12 +1476,12 @@ void ProcessSecTimer()
 
 				if (attacked > 0 && attacked < MAX_PLAYER)
 				{
-					INT32 idGuild = pMob[attacked].Mobs.Player.GuildIndex;
-					if (idGuild != 0 && idGuild == pMob[LOCAL_164].Mobs.Player.GuildIndex)
+					INT32 idGuild = pMob[attacked].Mobs.Player.Guild;
+					if (idGuild != 0 && idGuild == pMob[LOCAL_164].Mobs.Player.Guild)
 						continue;
 
 					INT32 ally = g_pGuildAlly[idGuild];
-					if (ally != 0 && ally == pMob[LOCAL_164].Mobs.Player.GuildIndex)
+					if (ally != 0 && ally == pMob[LOCAL_164].Mobs.Player.Guild)
 						continue;
 				}
 			}
@@ -1505,7 +1505,7 @@ void ProcessSecTimer()
 					if (LOCAL_184 < MAX_PLAYER)
 						continue;
 
-					if (pMob[LOCAL_184].Mode == 0 || pMob[LOCAL_184].Mobs.Player.Status.curHP <= 0)
+					if (pMob[LOCAL_184].Mode == 0 || pMob[LOCAL_184].Mobs.Player.CurrentScore.Hp <= 0)
 					{
 						if (pMob[LOCAL_184].Mode == 0)
 							DeleteMob(LOCAL_184, 1);
@@ -1521,7 +1521,7 @@ void ProcessSecTimer()
 				// 00454A48
 				INT32 LOCAL_185 = pMob[LOCAL_110].Summoner;
 				/*
-				if(pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && LOCAL_164 >= MAX_PLAYER && LOCAL_185 > 0 && LOCAL_185 < MAX_PLAYER && Users[LOCAL_185].Status == USER_PLAY)
+				if(pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && LOCAL_164 >= MAX_PLAYER && LOCAL_185 > 0 && LOCAL_185 < MAX_PLAYER && Users[LOCAL_185].CurrentScore == USER_PLAY)
 				{
 					INT32 LOCAL_186 = pMob[LOCAL_185].Target.X;
 					INT32 LOCAL_187 = pMob[LOCAL_185].Target.Y;
@@ -1531,17 +1531,17 @@ void ProcessSecTimer()
 					if(pMob[LOCAL_110].Target.X > (LOCAL_186 - LOCAL_188) && pMob[LOCAL_110].Target.X < (LOCAL_186 + LOCAL_188) && pMob[LOCAL_110].Target.Y > (LOCAL_187 - LOCAL_188) && pMob[LOCAL_110].Target.Y < (LOCAL_187 + LOCAL_188))
 					{	// 00454BCE
 						INT32 LOCAL_3AE;
-						if(pMob[LOCAL_164].Mobs.Player.Status.curHP < LOCAL_175.Target.Damage)
-							LOCAL_3AE = pMob[LOCAL_164].Mobs.Player.Status.curHP;
+						if(pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp < LOCAL_175.Target.Damage)
+							LOCAL_3AE = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp;
 						else
 							LOCAL_3AE = LOCAL_175.Target.Damage;
 
 						INT32 LOCAL_189 = LOCAL_3AE;
-						INT32 LOCAL_190 = pMob[LOCAL_164].Mobs.Player.Exp * LOCAL_189 / pMob[LOCAL_164].Mobs.Player.Status.maxHP;
+						INT32 LOCAL_190 = pMob[LOCAL_164].Mobs.Player.Exp * LOCAL_189 / pMob[LOCAL_164].Mobs.Player.CurrentScore.MaxHp;
 
-						if(pMob[LOCAL_185].Mobs.Player.Status.Level != pMob[LOCAL_110].Mobs.Player.Status.Level)
+						if(pMob[LOCAL_185].Mobs.Player.CurrentScore.Level != pMob[LOCAL_110].Mobs.Player.CurrentScore.Level)
 						{
-							LOCAL_190 = GetExpApply(LOCAL_190, pMob[LOCAL_110].Mobs.Player.Status.Level, pMob[LOCAL_164].Mobs.Player.Status.Level);
+							LOCAL_190 = GetExpApply(LOCAL_190, pMob[LOCAL_110].Mobs.Player.CurrentScore.Level, pMob[LOCAL_164].Mobs.Player.CurrentScore.Level);
 
 							if(pMob[LOCAL_164].Mobs.Player.CapeInfo == 4)
 								LOCAL_190 = 0;
@@ -1557,7 +1557,7 @@ void ProcessSecTimer()
 				INT32 LOCAL_191 = LOCAL_175.Target.Damage;
 				INT32 LOCAL_192 = 0;
 
-				INT32 LOCAL_193 = pMob[LOCAL_164].Mobs.Player.Equip[14].Index;
+				INT32 LOCAL_193 = pMob[LOCAL_164].Mobs.Player.Equip[14].sIndex;
 
 				if (LOCAL_164 < MAX_PLAYER && pMob[LOCAL_164].isPetAlive())
 				{
@@ -1570,7 +1570,7 @@ void ProcessSecTimer()
 					LOCAL_175.Target.Damage = LOCAL_191;
 				}
 
-				INT32 itemId = pMob[LOCAL_164].Mobs.Player.Equip[13].Index;
+				INT32 itemId = pMob[LOCAL_164].Mobs.Player.Equip[13].sIndex;
 				if (itemId == 786 || itemId == 1936 || itemId == 1937)
 				{
 					INT32 LOCAL_194 = GetItemSanc(&pMob[LOCAL_164].Mobs.Player.Equip[13]);
@@ -1591,14 +1591,14 @@ void ProcessSecTimer()
 					}
 
 					multHP *= LOCAL_194;
-					pMob[LOCAL_164].Mobs.Player.Status.curHP = pMob[LOCAL_164].Mobs.Player.Status.curHP - (LOCAL_175.Target.Damage / multHP);
+					pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp - (LOCAL_175.Target.Damage / multHP);
 				}
 				else
 				{
-					if (LOCAL_175.Target.Damage > pMob[LOCAL_164].Mobs.Player.Status.curHP)
-						LOCAL_175.Target.Damage = pMob[LOCAL_164].Mobs.Player.Status.curHP;
+					if (LOCAL_175.Target.Damage > pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp)
+						LOCAL_175.Target.Damage = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp;
 
-					pMob[LOCAL_164].Mobs.Player.Status.curHP = pMob[LOCAL_164].Mobs.Player.Status.curHP - LOCAL_175.Target.Damage;
+					pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp - LOCAL_175.Target.Damage;
 				}
 
 				if (LOCAL_164 >= MAX_PLAYER && pMob[LOCAL_164].Mobs.Player.CapeInfo == 4)
@@ -1617,7 +1617,7 @@ void ProcessSecTimer()
 				SetReqHp(LOCAL_164);
 			}
 
-			if (pMob[LOCAL_164].Mobs.Player.Status.curHP <= 0)
+			if (pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp <= 0)
 				MobKilled(LOCAL_164, LOCAL_110, 0, 0);
 		}
 
@@ -1721,21 +1721,21 @@ void ProcessSecTimer()
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
 			CUser *user = &pUser[i];
-			if (user->Status != USER_PLAY)
+			if (user->CurrentScore != USER_PLAY)
 				continue;
 
 			// Checa se esta em autovenda
 			// Caso nao esteja, checa se a loja estava ativa durante os 5 minutos anteriores
 			if (!user->IsAutoTrading)
 			{
-				if (user->PremierStore.Status)
+				if (user->PremierStore.CurrentScore)
 				{
 					user->PremierStore.Wait++;
 
 					if (user->PremierStore.Wait >= 300)
 					{
 						// Desativa tudo
-						user->PremierStore.Status = 0;
+						user->PremierStore.CurrentScore = 0;
 						user->PremierStore.Time = 0;
 						user->PremierStore.Wait = 0;
 						user->PremierStore.Count = 0;
@@ -1747,7 +1747,7 @@ void ProcessSecTimer()
 			}
 
 			// Esta habilitado a receber a paradita
-			if (!user->PremierStore.Status)
+			if (!user->PremierStore.CurrentScore)
 				continue;
 
 			user->PremierStore.Time++;
@@ -1756,59 +1756,59 @@ void ProcessSecTimer()
 			{
 				user->PremierStore.Time = 0;
 
-				if (user->PremierStore.Status == 1)
+				if (user->PremierStore.CurrentScore == 1)
 				{
 					STRUCT_ITEM item{};
-					item.Index = 4545;
+					item.sIndex = 4545;
 
 					if (PutItem(i, &item))
 					{
-						Log(i, LOG_INGAME, "Recebido item %s [%d] autovenda 1hora online.", ItemList[item.Index].Name, item.Index);
+						Log(i, LOG_INGAME, "Recebido item %s [%d] autovenda 1hora online.", g_pItemList[item.sIndex].ItemName, item.sIndex);
 
-						SendClientMessage(i, "!Chegou um item: [ %s ]", ItemList[item.Index].Name);
+						SendClientMessage(i, "!Chegou um item: [ %s ]", g_pItemList[item.sIndex].ItemName);
 					}
 					else
 					{
-						Log(i, LOG_INGAME, "Nao recebeu o item %s [%d] autovenda 1hora online por FALTA DE ESPAaO.", ItemList[item.Index].Name, item.Index);
+						Log(i, LOG_INGAME, "Nao recebeu o item %s [%d] autovenda 1hora online por FALTA DE ESPAaO.", g_pItemList[item.sIndex].ItemName, item.sIndex);
 
-						SendClientMessage(i, "!Nao recebeu o item [ %s ] por falta de espaao", ItemList[item.Index].Name);
+						SendClientMessage(i, "!Nao recebeu o item [ %s ] por falta de espaao", g_pItemList[item.sIndex].ItemName);
 					}
 
-					user->PremierStore.Status = 2;
+					user->PremierStore.CurrentScore = 2;
 					user->PremierStore.Time = 0;
 				}
-				else if (user->PremierStore.Status == 2)
+				else if (user->PremierStore.CurrentScore == 2)
 				{
 					STRUCT_ITEM item;
 					memset(&item, 0, sizeof STRUCT_ITEM);
 
-					item.Index = 4546;
+					item.sIndex = 4546;
 
 					if (PutItem(i, &item))
 					{
-						Log(i, LOG_INGAME, "Recebido item %s [%d] autovenda 1hora online.", ItemList[item.Index].Name, item.Index);
+						Log(i, LOG_INGAME, "Recebido item %s [%d] autovenda 1hora online.", g_pItemList[item.sIndex].ItemName, item.sIndex);
 
-						SendClientMessage(i, "!Chegou um item: [ %s ]", ItemList[item.Index].Name);
+						SendClientMessage(i, "!Chegou um item: [ %s ]", g_pItemList[item.sIndex].ItemName);
 					}
 					else
 					{
-						Log(i, LOG_INGAME, "Nao recebeu o item %s [%d] autovenda 1hora online por FALTA DE ESPAaO.", ItemList[item.Index].Name, item.Index);
+						Log(i, LOG_INGAME, "Nao recebeu o item %s [%d] autovenda 1hora online por FALTA DE ESPAaO.", g_pItemList[item.sIndex].ItemName, item.sIndex);
 
-						SendClientMessage(i, "!Nao recebeu o item [ %s ] por falta de espaao", ItemList[item.Index].Name);
+						SendClientMessage(i, "!Nao recebeu o item [ %s ] por falta de espaao", g_pItemList[item.sIndex].ItemName);
 					}
 
 					user->PremierStore.Count++;
 					if (user->PremierStore.Count > 5)
 					{
 						// Desativa tudo
-						user->PremierStore.Status = 0;
+						user->PremierStore.CurrentScore = 0;
 						user->PremierStore.Time = 0;
 						user->PremierStore.Wait = 0;
 						user->PremierStore.Count = 0;
 					}
 					else
 					{
-						user->PremierStore.Status = 1;
+						user->PremierStore.CurrentScore = 1;
 						user->PremierStore.Time = 0;
 						user->PremierStore.Wait = 0;
 					}
@@ -1850,7 +1850,7 @@ void ProcessMinTimer()
 		{
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].Status != USER_PLAY)
+				if (pUser[i].CurrentScore != USER_PLAY)
 					continue;
 
 				if (pUser[i].IsAutoTrading)
@@ -1956,13 +1956,13 @@ void ProcessMinTimer()
 		if (LOCAL_18 < 0 || LOCAL_18 >= 4096)
 			continue;
 
-		if (g_pInitItem[LOCAL_18].Item.Index <= 0 || g_pInitItem[LOCAL_18].Item.Index >= MAX_ITEMLIST)
+		if (g_pInitItem[LOCAL_18].Item.sIndex <= 0 || g_pInitItem[LOCAL_18].Item.sIndex >= MAX_ITEMLIST)
 			continue;
 
 		STRUCT_ITEM* LOCAL_19 = &g_pInitItem[LOCAL_18].Item;
 
 		INT32 LOCAL_20 = GetItemAbility(LOCAL_19, EF_KEYID);
-		if (LOCAL_20 != 0 && g_pInitItem[LOCAL_18].Status == 1 && LOCAL_20 < 15)
+		if (LOCAL_20 != 0 && g_pInitItem[LOCAL_18].CurrentScore == 1 && LOCAL_20 < 15)
 		{
 			if (g_pInitItem[LOCAL_18].IsOpen == 0)
 			{
@@ -1979,7 +1979,7 @@ void ProcessMinTimer()
 			packet.gateId = LOCAL_18 + 10000;
 
 			packet.Header.Size = sizeof p374;
-			packet.status = g_pInitItem[LOCAL_18].Status;
+			packet.status = g_pInitItem[LOCAL_18].CurrentScore;
 			packet.unknow = LOCAL_21;
 			packet.unknow = 0;
 
@@ -2027,7 +2027,7 @@ void ProcessMinTimer()
 	time_point_t nowChrono = std::chrono::steady_clock::now();
 	for (const auto& user : pUser)
 	{
-		if (user.Status != USER_PLAY)
+		if (user.CurrentScore != USER_PLAY)
 			continue;
 
 		if (nowChrono - user.MacIntegrity.loginTime > 5s && !user.MacIntegrity.IsChecked && !user.MacIntegrity.WasWarned)
@@ -2054,7 +2054,7 @@ void ProcessHourTimer()
 
 		for (INT32 x = 1; x < MAX_PLAYER; x++)
 		{
-			if (pUser[x].Status < USER_SELCHAR)
+			if (pUser[x].CurrentScore < USER_SELCHAR)
 				continue;
 
 			totalOn++;
@@ -2062,7 +2062,7 @@ void ProcessHourTimer()
 			INT32 t = x;
 			for (; t < MAX_PLAYER; t++)
 			{
-				if (pUser[t].Status < 11)
+				if (pUser[t].CurrentScore < 11)
 					continue;
 
 				if (t == x)

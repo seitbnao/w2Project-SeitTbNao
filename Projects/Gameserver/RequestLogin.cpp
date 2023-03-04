@@ -46,7 +46,7 @@ bool CUser::RequestLogin(PacketHeader *Header)
 #endif 
 
 	// Caso ele nao esteja no modo correto
-	if(Status != USER_ACCEPT)
+	if(CurrentScore != USER_ACCEPT)
 	{
 		SendClientMessage(clientId, "Login now, wait a moment.");
 
@@ -58,7 +58,7 @@ bool CUser::RequestLogin(PacketHeader *Header)
 	INT32 total = 0;
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].Status < USER_SELCHAR || i == clientId)
+		if(pUser[i].CurrentScore < USER_SELCHAR || i == clientId)
 			continue;
 
 		if (memcmp(pUser[i].MacAddress, p->Mac, 8) == 0)
@@ -74,15 +74,15 @@ bool CUser::RequestLogin(PacketHeader *Header)
 	{
 		str << "Conta " << user->User.Username << " logado na conta\n";
 		str << "Status da conta: ";
-		if (user->Status == USER_PLAY)
+		if (user->CurrentScore == USER_PLAY)
 		{
 			str << "JOGANDO\n";
-			str << "Personagem: " << pMob[user->clientId].Mobs.Player.Name;
+			str << "Personagem: " << pMob[user->clientId].Mobs.Player.MobName;
 		}
-		else if (user->Status == USER_SELCHAR)
+		else if (user->CurrentScore == USER_SELCHAR)
 			str << "SELEaaO DE PERSONAGEM";
 		else
-			str << "Outro (" << user->Status << ")";
+			str << "Outro (" << user->CurrentScore << ")";
 
 		str << "\n";
 
@@ -140,7 +140,7 @@ bool CUser::RequestLogin(PacketHeader *Header)
 
 	AddMessageDB((BYTE*)Header, sizeof p20D);
 
-	Status = USER_LOGIN;
+	CurrentScore = USER_LOGIN;
 	pMob[clientId].Mode = 0;
 	pMob[clientId].clientId = clientId;
 	return true;

@@ -133,7 +133,7 @@ void CItemMix::ResultItemListSet(unsigned int Head, int X, int Y)
             {
                 pstItem->stEffect[j].cEffect = stResult_itemList[m_dResultIndexList[i]].stItemInfor.stEffect[j].cEffect;
                 pstItem->stEffect[j].cValue = stResult_itemList[m_dResultIndexList[i]].stItemInfor.stEffect[j].cValue;
-                pstItem->stEffect[j].sValue = stResult_itemList[m_dResultIndexList[i]].stItemInfor.stEffect[j].sValue;
+                //pstItem->stEffect[j].sValue = stResult_itemList[m_dResultIndexList[i]].stItemInfor.stEffect[j].sValue;
             }
 
             m_pGridResultItem[count]->m_eGridType = TMEGRIDTYPE::GRID_ITEMMIXRESULT;
@@ -147,11 +147,11 @@ void CItemMix::ResultItemListSet(unsigned int Head, int X, int Y)
         m_stCombineItem.CarryPos[i] = -1;
 }
 
-void CItemMix::Set_NeedItemList(int Index)
+void CItemMix::Set_NeedItemList(int sIndex)
 {
     ClearNeedGridList();
 
-    if (Index < 0 || Index > 13000)
+    if (sIndex < 0 || sIndex > 13000)
         return;
 
     for (int i = 0; i < 100; ++i)
@@ -159,7 +159,7 @@ void CItemMix::Set_NeedItemList(int Index)
         if (stResult_itemList[i].dNPCHead == m_NPCHead &&
             stResult_itemList[i].pxy.X == m_dNPCX &&
             stResult_itemList[i].pxy.Y == m_dNPCY &&
-            stResult_itemList[i].stItemInfor.sIndex == Index)
+            stResult_itemList[i].stItemInfor.sIndex == sIndex)
         {
             m_dResultIndex = i;
 
@@ -462,7 +462,7 @@ void CItemMix::SetTextList()
         if (s_pName != nullptr)
         {
             if (m_dNeedRefer[i].bItemListrefer)
-                s_pName->SetText(g_pItemList[index].Name, 0);
+                s_pName->SetText(g_pItemList[index].ItemName, 0);
             else
                 s_pName->SetText(g_pMessageStringTable[stNeed_itemList[index].Textnum], 0);
         }
@@ -577,7 +577,7 @@ void CItemMix::ClickInvItem(SGridControlItem* pItem, SGridControl** GridInvList,
                     {
                         newItem->stEffect[kh].cEffect = pItem->m_pItem->stEffect[kh].cEffect;
                         newItem->stEffect[kh].cValue = pItem->m_pItem->stEffect[kh].cValue;
-                        newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
+                        //newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
                     }
 
                     m_pGridNeedItem[i]->AddItem(new SGridControlItem(nullptr, newItem, 0.0f, 0.0f), 0, 0);
@@ -633,7 +633,7 @@ void CItemMix::ClickInvItem(SGridControlItem* pItem, SGridControl** GridInvList,
                     {
                         newItem->stEffect[kh].cEffect = pItem->m_pItem->stEffect[kh].cEffect;
                         newItem->stEffect[kh].cValue = pItem->m_pItem->stEffect[kh].cValue;
-                        newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
+                       // newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
                     }
 
                     m_pGridNeedItem[i]->AddItem(new SGridControlItem(nullptr, newItem, 0.0f, 0.0f), 0, 0);
@@ -704,7 +704,7 @@ void CItemMix::ClickInvItem(SGridControlItem* pItem, SGridControl** GridInvList,
                             {
                                 newItem->stEffect[kh].cEffect = pItem->m_pItem->stEffect[kh].cEffect;
                                 newItem->stEffect[kh].cValue = pItem->m_pItem->stEffect[kh].cValue;
-                                newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
+                               // newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
                             }
 
                             m_pGridNeedItem[i]->AddItem(new SGridControlItem(nullptr, newItem, 0.0f, 0.0f), 0, 0);
@@ -760,7 +760,7 @@ void CItemMix::ClickInvItem(SGridControlItem* pItem, SGridControl** GridInvList,
                     {
                         newItem->stEffect[kh].cEffect = pItem->m_pItem->stEffect[kh].cEffect;
                         newItem->stEffect[kh].cValue = pItem->m_pItem->stEffect[kh].cValue;
-                        newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
+                        //newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
                     }
 
                     m_pGridNeedItem[i]->AddItem(new SGridControlItem(nullptr, newItem, 0.0f, 0.0f), 0, 0);
@@ -815,7 +815,7 @@ void CItemMix::ClickInvItem(SGridControlItem* pItem, SGridControl** GridInvList,
             {
                 newItem->stEffect[kh].cEffect = pItem->m_pItem->stEffect[kh].cEffect;
                 newItem->stEffect[kh].cValue = pItem->m_pItem->stEffect[kh].cValue;
-                newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
+                //newItem->stEffect[kh].sValue = pItem->m_pItem->stEffect[kh].sValue;
             }
 
             m_pGridNeedItem[i]->AddItem(new SGridControlItem(nullptr, newItem, 0.0f, 0.0f), 0, 0);
@@ -1059,10 +1059,10 @@ int CItemMix::IsItemOption_Satisfaction(int index, STRUCT_ITEM* item)
 
     if (index == 20)
     {
-        auto target2grade = g_pItemList[item->sIndex].nUnique % 10;
-        auto target2pos = g_pItemList[item->sIndex].nPos;
+        auto target2grade = g_pItemList[item->sIndex].Unique % 10;
+        auto target2pos = g_pItemList[item->sIndex].Pos;
         auto target2look = BASE_GetItemAbility(item, 18);
-        if (!g_pItemList[item->sIndex].nUnique)
+        if (!g_pItemList[item->sIndex].Unique)
             return 0;
         if (target2look == 1 && target2grade <= 6 && target2grade)
             return 0;
@@ -1071,7 +1071,7 @@ int CItemMix::IsItemOption_Satisfaction(int index, STRUCT_ITEM* item)
     }
     if (stNeed_itemList[index].stOption.dPOS[0])
     {
-        if (stNeed_itemList[index].stOption.dPOS[0] > (unsigned int)g_pItemList[item->sIndex].nPos || stNeed_itemList[index].stOption.dPOS[1] < (unsigned int)g_pItemList[item->sIndex].nPos)
+        if (stNeed_itemList[index].stOption.dPOS[0] > (unsigned int)g_pItemList[item->sIndex].Pos || stNeed_itemList[index].stOption.dPOS[1] < (unsigned int)g_pItemList[item->sIndex].Pos)
             return 0;
 
         Return = 1;
@@ -1254,7 +1254,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
             m_stCombineItem.CarryPos[1] % 15 / 5
         ); // v22
 
-        if (strcmp(g_pItemList[Item1->m_pItem->sIndex].Name, g_pItemList[Item2->m_pItem->sIndex].Name))
+        if (strcmp(g_pItemList[Item1->m_pItem->sIndex].ItemName, g_pItemList[Item2->m_pItem->sIndex].ItemName))
         {
             MessagePanel->SetMessage(g_pMessageStringTable[262], 2000u);
             MessagePanel->SetVisible(1, 1);
@@ -1269,8 +1269,8 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
             m_stCombineItem.CarryPos[0] % 15 / 5
         ); // v7
 
-        auto target1grade = g_pItemList[Item->m_pItem->sIndex].nUnique % 10;
-        auto target1pos = g_pItemList[Item->m_pItem->sIndex].nPos;
+        auto target1grade = g_pItemList[Item->m_pItem->sIndex].Unique % 10;
+        auto target1pos = g_pItemList[Item->m_pItem->sIndex].Pos;
         auto target1look = BASE_GetItemAbility(Item->m_pItem, EF_CLASS);
 
         bool bOK = true;
@@ -1301,12 +1301,12 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
             m_stCombineItem.CarryPos[1] % 15 / 5
         ); // v8
 
-        auto target2grade = g_pItemList[Item2->m_pItem->sIndex].nUnique % 10;
-        auto target2pos = g_pItemList[Item2->m_pItem->sIndex].nPos;
+        auto target2grade = g_pItemList[Item2->m_pItem->sIndex].Unique % 10;
+        auto target2pos = g_pItemList[Item2->m_pItem->sIndex].Pos;
         auto target2look = BASE_GetItemAbility(Item2->m_pItem, EF_CLASS);
 
         bool bOKa = true;
-        if (g_pItemList[Item2->m_pItem->sIndex].nUnique)
+        if (g_pItemList[Item2->m_pItem->sIndex].Unique)
         {
             if (target2look == 1 && target2grade <= 6 && target2grade)
                 bOKa = false;

@@ -7,14 +7,14 @@ bool CUser::RequestAddParty(PacketHeader *Header)
 {
 	p37F *p = (p37F*)Header;
 	
-	// Checagens de seguran�a
+	// Checagens de seguranêa
 	if(p->targetId <= 0 || p->targetId >= MAX_PLAYER)
 		return false;
 
 	if(p->leaderId <= 0 || p->leaderId >= MAX_PLAYER)
 		return false;
 
-	if(pUser[p->leaderId].Status != USER_PLAY || pUser[p->targetId].Status != USER_PLAY)
+	if(pUser[p->leaderId].CurrentScore != USER_PLAY || pUser[p->targetId].CurrentScore != USER_PLAY)
 		return true;
 
 	CMob *liderSpw = &pMob[p->leaderId];
@@ -47,7 +47,7 @@ bool CUser::RequestAddParty(PacketHeader *Header)
 
 		if(has)
 		{
-			SendClientMessage(clientId, "O outro jogador ja � l�der de um grupo.");
+			SendClientMessage(clientId, "O outro jogador ja ê lêder de um grupo.");
 
 			return true;
 		}

@@ -8,7 +8,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 {
 	p397 *p = (p397*)(Header);
 	
-	if(!pMob[clientId].Mobs.Player.Status.curHP || Status != USER_PLAY)
+	if(!pMob[clientId].Mobs.Player.CurrentScore.Hp || CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 		AddCrackError(clientId, 10, 88);
@@ -54,22 +54,22 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 	if (clientId <= 0 || clientId >= MAX_PLAYER)
 		return true;
 
-	INT32 itemId = p->Index; // LOCAL_1204
+	INT32 itemId = p->sIndex; // LOCAL_1204
 	INT32 i = 0;
 	int total = 0;
 	for( ; i < 12; i ++)
 	{
-		if(p->Gold[i] < 0 || p->Gold[i] > 1999999999) 
+		if(p->Coin[i] < 0 || p->Coin[i] > 1999999999) 
 			return false;
 
-		if(p->Item[i].Index == 0 && p->Gold[i] != 0)
+		if(p->Item[i].sIndex == 0 && p->Coin[i] != 0)
 			return false;
 
-		if(p->Item[i].Index == 0)
+		if(p->Item[i].sIndex == 0)
 			continue;
 
-		if(p->Item[i].Index == 508 || p->Item[i].Index == 509 || p->Item[i].Index == 522 || (p->Item[i].Index >= 526 && p->Item[i].Index <= 531) || p->Item[i].Index == 446
-			|| p->Item[i].Index == 3993 || p->Item[i].Index == 3994)
+		if(p->Item[i].sIndex == 508 || p->Item[i].sIndex == 509 || p->Item[i].sIndex == 522 || (p->Item[i].sIndex >= 526 && p->Item[i].sIndex <= 531) || p->Item[i].sIndex == 446
+			|| p->Item[i].sIndex == 3993 || p->Item[i].sIndex == 3994)
 			return false;
 
 		if (GetItemAbility(&p->Item[i], EF_NOTRADE))
@@ -91,24 +91,24 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 			return true;
 		}
 
-		if (p->Gold[i] >= 10000000)
+		if (p->Coin[i] >= 10000000)
 			total++;
 	}
 
 	p->Unknown = g_pCityZone[villageId].perc_impost;
-	p->Name[23] = '\0';
-	p->Name[22] = '\0';
+	p->MobName[23] = '\0';
+	p->MobName[22] = '\0';
 
-	strncpy_s((char*)AutoTradeName, 24, p->Name, 24);
+	strncpy_s((char*)AutoTradeName, 24, p->MobName, 24);
 
-	if (sServer.AutoTradeEvent.Status && strstr(AutoTradeName, "#EventoLoja") != nullptr)
+	if (sServer.AutoTradeEvent.CurrentScore && strstr(AutoTradeName, "#EventoLoja") != nullptr)
 	{
 		CUser* userWithAutoTrade = nullptr;
 		CUser* userWithEventOnline = nullptr;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
 			auto& user = pUser[i];
-			if (user.Status != USER_PLAY || i == clientId)
+			if (user.CurrentScore != USER_PLAY || i == clientId)
 				continue;
 
 			if (memcmp(MacAddress, user.MacAddress, 8) != 0)
@@ -153,7 +153,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 		bool has = false;
 		for (int j = 1; j < MAX_PLAYER; j++)
 		{
-			if (pUser[j].Status != USER_PLAY || j == clientId || !pUser[j].IsAutoTrading || !pUser[j].PremierStore.Status)
+			if (pUser[j].CurrentScore != USER_PLAY || j == clientId || !pUser[j].IsAutoTrading || !pUser[j].PremierStore.CurrentScore)
 				continue;
 
 			if (!memcmp(pUser[j].MacAddress, pUser[clientId].MacAddress, 6))
@@ -168,7 +168,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 		{
 			if (PremierStore.Wait == 0 || (PremierStore.Wait != 0 && PremierStore.Wait > 300))
 			{ // abre a loja normalmente com o status normal 
-				PremierStore.Status = 1;
+				PremierStore.CurrentScore = 1;
 				PremierStore.Time = 0;
 				PremierStore.Count = 0;
 
@@ -188,20 +188,20 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 	GridMulticast_2(posX, posY, (BYTE*)&sm, 0);
 	std::stringstream str;
 	str << "Informações dos itens da loja\n";
-	str << "Nome da loja: " << p->Name << "\n";
+	str << "Nome da loja: " << p->MobName << "\n";
 	str << "Posição criada: " << pMob[clientId].Target.X << "x " << pMob[clientId].Target.Y << "\n";
 	str << "Total de itens com valor superior a 10 milhões: " << total << "\n";
 	str << "[ITENS]" << "\n";
 
 	for (int i = 0; i < 12; i++)
 	{
-		if (p->Item[i].Index == 0 && p->Gold[i] != 0)
+		if (p->Item[i].sIndex == 0 && p->Coin[i] != 0)
 			return false;
 
-		if (p->Item[i].Index == 0)
+		if (p->Item[i].sIndex == 0)
 			continue;
 
-		str << "Slot [" << std::to_string(p->Slot[i]) << "] - " << ItemList[p->Item[i].Index].Name << " " << p->Item[i].toString().c_str() << ". Preço de " << p->Gold[i] << "\n";
+		str << "Slot [" << std::to_string(p->Slot[i]) << "] - " << g_pItemList[p->Item[i].sIndex].ItemName << " " << p->Item[i].toString().c_str() << ". Preço de " << p->Coin[i] << "\n";
 	}
 
 	Log(clientId, LOG_INGAME, str.str().c_str());

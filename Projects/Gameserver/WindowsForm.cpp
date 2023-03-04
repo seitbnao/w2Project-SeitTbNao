@@ -5,7 +5,7 @@
 
 typedef struct
 {
-	char Name[16];
+	char MobName[16];
 	STRUCT_POSITION Position;
 
 	INT32 Level;
@@ -20,7 +20,7 @@ INT32 CheckName(stDropList *dropList, char *name, INT32 total)
 {
 	for(INT32 i = 0; i < total; i++)
 	{
-		if(!_stricmp(name, dropList[i].Name))
+		if(!_stricmp(name, dropList[i].MobName))
 			return true;
 	}
 
@@ -39,7 +39,7 @@ void Organize(stDropList *dropList, INT32 total)
 	{
 		index = i;
 
-		if(!dropList[index].Name[0] || strlen(dropList[index].Name) <= 2)
+		if(!dropList[index].MobName[0] || strlen(dropList[index].MobName) <= 2)
 			continue;
 
 		stDropList list;
@@ -47,10 +47,10 @@ void Organize(stDropList *dropList, INT32 total)
 
 		for(INT32 t = (i + 1); t < total; t++)
 		{
-			if(!dropList[t].Name[0] || strlen(dropList[t].Name) <= 2)
+			if(!dropList[t].MobName[0] || strlen(dropList[t].MobName) <= 2)
 				continue;
 
-			if(strcoll(dropList[index].Name, dropList[t].Name) > 0)
+			if(strcoll(dropList[index].MobName, dropList[t].MobName) > 0)
 			{
 				memcpy(&list, &dropList[t], sizeof stDropList);
 				index = t;
@@ -80,7 +80,7 @@ void GenerateDropList()
 		for(INT32 i = 0; i < mGener.numList; i++)
 		{
 			char name[16];
-			strncpy_s(name, mGener.pList[i].Leader.Name, 16);
+			strncpy_s(name, mGener.pList[i].Leader.MobName, 16);
 			
 			for(INT32 u = 0; u < 16; u++)
 				if(name[u] == '\'')
@@ -108,13 +108,13 @@ void GenerateDropList()
 			STRUCT_MOB *mob = &mGener.pList[i].Leader;
 			for(INT32 t = 0; t < 64; t++)
 			{
-				if(mob->Inventory[t].Index <= 0 || mob->Inventory[t].Index >= MAX_ITEMLIST)
+				if(mob->Inventory[t].sIndex <= 0 || mob->Inventory[t].sIndex >= MAX_ITEMLIST)
 					continue;
 
 				INT32 p;
 				for(p = 0; p < slot; p++)
 				{
-					if(droplist[total].item[p].Index == mob->Inventory[t].Index)
+					if(droplist[total].item[p].sIndex == mob->Inventory[t].sIndex)
 						break;
 				}
 
@@ -123,7 +123,7 @@ void GenerateDropList()
 
 				for(p=0 ; p < MAX_BLOCKITEM; p++)
 				{
-					if(g_pBlockedItem[p] == mob->Inventory[t].Index)
+					if(g_pBlockedItem[p] == mob->Inventory[t].sIndex)
 						break;
 				}
 
@@ -141,10 +141,10 @@ void GenerateDropList()
 				continue;
 			}
 			
-			droplist[total].Level = mob->bStatus.Level;
-			droplist[total].MaxHp = mob->bStatus.maxHP;
+			droplist[total].Level = mob->BaseScore.Level;
+			droplist[total].MaxHp = mob->BaseScore.MaxHp;
 			
-			INT32 itemId = mob->Equip[13].Index;
+			INT32 itemId = mob->Equip[13].sIndex;
 			if(itemId == 786 || itemId == 1936 || itemId == 1937)
 			{
 				INT32 hpItemSanc = GetItemSanc(&mob->Equip[13]); // local342
@@ -170,7 +170,7 @@ void GenerateDropList()
 			droplist[total].Position.X = mGener.pList[i].Segment_X[0];
 			droplist[total].Position.Y = mGener.pList[i].Segment_Y[0];
 
-			strncpy_s(droplist[total].Name, name, 16);
+			strncpy_s(droplist[total].MobName, name, 16);
 
 			total ++;
 		}
@@ -190,7 +190,7 @@ void GenerateDropList()
 				std::stringstream str;
 
 				str << "<hr/>";
-				str << "<p><strong><span style=\"font-size:16px;\">" << item.Name << "</span></strong></p>";
+				str << "<p><strong><span style=\"font-size:16px;\">" << item.MobName << "</span></strong></p>";
 				str << "<strong>HP:</strong> " << item.MaxHp;
 
 				str << "<p><strong>Drops:</strong><br/>";
@@ -198,10 +198,10 @@ void GenerateDropList()
 				for (int slot = 0; slot < 30; slot++)
 				{
 					STRUCT_ITEM* slotItem = &item.item[slot];
-					if (slotItem->Index == 0)
+					if (slotItem->sIndex == 0)
 						continue;
 
-					str << ItemList[slotItem->Index].Name << "</br>";
+					str << g_pItemList[slotItem->sIndex].ItemName << "</br>";
 				}
 
 				str << "</p>";
@@ -329,7 +329,7 @@ void CreateGUI()
 			STRUCT_ITEM LOCAL_7;
 			memset(&LOCAL_7, 0, sizeof STRUCT_ITEM);
 
-			LOCAL_7.Index = g_pInitItemFile[LOCAL_5].Index;
+			LOCAL_7.sIndex = g_pInitItemFile[LOCAL_5].sIndex;
 
 			INT32 LOCAL_8 = CreateItem(g_pInitItemFile[LOCAL_5].PosX, g_pInitItemFile[LOCAL_5].PosY, &LOCAL_7, g_pInitItemFile[LOCAL_5].Rotate, 1);
 			if(LOCAL_8 >= 4096 || LOCAL_8 <= 0)
@@ -351,7 +351,7 @@ void CreateGUI()
 			STRUCT_ITEM item; 
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
-			item.Index = 3145 + (zone->win_count);
+			item.sIndex = 3145 + (zone->win_count);
 						
 			if(zone->owner_index != 0)
 			{

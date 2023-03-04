@@ -8,7 +8,7 @@ bool ConnectDB()
  
 
 	// Em processo de conexão
-	sData.Status = IN_PROCCESS_CONNECT;
+	sData.CurrentScore = IN_PROCCESS_CONNECT;
 
 	sData.Service.sin_family = AF_INET;
 	sData.Service.sin_addr.s_addr =  inet_addr(sServer.Data.IP);
@@ -57,7 +57,7 @@ bool ConnectDB()
 	// Como ESPERANDO_HELLO_PACKET
 	if ((send(sData.Socket, (char*)&Hello, 4, 0)) == 4)
 	{
-		sData.Status = WAITING_HELLO;
+		sData.CurrentScore = WAITING_HELLO;
 
 		sData.recvBuffer = new BYTE[MAX_BUFFER];
 		sData.sendBuffer = new BYTE[MAX_BUFFER];

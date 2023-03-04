@@ -128,7 +128,7 @@ void TMItem::InitItem(STRUCT_ITEM stItem)
             m_sLegendType = 125;
             break;
         }
-        if ((g_pItemList[m_stItem.sIndex].nUnique == 51 || m_sLegendType) && m_sLegendType <= 4 && m_sMultiTexture > 9)
+        if ((g_pItemList[m_stItem.sIndex].Unique == 51 || m_sLegendType) && m_sLegendType <= 4 && m_sMultiTexture > 9)
         {
             m_sLegendType = (unsigned char)BASE_GetItemTenColor(&stItem) + 4;
         }
@@ -176,7 +176,7 @@ int TMItem::InitObject()
     {
         char szStrName[128]{};
         if (m_stItem.sIndex >= 0)
-            sprintf(szStrName, "%s", g_pItemList[m_stItem.sIndex].Name);
+            sprintf(szStrName, "%s", g_pItemList[m_stItem.sIndex].ItemName);
         if (m_pNameLabel)
         {
             m_pNameLabel->SetText(szStrName, 0);
@@ -193,7 +193,7 @@ int TMItem::InitObject()
             pFScene->Guildmark_Create(&m_stGuildMark);
         
         char szValue[64]{};
-        strcat(szValue, g_pItemList[m_stItem.sIndex].Name);
+        strcat(szValue, g_pItemList[m_stItem.sIndex].ItemName);
         if (m_pNameLabel)
         {
             m_pNameLabel->SetText(szValue, 0);
@@ -474,7 +474,7 @@ int TMItem::Render()
     if (IsVisible() != 1)
         return 1;
 
-    int nMeshIndex = g_pItemList[m_stItem.sIndex].nIndexMesh;
+    int nMeshIndex = g_pItemList[m_stItem.sIndex].nIndexTexture;
     if (nMeshIndex < 737 || nMeshIndex > 739)
     {
         if (m_sMultiTexture > 0 && !g_pDevice->m_bVoodoo)
@@ -495,7 +495,7 @@ int TMItem::Render()
                 fAxisAngle = 0.0f;
             if (BASE_GetItemAbility(&m_stItem, 38) == 2 || BASE_GetItemAbility(&m_stItem, 38) == 1)
                 fAxisAngle = 0.0f;
-            if (g_pItemList[m_stItem.sIndex].nIndexMesh == 45)
+            if (g_pItemList[m_stItem.sIndex].nIndexTexture == 45)
                 fAxisAngle = 0.0f;
             else if (m_stItem.sIndex == 419 || m_stItem.sIndex == 420)
                 fAxisAngle = 0.0f;
@@ -568,17 +568,17 @@ int TMItem::Render()
             if (m_dwObjType == 405 || m_dwObjType == 1607)
                 fAxisAngle = 0.0f;
 
-            int nIndexTexture = g_pItemList[m_stItem.sIndex].nIndexTexture;
+            int IndexMesh = g_pItemList[m_stItem.sIndex].IndexMesh;
             if (nMeshIndex == 27)
             {
-                if (g_pItemList[m_stItem.sIndex].nIndexTexture >= 6 && g_pItemList[m_stItem.sIndex].nIndexTexture <= 9)
-                    nIndexTexture = g_pItemList[m_stItem.sIndex].nIndexTexture - 1;
-                else if (g_pItemList[m_stItem.sIndex].nIndexTexture >= 11 && g_pItemList[m_stItem.sIndex].nIndexTexture <= 17)
-                    nIndexTexture = g_pItemList[m_stItem.sIndex].nIndexTexture - 2;
-                else if (g_pItemList[m_stItem.sIndex].nIndexTexture == 19)
-                    nIndexTexture = g_pItemList[m_stItem.sIndex].nIndexTexture - 3;
-                else if (g_pItemList[m_stItem.sIndex].nIndexTexture == 21 || g_pItemList[m_stItem.sIndex].nIndexTexture == 22)
-                    nIndexTexture = g_pItemList[m_stItem.sIndex].nIndexTexture - 4;
+                if (g_pItemList[m_stItem.sIndex].IndexMesh >= 6 && g_pItemList[m_stItem.sIndex].IndexMesh <= 9)
+                    IndexMesh = g_pItemList[m_stItem.sIndex].IndexMesh - 1;
+                else if (g_pItemList[m_stItem.sIndex].IndexMesh >= 11 && g_pItemList[m_stItem.sIndex].IndexMesh <= 17)
+                    IndexMesh = g_pItemList[m_stItem.sIndex].IndexMesh - 2;
+                else if (g_pItemList[m_stItem.sIndex].IndexMesh == 19)
+                    IndexMesh = g_pItemList[m_stItem.sIndex].IndexMesh - 3;
+                else if (g_pItemList[m_stItem.sIndex].IndexMesh == 21 || g_pItemList[m_stItem.sIndex].IndexMesh == 22)
+                    IndexMesh = g_pItemList[m_stItem.sIndex].IndexMesh - 4;
             }
             if (m_sMultiTexture > 0 || m_sLegendType >= 4 && m_sLegendType <= 8)
             {
@@ -606,7 +606,7 @@ int TMItem::Render()
                         fAxisAngle,
                         0,
                         1,
-                        nIndexTexture);
+                        IndexMesh);
                 }
                 else if (m_sLegendType > 4 && m_sLegendType <= 8)
                 {
@@ -638,7 +638,7 @@ int TMItem::Render()
                         fAxisAngle,
                         0,
                         1,
-                        nIndexTexture);
+                        IndexMesh);
                 }
                 else if (m_sLegendType >= 9 && m_sLegendType <= 12)
                 {
@@ -670,7 +670,7 @@ int TMItem::Render()
                         fAxisAngle,
                         0,
                         1,
-                        nIndexTexture);
+                        IndexMesh);
                 }
                 else if (m_sLegendType >= 116 && m_sLegendType <= 125 && m_sMultiTexture > 0)
                 {
@@ -722,7 +722,7 @@ int TMItem::Render()
                         fAxisAngle,
                         0,
                         1,
-                        nIndexTexture);
+                        IndexMesh);
                 }
                 else
                 {
@@ -750,7 +750,7 @@ int TMItem::Render()
                         fAxisAngle,
                         0,
                         1,
-                        nIndexTexture);
+                        IndexMesh);
                 }
                 g_pDevice->SetTexture(1u, nullptr);
                 g_pDevice->SetTextureStageState(1u, D3DTSS_TEXCOORDINDEX, 1u);
@@ -782,7 +782,7 @@ int TMItem::Render()
                         fAxisAngle,
                         0,
                         0,
-                        nIndexTexture);
+                        IndexMesh);
                 }
             }
         }

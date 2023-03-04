@@ -18,7 +18,7 @@ bool CUser::RequestGriffinMaster(PacketHeader *Header)
 	}
 
 	bool needRefresh = false;
-	if (lastClientId == -1 || strcmp(pMob[lastClientId].Mobs.Player.Name, "Mestre Grifo") != 0)
+	if (lastClientId == -1 || strcmp(pMob[lastClientId].Mobs.Player.MobName, "Mestre Grifo") != 0)
 		needRefresh = true;
 
 	if (needRefresh)
@@ -28,7 +28,7 @@ bool CUser::RequestGriffinMaster(PacketHeader *Header)
 			if (pMob[i].Mode == 0)
 				continue;
 
-			if (strcmp(pMob[i].Mobs.Player.Name, griffinMasterName) == 0)
+			if (strcmp(pMob[i].Mobs.Player.MobName, griffinMasterName) == 0)
 			{
 				lastClientId = i;
 				break;
@@ -46,7 +46,7 @@ bool CUser::RequestGriffinMaster(PacketHeader *Header)
 	if (GetDistance(pMob[lastClientId].Target.X, pMob[lastClientId].Target.Y, pMob[clientId].Target.X, pMob[clientId].Target.Y) > 15)
 	{
 		Log(clientId, LOG_ERROR, "Tentativa de usar o Mestre Grifo de longe, posição do indivíduo: %dx %dy", pMob[clientId].Target.X, pMob[clientId].Target.Y);
-		Log(SERVER_SIDE, LOG_ERROR, "Tentativa de usar o Mestre Grifo de longe, posição do meliante: %s %s %dx %dy", pMob[clientId].Mobs.Player.Name, User.Username, pMob[clientId].Target.X, pMob[clientId].Target.Y);
+		Log(SERVER_SIDE, LOG_ERROR, "Tentativa de usar o Mestre Grifo de longe, posição do meliante: %s %s %dx %dy", pMob[clientId].Mobs.Player.MobName, User.Username, pMob[clientId].Target.X, pMob[clientId].Target.Y);
 
 		return false;
 	}

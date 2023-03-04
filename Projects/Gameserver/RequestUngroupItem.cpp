@@ -39,7 +39,7 @@ bool CUser::RequestUngroupItem(PacketHeader *Header)
 	if(p->Amount <= 0) 
 		return false;
 
-	if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].Index != p->ItemID) 
+	if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].sIndex != p->ItemID) 
 	{
 		SendItem(clientId, SlotType::Inv, p->SlotID, &pMob[clientId].Mobs.Player.Inventory[p->SlotID]);
 
@@ -49,7 +49,7 @@ bool CUser::RequestUngroupItem(PacketHeader *Header)
 	int Slot = GetFirstSlot(clientId, 0);
 	if(Slot == -1) 
 	{
-		SendClientMessage(clientId, "Não ha espaço para separar!");
+		SendClientMessage(clientId, "NÃªo ha espaÃªo para separar!");
 
 		return true;
 	}
@@ -132,16 +132,16 @@ bool CUser::RequestUngroupItem(PacketHeader *Header)
 
 	if (!canUngroup)
 	{
-		SendClientMessage(p->Header.ClientId, "Não foi possível desagrupar");
+		SendClientMessage(p->Header.ClientId, "NÃªo foi possÃªvel desagrupar");
 
 		return true;
 	}
 	
 	for(int i = 0;i < 3;i++)
 	{
-		if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].Effect[i].Index == EF_NOTRADE)
+		if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].stEffect[i].cEffect == EF_NOTRADE)
 		{
-			SendClientMessage(clientId, "Item imóvel!");
+			SendClientMessage(clientId, "Item imÃªvel!");
 
 			return true;
 		}
@@ -149,16 +149,16 @@ bool CUser::RequestUngroupItem(PacketHeader *Header)
 	
 	for(int i = 0;i < 3;i++)
 	{
-		if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].Effect[i].Index == EF_AMOUNT)
+		if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].stEffect[i].cEffect == EF_AMOUNT)
 		{
-			if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].Effect[i].Value < p->Amount)
+			if(pMob[clientId].Mobs.Player.Inventory[p->SlotID].stEffect[i].cValue < p->Amount)
 			{
-				SendClientMessage(p->Header.ClientId, "Não pode separar mais do que se tem.");
+				SendClientMessage(p->Header.ClientId, "NÃªo pode separar mais do que se tem.");
 
 				return true;
 			}
 
-			pMob[clientId].Mobs.Player.Inventory[p->SlotID].Effect[i].Value -= p->Amount;
+			pMob[clientId].Mobs.Player.Inventory[p->SlotID].stEffect[i].cValue -= p->Amount;
 			break;
 		}
 	}
@@ -167,7 +167,7 @@ bool CUser::RequestUngroupItem(PacketHeader *Header)
 
 	memset(&pMob[clientId].Mobs.Player.Inventory[Slot], 0, sizeof STRUCT_ITEM);
 
-	pMob[clientId].Mobs.Player.Inventory[Slot].Index = p->ItemID;
+	pMob[clientId].Mobs.Player.Inventory[Slot].sIndex = p->ItemID;
 	pMob[clientId].Mobs.Player.Inventory[Slot].EF1 = EF_AMOUNT;
 	pMob[clientId].Mobs.Player.Inventory[Slot].EFV1 = p->Amount;
 	

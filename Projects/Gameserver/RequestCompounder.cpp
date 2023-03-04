@@ -7,8 +7,8 @@ constexpr std::array blockedItems = { 1104,1116,1128,1140,1152,1416,1419,1422,14
 
 int GetMatchCombine(STRUCT_ITEM *item)
 {
-	short itemid = item[0].Index;
-	short stone = item[1].Index;
+	short itemid = item[0].sIndex;
+	short stone = item[1].sIndex;
 
 	if (itemid <= 0 || itemid >= MAX_ITEMLIST)
 		return 0;
@@ -16,19 +16,19 @@ int GetMatchCombine(STRUCT_ITEM *item)
 	if (stone <= 0 || stone >= MAX_ITEMLIST)
 		return 0;
 
-	short unique = ItemList[itemid].Unique;
+	short unique = g_pItemList[itemid].Unique;
 	if (unique < 41 || unique > 49)
 		return 0; // Apenas armas podem ser compostas 
 
-	short itemanctid = ItemList[itemid].Extreme;
+	short itemanctid = g_pItemList[itemid].Extreme;
 	if (itemanctid == 0)
-		return 0; // Armas de eventos não podem ser Anct
+		return 0; // Armas de eventos nÃªo podem ser Anct
 
-	int type = GetEffectValueByIndex(item[0].Index, EF_UNKNOW1);
+	int type = GetEffectValueByIndex(item[0].sIndex, EF_UNKNOW1);
 	int refine = 1;
 	for (int i = 2; i < 8; i++)
 	{
-		short index = item[i].Index;
+		short index = item[i].sIndex;
 		if (index <= 0 || index >= MAX_ITEMLIST)
 			continue;
 
@@ -73,7 +73,7 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 
 	for (int i = 0; i < 8; i++)
 	{
-		if (p->items[i].Index <= 0 || p->items[i].Index >= MAX_ITEMLIST)
+		if (p->items[i].sIndex <= 0 || p->items[i].sIndex >= MAX_ITEMLIST)
 			continue;
 
 		short slot = p->slot[i];
@@ -98,8 +98,8 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 
 			if (p->slot[i] == p->slot[y])
 			{
-				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Compounder - %d", p->items[i].Index);
-				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Compounder - %d", player->Name, p->items[i].Index);
+				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Compounder - %d", p->items[i].sIndex);
+				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Compounder - %d", player->MobName, p->items[i].sIndex);
 
 				SendCarry(clientId);
 				return false;
@@ -116,7 +116,7 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 			continue;
 		}
 
-		Log(clientId, LOG_COMP, "Compounder - %d - %s %s - %hhd", i, ItemList[p->items[i].Index].Name, p->items[i].toString().c_str(), p->slot[i]);
+		Log(clientId, LOG_COMP, "Compounder - %d - %s %s - %hhd", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].toString().c_str(), p->slot[i]);
 	}
 
 	if (User.Block.Blocked)
@@ -137,7 +137,7 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 	int chance = GetMatchCombine(p->items);
 	if (chance <= 0)
 	{
-		SendClientMessage(p->Header.ClientId, "Composição incorreta");
+		SendClientMessage(p->Header.ClientId, "ComposiÃ§Ã£o incorreta");
 
 		return false;
 	}
@@ -149,26 +149,26 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 		return false;
 	}
 
-	int stone = (p->items[1].Index - 2441);
+	int stone = (p->items[1].sIndex - 2441);
 	if (stone < 0 || stone > 3)
 	{
-		SendClientMessage(clientId, "Jóia incorreta na composição do item.");
+		SendClientMessage(clientId, "JÃªia incorreta na composiÃ§Ã£o do item.");
 
 		SendSignalParm(clientId, SERVER_SIDE, 0x3A7, 2);
 		return true;
 	}
 
 	// Checagem de classe do item
-	int type = GetEffectValueByIndex(p->items[0].Index, EF_UNKNOW1);
+	int type = GetEffectValueByIndex(p->items[0].sIndex, EF_UNKNOW1);
 	for (int i = 2; i < 6; i++)
 	{
-		int _tmp_type = GetEffectValueByIndex(p->items[0].Index, EF_UNKNOW1);
+		int _tmp_type = GetEffectValueByIndex(p->items[0].sIndex, EF_UNKNOW1);
 		if (type >= _tmp_type)
 			continue;
 
 		if (type - 1 < _tmp_type)
 		{
-			SendClientMessage(clientId, "Itens tem de ser de até uma classe a menos");
+			SendClientMessage(clientId, "Itens tem de ser de atÃª uma classe a menos");
 
 			SendSignalParm(p->Header.ClientId, SERVER_SIDE, 0x3A7, 2);
 			return true;
@@ -177,7 +177,7 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 
 	for (int i = 0; i < 8; i++)
 	{
-		if (p->items[i].Index <= 0 || p->items[i].Index >= MAX_ITEMLIST)
+		if (p->items[i].sIndex <= 0 || p->items[i].sIndex >= MAX_ITEMLIST)
 			continue;
 
 		short slot = p->slot[i];
@@ -202,22 +202,16 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 			continue;
 		}
 
-		Log(clientId, LOG_COMP, "Compor Anct - %d - %s [%d] [%d %d %d %d %d %d] %d - Slot: %d", i, ItemList[p->items[i].Index].Name, p->items[i].Index, p->items[i].EF1, p->items[i].EFV1,
+		Log(clientId, LOG_COMP, "Compor Anct - %d - %s [%d] [%d %d %d %d %d %d] %d - Slot: %d", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].sIndex, p->items[i].EF1, p->items[i].EFV1,
 			p->items[i].EF2, p->items[i].EFV2, p->items[i].EF3, p->items[i].EFV3, _rand, p->slot[i]);
 	}
 
 	if (_rand > chance)
 	{
-		SendServerNotice("%s falhou na composição do item %s para Ancient", player->Name, ItemList[p->items[0].Index].Name);
-		SendClientMessage(clientId, "Falha na composição do item. (%d/%d)", _rand, chance);
+		SendClientMessage(clientId, "Falha na composiÃ§Ã£o do item. (%d/%d)", _rand, chance);
 
 		SendSignalParm(clientId, SERVER_SIDE, 0x3A7, 2);
-
-		Log(clientId, LOG_COMP, "Falha na composição do item %s - %d %d %d %d %d %d %d - %d %d", ItemList[player->Inventory[slot].Index].Name,
-			p->items[0].Index, p->items[0].EF1, p->items[0].EFV1, p->items[0].EF2, p->items[0].EFV2, p->items[0].EF3, p->items[0].EFV3,
-			_rand, chance);
-
-		LogPlayer(clientId, "Falha na composição do item %s para anct", ItemList[p->items[0].Index].Name);
+ 
 		return true;
 	}
 
@@ -225,24 +219,16 @@ bool CUser::RequestCompounder(PacketHeader *Header)
 	SendEmotion(clientId, 100, Rand() % 8);
 	SendEmotion(clientId, 100, Rand() % 8);
 
-	int itemid = p->items[0].Index;
+	int itemid = p->items[0].sIndex;
 	memcpy(&player->Inventory[slot], &p->items[0], sizeof STRUCT_ITEM);
 
-	player->Inventory[slot].Index = (ItemList[itemid].Extreme + stone);
+	player->Inventory[slot].sIndex = (g_pItemList[itemid].Extreme + stone);
 
 	SetItemSanc(&player->Inventory[slot], 7, 0);
 
 	SendItem(clientId, SlotType::Inv, slot, &player->Inventory[slot]);
 
-	SendServerNotice("Jogador %s obteve sucesso na composição de %s", player->Name, ItemList[player->Inventory[slot].Index].Name);
-	SendClientMessage(clientId, "Jogador %s obteve sucesso na composição de %s (%d/%d)", player->Name, ItemList[player->Inventory[slot].Index].Name, _rand, chance);
-
-	Log(p->Header.ClientId, LOG_COMP, "Sucesso na composição do item %s - %d %d %d %d %d %d %d - %d %d", ItemList[player->Inventory[slot].Index].Name,
-		p->items[0].Index, p->items[0].EF1, p->items[0].EFV1, p->items[0].EF2, p->items[0].EFV2, p->items[0].EF3, p->items[0].EFV3,
-		_rand, chance);
-
-	LogPlayer(clientId, "Sucesso na composição do item %s para anct", ItemList[p->items[0].Index].Name);
-
+	 
 	SendSignalParm(clientId, SERVER_SIDE, 0x3A7, 2);
 	return true;
 }

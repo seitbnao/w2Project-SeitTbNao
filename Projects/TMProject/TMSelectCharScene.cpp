@@ -276,22 +276,22 @@ int TMSelectCharScene::InitializeScene()
 				memset(&stSancInfo, 0, sizeof(stSancInfo));
 
 				int sFace = nFace;
-				stHumanLook.FaceMesh = g_pItemList[nFace].nIndexMesh;
-				stHumanLook.FaceSkin = g_pItemList[nFace].nIndexTexture;
-				stHumanLook.HelmMesh = g_pItemList[Helm].nIndexMesh;
-				stHumanLook.HelmSkin = g_pItemList[Helm].nIndexTexture;
-				stHumanLook.CoatMesh = g_pItemList[Body].nIndexMesh;
-				stHumanLook.CoatSkin = g_pItemList[Body].nIndexTexture;
-				stHumanLook.PantsMesh = g_pItemList[Body].nIndexMesh;
-				stHumanLook.PantsSkin = g_pItemList[Body].nIndexTexture;
-				stHumanLook.GlovesMesh = g_pItemList[Body].nIndexMesh;
-				stHumanLook.GlovesSkin = g_pItemList[Body].nIndexTexture;
-				stHumanLook.BootsMesh = g_pItemList[Body].nIndexMesh;
-				stHumanLook.BootsSkin = g_pItemList[Body].nIndexTexture;
-				stHumanLook.RightMesh = g_pItemList[Right].nIndexMesh;
-				stHumanLook.RightSkin = g_pItemList[Right].nIndexTexture;
-				stHumanLook.LeftMesh = g_pItemList[Left].nIndexMesh;
-				stHumanLook.LeftSkin = g_pItemList[Left].nIndexTexture;
+				stHumanLook.FaceMesh = g_pItemList[nFace].nIndexTexture;
+				stHumanLook.FaceSkin = g_pItemList[nFace].IndexMesh;
+				stHumanLook.HelmMesh = g_pItemList[Helm].nIndexTexture;
+				stHumanLook.HelmSkin = g_pItemList[Helm].IndexMesh;
+				stHumanLook.CoatMesh = g_pItemList[Body].nIndexTexture;
+				stHumanLook.CoatSkin = g_pItemList[Body].IndexMesh;
+				stHumanLook.PantsMesh = g_pItemList[Body].nIndexTexture;
+				stHumanLook.PantsSkin = g_pItemList[Body].IndexMesh;
+				stHumanLook.GlovesMesh = g_pItemList[Body].nIndexTexture;
+				stHumanLook.GlovesSkin = g_pItemList[Body].IndexMesh;
+				stHumanLook.BootsMesh = g_pItemList[Body].nIndexTexture;
+				stHumanLook.BootsSkin = g_pItemList[Body].IndexMesh;
+				stHumanLook.RightMesh = g_pItemList[Right].nIndexTexture;
+				stHumanLook.RightSkin = g_pItemList[Right].IndexMesh;
+				stHumanLook.LeftMesh = g_pItemList[Left].nIndexTexture;
+				stHumanLook.LeftSkin = g_pItemList[Left].IndexMesh;
 				stSancInfo.Sanc7 = nSanc;
 				stSancInfo.Sanc6 = nSanc;
 				stSancInfo.Sanc5 = nSanc;
@@ -327,7 +327,7 @@ int TMSelectCharScene::InitializeScene()
 				if (Mantua > 0)
 				{
 					m_pSampleHuman[i]->m_cMantua = 1;
-					m_pSampleHuman[i]->m_wMantuaSkin = g_pItemList[Mantua].nIndexTexture;
+					m_pSampleHuman[i]->m_wMantuaSkin = g_pItemList[Mantua].IndexMesh;
 					m_pSampleHuman[i]->m_ucMantuaSanc = nSanc;
 					m_pSampleHuman[i]->m_ucMantuaLegend = static_cast<char>(g_pItemList[Mantua].nGrade);
 				}
@@ -1431,15 +1431,15 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 	case MSG_CNFCharacterLogin_Opcode:
 	{
 		g_pTimerManager->SetServerTime(pStd->TimeStamp);
-		MSG_CNFCharacterLogin* pCharLogin = (MSG_CNFCharacterLogin*)pStd;
+		p114* pCharLogin = (p114*)pStd;
 
-		g_pObjectManager->m_dwCharID = pCharLogin->ClientID;
-		memcpy(&g_pObjectManager->m_stMobData, &pCharLogin->MOB, sizeof(pCharLogin->MOB));
-		g_pObjectManager->m_nFakeExp = pCharLogin->Ext1.Data[0];
-		g_pObjectManager->m_stMobData.HomeTownX = pCharLogin->PosX;
-		g_pObjectManager->m_stMobData.HomeTownY = pCharLogin->PosY;
+		g_pObjectManager->m_dwCharID = pCharLogin->ClientIndex;
+		memcpy(&g_pObjectManager->m_stMobData, &pCharLogin->Mob, sizeof(pCharLogin->Mob));
+		g_pObjectManager->m_nFakeExp = 0;
+		g_pObjectManager->m_stMobData.Last.X = pCharLogin->WorldPos.X;
+		g_pObjectManager->m_stMobData.Last.Y = pCharLogin->WorldPos.Y;
 		memcpy(g_pObjectManager->m_cShortSkill, g_pObjectManager->m_stMobData.ShortSkill, 4);
-		memcpy(&g_pObjectManager->m_cShortSkill[4], pCharLogin->ShortSkill, sizeof(pCharLogin->ShortSkill));
+		memcpy(&g_pObjectManager->m_cShortSkill[4], pCharLogin->Mob.ShortSkill, sizeof(pCharLogin->Mob.ShortSkill));
 
 		for (int k = 0; k < 20; ++k)
 		{
@@ -1878,31 +1878,31 @@ void TMSelectCharScene::ReloadCharList(RELOAD_CHARLIST_TYPE type)
 
 		memcpy(&m_pHuman[i]->m_stScore, &pSelChar->Score[i], sizeof(STRUCT_SCORE));
 
-		m_pHuman[i]->m_stLookInfo.FaceMesh = g_pItemList[pSelChar->Equip[i][0].sIndex % 6500].nIndexMesh;
-		m_pHuman[i]->m_stLookInfo.FaceSkin = g_pItemList[pSelChar->Equip[i][0].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.FaceMesh = g_pItemList[pSelChar->Equip[i][0].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.FaceSkin = g_pItemList[pSelChar->Equip[i][0].sIndex % 6500].IndexMesh;
 
 		if (pSelChar->Equip[i][1].sIndex % 6500 < 3500 ||
 			pSelChar->Equip[i][1].sIndex % 6500 > 3502 && pSelChar->Equip[i][1].sIndex % 6500 != 3507)
 		{
-			m_pHuman[i]->m_stLookInfo.HelmMesh = g_pItemList[pSelChar->Equip[i][1].sIndex % 6500].nIndexMesh;
-			m_pHuman[i]->m_stLookInfo.HelmSkin = g_pItemList[pSelChar->Equip[i][1].sIndex % 6500].nIndexTexture;
+			m_pHuman[i]->m_stLookInfo.HelmMesh = g_pItemList[pSelChar->Equip[i][1].sIndex % 6500].nIndexTexture;
+			m_pHuman[i]->m_stLookInfo.HelmSkin = g_pItemList[pSelChar->Equip[i][1].sIndex % 6500].IndexMesh;
 		}
 
-		m_pHuman[i]->m_stLookInfo.CoatMesh = g_pItemList[pSelChar->Equip[i][2].sIndex % 6500].nIndexMesh;
-		m_pHuman[i]->m_stLookInfo.CoatSkin = g_pItemList[pSelChar->Equip[i][2].sIndex % 6500].nIndexTexture;
-		m_pHuman[i]->m_stLookInfo.PantsMesh = g_pItemList[pSelChar->Equip[i][3].sIndex % 6500].nIndexMesh;
-		m_pHuman[i]->m_stLookInfo.PantsSkin = g_pItemList[pSelChar->Equip[i][3].sIndex % 6500].nIndexTexture;
-		m_pHuman[i]->m_stLookInfo.GlovesMesh = g_pItemList[pSelChar->Equip[i][4].sIndex % 6500].nIndexMesh;
-		m_pHuman[i]->m_stLookInfo.GlovesSkin = g_pItemList[pSelChar->Equip[i][4].sIndex % 6500].nIndexTexture;
-		m_pHuman[i]->m_stLookInfo.BootsMesh = g_pItemList[pSelChar->Equip[i][5].sIndex % 6500].nIndexMesh;
-		m_pHuman[i]->m_stLookInfo.BootsSkin = g_pItemList[pSelChar->Equip[i][5].sIndex % 6500].nIndexTexture;
-		m_pHuman[i]->m_stLookInfo.LeftMesh = g_pItemList[pSelChar->Equip[i][6].sIndex % 6500].nIndexMesh;
-		m_pHuman[i]->m_stLookInfo.LeftSkin = g_pItemList[pSelChar->Equip[i][6].sIndex % 6500].nIndexTexture;
-		m_pHuman[i]->m_stLookInfo.RightMesh = g_pItemList[pSelChar->Equip[i][7].sIndex % 6500].nIndexMesh;
-		m_pHuman[i]->m_stLookInfo.RightSkin = g_pItemList[pSelChar->Equip[i][7].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.CoatMesh = g_pItemList[pSelChar->Equip[i][2].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.CoatSkin = g_pItemList[pSelChar->Equip[i][2].sIndex % 6500].IndexMesh;
+		m_pHuman[i]->m_stLookInfo.PantsMesh = g_pItemList[pSelChar->Equip[i][3].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.PantsSkin = g_pItemList[pSelChar->Equip[i][3].sIndex % 6500].IndexMesh;
+		m_pHuman[i]->m_stLookInfo.GlovesMesh = g_pItemList[pSelChar->Equip[i][4].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.GlovesSkin = g_pItemList[pSelChar->Equip[i][4].sIndex % 6500].IndexMesh;
+		m_pHuman[i]->m_stLookInfo.BootsMesh = g_pItemList[pSelChar->Equip[i][5].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.BootsSkin = g_pItemList[pSelChar->Equip[i][5].sIndex % 6500].IndexMesh;
+		m_pHuman[i]->m_stLookInfo.LeftMesh = g_pItemList[pSelChar->Equip[i][6].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.LeftSkin = g_pItemList[pSelChar->Equip[i][6].sIndex % 6500].IndexMesh;
+		m_pHuman[i]->m_stLookInfo.RightMesh = g_pItemList[pSelChar->Equip[i][7].sIndex % 6500].nIndexTexture;
+		m_pHuman[i]->m_stLookInfo.RightSkin = g_pItemList[pSelChar->Equip[i][7].sIndex % 6500].IndexMesh;
 		m_pHuman[i]->m_sFamiliar = pSelChar->Equip[i][13].sIndex;
 		m_pHuman[i]->m_sCostume = pSelChar->Equip[i][12].sIndex;
-		m_pHuman[i]->m_wMantuaSkin = g_pItemList[pSelChar->Equip[i][15].sIndex].nIndexTexture;
+		m_pHuman[i]->m_wMantuaSkin = g_pItemList[pSelChar->Equip[i][15].sIndex].IndexMesh;
 
 		m_pHuman[i]->m_wMantuaSkin = m_pHuman[i]->SetCitizenMantle(m_pHuman[i]->m_wMantuaSkin);
 

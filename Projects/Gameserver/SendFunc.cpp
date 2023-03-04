@@ -80,13 +80,13 @@ void SendKingdomBattleInfo(int clientId, int kingdom, bool status)
 	packet.Header.ClientId = clientId;
 
 	packet.Kingdom = kingdom;
-	packet.Status = status;
+	packet.CurrentScore = status;
 
 	if (clientId <= 0 || clientId >= MAX_PLAYER)
 	{
 		for (auto& user : pUser)
 		{
-			if (user.Status == USER_PLAY)
+			if (user.CurrentScore == USER_PLAY)
 				user.AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof _MSG_REALBATTLE);
 		}
 
@@ -96,9 +96,9 @@ void SendKingdomBattleInfo(int clientId, int kingdom, bool status)
 	pUser[clientId].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof _MSG_REALBATTLE);
 }
 
-void SendGridMob(int Index)
+void SendGridMob(int sIndex)
 {
-	CMob *mob = (CMob*)&pMob[Index];
+	CMob *mob = (CMob*)&pMob[sIndex];
 
 	int VisX = VIEWGRIDX, VisY = VIEWGRIDY,
 		minPosX = (mob->Target.X - HALFGRIDX),
@@ -132,20 +132,20 @@ void SendGridMob(int Index)
 			short mobID = g_pMobGrid[nY][nX];
 			short initID = g_pItemGrid[nY][nX];
 
-			if (mobID != 0 && Index != mobID)
+			if (mobID != 0 && sIndex != mobID)
 			{
 				if (mobID < MAX_PLAYER)
-					SendCreateMob(mobID, Index);
+					SendCreateMob(mobID, sIndex);
 
-				if (Index < MAX_PLAYER)
-					SendCreateMob(Index, mobID);
+				if (sIndex < MAX_PLAYER)
+					SendCreateMob(sIndex, mobID);
 			}
 
 			if (initID > 0 && mobID < MAX_PLAYER)
 				SendCreateItem(mobID, initID, 0);
 
-			if (initID > 0 && Index < MAX_PLAYER)
-				SendCreateItem(Index, initID, 0);
+			if (initID > 0 && sIndex < MAX_PLAYER)
+				SendCreateItem(sIndex, initID, 0);
 		}
 	}
 }
@@ -199,7 +199,7 @@ void SendCounterMobArea(int value1, int value2, unsigned int x1, unsigned int y1
 {
 	for (int i = 0; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].Status != USER_PLAY)
+		if (pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		if (pMob[i].Target.X >= x1 && pMob[i].Target.Y >= y1 &&
@@ -250,8 +250,8 @@ void SendAffect(int clientId)
 				break;
 		}
 
-		// Caso retorne 32, quer dizer que ele possui divina ativada por�m n�o esta 
-		// buffado, ent�o buffara sozinho
+		// Caso retorne 32, quer dizer que ele possui divina ativada porêm nêo esta 
+		// buffado, entêo buffara sozinho
 		if (i == 32)
 		{
 			for (i = 0; i < 32; i++)
@@ -279,8 +279,8 @@ void SendAffect(int clientId)
 				break;
 		}
 
-		// Caso retorne 32, quer dizer que ele possui sephira ativada por�m n�o esta 
-		// buffado, ent�o buffara sozinho
+		// Caso retorne 32, quer dizer que ele possui sephira ativada porêm nêo esta 
+		// buffado, entêo buffara sozinho
 		if (i == 32)
 		{
 			for (i = 0; i < 32; i++)
@@ -300,7 +300,7 @@ void SendAffect(int clientId)
 	float timeSaude = TimeRemaining(pMob[clientId].Mobs.Saude);
 	if (timeSaude > 0.0f)
 	{
-		// Checa se ja ha sa�de na estrutura
+		// Checa se ja ha saêde na estrutura
 		int i;
 		for (i = 0; i < 32; i++)
 		{
@@ -308,8 +308,8 @@ void SendAffect(int clientId)
 				break;
 		}
 
-		// Caso retorne 32, quer dizer que ele possui sa�de ativada por�m n�o esta 
-		// buffado, ent�o buffara sozinho
+		// Caso retorne 32, quer dizer que ele possui saêde ativada porêm nêo esta 
+		// buffado, entêo buffara sozinho
 		if (i == 32)
 		{
 			for (i = 0; i < 32; i++)
@@ -329,7 +329,7 @@ void SendAffect(int clientId)
 	float timeRevi = TimeRemaining(pMob[clientId].Mobs.Revigorante);
 	if (timeRevi > 0.0f)
 	{
-		// Checa se ja ha sa�de na estrutura
+		// Checa se ja ha saêde na estrutura
 		int i;
 		for (i = 0; i < 32; i++)
 		{
@@ -337,8 +337,8 @@ void SendAffect(int clientId)
 				break;
 		}
 
-		// Caso retorne 32, quer dizer que ele possui sa�de ativada por�m n�o esta 
-		// buffado, ent�o buffara sozinho
+		// Caso retorne 32, quer dizer que ele possui saêde ativada porêm nêo esta 
+		// buffado, entêo buffara sozinho
 		if (i == 32)
 		{
 			for (i = 0; i < 32; i++)
@@ -445,7 +445,7 @@ void SendItem(int clientId, SlotType invType, int slotId, STRUCT_ITEM *item)
 
 void SendEquip(int clientId)
 {
-	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].Status != USER_PLAY)
+	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].CurrentScore != USER_PLAY)
 		return;
 
 	p36B p;
@@ -455,7 +455,7 @@ void SendEquip(int clientId)
 	p.Header.Size = sizeof p36B;
 
 	STRUCT_MOB *mob = (STRUCT_MOB*)(&pMob[clientId].Mobs.Player);
-	bool isUsingCostume = mob->Equip[12].Index != 0;
+	bool isUsingCostume = mob->Equip[12].sIndex != 0;
 	for (int i = 0; i < 16; i++)
 	{
 		short effValue = 0;
@@ -463,7 +463,7 @@ void SendEquip(int clientId)
 
 		if (i == 14)
 		{
-			if (item.Index >= 2360 && item.Index <= 2389)
+			if (item.sIndex >= 2360 && item.sIndex <= 2389)
 			{
 				if (*(short*)&item.EF1 <= 0)
 				{
@@ -478,8 +478,8 @@ void SendEquip(int clientId)
 		if (i == 0)
 		{
 			// se tiver um traje equipado
-			if (mob->Equip[12].Index != 0 && mob->ClassInfo == 2)
-				item.Index = item.EF2;
+			if (mob->Equip[12].sIndex != 0 && mob->Class == 2)
+				item.sIndex = item.EF2;
 		}
 
 		p.ItemEff[i] = GetItemIDAndEffect(&item, i, isUsingCostume);
@@ -494,7 +494,7 @@ void SendEquip(int clientId)
 struct p3366
 {
 	PacketHeader Header; // 0 - 11
-	STRUCT_STATUS   Status;
+	STRUCT_SCORE   CurrentScore;
 
 	unsigned char  Critical;
 	unsigned char  SaveMana;
@@ -505,7 +505,7 @@ struct p3366
 		BYTE Index;
 	} Affect[32]; //62 - 125
 
-	unsigned short GuildIndex;
+	unsigned short Guild;
 	unsigned short GuildLevel;
 
 	BYTE Resist1; // 130 
@@ -541,15 +541,15 @@ void SendScore(int clientIndex)
 	{
 		p.Life = pMob[clientIndex].Lifes;
 
-		p.CurrHp = mob->Status.curHP;
-		p.CurrMp = mob->Status.curMP;
+		p.CurrHp = mob->CurrentScore.Hp;
+		p.CurrMp = mob->CurrentScore.Mp;
 	}
 
-	p.GuildIndex = (mob->GuildIndex);
-	p.GuildLevel = mob->GuildMemberType;
+	p.Guild = (mob->Guild);
+	p.GuildLevel = mob->GuildLevel;
 
 	if (pMob[clientIndex].GuildDisable != 0)
-		p.GuildIndex = 0;
+		p.Guild = 0;
 
 	p.Magic = pMob[clientIndex].MagicIncrement;
 
@@ -564,7 +564,7 @@ void SendScore(int clientIndex)
 
 	p.SaveMana = mob->SaveMana;
 
-	memcpy(&p.Status, &mob->Status, sizeof STRUCT_STATUS);
+	memcpy(&p.CurrentScore, &mob->CurrentScore, sizeof STRUCT_SCORE);
 
 	STRUCT_AFFECT *affect = pMob[clientIndex].Mobs.Affects;
 	for (int i = 0; i < 32; i++)
@@ -574,11 +574,11 @@ void SendScore(int clientIndex)
 	}
 
 	if (pMob[clientIndex].Mobs.Player.Info.Merchant & 1)
-		p.Status.Merchant.Merchant = 1;
+		p.CurrentScore.Merchant.Merchant = 1;
 
 	if (clientIndex < MAX_PLAYER && pUser[clientIndex].Arena.GroupIndex != -1 && pMob[clientIndex].Target.X >= 143 && pMob[clientIndex].Target.Y >= 546 && pMob[clientIndex].Target.X <= 195 && pMob[clientIndex].Target.Y <= 625)
 	{
-		p.GuildIndex = 0;
+		p.Guild = 0;
 		p.GuildLevel = 0;
 	}
 
@@ -598,12 +598,12 @@ void SendAutoTrade(int sendClientId, int tradeClientId)
 	pTrade.Header.PacketId = 0x397;
 	pTrade.Header.ClientId = tradeClientId;
 
-	pTrade.Index = tradeClientId;
+	pTrade.sIndex = tradeClientId;
 
-	memcpy(pTrade.Gold, pUser[tradeClientId].AutoTrade.Price, sizeof(int) * 12);
+	memcpy(pTrade.Coin, pUser[tradeClientId].AutoTrade.Price, sizeof(int) * 12);
 	memcpy(pTrade.Item, pUser[tradeClientId].AutoTrade.Item, 12 * sizeof(STRUCT_ITEM));
 	memcpy(pTrade.Slot, pUser[tradeClientId].AutoTrade.Slots, 8);
-	strncpy_s(pTrade.Name, pUser[tradeClientId].AutoTrade.Name, 24);
+	strncpy_s(pTrade.MobName, pUser[tradeClientId].AutoTrade.MobName, 24);
 	pTrade.Unknown = pUser[tradeClientId].AutoTrade.Unknown_1784;
 
 	pUser[sendClientId].AddMessage((BYTE*)&pTrade, sizeof p397);
@@ -611,7 +611,7 @@ void SendAutoTrade(int sendClientId, int tradeClientId)
 
 void SendCargoCoin(int clientId)
 {
-	if (clientId <= MOB_EMPTY || clientId >= MAX_PLAYER || pUser[clientId].Status != USER_PLAY)
+	if (clientId <= MOB_EMPTY || clientId >= MAX_PLAYER || pUser[clientId].CurrentScore != USER_PLAY)
 		return;
 
 	p339 p;
@@ -620,14 +620,14 @@ void SendCargoCoin(int clientId)
 	p.Header.ClientId = clientId;
 	p.Header.PacketId = 0x339;
 
-	p.Gold = pUser[clientId].User.Storage.Coin;
+	p.Coin = pUser[clientId].User.Storage.Coin;
 
 	pUser[clientId].AddMessage((BYTE*)&p, sizeof p);
 }
 
 void SendEtc(int clientId)
 {
-	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].Status != USER_PLAY)
+	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].CurrentScore != USER_PLAY)
 		return;
 
 	STRUCT_MOB *mob = &pMob[clientId].Mobs.Player;
@@ -637,18 +637,18 @@ void SendEtc(int clientId)
 	p.Header.ClientId = clientId;
 	p.Header.PacketId = 0x337;
 
-	p.Gold = mob->Gold;
+	p.Coin = mob->Coin;
 	p.Exp = mob->Exp;
 
 	p.Hold = static_cast<unsigned int>(pMob[clientId].Mobs.Hold);
 
-	p.Learn = mob->Learn[0];
-	p.SecLearn = mob->Learn[1];
+	p.LearnedSkill = mob->LearnedSkill[0];
+	p.SecLearn = mob->LearnedSkill[1];
 	p.Magic = mob->MagicIncrement;
 
-	p.pMaster = mob->MasterPoint;
+	p.pMaster = mob->SpecialBonus;
 	p.pSkills = mob->SkillPoint;
-	p.pStatus = mob->StatusPoint;
+	p.pStatus = mob->ScoreBonus;
 
 	pUser[clientId].AddMessage((BYTE*)&p, sizeof p337);
 }
@@ -750,7 +750,7 @@ void SendNoticeArea(const char *Message, unsigned int x1, unsigned int y1, unsig
 	int LOCAL_1 = 1;
 	for (; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if (pUser[LOCAL_1].Status != USER_PLAY)
+		if (pUser[LOCAL_1].CurrentScore != USER_PLAY)
 			continue;
 
 		if (pMob[LOCAL_1].Target.X >= x1 && pMob[LOCAL_1].Target.X <= x2
@@ -761,7 +761,7 @@ void SendNoticeArea(const char *Message, unsigned int x1, unsigned int y1, unsig
 
 void SendSetHpMp(int clientId)
 {
-	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].Status != USER_PLAY)
+	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].CurrentScore != USER_PLAY)
 		return;
 
 	if (pUser[clientId].Socket.Socket <= 0)
@@ -776,17 +776,17 @@ void SendSetHpMp(int clientId)
 
 	SetReqHp(clientId);
 	SetReqMp(clientId);
-	packet.curHP = pMob[clientId].Mobs.Player.Status.curHP;
-	packet.curMP = pMob[clientId].Mobs.Player.Status.curMP;
-	packet.maxHP = pUser[clientId].Potion.CountHp;
-	packet.maxMP = pUser[clientId].Potion.CountMp;
+	packet.Hp = pMob[clientId].Mobs.Player.CurrentScore.Hp;
+	packet.Mp = pMob[clientId].Mobs.Player.CurrentScore.Mp;
+	packet.MaxHp = pUser[clientId].Potion.CountHp;
+	packet.MaxMp = pUser[clientId].Potion.CountMp;
 
 	pUser[clientId].AddMessage((BYTE*)&packet, sizeof packet);
 }
 
 void SendCreateItem(int toClientId, int initId, int unk)
 {
-	if (toClientId <= 0 || toClientId >= MAX_PLAYER || pUser[toClientId].Status != USER_PLAY)
+	if (toClientId <= 0 || toClientId >= MAX_PLAYER || pUser[toClientId].CurrentScore != USER_PLAY)
 		return;
 
 	p26E pak;
@@ -814,7 +814,7 @@ void SendRemoveItem(int dest, int itemid, int bSend)
 
 void SendAddParty(int target, int whom, int leader)
 {
-	if (target <= 0 || target >= MAX_PLAYER || pUser[target].Status != USER_PLAY)
+	if (target <= 0 || target >= MAX_PLAYER || pUser[target].CurrentScore != USER_PLAY)
 		return;
 
 	p37D packet;
@@ -825,23 +825,23 @@ void SendAddParty(int target, int whom, int leader)
 	packet.Header.ClientId = 30000;
 
 	packet.PartyID = static_cast<unsigned short>(whom);
-	packet.Level = static_cast<unsigned short>(pMob[whom].Mobs.Player.bStatus.Level);
-	strcpy_s(packet.nickName, pMob[whom].Mobs.Player.Name);
+	packet.Level = static_cast<unsigned short>(pMob[whom].Mobs.Player.BaseScore.Level);
+	strcpy_s(packet.nickName, pMob[whom].Mobs.Player.MobName);
 
 	if (leader)
 		packet.LiderID = 0;
 	else
 		packet.LiderID = 30000;
 
-	// O HP nos pacotes v�o s�o do tamanho de 2 bytes, sendo assim, se for unsigned at� 65535 e se for signed
-	// at� 32767. Na atualiza��o de vers�o do WYD para a vers�o 759+, os HPs foram alterados para 4 bytes, um
+	// O HP nos pacotes vêo sêo do tamanho de 2 bytes, sendo assim, se for unsigned atê 65535 e se for signed
+	// atê 32767. Na atualização de versêo do WYD para a versêo 759+, os HPs foram alterados para 4 bytes, um
 	// limite bem maior que o anterior. Neste caso, acho que os kr esqueceram de atualizar este pacote... Neste
-	// caso, aqui so teremos a porcentagem na barar de grupo do personagem, ent�o faremos um calculo de quantos %
-	// do HP do usuar�o esta para mostrarmos na tela (n�o mostrara o valor real)
-	int hpPercent = static_cast<int>((static_cast<float>(pMob[whom].Mobs.Player.Status.curHP) / static_cast<float>(pMob[whom].Mobs.Player.Status.maxHP) * 100.0f));
+	// caso, aqui so teremos a porcentagem na barar de grupo do personagem, entêo faremos um calculo de quantos %
+	// do HP do usuarêo esta para mostrarmos na tela (nêo mostrara o valor real)
+	int hpPercent = static_cast<int>((static_cast<float>(pMob[whom].Mobs.Player.CurrentScore.Hp) / static_cast<float>(pMob[whom].Mobs.Player.CurrentScore.MaxHp) * 100.0f));
 
-	packet.maxHP = 100;
-	packet.curHP = hpPercent;
+	packet.MaxHp = 100;
+	packet.Hp = hpPercent;
 
 	packet.ID = 52428;
 
@@ -850,7 +850,7 @@ void SendAddParty(int target, int whom, int leader)
 
 void SendRemoveParty(int target, int whom)
 {
-	if (target <= 0 || target >= MAX_PLAYER || pUser[target].Status != USER_PLAY || pUser[target].Socket.Socket <= 0)
+	if (target <= 0 || target >= MAX_PLAYER || pUser[target].CurrentScore != USER_PLAY || pUser[target].Socket.Socket <= 0)
 		return;
 
 	p37E packet;
@@ -867,7 +867,7 @@ void SendRemoveParty(int target, int whom)
 
 void SendHpMode(int clientId)
 { // 004428E0
-	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].Status != USER_PLAY)
+	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].CurrentScore != USER_PLAY)
 		return;
 
 	p292 p;
@@ -875,15 +875,15 @@ void SendHpMode(int clientId)
 	p.Header.Size = 16;
 	p.Header.ClientId = clientId;
 
-	p.CurHP = pMob[clientId].Mobs.Player.Status.curHP;
-	p.Status = pUser[clientId].Status;
+	p.CurHP = pMob[clientId].Mobs.Player.CurrentScore.Hp;
+	p.CurrentScore = pUser[clientId].CurrentScore;
 
 	pUser[clientId].AddMessage((BYTE*)&p, sizeof p292);
 }
 
 void SendCarry(int clientId)
 {
-	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].Status != USER_PLAY)
+	if (clientId <= 0 || clientId >= MAX_PLAYER || pUser[clientId].CurrentScore != USER_PLAY)
 		return;
 
 	p185 packet;
@@ -893,7 +893,7 @@ void SendCarry(int clientId)
 
 	memcpy(packet.Item, pMob[clientId].Mobs.Player.Inventory, sizeof STRUCT_ITEM * 64);
 
-	packet.Gold = pMob[clientId].Mobs.Player.Gold;
+	packet.Coin = pMob[clientId].Mobs.Player.Coin;
 	pUser[clientId].AddMessage((BYTE*)&packet, sizeof packet);
 }
 
@@ -901,7 +901,7 @@ void SendDamage(unsigned int min_x, unsigned int min_y, unsigned int max_x, unsi
 {//04012A8
 	for (INT32 LOCAL_1 = 1; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if (pUser[LOCAL_1].Status != USER_PLAY)
+		if (pUser[LOCAL_1].CurrentScore != USER_PLAY)
 			continue;
 
 		if (pMob[LOCAL_1].Target.X >= min_x && pMob[LOCAL_1].Target.X <= max_x && pMob[LOCAL_1].Target.Y >= min_y &&
@@ -909,7 +909,7 @@ void SendDamage(unsigned int min_x, unsigned int min_y, unsigned int max_x, unsi
 		{
 			float LOCAL_2 = 0.25;
 			INT32 LOCAL_3 = 2000;
-			INT32 LOCAL_4 = pMob[LOCAL_1].Mobs.Player.Status.curHP;
+			INT32 LOCAL_4 = pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp;
 			INT32 LOCAL_5 = LOCAL_4 - LOCAL_3;
 			LOCAL_4 = LOCAL_4 * LOCAL_2;
 
@@ -919,9 +919,9 @@ void SendDamage(unsigned int min_x, unsigned int min_y, unsigned int max_x, unsi
 			if (LOCAL_4 < 1)
 				LOCAL_4 = 1;
 
-			INT32 LOCAL_6 = LOCAL_4 - pMob[LOCAL_1].Mobs.Player.Status.curHP;
+			INT32 LOCAL_6 = LOCAL_4 - pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp;
 
-			pMob[LOCAL_1].Mobs.Player.Status.curHP = LOCAL_4;
+			pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp = LOCAL_4;
 			pUser[LOCAL_1].Potion.CountHp += LOCAL_6;
 
 			SetReqHp(LOCAL_1);
@@ -987,7 +987,7 @@ void SendNotice(const char* msg, ...)
 	bool needLog = buffer[0] != '.';
 	for (INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].Status != USER_PLAY)
+		if (pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		pUser[i].AddMessage((BYTE*)&packet, sizeof p101);
@@ -1018,10 +1018,10 @@ void SendGuildNotice(INT32 guildId, const char *msg, ...)
 
 	for (INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].Status != USER_PLAY)
+		if (pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
-		if (pMob[i].Mobs.Player.GuildIndex != guildId)
+		if (pMob[i].Mobs.Player.Guild != guildId)
 			continue;
 
 		pUser[i].AddMessage((BYTE*)&packet, sizeof p101);
@@ -1054,7 +1054,7 @@ void SendWarInfo(INT32 clientId, INT32 capeWin)
 {
 	INT32 LOCAL_1 = 0;
 	INT32 LOCAL_2 = MAX_GUILD;
-	INT32 LOCAL_3 = pMob[clientId].Mobs.Player.GuildIndex;
+	INT32 LOCAL_3 = pMob[clientId].Mobs.Player.Guild;
 
 	if (LOCAL_3 <= 0 || LOCAL_3 >= LOCAL_2)
 		LOCAL_3 = 0;
@@ -1082,7 +1082,7 @@ void SendWarInfo(INT32 clientId, INT32 capeWin)
 
 void SendGuildList(INT32 clientId)
 {
-	INT32 LOCAL_1 = pMob[clientId].Mobs.Player.GuildIndex;
+	INT32 LOCAL_1 = pMob[clientId].Mobs.Player.Guild;
 
 	if (LOCAL_1 <= 0)
 		return;
@@ -1095,7 +1095,7 @@ void SendGuildList(INT32 clientId)
 
 	for (; LOCAL_68 < MAX_PLAYER; LOCAL_68++)
 	{
-		if (pUser[LOCAL_68].Status == USER_PLAY && pMob[LOCAL_68].Mobs.Player.GuildIndex == LOCAL_1)
+		if (pUser[LOCAL_68].CurrentScore == USER_PLAY && pMob[LOCAL_68].Mobs.Player.Guild == LOCAL_1)
 		{
 			LOCAL_66++;
 
@@ -1108,10 +1108,10 @@ void SendGuildList(INT32 clientId)
 				LOCAL_65[0] = 0;
 			}
 
-			pMob[LOCAL_68].Mobs.Player.Name[15] = 0;
-			pMob[LOCAL_68].Mobs.Player.Name[14] = 0;
+			pMob[LOCAL_68].Mobs.Player.MobName[15] = 0;
+			pMob[LOCAL_68].Mobs.Player.MobName[14] = 0;
 
-			strcat_s(LOCAL_65, pMob[LOCAL_68].Mobs.Player.Name);
+			strcat_s(LOCAL_65, pMob[LOCAL_68].Mobs.Player.MobName);
 			strcat_s(LOCAL_65, " ");
 		}
 	}
@@ -1135,30 +1135,30 @@ void SendGuildList(INT32 clientId)
 
 			if (LOCAL_1 == LOCAL_81)
 			{
-				SendClientMessage(clientId, g_pLanguageString[_SN_Your_are_at_war], g_pGuild[LOCAL_71].Name.c_str());
+				SendClientMessage(clientId, g_pLanguageString[_SN_Your_are_at_war], g_pGuild[LOCAL_71].MobName.c_str());
 
 				LOCAL_80 = LOCAL_71;
 			}
 			else
-				SendClientMessage(clientId, g_pLanguageString[_SN_War_to_S], g_pGuild[LOCAL_71].Name.c_str());
+				SendClientMessage(clientId, g_pLanguageString[_SN_War_to_S], g_pGuild[LOCAL_71].MobName.c_str());
 		}
 
 		INT32 LOCAL_82 = 1;
 		for (; LOCAL_82 < LOCAL_70; LOCAL_82++)
 		{
 			if (g_pGuildWar[LOCAL_82] == LOCAL_1 && LOCAL_82 != LOCAL_80)
-				SendClientMessage(clientId, g_pLanguageString[_SN_War_from_S], g_pGuild[LOCAL_82].Name.c_str());
+				SendClientMessage(clientId, g_pLanguageString[_SN_War_from_S], g_pGuild[LOCAL_82].MobName.c_str());
 		}
 
 		LOCAL_71 = g_pGuildAlly[LOCAL_1];
 		if (LOCAL_71 > 0 && LOCAL_71 < LOCAL_70)
-			SendClientMessage(clientId, g_pLanguageString[_SN_Ally_to_S], g_pGuild[LOCAL_71].Name.c_str());
+			SendClientMessage(clientId, g_pLanguageString[_SN_Ally_to_S], g_pGuild[LOCAL_71].MobName.c_str());
 
 		LOCAL_82 = 1;
 		for (; LOCAL_82 < LOCAL_70; LOCAL_82++)
 		{
 			if (g_pGuildAlly[LOCAL_82] == LOCAL_1)
-				SendClientMessage(clientId, g_pLanguageString[_SN_Ally_from_S], g_pGuild[LOCAL_82].Name.c_str());
+				SendClientMessage(clientId, g_pLanguageString[_SN_Ally_from_S], g_pGuild[LOCAL_82].MobName.c_str());
 		}
 	}
 }
@@ -1176,7 +1176,7 @@ void SendWeather()
 
 	for (INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].Status != USER_PLAY)
+		if (pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		INT32 LOCAL_7;
@@ -1212,7 +1212,7 @@ void SendChatGuild(INT32 clientId, INT32 guildId, const char *msg, ...)
 	packet.Header.ClientId = SERVER_SIDE;
 
 	sprintf_s(packet.eValue, buffer);
-	strncpy_s(packet.eCommand, g_pGuild[guildId].Name.c_str(), 16);
+	strncpy_s(packet.eCommand, g_pGuild[guildId].MobName.c_str(), 16);
 
 	char *p = (char*)&packet;
 	*(INT16*)&p[124] = 3;
@@ -1233,11 +1233,11 @@ void SendRepurchase(int clientId)
 		packet.Item[i].index = i + 1;
 
 		STRUCT_ITEM* item = &pUser[clientId].Repurchase.Items[i];
-		if (item->Index <= 0 || item->Index >= MAX_ITEMLIST)
+		if (item->sIndex <= 0 || item->sIndex >= MAX_ITEMLIST)
 			continue;
 
 		int price, impost;
-		std::tie(price, impost) = GetPriceAndImpost(&ItemList[item->Index], cityZone);
+		std::tie(price, impost) = GetPriceAndImpost(&g_pItemList[item->sIndex], cityZone);
 
 		packet.Item[i].item = *item;
 		packet.Item[i].sellPrice = price;
@@ -1343,7 +1343,7 @@ void SendChatMessage(int color, const char* message, ...)
 
 	for (auto& user : pUser)
 	{
-		if (user.Status == USER_PLAY)
+		if (user.CurrentScore == USER_PLAY)
 			user.AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof packet);
 	}
 }

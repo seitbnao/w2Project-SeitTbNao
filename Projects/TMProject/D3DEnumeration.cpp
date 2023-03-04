@@ -11,7 +11,7 @@
 
 
 //-----------------------------------------------------------------------------
-// Name: ColorChannelBits
+// ItemName: ColorChannelBits
 // Desc: Returns the number of color channel bits in the specified D3DFORMAT
 //-----------------------------------------------------------------------------
 static UINT ColorChannelBits(D3DFORMAT fmt)
@@ -51,7 +51,7 @@ static UINT ColorChannelBits(D3DFORMAT fmt)
 
 
 //-----------------------------------------------------------------------------
-// Name: AlphaChannelBits
+// ItemName: AlphaChannelBits
 // Desc: Returns the number of alpha channel bits in the specified D3DFORMAT
 //-----------------------------------------------------------------------------
 static UINT AlphaChannelBits(D3DFORMAT fmt)
@@ -91,7 +91,7 @@ static UINT AlphaChannelBits(D3DFORMAT fmt)
 
 
 //-----------------------------------------------------------------------------
-// Name: DepthBits
+// ItemName: DepthBits
 // Desc: Returns the number of depth bits in the specified D3DFORMAT
 //-----------------------------------------------------------------------------
 static UINT DepthBits(D3DFORMAT fmt)
@@ -119,7 +119,7 @@ static UINT DepthBits(D3DFORMAT fmt)
 
 
 //-----------------------------------------------------------------------------
-// Name: StencilBits
+// ItemName: StencilBits
 // Desc: Returns the number of stencil bits in the specified D3DFORMAT
 //-----------------------------------------------------------------------------
 static UINT StencilBits(D3DFORMAT fmt)
@@ -147,7 +147,7 @@ static UINT StencilBits(D3DFORMAT fmt)
 
 
 //-----------------------------------------------------------------------------
-// Name: D3DAdapterInfo destructor
+// ItemName: D3DAdapterInfo destructor
 // Desc: 
 //-----------------------------------------------------------------------------
 D3DAdapterInfo::~D3DAdapterInfo(void)
@@ -166,7 +166,7 @@ D3DAdapterInfo::~D3DAdapterInfo(void)
 
 
 //-----------------------------------------------------------------------------
-// Name: D3DDeviceInfo destructor
+// ItemName: D3DDeviceInfo destructor
 // Desc: 
 //-----------------------------------------------------------------------------
 D3DDeviceInfo::~D3DDeviceInfo(void)
@@ -183,7 +183,7 @@ D3DDeviceInfo::~D3DDeviceInfo(void)
 
 
 //-----------------------------------------------------------------------------
-// Name: D3DDeviceCombo destructor
+// ItemName: D3DDeviceCombo destructor
 // Desc: 
 //-----------------------------------------------------------------------------
 D3DDeviceCombo::~D3DDeviceCombo(void)
@@ -205,7 +205,7 @@ D3DDeviceCombo::~D3DDeviceCombo(void)
 
 
 //-----------------------------------------------------------------------------
-// Name: CD3DEnumeration constructor
+// ItemName: CD3DEnumeration constructor
 // Desc: 
 //-----------------------------------------------------------------------------
 CD3DEnumeration::CD3DEnumeration()
@@ -228,7 +228,7 @@ CD3DEnumeration::CD3DEnumeration()
 
 
 //-----------------------------------------------------------------------------
-// Name: CD3DEnumeration destructor
+// ItemName: CD3DEnumeration destructor
 // Desc: 
 //-----------------------------------------------------------------------------
 CD3DEnumeration::~CD3DEnumeration()
@@ -246,7 +246,7 @@ CD3DEnumeration::~CD3DEnumeration()
 
 
 //-----------------------------------------------------------------------------
-// Name: SortModesCallback
+// ItemName: SortModesCallback
 // Desc: Used to sort D3DDISPLAYMODEs
 //-----------------------------------------------------------------------------
 static int __cdecl SortModesCallback(const void* arg1, const void* arg2)
@@ -277,7 +277,7 @@ static int __cdecl SortModesCallback(const void* arg1, const void* arg2)
 
 
 //-----------------------------------------------------------------------------
-// Name: Enumerate
+// ItemName: Enumerate
 // Desc: Enumerates available D3D adapters, devices, modes, etc.
 //-----------------------------------------------------------------------------
 HRESULT CD3DEnumeration::Enumerate()
@@ -373,7 +373,7 @@ HRESULT CD3DEnumeration::Enumerate()
 
 
 //-----------------------------------------------------------------------------
-// Name: EnumerateDevices
+// ItemName: EnumerateDevices
 // Desc: Enumerates D3D devices for a particular adapter.
 //-----------------------------------------------------------------------------
 HRESULT CD3DEnumeration::EnumerateDevices(D3DAdapterInfo* pAdapterInfo,
@@ -427,7 +427,7 @@ HRESULT CD3DEnumeration::EnumerateDevices(D3DAdapterInfo* pAdapterInfo,
 
 
 //-----------------------------------------------------------------------------
-// Name: EnumerateDeviceCombos
+// ItemName: EnumerateDeviceCombos
 // Desc: Enumerates DeviceCombos for a particular device.
 //-----------------------------------------------------------------------------
 HRESULT CD3DEnumeration::EnumerateDeviceCombos(D3DDeviceInfo* pDeviceInfo,
@@ -528,7 +528,7 @@ HRESULT CD3DEnumeration::EnumerateDeviceCombos(D3DDeviceInfo* pDeviceInfo,
 
 
 //-----------------------------------------------------------------------------
-// Name: BuildDepthStencilFormatList
+// ItemName: BuildDepthStencilFormatList
 // Desc: Adds all depth/stencil formats that are compatible with the device 
 //       and app to the given D3DDeviceCombo.
 //-----------------------------------------------------------------------------
@@ -572,7 +572,7 @@ void CD3DEnumeration::BuildDepthStencilFormatList(D3DDeviceCombo* pDeviceCombo)
 
 
 //-----------------------------------------------------------------------------
-// Name: BuildMultiSampleTypeList
+// ItemName: BuildMultiSampleTypeList
 // Desc: Adds all multisample types that are compatible with the device and app to
 //       the given D3DDeviceCombo.
 //-----------------------------------------------------------------------------
@@ -617,7 +617,7 @@ void CD3DEnumeration::BuildMultiSampleTypeList(D3DDeviceCombo* pDeviceCombo)
 
 
 //-----------------------------------------------------------------------------
-// Name: BuildDSMSConflictList
+// ItemName: BuildDSMSConflictList
 // Desc: Find any conflicts between the available depth/stencil formats and
 //       multisample types.
 //-----------------------------------------------------------------------------
@@ -646,7 +646,7 @@ void CD3DEnumeration::BuildDSMSConflictList(D3DDeviceCombo* pDeviceCombo)
 
 
 //-----------------------------------------------------------------------------
-// Name: BuildVertexProcessingTypeList
+// ItemName: BuildVertexProcessingTypeList
 // Desc: Adds all vertex processing types that are compatible with the device 
 //       and app to the given D3DDeviceCombo.
 //-----------------------------------------------------------------------------
@@ -690,7 +690,7 @@ void CD3DEnumeration::BuildVertexProcessingTypeList(D3DDeviceInfo* pDeviceInfo,
 
 
 //-----------------------------------------------------------------------------
-// Name: BuildPresentIntervalList
+// ItemName: BuildPresentIntervalList
 // Desc: Adds all present intervals that are compatible with the device and app 
 //       to the given D3DDeviceCombo.
 //-----------------------------------------------------------------------------

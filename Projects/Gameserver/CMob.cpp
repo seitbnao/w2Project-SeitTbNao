@@ -19,8 +19,8 @@ TransBonus pTransBonus[5] =
 	{110,130,    90,105,    95,105,   1,0,   20}, // Lobo 
 	{90,105,     100,110,   110,165,   0,0,   0}, // Urso
 	{108,120,    105,115,   100,140,   1,0,   20}, // Astaroth 
-	{115,125,    110,135,   105,130,   0,0,   20}, // Tit�
-	{105,122,    110,120,   105,145,   1,0,   20} // �den
+	{115,125,    110,135,   105,130,   0,0,   20}, // Titê
+	{105,122,    110,120,   105,145,   1,0,   20} // êden
 };
 
 INT32 g_pClanTable[9][9] = {
@@ -50,7 +50,7 @@ INT32 CMob::GetCurrentHP()
 	int hp_perc = GetMobAbility(&Mobs, EF_HPADD);
 	hp_perc += GetMobAbility(&Mobs, EF_HPADD2);
 
-	int mult = HPIncrementPerLevel[usr->ClassInfo];
+	int mult = HPIncrementPerLevel[usr->Class];
 	switch (Mobs.Player.Equip[0].EFV2)
 	{
 	case ARCH:
@@ -62,7 +62,7 @@ INT32 CMob::GetCurrentHP()
 		break;
 	}
 
-	hp_inc += (usr->Status.CON * 2);
+	hp_inc += (usr->CurrentScore.Con * 2);
 	hp_inc += ((hp_inc * hp_perc) / 100);
 
 	return hp_inc;
@@ -82,9 +82,9 @@ INT32 CMob::GetCurrentMP()
 	int mp_inc = GetMobAbility(&Mobs, EF_MP) + 50,
 		mp_perc = GetMobAbility(&Mobs, EF_MPADD);
 
-	mp_inc += BaseSIDCHM[usr->ClassInfo][5];
+	mp_inc += BaseSIDCHM[usr->Class][5];
 
-	int mult = MPIncrementPerLevel[usr->ClassInfo];
+	int mult = MPIncrementPerLevel[usr->Class];
 	switch (Mobs.Player.Equip[0].EFV2)
 	{
 	case ARCH:
@@ -96,8 +96,8 @@ INT32 CMob::GetCurrentMP()
 		break;
 	}
 
-	mp_inc += (mult * usr->Status.Level);
-	mp_inc += (usr->Status.INT * 2);
+	mp_inc += (mult * usr->CurrentScore.Level);
+	mp_inc += (usr->CurrentScore.Int * 2);
 	mp_inc += ((mp_inc * mp_perc) / 100);
 
 	if (mp_inc > 64000)
@@ -110,7 +110,7 @@ INT32 CMob::GetCurrentMP()
 
 void CMob::GetStatusBaseScore()
 {
-	if (clientId <= 0 || clientId >= MAX_PLAYER || Mobs.Player.ClassInfo < 0 || Mobs.Player.ClassInfo >= 4)
+	if (clientId <= 0 || clientId >= MAX_PLAYER || Mobs.Player.Class < 0 || Mobs.Player.Class >= 4)
 		return;
 
 	static const int BaseADDHPMP[4][2] = {
@@ -135,7 +135,7 @@ void CMob::GetStatusBaseScore()
 		break;
 	}
 
-	INT32 level = Mobs.Player.bStatus.Level;
+	INT32 level = Mobs.Player.BaseScore.Level;
 	if (Mobs.Player.Equip[0].EFV2 >= CELESTIAL)
 		level += 400;
 
@@ -144,14 +144,14 @@ void CMob::GetStatusBaseScore()
 	INT32 defense = 4;
 	defense += (mult * level);
 
-	Mobs.Player.bStatus.Attack = attack;
-	Mobs.Player.bStatus.Defense = defense;
+	Mobs.Player.BaseScore.Damage = attack;
+	Mobs.Player.BaseScore.Ac = defense;
 
-	int hp = BaseADDHPMP[Mobs.Player.ClassInfo][0] * level + BaseSIDCHM[Mobs.Player.ClassInfo][4];
-	int mp = BaseADDHPMP[Mobs.Player.ClassInfo][1] * level + BaseSIDCHM[Mobs.Player.ClassInfo][5];
+	int hp = BaseADDHPMP[Mobs.Player.Class][0] * level + BaseSIDCHM[Mobs.Player.Class][4];
+	int mp = BaseADDHPMP[Mobs.Player.Class][1] * level + BaseSIDCHM[Mobs.Player.Class][5];
 
-	Mobs.Player.bStatus.maxHP = hp;
-	Mobs.Player.bStatus.maxMP = mp;
+	Mobs.Player.BaseScore.MaxHp = hp;
+	Mobs.Player.BaseScore.MaxMp = mp;
 
 	GetScorePoint();
 	GetSkillPoint();
@@ -168,7 +168,7 @@ void CMob::GetScorePoint()
 
 	INT32 classMaster = Mobs.Player.Equip[0].EFV2;
 	INT32 pnts = 0;
-	INT32 level = player->bStatus.Level;
+	INT32 level = player->BaseScore.Level;
 	if (classMaster == MORTAL)
 	{
 		if (level < 255)
@@ -198,7 +198,7 @@ void CMob::GetScorePoint()
 		int levelMortal = 399;
 
 		if (mortalSlot != -1 && mortalSlot >= 0 && mortalSlot <= 3)
-			levelMortal = pUser[clientId].CharList.Status[Mobs.MortalSlot].Level;
+			levelMortal = pUser[clientId].CharList.CurrentScore[Mobs.MortalSlot].Level;
 
 		pnts += (levelMortal - 300 + 1) * 6;
 		if (level < 255)
@@ -230,7 +230,7 @@ void CMob::GetScorePoint()
 	{
 		int levelSub = -1;
 		int totalResets = 0;
-		if (classMaster == CELESTIAL && Mobs.Sub.Status == 1)
+		if (classMaster == CELESTIAL && Mobs.Sub.CurrentScore == 1)
 		{
 			levelSub = Mobs.Sub.SubStatus.Level;
 		}
@@ -299,11 +299,11 @@ void CMob::GetScorePoint()
 		}
 	}
 
-	int classindex = player->ClassInfo;
-	int str = player->bStatus.STR - BaseSIDCHM[classindex][0];
-	int _int = player->bStatus.INT - BaseSIDCHM[classindex][1];
-	int dex = player->bStatus.DEX - BaseSIDCHM[classindex][2];
-	int con = player->bStatus.CON - BaseSIDCHM[classindex][3];
+	int classindex = player->Class;
+	int str = player->BaseScore.Str - BaseSIDCHM[classindex][0];
+	int _int = player->BaseScore.Int - BaseSIDCHM[classindex][1];
+	int dex = player->BaseScore.Dex - BaseSIDCHM[classindex][2];
+	int con = player->BaseScore.Con - BaseSIDCHM[classindex][3];
 	int total = str + _int + dex + con;
 
 	int otherPnts = pnts;
@@ -315,19 +315,19 @@ void CMob::GetScorePoint()
 		needScore = true;
 		for (; pnts < 0; pnts++)
 		{
-			if (player->bStatus.STR > BaseSIDCHM[classindex][0])
-				player->bStatus.STR--;
-			else if (player->bStatus.INT > BaseSIDCHM[classindex][1])
-				player->bStatus.INT--;
-			else if (player->bStatus.DEX > BaseSIDCHM[classindex][2])
-				player->bStatus.DEX--;
-			else if (player->bStatus.CON > BaseSIDCHM[classindex][3])
-				player->bStatus.CON--;
+			if (player->BaseScore.Str > BaseSIDCHM[classindex][0])
+				player->BaseScore.Str--;
+			else if (player->BaseScore.Int > BaseSIDCHM[classindex][1])
+				player->BaseScore.Int--;
+			else if (player->BaseScore.Dex > BaseSIDCHM[classindex][2])
+				player->BaseScore.Dex--;
+			else if (player->BaseScore.Con > BaseSIDCHM[classindex][3])
+				player->BaseScore.Con--;
 		}
 	}
 
 	otherPnts -= total;
-	player->StatusPoint = otherPnts;
+	player->ScoreBonus = otherPnts;
 
 	if (needScore)
 	{
@@ -342,13 +342,13 @@ void CMob::GetSkillPoint()
 
 	INT32 classMaster = Mobs.Player.Equip[0].EFV2;
 	INT32 pnts = 0;
-	INT32 level = player->bStatus.Level;
+	INT32 level = player->BaseScore.Level;
 
 	if (classMaster == MORTAL)
 		pnts += level * 3;
 	else if (classMaster == ARCH)
 	{
-		INT32 levelMortal = pUser[clientId].CharList.Status[Mobs.MortalSlot].Level;
+		INT32 levelMortal = pUser[clientId].CharList.CurrentScore[Mobs.MortalSlot].Level;
 
 		pnts = ((levelMortal - 300 + 1) * 6);
 
@@ -397,10 +397,10 @@ void CMob::GetSkillPoint()
 		pnts += 9;
 
 	int totalPnts = 0;
-	int initial = player->ClassInfo * 24;
+	int initial = player->Class * 24;
 	for (int i = initial; i < initial + 24; i++)
 	{
-		int has = (player->Learn[0] & (1 << (i % 24)));
+		int has = (player->LearnedSkill[0] & (1 << (i % 24)));
 		if (has != 0)
 			totalPnts += SkillData[i].Points;
 	}
@@ -422,7 +422,7 @@ void CMob::GetMasterPoint()
 
 	INT32 classMaster = Mobs.Player.Equip[0].EFV2;
 	INT32 pnts = 0;
-	INT32 level = player->bStatus.Level;
+	INT32 level = player->BaseScore.Level;
 
 	if (classMaster == MORTAL)
 		pnts = level * 2;
@@ -435,14 +435,14 @@ void CMob::GetMasterPoint()
 		pnts = 855;//500 + (level * 3);
 
 	int otherPnts = pnts;
-	pnts -= player->bStatus.Mastery[0];
-	pnts -= player->bStatus.Mastery[1];
-	pnts -= player->bStatus.Mastery[2];
-	pnts -= player->bStatus.Mastery[3];
+	pnts -= player->BaseScore.Special[0];
+	pnts -= player->BaseScore.Special[1];
+	pnts -= player->BaseScore.Special[2];
+	pnts -= player->BaseScore.Special[3];
 
-	if (player->MasterPoint != pnts)
+	if (player->SpecialBonus != pnts)
 	{
-		player->MasterPoint = pnts;
+		player->SpecialBonus = pnts;
 
 		SendScore(clientId);
 	}
@@ -453,15 +453,15 @@ void CMob::GetCurrentScore(int clientId)
 	if (clientId < MAX_PLAYER)
 		Mobs.Player.CapeInfo = 0;
 
-	if (clientId < MAX_PLAYER && Mobs.Player.bStatus.Level < 1011)
+	if (clientId < MAX_PLAYER && Mobs.Player.BaseScore.Level < 1011)
 	{
 		Mobs.Player.Resist.Fogo = GetMobAbility(&this->Mobs, EF_RESIST1);
 		Mobs.Player.Resist.Gelo = GetMobAbility(&this->Mobs, EF_RESIST2);
 		Mobs.Player.Resist.Sagrado = GetMobAbility(&this->Mobs, EF_RESIST3);
 		Mobs.Player.Resist.Trovao = GetMobAbility(&this->Mobs, EF_RESIST4);
 
-		Mobs.Player.Equip[0].Effect[0].Index = 0;
-		Mobs.Player.Equip[0].Effect[0].Value = 0;
+		Mobs.Player.Equip[0].stEffect[0].cEffect = 0;
+		Mobs.Player.Equip[0].stEffect[0].cValue = 0;
 		Mobs.Player.AffectInfo.Value = 0;
 		Mobs.AffectInfo = 0;
 
@@ -484,10 +484,10 @@ void CMob::GetCurrentScore(int clientId)
 	if (clientId < MAX_PLAYER)
 	{
 		INT32 range = GetMobAbility(&this->Mobs, EF_RANGE);
-		if (Mobs.Player.Learn[0] & 0x20000000)
+		if (Mobs.Player.LearnedSkill[0] & 0x20000000)
 			range++;
 
-		if (Mobs.Player.Learn[0] & 0x80000)
+		if (Mobs.Player.LearnedSkill[0] & 0x80000)
 			range++;
 
 		pUser[clientId].Range = range;
@@ -506,12 +506,12 @@ void CMob::GetCurrentScore(int clientId)
 	GetCurScore(this, Mobs.Affects);
 
 	//-------------
-	// 00412589 at� 0041261E n�o descompilado, � a parte de HP, mas ja tem a fun��o GetCurrentHP(); e MP();
-	if (Mobs.Player.Status.curHP > Mobs.Player.Status.maxHP)
-		Mobs.Player.Status.curHP = Mobs.Player.Status.maxHP;
+	// 00412589 atê 0041261E nêo descompilado, ê a parte de HP, mas ja tem a função GetCurrentHP(); e MP();
+	if (Mobs.Player.CurrentScore.Hp > Mobs.Player.CurrentScore.MaxHp)
+		Mobs.Player.CurrentScore.Hp = Mobs.Player.CurrentScore.MaxHp;
 
-	if (Mobs.Player.Status.curMP > Mobs.Player.Status.maxMP)
-		Mobs.Player.Status.curMP = Mobs.Player.Status.maxMP;
+	if (Mobs.Player.CurrentScore.Mp > Mobs.Player.CurrentScore.MaxMp)
+		Mobs.Player.CurrentScore.Mp = Mobs.Player.CurrentScore.MaxMp;
 
 	INT32 _weaponDamage = GetItemAbility(&Mobs.Player.Equip[6], EF_DAMAGE);
 	INT32 _shieldDamage = GetItemAbility(&Mobs.Player.Equip[7], EF_DAMAGE);
@@ -521,8 +521,8 @@ void CMob::GetCurrentScore(int clientId)
 	else
 		WeaponDamage = _shieldDamage + (_weaponDamage / 3);
 
-	INT32 weaponId = Mobs.Player.Equip[6].Index;
-	INT32 weaponPos = ItemList[weaponId].Pos;
+	INT32 weaponId = Mobs.Player.Equip[6].sIndex;
+	INT32 weaponPos = g_pItemList[weaponId].Pos;
 
 	if ((weaponId >= 0 || weaponId < MAX_ITEMLIST) && (weaponPos == 64 || weaponPos == 192))
 	{
@@ -531,8 +531,8 @@ void CMob::GetCurrentScore(int clientId)
 			WeaponDamage += 40;
 	}
 
-	INT32 shieldId = Mobs.Player.Equip[7].Index;
-	INT32 shieldPos = ItemList[shieldId].Pos;
+	INT32 shieldId = Mobs.Player.Equip[7].sIndex;
+	INT32 shieldPos = g_pItemList[shieldId].Pos;
 
 	if ((shieldId > 0 || shieldId < MAX_ITEMLIST) && (shieldPos == 64 || shieldPos == 192))
 	{
@@ -544,34 +544,34 @@ void CMob::GetCurrentScore(int clientId)
 	for (int i = 1; i < 8; i++)
 	{
 		STRUCT_ITEM *item = &Mobs.Player.Equip[i];
-		if (!item->Index)
+		if (!item->sIndex)
 			continue;
 
 		int sanc = GetItemSanc(item);
-		if ((ItemList[item->Index].Grade >= 5 && ItemList[item->Index].Grade <= 8) || sanc >= 10)
+		if ((g_pItemList[item->sIndex].nGrade >= 5 && g_pItemList[item->sIndex].nGrade <= 8) || sanc >= 10)
 		{ // Item com ancient
-			if (ItemList[item->Index].Grade == 5)
+			if (g_pItemList[item->sIndex].nGrade == 5)
 			{ // Drop bonus
 				if (sanc <= 9)
 					DropBonus += 2;
 				else if (sanc <= 15)
 					DropBonus += 4;
 			}
-			else if (ItemList[item->Index].Grade == 6)
+			else if (g_pItemList[item->sIndex].nGrade == 6)
 			{
 				if (sanc <= 9)
 					ForceDamage += 40;
 				else if (sanc <= 15)
 					ForceDamage += 80 + (80 * (sanc - 10));
 			}
-			else if (ItemList[item->Index].Grade == 7)
+			else if (g_pItemList[item->sIndex].nGrade == 7)
 			{
 				if (sanc <= 9)
 					ExpBonus += 2;
 				else if (sanc <= 15)
 					ExpBonus += 4;
 			}
-			else if (ItemList[item->Index].Grade == 8)
+			else if (g_pItemList[item->sIndex].nGrade == 8)
 			{
 				if (sanc <= 9)
 					ReflectDamage += 40;
@@ -583,9 +583,9 @@ void CMob::GetCurrentScore(int clientId)
 				INT32 value = -1;
 				for (INT32 p = 0; p < 3; p++)
 				{
-					if (item->Effect[p].Index == 43 || (item->Effect[p].Index >= 116 && item->Effect[p].Index <= 125))
+					if (item->stEffect[p].cEffect == 43 || (item->stEffect[p].cEffect >= 116 && item->stEffect[p].cEffect <= 125))
 					{
-						value = item->Effect[p].Value;
+						value = item->stEffect[p].cValue;
 						break;
 					}
 				}
@@ -623,10 +623,10 @@ void CMob::GetCurrentScore(int clientId)
 		int perf = 0;
 
 		STRUCT_ITEM *item = &Mobs.Player.Equip[8 + i];
-		if (!item->Index)
+		if (!item->sIndex)
 			continue;
 
-		switch (item->Index)
+		switch (item->sIndex)
 		{
 		case 540:
 			perf = 10;
@@ -671,19 +671,19 @@ void CMob::GetCurrentScore(int clientId)
 bool CMob::isNormalPet() const {
 	const STRUCT_ITEM& item = Mobs.Player.Equip[14];
 
-	return item.Index >= 2360 && item.Index <= 2389;
+	return item.sIndex >= 2360 && item.sIndex <= 2389;
 }
 
 bool CMob::isPetAlive() const
 {
 	const STRUCT_ITEM& item = Mobs.Player.Equip[14];
-	if (item.Index == 0)
+	if (item.sIndex == 0)
 		return false;
 
-	if (isNormalPet() && *(short*)&item.Effect[0].Index > 0)
+	if (isNormalPet() && *(short*)&item.stEffect[0].sValue > 0)
 		return true;
 
-	if (item.Index >= 3980 && item.Index <= 3999)
+	if (item.sIndex >= 3980 && item.sIndex <= 3999)
 		return true;
 
 	return false;
@@ -697,25 +697,25 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 	player->Mobs.Player.AffectInfo.Value = 0;
 	player->Mobs.AffectInfo = 0;
 
-	INT32 curHP = player->Mobs.Player.Status.curHP,// EBP - 04h - LOCAL_1
-		curMP = player->Mobs.Player.Status.curMP;// EBP - 08h - LOCAL_1
+	INT32 Hp = player->Mobs.Player.CurrentScore.Hp,// EBP - 04h - LOCAL_1
+		Mp = player->Mobs.Player.CurrentScore.Mp;// EBP - 08h - LOCAL_1
 
-	memcpy(&player->Mobs.Player.Status, &player->Mobs.Player.bStatus, sizeof STRUCT_STATUS);
+	memcpy(&player->Mobs.Player.CurrentScore, &player->Mobs.Player.BaseScore, sizeof STRUCT_SCORE);
 
-	player->Mobs.Player.Status.curHP = curHP;
-	player->Mobs.Player.Status.curMP = curMP;
+	player->Mobs.Player.CurrentScore.Hp = Hp;
+	player->Mobs.Player.CurrentScore.Mp = Mp;
 
 	INT32 _critical = static_cast<int>(((GetMobAbility(&player->Mobs, EF_CRITICAL) / 10.0F) * 2.5F));
-	INT32 attack = mob->bStatus.Attack + GetMobAbility(&player->Mobs, EF_DAMAGE);
-	INT32 defense = mob->bStatus.Defense + GetMobAbility(&player->Mobs, EF_AC) + GetMobAbility(&player->Mobs, EF_ACADD);
-	INT32 maxHP = mob->bStatus.maxHP + GetMobAbility(&player->Mobs, EF_HP);
-	INT32 maxMP = mob->bStatus.maxMP + GetMobAbility(&player->Mobs, EF_MP);
+	INT32 attack = mob->BaseScore.Damage + GetMobAbility(&player->Mobs, EF_DAMAGE);
+	INT32 defense = mob->BaseScore.Ac + GetMobAbility(&player->Mobs, EF_AC) + GetMobAbility(&player->Mobs, EF_ACADD);
+	INT32 MaxHp = mob->BaseScore.MaxHp + GetMobAbility(&player->Mobs, EF_HP);
+	INT32 MaxMp = mob->BaseScore.MaxMp + GetMobAbility(&player->Mobs, EF_MP);
 	INT32 mastery[4] = { 0, 0, 0, 0 };
 
-	INT32 _str = mob->Status.STR + GetMobAbility(&player->Mobs, EF_STR),
-		_des = mob->Status.DEX + GetMobAbility(&player->Mobs, EF_DEX),
-		_int = mob->Status.INT + GetMobAbility(&player->Mobs, EF_INT),
-		_con = mob->Status.CON + GetMobAbility(&player->Mobs, EF_CON);
+	INT32 _str = mob->CurrentScore.Str + GetMobAbility(&player->Mobs, EF_STR),
+		_des = mob->CurrentScore.Dex + GetMobAbility(&player->Mobs, EF_DEX),
+		_int = mob->CurrentScore.Int + GetMobAbility(&player->Mobs, EF_INT),
+		_con = mob->CurrentScore.Con + GetMobAbility(&player->Mobs, EF_CON);
 
 	INT32 resist[5] = { 0, 0, 0, 0, 0 };
 	for (INT32 i = 0; i < 4; i++)
@@ -724,7 +724,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 	INT32 masteryAll = GetMobAbility(&player->Mobs, EF_SPECIALALL);
 	for (INT32 i = 0; i < 4; i++)
 	{
-		INT32 tmp = mob->Status.Mastery[i] + GetMobAbility(mob, EF_SPECIAL1 + i) + masteryAll;
+		INT32 tmp = mob->CurrentScore.Special[i] + GetMobAbility(mob, EF_SPECIAL1 + i) + masteryAll;
 		if (tmp > 255)
 			tmp = 255;
 
@@ -733,7 +733,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 	INT32 speed[2];
 	speed[0] = GetMobAbility(&player->Mobs, EF_RUNSPEED) + 2; // local9
-	speed[1] = ((mob->bStatus.Move.Speed >> 4) * 10) + GetMobAbility(&player->Mobs, EF_ATTSPEED); // local10
+	speed[1] = ((mob->BaseScore.Move.Speed >> 4) * 10) + GetMobAbility(&player->Mobs, EF_ATTSPEED); // local10
 
 	if (speed[0] > 6)
 		speed[0] = 6;
@@ -750,11 +750,11 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 	int slowChance = GetMobAbility(&player->Mobs, EF_SLOW);
 	int resistanceChance = GetMobAbility(&player->Mobs, EF_RESISTANCE);
 
-	INT32 body = mob->Equip[0].Index / 10;
+	INT32 body = mob->Equip[0].sIndex / 10;
 	if (body < 4)
 	{
-		mob->Equip[0].Effect[0].Index = EF_SANC;
-		mob->Equip[0].Effect[0].Value = 0;
+		mob->Equip[0].stEffect[0].cEffect = EF_SANC;
+		mob->Equip[0].stEffect[0].cValue = 0;
 
 		switch (mob->CapeInfo)
 		{
@@ -766,7 +766,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		}
 	}
 
-	INT32 cape = mob->Equip[15].Index;
+	INT32 cape = mob->Equip[15].sIndex;
 	if (mob->CapeInfo != 4)
 	{
 		for (size_t index = 0; index < 2; index++)
@@ -789,7 +789,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		incMp = GetMobAbility(&player->Mobs, EF_MPADD) + 100 + GetMobAbility(&player->Mobs, EF_MPADD2),
 		incDamage = 100,
 		incAc = 100,
-		level = mob->bStatus.Level;
+		level = mob->BaseScore.Level;
 
 	INT32 local20 = 0;
 	INT32 local21 = 0;
@@ -834,7 +834,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			INT32 tmpResist = 0; // local29
 			INT32 resistDec = master; // local30
 
-			if (mob->Equip[0].Index <= 50)
+			if (mob->Equip[0].sIndex <= 50)
 				resistDec >>= 1;
 			else
 				resistDec -= 10;
@@ -875,7 +875,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 				magic += 3;
 				break;
 
-			case 6: // po��o kappa
+			case 6: // poção kappa
 				attack += 75;
 				magic += 1;
 				break;
@@ -905,7 +905,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			_des *= static_cast<INT32>(fValue);
 			break;
 		}
-		case 6: // po��o atk
+		case 6: // poção atk
 		{
 			float fValue = (100.0f + master) / 100.0f; // local32
 
@@ -918,7 +918,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			speed[1] -= speedDec;
 			speed[0] -= 1;
 
-			if (mob->Equip[0].Index <= 50)
+			if (mob->Equip[0].sIndex <= 50)
 				continue;
 
 			_int -= (speedDec + 10);
@@ -957,10 +957,10 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 			incDamage += 5;
 
-			if (mob->ClassInfo == 1)
+			if (mob->Class == 1)
 			{
 				// Checa se possui a habilidade Arma magica
-				if ((mob->Learn[0] & 100000))
+				if ((mob->LearnedSkill[0] & 100000))
 				{
 					atk_bonus *= 4;
 					incDamage += 10;
@@ -984,7 +984,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		{
 			float fValue = (100.0f - master) / 100.0; // local39
 
-			defense = mob->Status.Defense * fValue;
+			defense = mob->CurrentScore.Ac * fValue;
 			break;
 		}
 		case 13: // assalto
@@ -997,7 +997,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		case 14: // possuido
 		{
 			// 7556
-			if (mob->Learn[0] & (1 << 7))
+			if (mob->LearnedSkill[0] & (1 << 7))
 				_con += ((value * 4) + (master * 2));
 			else
 				_con += ((value * 3)) + master; // local41 - local42
@@ -1012,7 +1012,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 			break;
 		}
-		case 16: // transforma��o
+		case 16: // transformação
 		{
 			INT32 transInfo = master - 1; // local50
 			transformation = transInfo;
@@ -1020,42 +1020,42 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			if (transInfo < 0 || transInfo >= 5) // TODO: implementar eden
 				continue;
 
-			if (mob->ClassInfo != 2)
+			if (mob->Class != 2)
 				continue;
 
 			if (transInfo == 4)
-				mob->Equip[0].Index = 32;
+				mob->Equip[0].sIndex = 32;
 			else
-				mob->Equip[0].Index = 22 + transInfo; // 22 = face lobisomem
+				mob->Equip[0].sIndex = 22 + transInfo; // 22 = face lobisomem
 
 			INT32 atkBonus = 0; // local51
 			INT32 hpBonus = 0; // local52
 			INT32 acInc = 0; // local53
 			INT32 speedInc = 0; // local54
-			INT32 LOCAL_55 = mob->Learn[0] & (1 << 17);
-			INT32 LOCAL_56 = mob->Learn[0] & (1 << 19); //local56
-			INT32 metamorfose = mob->Learn[0] & (1 << (69 % 24)); //local57
+			INT32 LOCAL_55 = mob->LearnedSkill[0] & (1 << 17);
+			INT32 LOCAL_56 = mob->LearnedSkill[0] & (1 << 19); //local56
+			INT32 metamorfose = mob->LearnedSkill[0] & (1 << (69 % 24)); //local57
 			INT32 resistTrans = 0; //local58
 
-			if (mob->Equip[0].Index == 22)
+			if (mob->Equip[0].sIndex == 22)
 			{
 				atkBonus += 13;
 				resistTrans += 15;
 			}
-			else if (mob->Equip[0].Index == 23)
+			else if (mob->Equip[0].sIndex == 23)
 			{
 				hpBonus += 150;
 				resistTrans += 32;
 				speedInc += 20;
 			}
-			else if (mob->Equip[0].Index == 24)
+			else if (mob->Equip[0].sIndex == 24)
 			{
 				acInc += 8;
 				atkBonus += 8;
 			}
-			else if (mob->Equip[0].Index == 25)
+			else if (mob->Equip[0].sIndex == 25)
 				resistTrans += 20;
-			else if (mob->Equip[0].Index == 32)
+			else if (mob->Equip[0].sIndex == 32)
 			{
 				atkBonus += 7;
 				hpBonus += 10;
@@ -1070,7 +1070,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 				hpBonus += 25;
 			}
 
-			INT32 levelAux = mob->Status.Level;
+			INT32 levelAux = mob->CurrentScore.Level;
 			INT32 sanc = ((((levelAux * 2) + mastery[3]) / 3) - pTransBonus[transInfo].Sanc) / 12; // local59
 			if (sanc < 0)
 				sanc = 0;
@@ -1081,8 +1081,8 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			if (player->Mobs.Player.Equip[0].EFV2 >= CELESTIAL)
 				sanc = 9;
 
-			mob->Equip[0].Effect[0].Index = 43;
-			mob->Equip[0].Effect[0].Value = sanc & 255;
+			mob->Equip[0].stEffect[0].cEffect = 43;
+			mob->Equip[0].stEffect[0].cValue = sanc & 255;
 
 			INT32 auxStatus = 0; // local45
 			INT32 min = 0; // local46
@@ -1098,7 +1098,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 			auxStatus = attack; // local45
 
-			if (mob->Equip[0].Index == 22)
+			if (mob->Equip[0].sIndex == 22)
 				auxStatus += 25;
 
 			attack = auxStatus;
@@ -1113,7 +1113,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			auxStatus = defense;
 			auxStatus = (auxStatus * auxValue) / 100;
 
-			if (mob->Equip[0].Index == 22)
+			if (mob->Equip[0].sIndex == 22)
 				auxStatus += 5;
 
 			defense = auxStatus;
@@ -1125,10 +1125,10 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 			auxValue = ((max_min * value) / 200) + min;
 
-			auxStatus = maxHP;
+			auxStatus = MaxHp;
 			auxStatus = (auxStatus * auxValue) / 100;
 
-			maxHP = auxStatus;
+			MaxHp = auxStatus;
 
 			for (INT8 i = 0; i < 4; i++)
 			{
@@ -1150,11 +1150,11 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			break;
 		}
 		case 38: // controle de mana - 18
-		{ // alterado para a skill Troca de Esp�ritos
-			INT32 mp = ((mob->Status.Level + value) >> 1) + maxMP; // local61
+		{ // alterado para a skill Troca de Espêritos
+			INT32 mp = ((mob->CurrentScore.Level + value) >> 1) + MaxMp; // local61
 
-			maxHP += mp;
-			maxMP -= (mp / 3);
+			MaxHp += mp;
+			MaxMp -= (mp / 3);
 			break;
 		}
 		case 19: // imunidade
@@ -1162,7 +1162,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			player->Mobs.AffectInfo |= 0x02;
 			break;
 		}
-		case 21: // medita��o
+		case 21: // meditação
 		{
 			defense -= (value / 3) + 10; // local62
 
@@ -1172,11 +1172,11 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		case 24: // samaritano
 		{
 			int acIncress = ((((value * 5) / 15) + master) * 3) >> 1;
-			int itemId = player->Mobs.Player.Equip[7].Index;
+			int itemId = player->Mobs.Player.Equip[7].sIndex;
 
 			if (itemId > 0 && itemId < MAX_ITEMLIST)
 			{
-				if (ItemList[itemId].Unique == 51)
+				if (g_pItemList[itemId].Unique == 51)
 				{
 					acIncress += (acIncress / 3);
 
@@ -1188,10 +1188,10 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			defense += acIncress;
 		}
 		break;
-		case 25: // prote��o elemental
+		case 25: // proteção elemental
 		{
 			INT32 sum = (value >> 2) + master;
-			if ((player->Mobs.Player.Learn[0] & 128))
+			if ((player->Mobs.Player.LearnedSkill[0] & 128))
 				sum = (value >> 1) + master + 75;
 
 			defense += sum;
@@ -1204,7 +1204,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			player->Mobs.Player.AffectInfo.Value |= 0x10;
 		}
 		break;
-		case 26: // evas�o
+		case 26: // evasêo
 		{
 			player->Mobs.Player.AffectInfo.Value |= 0x20;
 		}
@@ -1225,8 +1225,8 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			INT32 soul = player->Mobs.Soul;
 			if (player->Mobs.Affects[i].Value == 99 && player->Mobs.Player.Equip[0].EFV2 == MORTAL)
 			{
-				maxHP = 3000;
-				maxMP = 3000;
+				MaxHp = 3000;
+				MaxMp = 3000;
 
 				_str = 1000;
 				_int = 1000;
@@ -1254,7 +1254,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 				aux = (_con * midVal2 / 100);
 				_con += aux;
 			}
-			else if (soul == 1) // 1 INT + CONS
+			else if (soul == 1) // 1 Int + CONS
 			{
 				INT32 aux = _int * midVal / 100;
 				_int += aux;
@@ -1270,7 +1270,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 				aux = (_con * midVal2 / 100);
 				_con += aux;
 			}
-			else if (soul == 3) // 3 FOR�A + DESTREZA
+			else if (soul == 3) // 3 FORêA + DESTREZA
 			{
 				INT32 aux = _con * midVal / 100;
 				_str += aux;
@@ -1278,7 +1278,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 				aux = (_str * midVal2 / 100);
 				_des += aux;
 			}
-			else if (soul == 4) // 4 INT + DESTREZA
+			else if (soul == 4) // 4 Int + DESTREZA
 			{
 				INT32 aux = _con * midVal / 100;
 				_int += aux;
@@ -1334,7 +1334,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			incMp += 20;
 		}
 		break;
-		case 35: // Po��o do Vigor
+		case 35: // Poção do Vigor
 		{
 			if (value == 2)
 			{
@@ -1357,14 +1357,14 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 	for (int i = 1; i <= 7; i++)
 	{// i = local66
-		int itemIndex = mob->Equip[i].Index; // LOCAL67
+		int itemIndex = mob->Equip[i].sIndex; // LOCAL67
 		if (itemIndex <= 0 || itemIndex > MAX_ITEMLIST)
 			continue;
 
 		int sanc = GetItemSanc(&mob->Equip[i]);
 		if (sanc >= 9)
 		{
-			int itemPos = ItemList[itemIndex].Pos; //local69
+			int itemPos = g_pItemList[itemIndex].Pos; //local69
 			switch (itemPos)
 			{
 			case 4:
@@ -1382,7 +1382,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			case 64:
 			case 192:
 			{
-				int unique = ItemList[itemIndex].Unique; //local72;
+				int unique = g_pItemList[itemIndex].Unique; //local72;
 				if (unique == 47)
 					magic += 4;
 				else
@@ -1393,7 +1393,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		}
 	}
 
-	if ((mob->Equip[0].Index >= 22 && mob->Equip[0].Index <= 25) || mob->Equip[0].Index == 32)
+	if ((mob->Equip[0].sIndex >= 22 && mob->Equip[0].sIndex <= 25) || mob->Equip[0].sIndex == 32)
 	{
 		INT32 t = 0;
 		for (; t < 32; t++)
@@ -1404,50 +1404,50 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 		if (t == 32)
 		{
-			mob->Equip[0].Index = mob->Equip[0].EF2;
+			mob->Equip[0].sIndex = mob->Equip[0].EF2;
 
 			SendEquip(player->clientId);
 		}
 	}
 
 	// Skill passivas
-	int _classInfo = mob->ClassInfo;
+	int _classInfo = mob->Class;
 	switch (_classInfo)
 	{
 	case 0:
 	{  // TK
 		incAc += 10;
 
-		if (mob->Learn[0] & (1 << ((9 % 24)))) // mestre das armas
+		if (mob->LearnedSkill[0] & (1 << ((9 % 24)))) // mestre das armas
 		{
-			if (mob->Equip[6].Index != 0 && mob->Equip[7].Index != 0 && ItemList[mob->Equip[7].Index].Pos != 128)
+			if (mob->Equip[6].sIndex != 0 && mob->Equip[7].sIndex != 0 && g_pItemList[mob->Equip[7].sIndex].Pos != 128)
 				incDamage += 2;
 		}
 
-		//if((mob->Learn[0] & ( 1 << ((14 % 24)) )))
-		//	attack += mob->Status.Mastery[2];
+		//if((mob->LearnedSkill[0] & ( 1 << ((14 % 24)) )))
+		//	attack += mob->CurrentScore.Special[2];
 
-		//B�nus oitava skill
-		if ((mob->Learn[0] & (1 << (7 % 24))))
+		//Bênus oitava skill
+		if ((mob->LearnedSkill[0] & (1 << (7 % 24))))
 			magic += 10;
-		else if ((mob->Learn[0] & (1 << (15 % 24))))
+		else if ((mob->LearnedSkill[0] & (1 << (15 % 24))))
 		{
 			incAc += 7;
 			_critical += 25;
 			lifeSteal += 5;
 		}
-		else if ((mob->Learn[0] & (1 << (23 % 24))))
+		else if ((mob->LearnedSkill[0] & (1 << (23 % 24))))
 			magic += 10;
 	}
 	break;
 	case 1:
 	{ // foema
-		// B�nus oitava skill
-		if ((mob->Learn[0] & (1 << (31 % 24))))
-			maxHP += (maxHP * 10 / 100);
-		else if ((mob->Learn[0] & (1 << (39 % 24))))
+		// Bênus oitava skill
+		if ((mob->LearnedSkill[0] & (1 << (31 % 24))))
+			MaxHp += (MaxHp * 10 / 100);
+		else if ((mob->LearnedSkill[0] & (1 << (39 % 24))))
 			magic += 5;
-		else if ((mob->Learn[0] & (1 << (47 % 24))))
+		else if ((mob->LearnedSkill[0] & (1 << (47 % 24))))
 		{
 			attack += 250;
 			incDamage += 10;
@@ -1462,63 +1462,63 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		short SrcPos = GetItemAbility(&mob->Equip[7], EF_POS);
 		if (SrcPos == 128) // Escudo
 		{
-			if ((mob->Learn[0] & (1 << (67 % 24))))
+			if ((mob->LearnedSkill[0] & (1 << (67 % 24))))
 			{
 				incAc += 2;
-				defense += mob->Status.Mastery[3] / 2;
+				defense += mob->CurrentScore.Special[3] / 2;
 			}
 		}
 
-		if ((mob->Learn[0] & (1 << (65 % 24))))
+		if ((mob->LearnedSkill[0] & (1 << (65 % 24))))
 		{
 			player->ReflectDamage += 100;
-			if (SrcPos == 128 || (mob->Learn[0] & (1 << (71 % 24))))
+			if (SrcPos == 128 || (mob->LearnedSkill[0] & (1 << (71 % 24))))
 				player->ReflectDamage += 75;
 		}
 
-		// B�nus oitava skill
-		if ((mob->Learn[0] & (1 << (55 % 24))))
+		// Bênus oitava skill
+		if ((mob->LearnedSkill[0] & (1 << (55 % 24))))
 		{
 			incAc += 3;
 			magic += 8;
 		}
-		else if ((mob->Learn[0] & (1 << (63 % 24))))
+		else if ((mob->LearnedSkill[0] & (1 << (63 % 24))))
 		{
 			incAc += 5;
 			defense += 200;
 		}
-		else if ((mob->Learn[0] & (1 << (71 % 24))))
+		else if ((mob->LearnedSkill[0] & (1 << (71 % 24))))
 		{
 			incHp += 8;
-			maxHP += 700;
+			MaxHp += 700;
 			attack += 200;
 		}
 	}
 	break;
 	case 3:
 	{
-		int unique = ItemList[mob->Equip[6].Index].Unique;
+		int unique = g_pItemList[mob->Equip[6].sIndex].Unique;
 
-		if ((mob->Learn[0] & (1 << (74 % 24))) && (unique == 42 || unique == 43))
-			attack += (mob->Status.Mastery[1] + 10);
+		if ((mob->LearnedSkill[0] & (1 << (74 % 24))) && (unique == 42 || unique == 43))
+			attack += (mob->CurrentScore.Special[1] + 10);
 
-		if ((mob->Learn[0] & (1 << (82 % 24))))
+		if ((mob->LearnedSkill[0] & (1 << (82 % 24))))
 		{
-			if (mob->Equip[6].Index != 0 && mob->Equip[7].Index != 0 && GetItemAbility(&mob->Equip[7], EF_POS) != 128)
-				attack += (mob->Status.Mastery[2] * 2);
+			if (mob->Equip[6].sIndex != 0 && mob->Equip[7].sIndex != 0 && GetItemAbility(&mob->Equip[7], EF_POS) != 128)
+				attack += (mob->CurrentScore.Special[2] * 2);
 		}
 
-		if ((mob->Learn[0] & (1 << (90 % 24))))
+		if ((mob->LearnedSkill[0] & (1 << (90 % 24))))
 			_critical += (_des / 80);
 
-		if ((mob->Learn[0] & (1 << ((94 % 24)))))
+		if ((mob->LearnedSkill[0] & (1 << ((94 % 24)))))
 			if (unique == 43)
-				defense += ((mob->Status.Mastery[3] * 3) / 5);
+				defense += ((mob->CurrentScore.Special[3] * 3) / 5);
 
-		// B�nus Oitava skill
-		if ((mob->Learn[0] & (1 << (79 % 24))) != 0)
+		// Bênus Oitava skill
+		if ((mob->LearnedSkill[0] & (1 << (79 % 24))) != 0)
 		{
-			short wType = GetEffectValueByIndex(mob->Equip[6].Index, EF_WTYPE);
+			short wType = GetEffectValueByIndex(mob->Equip[6].sIndex, EF_WTYPE);
 
 			if (wType == 101)
 			{// Arco
@@ -1527,9 +1527,9 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			}
 		}
 
-		else if ((mob->Learn[0] & (1 << (87 % 24))) != 0)
+		else if ((mob->LearnedSkill[0] & (1 << (87 % 24))) != 0)
 			incHp += 7;
-		else if ((mob->Learn[0] & (1 << (95 % 24))) != 0)
+		else if ((mob->LearnedSkill[0] & (1 << (95 % 24))) != 0)
 			incAc += 10;
 	}
 	break;
@@ -1537,8 +1537,8 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 	if (player->Mobs.Player.Equip[0].EFV2 >= CELESTIAL && clientId < MAX_PLAYER)
 	{
-		if (player->Mobs.Player.ClassInfo != 1 || (_int < _str + _des && player->Mobs.Player.ClassInfo == 1))
-			maxHP += 1000;
+		if (player->Mobs.Player.Class != 1 || (_int < _str + _des && player->Mobs.Player.Class == 1))
+			MaxHp += 1000;
 	}
 
 	if (player->Target.X >= 3449 && player->Target.X <= 3979 && player->Target.Y >= 2673 && player->Target.Y <= 3221)
@@ -1566,15 +1566,15 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 	if (tmpspeed > 150)
 		tmpspeed = 150;
 
-	player->Mobs.Player.Status.Move.Value = (tmpspeed << 4) + speed[0];
+	player->Mobs.Player.CurrentScore.Move.Value = (tmpspeed << 4) + speed[0];
 
 	if (body < 4)
 	{
 		attack += (_str / 3) + mastery[0] + (_des / 4);
 		//	defense += level;
 
-		maxHP += (_con * 2);
-		maxMP += (_int * 2);
+		MaxHp += (_con * 2);
+		MaxMp += (_int * 2);
 	}
 
 	// Bonus ao conquistar cidades
@@ -1584,35 +1584,35 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 			continue;
 
 		// 1% de bonus de ataque para cada cidade conquistada.
-		if (player->Mobs.Player.GuildIndex == ChargedGuildList[sServer.Channel - 1][i])
+		if (player->Mobs.Player.Guild == ChargedGuildList[sServer.Channel - 1][i])
 		{
-			maxHP += 50;
-			maxMP += 50;
+			MaxHp += 50;
+			MaxMp += 50;
 		}
 	}
 
 	if (clientId < MAX_PLAYER && pMob[clientId].Mobs.Player.Equip[0].EFV2 == ARCH)
 	{
 		if (player->Mobs.Info.Elime)
-			maxMP += 80;
+			MaxMp += 80;
 
 		if (player->Mobs.Info.Sylphed)
 			defense += 30;
 
 		if (player->Mobs.Info.Thelion)
-			maxHP += 80;
+			MaxHp += 80;
 
 		if (player->Mobs.Info.Noas)
 		{
-			maxHP += 60;
-			maxMP += 60;
+			MaxHp += 60;
+			MaxMp += 60;
 			defense += 20;
 		}
 	}
 
 	if (sServer.AnnubisBonus != 0)
 	{
-		if (mob->GuildIndex == sServer.AnnubisBonus)
+		if (mob->Guild == sServer.AnnubisBonus)
 		{
 			incAc += 3;
 			incDamage += 3;
@@ -1635,13 +1635,13 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		incMp += 2;
 	}
 
-	INT32 pkPoint = player->Mobs.Player.Inventory[63].Effect[0].Index - 75;
+	INT32 pkPoint = player->Mobs.Player.Inventory[63].stEffect[0].cEffect - 75;
 	if (pkPoint < 0 && clientId < MAX_PLAYER)
 	{
 		pkPoint = -pkPoint;
 
-		maxHP -= ((maxHP * (pkPoint + 15)) / 100);
-		maxMP -= ((maxMP * (pkPoint + 15)) / 100);
+		MaxHp -= ((MaxHp * (pkPoint + 15)) / 100);
+		MaxMp -= ((MaxMp * (pkPoint + 15)) / 100);
 
 		attack -= ((attack * pkPoint) / 100);
 		defense -= ((defense * pkPoint) / 100);
@@ -1654,12 +1654,12 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 	if (player->Mobs.Player.CapeInfo == 4 && player->Summoner > 0 && player->Summoner < MAX_PLAYER)
 	{
-		pkPoint = pMob[player->Summoner].Mobs.Player.Inventory[63].Effect[0].Index - 75;
+		pkPoint = pMob[player->Summoner].Mobs.Player.Inventory[63].stEffect[0].cEffect - 75;
 		if (pkPoint < 0)
 		{
 			pkPoint = -pkPoint;
 
-			maxHP -= ((maxHP * (pkPoint + 10)) / 100);
+			MaxHp -= ((MaxHp * (pkPoint + 10)) / 100);
 
 			attack -= ((attack * ((pkPoint + 15)) / 100));
 			defense -= ((defense * ((pkPoint + 15)) / 100));
@@ -1672,10 +1672,10 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		attack = attack * incDamage / 100;
 
 	if (incHp != 100)
-		maxHP = maxHP * incHp / 100;
+		MaxHp = MaxHp * incHp / 100;
 
 	if (incMp != 100)
-		maxMP = maxMP * incMp / 100;
+		MaxMp = MaxMp * incMp / 100;
 
 	if (incAc != 100)
 		defense = defense * incAc / 100;
@@ -1695,7 +1695,7 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 		if (mastery[i] > 255)
 			mastery[i] = 255;
 
-		mob->Status.Mastery[i] = mastery[i];
+		mob->CurrentScore.Special[i] = mastery[i];
 
 		resist[i] += resist[4];
 
@@ -1707,10 +1707,10 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 
 	if (magicJewel)
 	{
-		INT32 removed = (maxMP / 2);
-		maxMP -= removed;
+		INT32 removed = (MaxMp / 2);
+		MaxMp -= removed;
 
-		maxHP += removed;
+		MaxHp += removed;
 	}
 
 	if (attack > MAX_STATS  && clientId < MAX_PLAYER)
@@ -1734,18 +1734,18 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 	if (magic > MAX_MAGICINCREMENT)
 		magic = MAX_MAGICINCREMENT;
 
-	if (maxHP > MAX_HPMP && clientId < MAX_PLAYER)
-		maxHP = MAX_HPMP;
+	if (MaxHp > MAX_HPMP && clientId < MAX_PLAYER)
+		MaxHp = MAX_HPMP;
 
-	if (maxMP > MAX_HPMP && clientId < MAX_PLAYER)
-		maxMP = MAX_HPMP;
+	if (MaxMp > MAX_HPMP && clientId < MAX_PLAYER)
+		MaxMp = MAX_HPMP;
 
-	mob->Status.Attack = attack;
-	mob->Status.Defense = defense;
-	mob->Status.STR = _str;
-	mob->Status.INT = _int;
-	mob->Status.CON = _con;
-	mob->Status.DEX = _des;
+	mob->CurrentScore.Damage = attack;
+	mob->CurrentScore.Ac = defense;
+	mob->CurrentScore.Str = _str;
+	mob->CurrentScore.Int = _int;
+	mob->CurrentScore.Con = _con;
+	mob->CurrentScore.Dex = _des;
 	player->MagicIncrement = magic;
 	/*
 	INT32 index = ((UINT32)player - (UINT32)&pMob[0]) / sizeof CMob;
@@ -1753,15 +1753,15 @@ void GetCurScore(CMob *player, STRUCT_AFFECT *affect)
 	if(index < MAX_PLAYER)
 		Users[index].inGame.MagicIncrement = magic;*/
 
-	if (mob->Status.curHP > maxHP)
-		mob->Status.curHP = maxHP;
+	if (mob->CurrentScore.Hp > MaxHp)
+		mob->CurrentScore.Hp = MaxHp;
 
-	mob->Status.maxHP = maxHP;
+	mob->CurrentScore.MaxHp = MaxHp;
 
-	if (mob->Status.curMP > maxMP)
-		mob->Status.curMP = maxMP;
+	if (mob->CurrentScore.Mp > MaxMp)
+		mob->CurrentScore.Mp = MaxMp;
 
-	mob->Status.maxMP = maxMP;
+	mob->CurrentScore.MaxMp = MaxMp;
 
 	if (_critical > 255)
 		_critical = 255;
@@ -1844,7 +1844,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 		INT32 LOCAL_6 = LOCAL_3 + (Rand() % LOCAL_5);
 		/*
 		if (LOCAL_6 < 0 || LOCAL_6 < *(DWORD*)(0x15C69B0))
-			Log(SERVER_SIDE, LOG_ERROR, "Reloca��o de indice incorreta.");
+			Log(SERVER_SIDE, LOG_ERROR, "Relocação de indice incorreta.");
 		*/
 		arg1 = LOCAL_6;
 	}
@@ -1872,17 +1872,17 @@ void GenerateMob(int arg1, int arg2, int arg3)
 
 	memcpy(&pMob[LOCAL_10].Mobs.Player, &mGener.pList[LOCAL_1].Leader, sizeof STRUCT_MOB);
 	pMob[LOCAL_10].clientId = LOCAL_10;
-	pMob[LOCAL_10].Mobs.Player.Name[15] = '\0';
-	pMob[LOCAL_10].Mobs.Player.bStatus.Merchant.Direction = 0;
+	pMob[LOCAL_10].Mobs.Player.MobName[15] = '\0';
+	pMob[LOCAL_10].Mobs.Player.BaseScore.Merchant.Direction = 0;
 
-	strncpy_s(pMob[LOCAL_10].Mobs.Player.Name, mGener.pList[LOCAL_1].Leader.Name, 16);
+	strncpy_s(pMob[LOCAL_10].Mobs.Player.MobName, mGener.pList[LOCAL_1].Leader.MobName, 16);
 
 	for (INT32 LOCAL_12 = 0; LOCAL_12 < 16; LOCAL_12++)
 	{
-		if (pMob[LOCAL_10].Mobs.Player.Name[LOCAL_12] == 0x5F)
-			pMob[LOCAL_10].Mobs.Player.Name[LOCAL_12] = 0x20;
-		if (pMob[LOCAL_10].Mobs.Player.Name[LOCAL_12] == '@')
-			pMob[LOCAL_10].Mobs.Player.Name[LOCAL_12] = 0x20;
+		if (pMob[LOCAL_10].Mobs.Player.MobName[LOCAL_12] == 0x5F)
+			pMob[LOCAL_10].Mobs.Player.MobName[LOCAL_12] = 0x20;
+		if (pMob[LOCAL_10].Mobs.Player.MobName[LOCAL_12] == '@')
+			pMob[LOCAL_10].Mobs.Player.MobName[LOCAL_12] = 0x20;
 	}
 
 	memset(pMob[LOCAL_10].Mobs.Affects, 0, sizeof STRUCT_AFFECT * 32);
@@ -1921,14 +1921,14 @@ void GenerateMob(int arg1, int arg2, int arg3)
 		}
 	}
 
-	if (pMob[LOCAL_10].Mobs.Player.Equip[0].Index == 220 || pMob[LOCAL_10].Mobs.Player.Equip[0].Index == 219)
+	if (pMob[LOCAL_10].Mobs.Player.Equip[0].sIndex == 220 || pMob[LOCAL_10].Mobs.Player.Equip[0].sIndex == 219)
 	{/*
 		INT32 LOCAL_13 = *(DWORD*)(0x008BF1858);
-		if(LOCAL_13 > 0 && LOCAL_13 < MAX_PLAYER && Users[LOCAL_13].Status == 22)
+		if(LOCAL_13 > 0 && LOCAL_13 < MAX_PLAYER && Users[LOCAL_13].CurrentScore == 22)
 		{
 			memcpy(&pMob[LOCAL_10].Mobs.Player.Equip[14], &pMob[LOCAL_13].Mobs.Player.Equip[14], 8);
 
-			if(pMob[LOCAL_10].Mobs.Player.Equip[0].Index == 219)
+			if(pMob[LOCAL_10].Mobs.Player.Equip[0].sIndex == 219)
 			{
 				memcpy(&pMob[LOCAL_10].Mobs.Player.Equip[14], &pMob[LOCAL_13].Mobs.Player.Equip[12], 8);
 
@@ -1952,10 +1952,10 @@ void GenerateMob(int arg1, int arg2, int arg3)
 
 	pMob[LOCAL_10].GetCurrentScore(MAX_PLAYER);
 	pMob[LOCAL_10].clientId = LOCAL_10;
-	pMob[LOCAL_10].Mobs.Player.Status.curHP = pMob[LOCAL_10].Mobs.Player.Status.maxHP;
+	pMob[LOCAL_10].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_10].Mobs.Player.CurrentScore.MaxHp;
 
-	if (sServer.NewbieEventServer != 0 && pMob[LOCAL_10].Mobs.Player.Status.Level < 150) // NewbieEventServer
-		pMob[LOCAL_10].Mobs.Player.Status.curHP = (pMob[LOCAL_10].Mobs.Player.Status.curHP >> 2) * 3;
+	if (sServer.NewbieEventServer != 0 && pMob[LOCAL_10].Mobs.Player.CurrentScore.Level < 150) // NewbieEventServer
+		pMob[LOCAL_10].Mobs.Player.CurrentScore.Hp = (pMob[LOCAL_10].Mobs.Player.CurrentScore.Hp >> 2) * 3;
 
 	pMob[LOCAL_10].Segment.Direction = 0;
 	memset(&pMob[LOCAL_10].EnemyList, 0, MAX_ENEMY * sizeof(UINT16));
@@ -1971,7 +1971,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 	{
 		// error
 		pMob[LOCAL_10].Mode = 0;
-		pMob[LOCAL_10].Mobs.Player.Name[0] = '\0';
+		pMob[LOCAL_10].Mobs.Player.MobName[0] = '\0';
 		pMob[LOCAL_10].GenerateID = 0;
 
 		return;
@@ -1987,19 +1987,19 @@ void GenerateMob(int arg1, int arg2, int arg3)
 			if (pMob[kingIndex].Mode == 5)
 			{
 				pMob[LOCAL_10].Mode = 0;
-				pMob[LOCAL_10].Mobs.Player.Name[0] = '\0';
+				pMob[LOCAL_10].Mobs.Player.MobName[0] = '\0';
 				pMob[LOCAL_10].GenerateID = 0;
 
-				// O rei esta sendo atacado, n�o queremos que a torre nas�a
+				// O rei esta sendo atacado, nêo queremos que a torre nasêa
 				return;
 			}
 		}
 
 		sServer.KingdomBattle.Info[index].TowerId = LOCAL_10;
 		sServer.KingdomBattle.Info[index].isTowerAlive = true;
-		sServer.KingdomBattle.Info[index].Status = false;
+		sServer.KingdomBattle.Info[index].CurrentScore = false;
 
-		SendNotice("A Torre Guardi� do reino %s nasceu", arg1 == GUARDIAN_TOWER_BLUE ? "blue" : "red");
+		SendNotice("A Torre Guardiê do reino %s nasceu", arg1 == GUARDIAN_TOWER_BLUE ? "blue" : "red");
 	}
 	else if (arg1 == 8 || arg1 == 9)
 	{
@@ -2013,7 +2013,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 		{
 			GenerateMob(GUARDIAN_TOWER_BLUE + index, 0, 0);
 
-			sServer.KingdomBattle.Info[index].Status = false;
+			sServer.KingdomBattle.Info[index].CurrentScore = false;
 		}
 	}
 
@@ -2034,8 +2034,8 @@ void GenerateMob(int arg1, int arg2, int arg3)
 		{
 			if (g_pCityZone[cityId].owner_index != 0)
 			{
-				pMob[LOCAL_10].Mobs.Player.GuildIndex = g_pCityZone[cityId].owner_index;
-				pMob[LOCAL_10].Mobs.Player.GuildMemberType = 1;
+				pMob[LOCAL_10].Mobs.Player.Guild = g_pCityZone[cityId].owner_index;
+				pMob[LOCAL_10].Mobs.Player.GuildLevel = 1;
 			}
 		}
 	}
@@ -2046,7 +2046,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 
 	mGener.pList[LOCAL_1].MobCount++;
 
-	INT32 LOCAL_17 = mGener.pList[LOCAL_1].Leader.bStatus.maxMP;
+	INT32 LOCAL_17 = mGener.pList[LOCAL_1].Leader.BaseScore.MaxMp;
 	if (LOCAL_17 != 0)
 	{
 		SetAffect(LOCAL_10, LOCAL_17, 30000, 200);
@@ -2056,7 +2056,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 	//p364 LOCAL_44;
 	//GetCreateMob(LOCAL_10, (BYTE*)&LOCAL_44);
 
-	// n�o entendi - 004480BB -> Ele muda o spawn para 2 para aparecer nascendo
+	// nêo entendi - 004480BB -> Ele muda o spawn para 2 para aparecer nascendo
 
 	g_pMobGrid[LOCAL_15][LOCAL_14] = LOCAL_10;
 
@@ -2088,14 +2088,14 @@ void GenerateMob(int arg1, int arg2, int arg3)
 		pMob[LOCAL_11].PartyList[LOCAL_12] = LOCAL_45;
 		memcpy(&pMob[LOCAL_45].Mobs.Player, &mGener.pList[LOCAL_1].Follower, sizeof STRUCT_MOB);
 
-		pMob[LOCAL_45].Mobs.Player.bStatus.Merchant.Direction = 0;
+		pMob[LOCAL_45].Mobs.Player.BaseScore.Merchant.Direction = 0;
 
-		strncpy_s(pMob[LOCAL_45].Mobs.Player.Name, mGener.pList[LOCAL_1].Follower.Name, 16);
+		strncpy_s(pMob[LOCAL_45].Mobs.Player.MobName, mGener.pList[LOCAL_1].Follower.MobName, 16);
 
 		for (INT32 LOCAL_46 = 0; LOCAL_46 < 16; LOCAL_46++)
 		{
-			if (pMob[LOCAL_45].Mobs.Player.Name[LOCAL_46] == 0x5F)
-				pMob[LOCAL_45].Mobs.Player.Name[LOCAL_46] = 0x20;
+			if (pMob[LOCAL_45].Mobs.Player.MobName[LOCAL_46] == 0x5F)
+				pMob[LOCAL_45].Mobs.Player.MobName[LOCAL_46] = 0x20;
 		}
 
 		memset(pMob[LOCAL_45].Mobs.Affects, 0, sizeof STRUCT_AFFECT * 32);
@@ -2136,10 +2136,10 @@ void GenerateMob(int arg1, int arg2, int arg3)
 
 		pMob[LOCAL_45].GetCurrentScore(MAX_PLAYER);
 		pMob[LOCAL_45].clientId = LOCAL_45;
-		pMob[LOCAL_45].Mobs.Player.Status.curHP = pMob[LOCAL_45].Mobs.Player.Status.maxHP;
+		pMob[LOCAL_45].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_45].Mobs.Player.CurrentScore.MaxHp;
 
-		if (sServer.NewbieEventServer && pMob[LOCAL_45].Mobs.Player.Status.Level < 150) // NewbieEventServer
-			pMob[LOCAL_45].Mobs.Player.Status.curHP = (pMob[LOCAL_45].Mobs.Player.Status.curHP >> 2) * 3;
+		if (sServer.NewbieEventServer && pMob[LOCAL_45].Mobs.Player.CurrentScore.Level < 150) // NewbieEventServer
+			pMob[LOCAL_45].Mobs.Player.CurrentScore.Hp = (pMob[LOCAL_45].Mobs.Player.CurrentScore.Hp >> 2) * 3;
 
 		pMob[LOCAL_45].WaitSec = pMob[LOCAL_45].Segment.Wait[0];
 		pMob[LOCAL_45].Segment.Direction = 0;
@@ -2160,7 +2160,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 		{
 			pMob[LOCAL_45].Mode = 0;
 			pMob[LOCAL_45].GenerateID = -1;
-			pMob[LOCAL_45].Mobs.Player.Name[0] = '\0';
+			pMob[LOCAL_45].Mobs.Player.MobName[0] = '\0';
 			pMob[LOCAL_45].PartyList[LOCAL_12] = 0;
 
 			//error
@@ -2176,7 +2176,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 		pMob[LOCAL_45].Target.Y = LOCAL_49;
 		pMob[LOCAL_45].Last.Y = LOCAL_49;
 
-		INT32 LOCAL_17 = mGener.pList[LOCAL_1].Follower.bStatus.maxMP;
+		INT32 LOCAL_17 = mGener.pList[LOCAL_1].Follower.BaseScore.MaxMp;
 		if (LOCAL_17 != 0)
 		{
 			SetAffect(LOCAL_10, LOCAL_17, 30000, 200);
@@ -2204,7 +2204,7 @@ void GenerateMob(int arg1, int arg2, int arg3)
 
 void CMob::GetRandomPos()
 {
-	if (!Mobs.Player.bStatus.Move.Speed)
+	if (!Mobs.Player.BaseScore.Move.Speed)
 	{
 		Next.X = Target.X;
 		Next.Y = Target.Y;
@@ -2212,7 +2212,7 @@ void CMob::GetRandomPos()
 		return;
 	}
 
-	INT32 LOCAL_2 = GetSpeed(&Mobs.Player.Status);
+	INT32 LOCAL_2 = GetSpeed(&Mobs.Player.CurrentScore);
 	INT32 LOCAL_3 = (LOCAL_2 * 8) / 4;
 
 	if (LOCAL_3 >= 24)
@@ -2286,7 +2286,7 @@ void CMob::AddEnemyList(int enemyId)
 	{
 		for (LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 		{
-			if (pUser[LOCAL_2].Status != USER_PLAY || pMob[LOCAL_2].Mode == USER_EMPTY)
+			if (pUser[LOCAL_2].CurrentScore != USER_PLAY || pMob[LOCAL_2].Mode == USER_EMPTY)
 				continue;
 
 			if (pMob[LOCAL_2].Target.X < (Target.X - 30) || pMob[LOCAL_2].Target.X >(Target.X + 30) || pMob[LOCAL_2].Target.Y < (Target.Y - 30) || pMob[LOCAL_2].Target.Y >(Target.Y + 30))
@@ -2330,7 +2330,7 @@ INT32 CMob::StandingByProcessor()
 
 	if (RouteType == 5)
 	{
-		if (Mobs.Player.Equip[0].Index == 358)
+		if (Mobs.Player.Equip[0].sIndex == 358)
 		{
 			if (Mobs.Affects[0].Index != 24)
 				return 256;
@@ -2345,7 +2345,7 @@ INT32 CMob::StandingByProcessor()
 			return LOCAL_2;
 		}
 
-		INT32 LOCAL_3 = Mobs.Player.Equip[0].Index;
+		INT32 LOCAL_3 = Mobs.Player.Equip[0].sIndex;
 		if (Mobs.Affects[0].Index != 24 && (LOCAL_3 < 315 || LOCAL_3 >= 345))
 		{
 			LOCAL_2 |= 256;
@@ -2376,7 +2376,7 @@ INT32 CMob::StandingByProcessor()
 			return LOCAL_2;
 		}
 
-		if (pUser[LOCAL_4].Status == USER_PLAY)
+		if (pUser[LOCAL_4].CurrentScore == USER_PLAY)
 		{
 			INT32 LOCAL_7 = GetDistance(Target.X, Target.Y, pMob[LOCAL_4].Target.X, pMob[LOCAL_4].Target.Y);
 
@@ -2427,7 +2427,7 @@ INT32 CMob::StandingByProcessor()
 				if (RouteType == 0 && Target.X == Segment.ListX[0] && Target.Y == Segment.ListY[0])
 					return 0;
 
-				if (Mobs.Player.Status.Move.Speed == 0)
+				if (Mobs.Player.CurrentScore.Move.Speed == 0)
 					return 0;
 
 				LOCAL_2 = LOCAL_2 | 4096;
@@ -2473,7 +2473,7 @@ INT32 CMob::StandingByProcessor()
 
 void CMob::GetNextPos(int battle)
 {
-	if (!Mobs.Player.bStatus.Move.Speed)
+	if (!Mobs.Player.BaseScore.Move.Speed)
 	{
 		Next.X = Target.X;
 		Next.Y = Target.Y;
@@ -2481,7 +2481,7 @@ void CMob::GetNextPos(int battle)
 		return;
 	}
 
-	if (Mobs.Player.Equip[0].Index == 219 || Mobs.Player.Equip[0].Index == 220 || GenerateID == KEFRA)
+	if (Mobs.Player.Equip[0].sIndex == 219 || Mobs.Player.Equip[0].sIndex == 220 || GenerateID == KEFRA)
 	{
 		Next.X = Target.X;
 		Next.Y = Target.Y;
@@ -2489,7 +2489,7 @@ void CMob::GetNextPos(int battle)
 		return;
 	}
 
-	int speed = GetSpeed(&Mobs.Player.Status); //LOCAL_2
+	int speed = GetSpeed(&Mobs.Player.CurrentScore); //LOCAL_2
 	int LOCAL_3 = speed * 8 / 4;
 	if (LOCAL_3 >= 24)
 		LOCAL_3 = 23;
@@ -2497,15 +2497,15 @@ void CMob::GetNextPos(int battle)
 	int LOCAL_4;
 	if (battle)
 	{
-		LOCAL_4 = (Mobs.Player.bStatus.STR + 1) >> 1;
+		LOCAL_4 = (Mobs.Player.BaseScore.Str + 1) >> 1;
 
 		if (LOCAL_3 > LOCAL_4)
 			LOCAL_3 = LOCAL_4;
 	}
 	else
 	{
-		if (LOCAL_3 > Mobs.Player.bStatus.STR)
-			LOCAL_3 = Mobs.Player.bStatus.STR;
+		if (LOCAL_3 > Mobs.Player.BaseScore.Str)
+			LOCAL_3 = Mobs.Player.BaseScore.Str;
 	}
 
 	Last.X = Target.X;
@@ -2584,7 +2584,7 @@ INT32 CMob::GetEnemyFromView()
 			if (LOCAL_12 == 0)
 				continue;
 
-			if (!pMob[LOCAL_12].Mobs.Player.Status.curHP)
+			if (!pMob[LOCAL_12].Mobs.Player.CurrentScore.Hp)
 				continue;
 
 			if (pMob[LOCAL_12].Mode == 0)
@@ -2596,7 +2596,7 @@ INT32 CMob::GetEnemyFromView()
 			INT32 LOCAL_13 = pMob[LOCAL_12].Mobs.Player.CapeInfo;
 			if (Mobs.Player.CapeInfo < 0 || Mobs.Player.CapeInfo >= 9 || LOCAL_13 < 0 || LOCAL_13 >= 9)
 			{
-				Log(SERVER_SIDE, LOG_ERROR, "clan out or range %d %d [%d] [%s] [%s]", Mobs.Player.CapeInfo, LOCAL_13, pMob[LOCAL_12].GenerateID, pMob[LOCAL_12].Mobs.Player.Name, Mobs.Player.Name);
+				Log(SERVER_SIDE, LOG_ERROR, "clan out or range %d %d [%d] [%s] [%s]", Mobs.Player.CapeInfo, LOCAL_13, pMob[LOCAL_12].GenerateID, pMob[LOCAL_12].Mobs.Player.MobName, Mobs.Player.MobName);
 
 				return 0;
 			}
@@ -2670,7 +2670,7 @@ INT32 CMob::SetSegment()
 			}
 			else if (RouteType == 4)
 			{
-				Log(SERVER_SIDE, LOG_ERROR, "SetSegment SegmentProgress -1 but route type 4 - %s %d", Mobs.Player.Name, 0);
+				Log(SERVER_SIDE, LOG_ERROR, "SetSegment SegmentProgress -1 but route type 4 - %s %d", Mobs.Player.MobName, 0);
 
 				break;
 			}
@@ -2682,20 +2682,20 @@ INT32 CMob::SetSegment()
 				Segment.Progress = 4;
 				Mode = 4;
 
-				Mobs.Player.bStatus.Merchant.Merchant = Mobs.Player.Info.Merchant;
+				Mobs.Player.BaseScore.Merchant.Merchant = Mobs.Player.Info.Merchant;
 				INT32 LOCAL_3 = strlen((char*)Route);
 
 				char LOCAL_4 = 0; //EBP-10;
 				if (LOCAL_3 > 0)
 				{
-					LOCAL_4 = Route[(LOCAL_3 - 1)]; // No caso, ele usa o final da Next, n�o sei como ele faz isso, mas enfim!
+					LOCAL_4 = Route[(LOCAL_3 - 1)]; // No caso, ele usa o final da Next, nêo sei como ele faz isso, mas enfim!
 					LOCAL_4 = LOCAL_4 - 48;
 
 					if (LOCAL_4 >= 1 && LOCAL_4 <= 9)
 					{
 						LOCAL_4 = LOCAL_4 << 4;
 
-						Mobs.Player.bStatus.Merchant.Direction = Mobs.Player.bStatus.Merchant.Direction | LOCAL_4;
+						Mobs.Player.BaseScore.Merchant.Direction = Mobs.Player.BaseScore.Merchant.Direction | LOCAL_4;
 					}
 
 				}
@@ -2743,13 +2743,13 @@ INT32 CMob::SetSegment()
 
 INT32 CMob::BattleProcessor()
 {
-	if (Mobs.Player.Equip[0].Index == 362)
+	if (Mobs.Player.Equip[0].sIndex == 362)
 		return 0x2000;
 
 	SelectTargetFromEnemyList();
 
 	if (CurrentTarget == 0)
-	{ // N�o encontrou ningu�m para atacar
+	{ // Nêo encontrou ninguêm para atacar
 		Mode = 4;
 
 		if (BossInfoId < sServer.Boss.size())
@@ -2760,7 +2760,7 @@ INT32 CMob::BattleProcessor()
 
 	if (RouteType == 5)
 	{
-		if (Mobs.Player.Equip[0].Index == 358)
+		if (Mobs.Player.Equip[0].sIndex == 358)
 		{
 			if (Mobs.Affects[0].Index != 24)
 				return 32;
@@ -2800,11 +2800,11 @@ INT32 CMob::BattleProcessor()
 		}
 	}
 
-	INT32 LOCAL_6 = Mobs.Player.bStatus.INT;
+	INT32 LOCAL_6 = Mobs.Player.BaseScore.Int;
 	if (LOCAL_6 < Rand() % 100)
 		return 0x10000;
 
-	INT32 LOCAL_7 = Mobs.Player.bStatus.DEX;
+	INT32 LOCAL_7 = Mobs.Player.BaseScore.Dex;
 	INT32 LOCAL_8 = pMob[CurrentTarget].Target.X;
 	INT32 LOCAL_9 = pMob[CurrentTarget].Target.Y;
 	INT32 LOCAL_10 = GenerateID == KEFRA ? 25 : GetMobAbility(&Mobs.Player, 27);
@@ -2864,7 +2864,7 @@ void CMob::SelectTargetFromEnemyList()
 	if (Mobs.Player.CapeInfo == 4 || Mobs.Player.CapeInfo == 7 || Mobs.Player.CapeInfo == 8)
 		LOCAL_7 = 12;
 
-	if (Mobs.Player.Equip[0].Index == 362) // kefra face
+	if (Mobs.Player.Equip[0].sIndex == 362) // kefra face
 		LOCAL_7 = 12;
 
 	INT32 LOCAL_12;
@@ -2890,7 +2890,7 @@ void CMob::SelectTargetFromEnemyList()
 			continue;
 		}
 		// 00411BF7
-		if (!pMob[LOCAL_8].Mobs.Player.Status.curHP)
+		if (!pMob[LOCAL_8].Mobs.Player.CurrentScore.Hp)
 		{
 			EnemyList[LOCAL_6] = 0;
 
@@ -2907,7 +2907,7 @@ void CMob::SelectTargetFromEnemyList()
 				continue;
 			}
 
-			if (pMob[LOCAL_8].Mobs.Player.Status.Level >= 400 && pMob[LOCAL_8].Mobs.Player.AffectInfo.SlowMov)
+			if (pMob[LOCAL_8].Mobs.Player.CurrentScore.Level >= 400 && pMob[LOCAL_8].Mobs.Player.AffectInfo.SlowMov)
 			{
 				EnemyList[LOCAL_6] = 0;
 
@@ -2958,7 +2958,7 @@ void CMob::SelectTargetFromEnemyList()
 
 void CMob::GetTargetPos(int arg1)
 {
-	if (!Mobs.Player.bStatus.Move.Speed)
+	if (!Mobs.Player.BaseScore.Move.Speed)
 	{
 		Next.X = Target.X;
 		Next.Y = Target.Y;
@@ -2966,7 +2966,7 @@ void CMob::GetTargetPos(int arg1)
 		return;
 	}
 
-	INT32 LOCAL_2 = GetSpeed(&Mobs.Player.Status);
+	INT32 LOCAL_2 = GetSpeed(&Mobs.Player.CurrentScore);
 	INT32 LOCAL_3 = LOCAL_2 * 8 / 4;
 
 	if (LOCAL_3 >= 24)
@@ -3008,7 +3008,7 @@ void CMob::GetTargetPos(int arg1)
 
 void CMob::GetTargetPosDistance(int arg1)
 {
-	if (!Mobs.Player.bStatus.Move.Speed)
+	if (!Mobs.Player.BaseScore.Move.Speed)
 	{
 		Next.X = Target.X;
 		Next.Y = Target.Y;
@@ -3016,7 +3016,7 @@ void CMob::GetTargetPosDistance(int arg1)
 		return;
 	}
 
-	INT32 LOCAL_2 = GetSpeed(&Mobs.Player.Status);
+	INT32 LOCAL_2 = GetSpeed(&Mobs.Player.CurrentScore);
 	INT32 LOCAL_3 = LOCAL_2 << 2 << 1 >> 2;
 
 	if (LOCAL_3 >= 24)
@@ -3083,7 +3083,7 @@ INT32 CMob::CheckGetLevel()
 	};
 
 	INT32 evId = Mobs.Player.Equip[0].EFV2;
-	INT32 level = Mobs.Player.Status.Level;
+	INT32 level = Mobs.Player.CurrentScore.Level;
 	if ((evId <= ARCH && level >= MAX_LEVEL) || (evId >= CELESTIAL && level >= MAX_LEVEL_CELESTIAL))
 		return false;
 
@@ -3101,33 +3101,33 @@ INT32 CMob::CheckGetLevel()
 		if (Mobs.Info.LvBlocked && level != 39 && level != 89)
 		{
 			Mobs.Info.LvBlocked = 0;
-			Log(clientId, LOG_INGAME, "O celestial estava bloqueado sem estar no n�vel 40 ou 90. Efetuando desbloqueio.");
+			Log(clientId, LOG_INGAME, "O celestial estava bloqueado sem estar no nêvel 40 ou 90. Efetuando desbloqueio.");
 		}
 	}
 
 	if (evId >= eClass::Celestial && level >= 199 && !pMob[clientId].Mobs.Info.Unlock200)
 		return false;
 
-	// O Usuario tem uma experi�ncia maior
+	// O Usuario tem uma experiência maior
 	if (exp >= nextExp)
 	{
 		// Adiciona o level no usuario
-		Mobs.Player.Status.Level++;
-		Mobs.Player.bStatus.Level++;
+		Mobs.Player.CurrentScore.Level++;
+		Mobs.Player.BaseScore.Level++;
 		level++;
 
 		// Se esta upando pro 221 e tem uma guild
 		// damos a capa gratuitamente para o usuario
-		if ((evId == MORTAL || evId == ARCH) && level == 219 && Mobs.Player.GuildIndex != 0 && Mobs.Player.CapeInfo == 0)
+		if ((evId == MORTAL || evId == ARCH) && level == 219 && Mobs.Player.Guild != 0 && Mobs.Player.CapeInfo == 0)
 		{
-			int guildIndex = Mobs.Player.GuildIndex;
+			int guildIndex = Mobs.Player.Guild;
 			int guildCape = g_pGuild[guildIndex].Kingdom;
 
 			Mobs.Player.Equip[15] = STRUCT_ITEM{};
-			Mobs.Player.Equip[15].Index = 545 + (guildCape - CAPE_BLUE);
+			Mobs.Player.Equip[15].sIndex = 545 + (guildCape - CAPE_BLUE);
 
 			SendItem(clientId, SlotType::Equip, 14, &Mobs.Player.Equip[15]);
-			Log(clientId, LOG_INGAME, "Recebeu a capa %hu por subir de n�vel 221 estando na guild %s (%d)", Mobs.Player.Equip[15].Index, g_pGuild[guildIndex].Name.c_str(), guildIndex);
+			Log(clientId, LOG_INGAME, "Recebeu a capa %hu por subir de nêvel 221 estando na guild %s (%d)", Mobs.Player.Equip[15].sIndex, g_pGuild[guildIndex].MobName.c_str(), guildIndex);
 		}
 
 		/*if(evId == ARCH)
@@ -3142,9 +3142,9 @@ INT32 CMob::CheckGetLevel()
 				SendEtc(clientId);
 			}
 			else if(level == 354 && pMob[clientId].Mobs.Info.Unlock354)
-				Log(clientId, LOG_INGAME, "N�o travou o n�vel 355 por ja ter travado uma vez!");
+				Log(clientId, LOG_INGAME, "Nêo travou o nêvel 355 por ja ter travado uma vez!");
 			else if(level == 369 && pMob[clientId].Mobs.Info.Unlock369)
-				Log(clientId, LOG_INGAME, "N�o travou o n�vel 370 por ja ter travado uma vez!");
+				Log(clientId, LOG_INGAME, "Nêo travou o nêvel 370 por ja ter travado uma vez!");
 
 		}*/
 
@@ -3170,7 +3170,7 @@ INT32 CMob::CheckGetLevel()
 			SendEtc(clientId);
 		}
 
-		// Atribui uma nova pontua��o de CP para o usuario
+		// Atribui uma nova pontuação de CP para o usuario
 		INT32 pkPoint = GetPKPoint(clientId);
 		if ((pkPoint - 75) < 75)
 		{
@@ -3181,11 +3181,11 @@ INT32 CMob::CheckGetLevel()
 			LogPlayer(clientId, "Pontos CP subiu em 3. CP novo: %d", GetPKPoint(clientId) - 75);
 		}
 
-		Mobs.Player.Status.curHP = Mobs.Player.Status.maxHP;
-		Mobs.Player.Status.curMP = Mobs.Player.Status.maxMP;
+		Mobs.Player.CurrentScore.Hp = Mobs.Player.CurrentScore.MaxHp;
+		Mobs.Player.CurrentScore.Mp = Mobs.Player.CurrentScore.MaxMp;
 
-		pUser[clientId].Potion.CountHp = Mobs.Player.Status.maxHP;
-		pUser[clientId].Potion.CountMp = Mobs.Player.Status.maxMP;
+		pUser[clientId].Potion.CountHp = Mobs.Player.CurrentScore.MaxHp;
+		pUser[clientId].Potion.CountMp = Mobs.Player.CurrentScore.MaxMp;
 
 		SendSetHpMp(clientId);
 
@@ -3207,7 +3207,7 @@ INT32 CMob::CheckGetLevel()
 			UNION_QUESTINFO quest = Mobs.Info;
 
 			INT32 i = -1;
-			switch (Mobs.Player.bStatus.Level)
+			switch (Mobs.Player.BaseScore.Level)
 			{
 			case 120:
 				if (quest.Add120 == 0)
@@ -3231,31 +3231,31 @@ INT32 CMob::CheckGetLevel()
 			if (i != -1)
 			{
 				STRUCT_ITEM *cyt = &Mobs.Player.Equip[1];
-				if (cyt->Index >= 3500 && cyt->Index <= 3507)
+				if (cyt->sIndex >= 3500 && cyt->sIndex <= 3507)
 				{
-					Log(clientId, LOG_INGAME, "%s com adicional do level %d. Antigo adicional: [%d] [%d %d %d %d %d %d]", ItemList[cyt->Index].Name, Mobs.Player.bStatus.Level, cyt->Index, cyt->EF1, cyt->EFV1, cyt->EF2, cyt->EFV2, cyt->EF3, cyt->EFV3);
+					Log(clientId, LOG_INGAME, "%s com adicional do level %d. Antigo adicional: [%d] [%d %d %d %d %d %d]", g_pItemList[cyt->sIndex].ItemName, Mobs.Player.BaseScore.Level, cyt->sIndex, cyt->EF1, cyt->EFV1, cyt->EF2, cyt->EFV2, cyt->EF3, cyt->EFV3);
 					INT32 ref = 0,
 						add = 0;
 
 					for (INT32 i = 0; i < 3; i++)
 					{
-						if (cyt->Effect[i].Index >= 43 || (cyt->Effect[i].Index >= 116 && cyt->Effect[i].Index <= 125))
+						if (cyt->stEffect[i].cEffect >= 43 || (cyt->stEffect[i].cEffect >= 116 && cyt->stEffect[i].cEffect <= 125))
 						{
-							ref = cyt->Effect[i].Value;
-							add = cyt->Effect[i].Index;
+							ref = cyt->stEffect[i].cValue;
+							add = cyt->stEffect[i].cEffect;
 
 							break;
 						}
 					}
 
-					cyt->Effect[0].Index = add;
-					cyt->Effect[0].Value = ref;
+					cyt->stEffect[0].cEffect = add;
+					cyt->stEffect[0].cValue = ref;
 
-					cyt->Effect[1].Index = EF_HP;
-					cyt->Effect[1].Value = szAdds[i][1];
+					cyt->stEffect[1].cEffect = EF_HP;
+					cyt->stEffect[1].cValue = szAdds[i][1];
 
-					cyt->Effect[2].Index = EF_AC;
-					cyt->Effect[2].Value = szAdds[i][0];
+					cyt->stEffect[2].cEffect = EF_AC;
+					cyt->stEffect[2].cValue = szAdds[i][0];
 
 					if (i == 0)
 						Mobs.Info.Add120 = 1;
@@ -3269,7 +3269,7 @@ INT32 CMob::CheckGetLevel()
 					SendItem(clientId, SlotType::Equip, 1, cyt);
 				}
 				else
-					Log(clientId, LOG_INGAME, "%s n�o recebeu o adicional do level %d por n�o ter cythera equipada no personagem", ItemList[cyt->Index].Name, Mobs.Player.bStatus.Level);
+					Log(clientId, LOG_INGAME, "%s nêo recebeu o adicional do level %d por nêo ter cythera equipada no personagem", g_pItemList[cyt->sIndex].ItemName, Mobs.Player.BaseScore.Level);
 			}
 		}
 
@@ -3282,7 +3282,7 @@ INT32 CMob::CheckGetLevel()
 INT32 CMob::CheckQuarter(long long expEarned)
 {
 	int evId = Mobs.Player.Equip[0].EFV2;
-	int level = Mobs.Player.Status.Level;
+	int level = Mobs.Player.CurrentScore.Level;
 
 	if ((evId <= ARCH && level >= MAX_LEVEL) || (evId >= CELESTIAL && level >= MAX_LEVEL_CELESTIAL))
 		return true;
@@ -3306,7 +3306,7 @@ INT32 CMob::CheckQuarter(long long expEarned)
 			{
 				needRefresh = TRUE;
 
-				SendClientMessage(clientId, "Adquiriu %d/4 de b�nus.", i);
+				SendClientMessage(clientId, "Adquiriu %d/4 de bênus.", i);
 				break;
 			}
 		}
@@ -3314,11 +3314,11 @@ INT32 CMob::CheckQuarter(long long expEarned)
 
 	if (needRefresh)
 	{
-		Mobs.Player.Status.curHP = Mobs.Player.Status.maxHP;
-		Mobs.Player.Status.curMP = Mobs.Player.Status.maxMP;
+		Mobs.Player.CurrentScore.Hp = Mobs.Player.CurrentScore.MaxHp;
+		Mobs.Player.CurrentScore.Mp = Mobs.Player.CurrentScore.MaxMp;
 
-		pUser[clientId].Potion.CountHp = Mobs.Player.Status.maxHP;
-		pUser[clientId].Potion.CountMp = Mobs.Player.Status.maxMP;
+		pUser[clientId].Potion.CountHp = Mobs.Player.CurrentScore.MaxHp;
+		pUser[clientId].Potion.CountMp = Mobs.Player.CurrentScore.MaxMp;
 
 		SendSetHpMp(clientId);
 
@@ -3335,7 +3335,7 @@ bool CMob::isBagActive(eBag bag) const
 {
 	if (bag == eBag::FirstBag)
 	{
-		if (pMob[clientId].Mobs.Player.Inventory[60].Index != 3467)
+		if (pMob[clientId].Mobs.Player.Inventory[60].sIndex != 3467)
 			return false;
 
 		return TimeRemaining(pMob[clientId].Mobs.Player.Inventory[60].EFV1, pMob[clientId].Mobs.Player.Inventory[60].EFV2, pMob[clientId].Mobs.Player.Inventory[60].EFV3 + 1900) > 0.0f;
@@ -3343,7 +3343,7 @@ bool CMob::isBagActive(eBag bag) const
 
 	if (bag == eBag::SecondBag)
 	{
-		if (pMob[clientId].Mobs.Player.Inventory[61].Index != 3467)
+		if (pMob[clientId].Mobs.Player.Inventory[61].sIndex != 3467)
 			return false;
 
 		return TimeRemaining(pMob[clientId].Mobs.Player.Inventory[61].EFV1, pMob[clientId].Mobs.Player.Inventory[61].EFV2, pMob[clientId].Mobs.Player.Inventory[61].EFV3 + 1900) > 0.0f;

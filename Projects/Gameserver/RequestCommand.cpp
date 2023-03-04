@@ -17,9 +17,9 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 	Log(clientId, LOG_INGAME, "Comando \"/%s %s\"", p->eCommand, p->eValue);
 
-	if (Status != USER_PLAY && clientId != SCHEDULE_ID)
+	if (CurrentScore != USER_PLAY && clientId != SCHEDULE_ID)
 	{
-		Log(clientId, LOG_INGAME, "Enviado comando estando fora da sess�o de jogo... Sess�o atual: %d", Status);
+		Log(clientId, LOG_INGAME, "Enviado comando estando fora da sessêo de jogo... Sessêo atual: %d", CurrentScore);
 
 		return true;
 	}
@@ -34,7 +34,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		INT32 mobId = GetUserByName(p->eValue);
 		if (mobId <= 0)
 		{
-			SendClientMessage(clientId, "O usuario n�o esta conectado.");
+			SendClientMessage(clientId, "O usuario nêo esta conectado.");
 
 			return true;
 		}
@@ -68,7 +68,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		if (sServer.Channel == channel)
 		{
-			SendClientMessage(clientId, "Voc� ja esta neste canal");
+			SendClientMessage(clientId, "Você ja esta neste canal");
 
 			return true;
 		}
@@ -97,7 +97,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		nowraw = time(NULL);
 		localtime_s(&now, &nowraw);
 
-		int guildId = pMob[clientId].Mobs.Player.GuildIndex;
+		int guildId = pMob[clientId].Mobs.Player.Guild;
 		if (!guildId)
 		{
 			SendClientMessage(clientId, "Necessario possuir uma guild.");
@@ -107,11 +107,11 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		int mobId = GetUserByName(p->eValue);
 		if (mobId == 0)
 		{
-			SendClientMessage(clientId, "O usuario n�o esta conectado.");
+			SendClientMessage(clientId, "O usuario nêo esta conectado.");
 			return true;
 		}
 
-		if (pMob[mobId].Mobs.Player.GuildIndex != guildId)
+		if (pMob[mobId].Mobs.Player.Guild != guildId)
 		{
 			SendClientMessage(clientId, "Necessario ser da mesma guilda.");
 			return true;
@@ -119,36 +119,36 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		if (now.tm_wday == DOMINGO)
 		{
-			SendClientMessage(clientId, "N�o � poss�vel transferir no domingo");
+			SendClientMessage(clientId, "Nêo ê possêvel transferir no domingo");
 
 			return true;
 		}
 
-		if (pMob[clientId].Mobs.Player.GuildMemberType != 9)
+		if (pMob[clientId].Mobs.Player.GuildLevel != 9)
 		{
-			SendClientMessage(clientId, "Transfer�ncia habilitada apenas para l�deres de guild.");
+			SendClientMessage(clientId, "Transferência habilitada apenas para lêderes de guild.");
 
 			return true;
 		}
 
 		SetGuildFame(guildId, 0);
 
-		auto memberType = pMob[mobId].Mobs.Player.GuildMemberType;
-		std::swap(pMob[clientId].Mobs.Player.GuildMemberType, pMob[mobId].Mobs.Player.GuildMemberType);
+		auto memberType = pMob[mobId].Mobs.Player.GuildLevel;
+		std::swap(pMob[clientId].Mobs.Player.GuildLevel, pMob[mobId].Mobs.Player.GuildLevel);
 
 		SendClientMessage(clientId, "Medalha transferida");
 		SendClientMessage(mobId, "Medalha transferida");
 
-		Log(clientId, LOG_INGAME, "Medalha transferida para %s GuildID : %d. Fame perdida.", pMob[mobId].Mobs.Player.Name, guildId);
-		Log(mobId, LOG_INGAME, "Medalha recebida de %s - GuildID: %d. Fame perdida", pMob[clientId].Mobs.Player.Name, guildId);
+		Log(clientId, LOG_INGAME, "Medalha transferida para %s GuildID : %d. Fame perdida.", pMob[mobId].Mobs.Player.MobName, guildId);
+		Log(mobId, LOG_INGAME, "Medalha recebida de %s - GuildID: %d. Fame perdida", pMob[clientId].Mobs.Player.MobName, guildId);
 
 		MulticastGetCreateMob(clientId);
 		MulticastGetCreateMob(mobId);
 	}
 	else if (!strcmp(p->eCommand, "fimirma"))
 	{
-		INT32 guildId = pMob[clientId].Mobs.Player.GuildIndex;
-		if (guildId <= 0 || guildId >= MAX_GUILD || pMob[clientId].Mobs.Player.GuildMemberType != 9)
+		INT32 guildId = pMob[clientId].Mobs.Player.Guild;
+		if (guildId <= 0 || guildId >= MAX_GUILD || pMob[clientId].Mobs.Player.GuildLevel != 9)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Only_Guild_Master_can]);
 
@@ -158,14 +158,14 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		INT32 guildAlly = g_pGuildAlly[guildId];
 		if (guildAlly <= 0 || guildAlly >= MAX_GUILD)
 		{
-			SendClientMessage(clientId, "Voc� n�o possui alian�a");
+			SendClientMessage(clientId, "Você nêo possui alianêa");
 
 			return true;
 		}
 
 		if (IsWarTime())
 		{
-			SendClientMessage(clientId, "N�o � poss�vel realizar em horario de guerra");
+			SendClientMessage(clientId, "Nêo ê possêvel realizar em horario de guerra");
 
 			return true;
 		}
@@ -189,23 +189,23 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		if(sServer.TowerWar[conn].WarState == 1)
 			SendClientMessage(clientId, "O canal %d esta em guerra com o canal %d", otherConn + 1, conn + 1);
 		else if(sServer.TowerWar[conn].WarState == 2)
-			SendClientMessage(clientId, "O canal %d precisa reconquistar o pr�prio canal", conn);
+			SendClientMessage(clientId, "O canal %d precisa reconquistar o prêprio canal", conn);
 
 		if(sServer.TowerWar[otherConn].WarState == 1)
 			SendClientMessage(clientId, "O canal %d esta em guerra com o canal %d", conn + 1, otherConn + 1);
 		else if(sServer.TowerWar[otherConn].WarState == 2)
-			SendClientMessage(clientId, "O canal %d precisa reconquistar o pr�prio canal", otherConn);*/
+			SendClientMessage(clientId, "O canal %d precisa reconquistar o prêprio canal", otherConn);*/
 	}
 	else if (!strcmp(p->eCommand, "rvr"))
 	{
-		SendClientMessage(clientId, "Voc� possui %d pontos", pMob[clientId].Mobs.RvRPoints);
+		SendClientMessage(clientId, "Você possui %d pontos", pMob[clientId].Mobs.RvRPoints);
 	}
 	else if (!strcmp(p->eCommand, "info"))
 	{
 		if (pMob[clientId].Mobs.Player.Equip[0].EFV2 <= 2)
 			return true;
 
-		sprintf_s(szTMP, "Voc� esta no %s e possui %d resets.", (pMob[clientId].Mobs.Player.Equip[0].EFV2 == 4) ? "Subcelestial" : "Celestial", pMob[clientId].Mobs.GetTotalResets());
+		sprintf_s(szTMP, "Você esta no %s e possui %d resets.", (pMob[clientId].Mobs.Player.Equip[0].EFV2 == 4) ? "Subcelestial" : "Celestial", pMob[clientId].Mobs.GetTotalResets());
 		SendClientMessage(clientId, szTMP);
 	}
 	/*else if (!strncmp(p->eCommand, "lock", 4))
@@ -250,7 +250,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		for (INT32 i = 1; i < MAX_GUILD; i++)
 		{
-			if (g_pGuild[i].Name.empty())
+			if (g_pGuild[i].MobName.empty())
 			{
 				lastIndex = i;
 				break;
@@ -267,14 +267,14 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		STRUCT_MOB *player = (STRUCT_MOB*)&mob->Mobs.Player;
 
 		int guildTicket = GetFirstSlot(clientId, 4614);
-		if (guildTicket == -1 && player->Gold < 100000000)
+		if (guildTicket == -1 && player->Coin < 100000000)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Guild_Need100mGold]);
 
 			return true;
 		}
 
-		if (mob->Mobs.Player.GuildIndex != 0)
+		if (mob->Mobs.Player.Guild != 0)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Guild_YouHaveAGuild]);
 
@@ -296,7 +296,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		if (diffTime < KickOutPenalty && diffTime != 0.0)
 		{
-			SendClientMessage(clientId, "Voc� n�o pode criar uma guild ainda");
+			SendClientMessage(clientId, "Você nêo pode criar uma guild ainda");
 
 			return true;
 		}
@@ -304,7 +304,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		INT32  i = 0;
 		for (; i < MAX_GUILD; i++)
 		{
-			if (_stricmp(g_pGuild[i].Name.c_str(), p->eValue) == 0)
+			if (_stricmp(g_pGuild[i].MobName.c_str(), p->eValue) == 0)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Guild_GuildName]);
 
@@ -335,11 +335,11 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		AddMessageDB((BYTE*)&packet, sizeof MSG_CREATEGUILD);
 
 		// Atribui o guildIndex
-		player->GuildIndex = lastIndex;
+		player->Guild = lastIndex;
 
 		// Retira o gold
 		if(guildTicket == -1)
-			player->Gold -= 100000000;
+			player->Coin -= 100000000;
 		else
 		{
 			AmountMinus(&pMob[clientId].Mobs.Player.Inventory[guildTicket]);
@@ -347,10 +347,10 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			SendItem(clientId, SlotType::Inv, guildTicket, &pMob[clientId].Mobs.Player.Inventory[guildTicket]);
 		}
 
-		player->GuildMemberType = 9; // l�der
+		player->GuildLevel = 9; // lêder
 
 		// Atualiza o gold
-		SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+		SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 
 		p364 packetMob;
 		GetCreateMob(clientId, (BYTE*)&packetMob);
@@ -358,7 +358,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		GridMulticast_2(mob->Target.X, mob->Target.Y, (BYTE*)&packetMob, 0);
 
 		// Atribu os valores da guild a estrutura
-		g_pGuild[lastIndex].Name = std::string(p->eValue);
+		g_pGuild[lastIndex].MobName = std::string(p->eValue);
 
 		g_pGuild[lastIndex].Citizen = sServer.Channel;
 		g_pGuild[lastIndex].Kingdom = player->CapeInfo;
@@ -407,8 +407,8 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	}
 	else if (!strcmp(p->eCommand, "summonguild"))
 	{
-		INT32 guildId = pMob[clientId].Mobs.Player.GuildIndex,  // LOCAL_1673
-			type = pMob[clientId].Mobs.Player.GuildMemberType, // LOCAL_1674
+		INT32 guildId = pMob[clientId].Mobs.Player.Guild,  // LOCAL_1673
+			type = pMob[clientId].Mobs.Player.GuildLevel, // LOCAL_1674
 			posX = pMob[clientId].Target.X,  // LOCAL_1675
 			posY = pMob[clientId].Target.Y, // LOCAL_1676
 			village = GetVillage(posX, posY); // LOCAL_1677
@@ -432,8 +432,8 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	}
 	else if (!strcmp(p->eCommand, "gnotice"))
 	{
-		INT32 guildId = pMob[clientId].Mobs.Player.GuildIndex,
-			type = pMob[clientId].Mobs.Player.GuildMemberType;
+		INT32 guildId = pMob[clientId].Mobs.Player.Guild,
+			type = pMob[clientId].Mobs.Player.GuildLevel;
 
 		if (!guildId)
 		{
@@ -461,7 +461,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY || pMob[i].Mobs.Player.GuildIndex != guildId)
+			if (pUser[i].CurrentScore != USER_PLAY || pMob[i].Mobs.Player.Guild != guildId)
 				continue;
 
 			SendChatGuild(i, guildId, "--Aviso: %s", g_pGuildNotice[guildId]);
@@ -469,8 +469,8 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	}
 	else if (!strcmp(p->eCommand, "gmsg"))
 	{
-		INT32 guildId = pMob[clientId].Mobs.Player.GuildIndex,
-			type = pMob[clientId].Mobs.Player.GuildMemberType;
+		INT32 guildId = pMob[clientId].Mobs.Player.Guild,
+			type = pMob[clientId].Mobs.Player.GuildLevel;
 
 		if (!guildId)
 		{
@@ -494,7 +494,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			return true;
 		}
 
-		SendGuildNotice(guildId, "[%s]> %s", pMob[clientId].Mobs.Player.Name, p->eValue);
+		SendGuildNotice(guildId, "[%s]> %s", pMob[clientId].Mobs.Player.MobName, p->eValue);
 		Log(clientId, LOG_GUILD, "Enviado GuildNotice. Fame: %d - %s", g_pGuild[guildId].Fame, p->eValue);
 		return true;
 	}
@@ -523,7 +523,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			return true;
 		}
 
-		if (pMob[clientId].Mobs.Player.GuildIndex == 0 || pMob[clientId].Mobs.Player.GuildMemberType != 9)
+		if (pMob[clientId].Mobs.Player.Guild == 0 || pMob[clientId].Mobs.Player.GuildLevel != 9)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Only_With_Guild_Master]);
 
@@ -538,15 +538,15 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			return true;
 		}
 
-		INT32 guildIndex = pMob[clientId].Mobs.Player.GuildIndex;
-		if (pMob[client].Mobs.Player.GuildIndex != guildIndex)
+		INT32 guildIndex = pMob[clientId].Mobs.Player.Guild;
+		if (pMob[client].Mobs.Player.Guild != guildIndex)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Only_Guild_Member_Can]);
 
 			return true;
 		}
 
-		if (pMob[clientId].Mobs.Player.Gold < 50000000)
+		if (pMob[clientId].Mobs.Player.Coin < 50000000)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_NotEnoughGold_Teleport]);
 
@@ -567,7 +567,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			return true;
 		}
 
-		pMob[client].Mobs.Player.GuildMemberType = 3 + i;
+		pMob[client].Mobs.Player.GuildLevel = 3 + i;
 
 		g_pGuild[guildIndex].SubGuild[i] = subname;
 
@@ -584,19 +584,19 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		packet.Header.Size = sizeof MSG_ADDSUB;
 
 		packet.SubIndex = i;
-		packet.GuildIndex = guildIndex;
+		packet.Guild = guildIndex;
 
-		strncpy_s(packet.Name, subname, 16);
+		strncpy_s(packet.MobName, subname, 16);
 
-		packet.Status = 0;
+		packet.CurrentScore = 0;
 
 		AddMessageDB((BYTE*)&packet, sizeof MSG_ADDSUB);
 
 		SendClientMessage(clientId, g_pLanguageString[_NN_Guild_SubCreated]);
 		SendClientMessage(client, g_pLanguageString[_NN_Guild_Sub_Called]);
 
-		pMob[clientId].Mobs.Player.Gold -= 50000000;
-		SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Gold);
+		pMob[clientId].Mobs.Player.Coin -= 50000000;
+		SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Coin);
 	}
 	else if (!strcmp(p->eCommand, "expulsar"))
 	{
@@ -610,7 +610,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		std::time_t rawnow = std::time(nullptr);
 		struct tm now; localtime_s(&now, &rawnow);
 
-		INT32 guildIndex = pMob[clientId].Mobs.Player.GuildIndex;
+		INT32 guildIndex = pMob[clientId].Mobs.Player.Guild;
 		if (guildIndex <= 0 || guildIndex >= MAX_GUILD)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Need_Guild_Medal]);
@@ -626,14 +626,14 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 			if (diffTime < KickOutPenalty && diffTime != 0.0)
 			{
-				SendClientMessage(clientId, "Voc� ainda tem %02d dias e %02d horas %02d minutos %02d segundos de penalidade", days, hours, mins, seconds);
-				Log(clientId, LOG_INGAME, "Voc� ainda tem %02d dias e %02d horas %02d minutos %02d segundos de penalidade");
+				SendClientMessage(clientId, "Você ainda tem %02d dias e %02d horas %02d minutos %02d segundos de penalidade", days, hours, mins, seconds);
+				Log(clientId, LOG_INGAME, "Você ainda tem %02d dias e %02d horas %02d minutos %02d segundos de penalidade");
 			}
 
 			return true;
 		}
 
-		INT32 medalId = pMob[clientId].Mobs.Player.GuildMemberType;
+		INT32 medalId = pMob[clientId].Mobs.Player.GuildLevel;
 		if (medalId >= 3 && medalId <= 5)
 		{
 			// Remove a medalha da estrutura dos subs
@@ -644,20 +644,20 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			packet.Header.PacketId = MSG_ADDSUB_OPCODE;
 			packet.Header.Size = sizeof MSG_ADDSUB;
 
-			packet.GuildIndex = guildIndex;
-			packet.Status = 1;
+			packet.Guild = guildIndex;
+			packet.CurrentScore = 1;
 			packet.SubIndex = medalId - 3;
 
 			AddMessageDB((BYTE*)&packet, sizeof MSG_ADDSUB);
 
-			pMob[clientId].Mobs.Player.GuildMemberType = 1;
-			SendClientMessage(clientId, "Medallha de subl�der destru�da. Agora voc� � um membro comum");
-			Log(clientId, LOG_INGAME, "Destruiu medalha de subl�der da guilda %s. Id: %d.. Id da medalha de sub", g_pGuild[guildIndex].Name.c_str(), guildIndex, medalId);
+			pMob[clientId].Mobs.Player.GuildLevel = 1;
+			SendClientMessage(clientId, "Medallha de sublêder destruêda. Agora você ê um membro comum");
+			Log(clientId, LOG_INGAME, "Destruiu medalha de sublêder da guilda %s. Id: %d.. Id da medalha de sub", g_pGuild[guildIndex].MobName.c_str(), guildIndex, medalId);
 		}
 		else
 		{
-			pMob[clientId].Mobs.Player.GuildMemberType = 0;
-			pMob[clientId].Mobs.Player.GuildIndex = 0;
+			pMob[clientId].Mobs.Player.GuildLevel = 0;
+			pMob[clientId].Mobs.Player.Guild = 0;
 
 			SendClientMessage(clientId, g_pLanguageString[_NN_Guild_Kicked]);
 
@@ -669,7 +669,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			lastKick.Minuto = now.tm_min;
 			lastKick.Segundo = now.tm_sec;
 
-			Log(clientId, LOG_INGAME, "Saiu da guilda %s. Id: %d.", g_pGuild[guildIndex].Name.c_str(), guildIndex);
+			Log(clientId, LOG_INGAME, "Saiu da guilda %s. Id: %d.", g_pGuild[guildIndex].MobName.c_str(), guildIndex);
 		}
 
 		p364 packet;
@@ -694,7 +694,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		packet.Header.Size = sizeof pD1D;
 
 		p->eValue[80] = 0;
-		sprintf_s(packet.eMsg, "[%s] : %s", pMob[clientId].Mobs.Player.Name, p->eValue);
+		sprintf_s(packet.eMsg, "[%s] : %s", pMob[clientId].Mobs.Player.MobName, p->eValue);
 
 		packet.Header.ClientId = clientId;
 		AddMessageDB((BYTE*)&packet, sizeof pD1D);
@@ -706,30 +706,30 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		int userId = GetUserByName(p->eValue);
 		if (userId == 0)
 		{
-			SendClientMessage(clientId, "O usuario n�o esta conectado");
+			SendClientMessage(clientId, "O usuario nêo esta conectado");
 
 			return true;
 		}
 
 		int typeOnUser = -2;
-		if (pMob[clientId].Mobs.Player.Status.INT > pMob[clientId].Mobs.Player.Status.STR + pMob[clientId].Mobs.Player.Status.DEX)
+		if (pMob[clientId].Mobs.Player.CurrentScore.Int > pMob[clientId].Mobs.Player.CurrentScore.Str + pMob[clientId].Mobs.Player.CurrentScore.Dex)
 			typeOnUser = -1;
 
 		int typeOnMe = -2;
-		if (pMob[userId].Mobs.Player.Status.INT > pMob[userId].Mobs.Player.Status.STR + pMob[userId].Mobs.Player.Status.DEX)
+		if (pMob[userId].Mobs.Player.CurrentScore.Int > pMob[userId].Mobs.Player.CurrentScore.Str + pMob[userId].Mobs.Player.CurrentScore.Dex)
 			typeOnMe = -1;
 
 		float evasionOnUser = static_cast<float>(GetParryRate(clientId, userId, typeOnUser)) / 10.0f;
 		float evasionOnMe = static_cast<float>(GetParryRate(userId, clientId, typeOnMe)) / 10.0f;
 
-		SendClientMessage(clientId, "Voc� tem %.2f%% de errar o hit no usuario. Ele tem %.2f%% de errar em voc�", evasionOnUser, evasionOnMe);
+		SendClientMessage(clientId, "Você tem %.2f%% de errar o hit no usuario. Ele tem %.2f%% de errar em você", evasionOnUser, evasionOnMe);
 		return true;
 	}
 	else if (strcmp(p->eCommand, "evento") == 0)
 	{
-		if (!sServer.DropArea.Status)
+		if (!sServer.DropArea.CurrentScore)
 		{
-			SendClientMessage(clientId, "N�o existe evento de drop ativo no momento");
+			SendClientMessage(clientId, "Nêo existe evento de drop ativo no momento");
 
 			return true;
 		}
@@ -744,7 +744,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		std::vector<CUser*> users;
 		for (auto& user : pUser)
 		{
-			if (user.Status < USER_SELCHAR || user.clientId == clientId || memcmp(&user.MacAddress, MacAddress, sizeof MacAddress) != 0)
+			if (user.CurrentScore < USER_SELCHAR || user.clientId == clientId || memcmp(&user.MacAddress, MacAddress, sizeof MacAddress) != 0)
 				continue;
 
 			users.push_back(&user);
@@ -789,9 +789,9 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		Log(clientId, LOG_INGAME, "O evento foi %s", status ? "ativado" : "desativado");
 		SendClientMessage(clientId, "O evento foi %s", status ? "ativado" : "desativado");
 	}
-	else if (!strcmp(p->eCommand, "SENHAPARADESBLOQUEIO")) // Trocar para o cmd de libera��o
+	else if (!strcmp(p->eCommand, "SENHAPARADESBLOQUEIO")) // Trocar para o cmd de liberação
 	{
-		// Envia a mensagem de Personagem desconectado da mesma forma para "enganar"... Loucura, n�?
+		// Envia a mensagem de Personagem desconectado da mesma forma para "enganar"... Loucura, nê?
 		SendClientMessage(clientId, g_pLanguageString[_NN_Not_Connected]);
 
 		// Caso haja um AccessLevel setado, libera o admin
@@ -825,19 +825,19 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		INT32 myKingdom = pMob[clientId].Mobs.Player.CapeInfo;
 		INT32 myCitizen = pMob[clientId].Mobs.Citizen;
 
-		strncpy_s(p->eCommand, pMob[clientId].Mobs.Player.Name, 12);
+		strncpy_s(p->eCommand, pMob[clientId].Mobs.Player.MobName, 12);
 
 		auto last = std::chrono::high_resolution_clock::now() - citizenChatTime;
 		if (last <= 5s && AccessLevel == 0)
 		{
-			SendClientMessage(clientId, "Tempo m�nimo para enviar outra mensagem � de 5 segundos.");
+			SendClientMessage(clientId, "Tempo mênimo para enviar outra mensagem ê de 5 segundos.");
 
 			return true;
 		}
 
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY || i == clientId)
+			if (pUser[i].CurrentScore != USER_PLAY || i == clientId)
 				continue;
 
 			if (p->eValue[1] != '@')
@@ -867,11 +867,11 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		if (leader <= 0)
 			leader = clientId;
 
-		strncpy_s(p->eCommand, pMob[clientId].Mobs.Player.Name, 12);
+		strncpy_s(p->eCommand, pMob[clientId].Mobs.Player.MobName, 12);
 		for (INT32 i = 0; i < 12; i++)
 		{
 			INT32 memberId = pMob[leader].PartyList[i];
-			if (memberId <= 0 || memberId >= MAX_PLAYER || pUser[memberId].Status != USER_PLAY || pUser[memberId].AllStatus.Chat || clientId == memberId)
+			if (memberId <= 0 || memberId >= MAX_PLAYER || pUser[memberId].CurrentScore != USER_PLAY || pUser[memberId].AllStatus.Chat || clientId == memberId)
 				continue;
 
 			pUser[memberId].AddMessage((BYTE*)p, sizeof p334);
@@ -884,7 +884,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	}
 	else if ((p->eValue[0] == '-' || (p->eValue[0] == '-' && p->eValue[1] == '-')) && p->eCommand[0] == 0)
 	{
-		INT32 myGuild = pMob[clientId].Mobs.Player.GuildIndex;
+		INT32 myGuild = pMob[clientId].Mobs.Player.Guild;
 		if (!myGuild)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Only_Guild_Member_Can]);
@@ -892,19 +892,19 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			return true;
 		}
 
-		strncpy_s(p->eCommand, pMob[clientId].Mobs.Player.Name, 12);
+		strncpy_s(p->eCommand, pMob[clientId].Mobs.Player.MobName, 12);
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY || i == clientId || pUser[i].AllStatus.Guild)
+			if (pUser[i].CurrentScore != USER_PLAY || i == clientId || pUser[i].AllStatus.Guild)
 				continue;
 
 			INT32 ally = g_pGuildAlly[myGuild];
 			if (ally == 0)
 				ally = -1;
 
-			if (pMob[i].Mobs.Player.GuildIndex == myGuild || pUser[i].IsAdmin)
+			if (pMob[i].Mobs.Player.Guild == myGuild || pUser[i].IsAdmin)
 				pUser[i].AddMessage((BYTE*)p, sizeof p334);
-			else if (pMob[i].Mobs.Player.GuildIndex == ally && p->eValue[1] == '-')
+			else if (pMob[i].Mobs.Player.Guild == ally && p->eValue[1] == '-')
 				pUser[i].AddMessage((BYTE*)p, sizeof p334);
 		}
 
@@ -927,7 +927,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	}
 	else if (!strcmp(p->eCommand, "tab"))
 	{
-		if (pMob[clientId].Mobs.Player.Status.Level < 69 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL)
+		if (pMob[clientId].Mobs.Player.CurrentScore.Level < 69 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL)
 		{
 			SendClientMessage(clientId, "Somente acima do level 70");
 			return true;
@@ -991,7 +991,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	}
 	else if (!strcmp(p->eCommand, "wt"))
 	{
-		SendClientMessage(clientId, "Voc� usou %d entradas das %d dispon�veis", User.Water.Total, sServer.MaxWaterEntrance);
+		SendClientMessage(clientId, "Você usou %d entradas das %d disponêveis", User.Water.Total, sServer.MaxWaterEntrance);
 	}
 	else if (!strcmp(p->eCommand, "time"))
 	{
@@ -1003,15 +1003,15 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		localtime_s(&timeinfo, &rawtime);
 
 		strftime(tmp3, 80, "%H:%M:%S %d-%m-%Y", &timeinfo);
-		SendClientMessage(clientId, "[%s] - %s %dx %dy - Canal %d", pMob[clientId].Mobs.Player.Name, tmp3, pMob[clientId].Target.X, pMob[clientId].Target.Y, sServer.Channel);
+		SendClientMessage(clientId, "[%s] - %s %dx %dy - Canal %d", pMob[clientId].Mobs.Player.MobName, tmp3, pMob[clientId].Target.X, pMob[clientId].Target.Y, sServer.Channel);
 	}
 	else if (!strcmp(p->eCommand, "guildfame"))
 	{
-		INT32 gId = pMob[clientId].Mobs.Player.GuildIndex;
+		INT32 gId = pMob[clientId].Mobs.Player.Guild;
 		if (gId <= 0)
 			return true;
 
-		SendClientMessage(clientId, "Voc� possui um total de %d pontos de fame guild", g_pGuild[gId].Fame);
+		SendClientMessage(clientId, "Você possui um total de %d pontos de fame guild", g_pGuild[gId].Fame);
 	}
 	else if (!strcmp(p->eCommand, "relo"))
 	{
@@ -1023,13 +1023,13 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			return true;
 		}
 
-		// se � foema
+		// se ê foema
 		bool accepted = false;
-		if (pMob[clientId].Mobs.Player.ClassInfo != 1)
+		if (pMob[clientId].Mobs.Player.Class != 1)
 		{
 			if (pUser[userId].SummonedUser == 0)
 			{
-				SendClientMessage(clientId, "S� pode usar quando convocado pelo grupo ou pelo L�der de Guild");
+				SendClientMessage(clientId, "Sê pode usar quando convocado pelo grupo ou pelo Lêder de Guild");
 
 				return true;
 			}
@@ -1037,9 +1037,9 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			accepted = true;
 		}
 
-		if (!pMob[clientId].Mobs.Player.Status.curHP)
+		if (!pMob[clientId].Mobs.Player.CurrentScore.Hp)
 		{
-			SendClientMessage(clientId, "Voc� n�o pode ir at� o usuario, pois esta morto.");
+			SendClientMessage(clientId, "Você nêo pode ir atê o usuario, pois esta morto.");
 			if (accepted)
 				pUser[userId].SummonedUser = 0;
 
@@ -1070,8 +1070,8 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			}
 		}
 
-		INT32 guildIndex = pMob[clientId].Mobs.Player.GuildIndex;
-		INT32 userGuild = pMob[userId].Mobs.Player.GuildIndex;
+		INT32 guildIndex = pMob[clientId].Mobs.Player.Guild;
+		INT32 userGuild = pMob[userId].Mobs.Player.Guild;
 
 		if (guildIndex != 0 && userGuild != 0 && guildIndex == userGuild)
 			canMove = true;
@@ -1101,7 +1101,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 				}
 
 				Teleportar(clientId, pMob[userId].Target.X, pMob[userId].Target.Y);
-				Log(clientId, LOG_INGAME, "Relo no personagem %s %dx %dy", pMob[userId].Mobs.Player.Name, pMob[userId].Target.X, pMob[userId].Target.Y);
+				Log(clientId, LOG_INGAME, "Relo no personagem %s %dx %dy", pMob[userId].Mobs.Player.MobName, pMob[userId].Target.X, pMob[userId].Target.Y);
 			}
 			else
 				SendClientMessage(clientId, g_pLanguageString[_NN_Cant_Use_That_Here]);
@@ -1119,9 +1119,9 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			return true;
 		}
 
-		if (pMob[clientId].Mobs.Player.ClassInfo != 1 || !(pMob[clientId].Mobs.Player.Learn[0] & 0x40000))
+		if (pMob[clientId].Mobs.Player.Class != 1 || !(pMob[clientId].Mobs.Player.LearnedSkill[0] & 0x40000))
 		{
-			SendClientMessage(clientId, "S� pode usar quando convocado pelo grupo ou pelo L�der de Guild");
+			SendClientMessage(clientId, "Sê pode usar quando convocado pelo grupo ou pelo Lêder de Guild");
 
 			return true;
 		}
@@ -1131,23 +1131,23 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		packet.Header.PacketId = 0x3B2;
 		packet.Header.ClientId = 0x7530;
 
-		int len = strlen(pMob[clientId].Mobs.Player.Name);
+		int len = strlen(pMob[clientId].Mobs.Player.MobName);
 		if (len >= 12)
 			len = 11;
 		for (int i = 0; i < len; i++)
-			packet.Nickname[i] = pMob[clientId].Mobs.Player.Name[i];
+			packet.Nickname[i] = pMob[clientId].Mobs.Player.MobName[i];
 
 		pUser[userId].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof p3B2);
 
 		SummonedUser = userId;
 
 		Log(clientId, LOG_INGAME, "Solicitado summon %s", p->eValue);
-		Log(userId, LOG_INGAME, "Recebido solicita��o de summon de %s", p->eValue);
+		Log(userId, LOG_INGAME, "Recebido solicitação de summon de %s", p->eValue);
 	}
 	else if (p->eCommand[0] == 'r' && p->eCommand[1] == 0)
 	{
 		INT32 userId = pUser[clientId].LastWhisper;
-		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].Status != USER_PLAY)
+		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].CurrentScore != USER_PLAY)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Not_Connected]);
 
@@ -1163,10 +1163,10 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		if (!p->eValue[0])
 		{
-			if (pMob[userId].Mobs.Player.GuildIndex != 0)
-				sprintf_s(szTMP, "%s Fame: %d Guild: %s", pMob[userId].Mobs.Player.Name, pMob[userId].Mobs.Fame, g_pGuild[pMob[userId].Mobs.Player.GuildIndex].Name.c_str());
+			if (pMob[userId].Mobs.Player.Guild != 0)
+				sprintf_s(szTMP, "%s Fame: %d Guild: %s", pMob[userId].Mobs.Player.MobName, pMob[userId].Mobs.Fame, g_pGuild[pMob[userId].Mobs.Player.Guild].MobName.c_str());
 			else
-				sprintf_s(szTMP, "%s Fame: %d", pMob[userId].Mobs.Player.Name, pMob[userId].Mobs.Fame);
+				sprintf_s(szTMP, "%s Fame: %d", pMob[userId].Mobs.Player.MobName, pMob[userId].Mobs.Fame);
 
 			SendClientMessage(clientId, szTMP);
 
@@ -1185,16 +1185,16 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			packet.Header.Size = sizeof p334;
 			packet.Header.PacketId = 0x334;
 
-			strncpy_s(packet.eCommand, pMob[clientId].Mobs.Player.Name, 16);
+			strncpy_s(packet.eCommand, pMob[clientId].Mobs.Player.MobName, 16);
 			strncpy_s(packet.eValue, p->eValue, 100);
 
 			pUser[userId].AddMessage((BYTE*)&packet, sizeof p334);
 
-			Log(clientId, LOG_INGAME, "Mensagem Privada para: %s: %s", pMob[userId].Mobs.Player.Name, p->eValue);
-			Log(userId, LOG_INGAME, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.Name, p->eValue);
+			Log(clientId, LOG_INGAME, "Mensagem Privada para: %s: %s", pMob[userId].Mobs.Player.MobName, p->eValue);
+			Log(userId, LOG_INGAME, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.MobName, p->eValue);
 
-			LogPlayer(clientId, "Mensagem Privada para: %s: %s", pMob[userId].Mobs.Player.Name, p->eValue);
-			LogPlayer(userId, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.Name, p->eValue);
+			LogPlayer(clientId, "Mensagem Privada para: %s: %s", pMob[userId].Mobs.Player.MobName, p->eValue);
+			LogPlayer(userId, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.MobName, p->eValue);
 
 			if (pUser[userId].SNDMessage[0])
 				SendClientMessage(clientId, g_pLanguageString[_NN_Message_SND], pUser[userId].SNDMessage);
@@ -1204,7 +1204,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	{
 		INT32 userId = GetUserByName(p->eCommand);
 
-		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].Status != USER_PLAY)
+		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].CurrentScore != USER_PLAY)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Not_Connected]);
 
@@ -1220,12 +1220,12 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		if (!p->eValue[0])
 		{
-			if (pMob[userId].Mobs.Player.GuildIndex != 0)
+			if (pMob[userId].Mobs.Player.Guild != 0)
 			{
-				sprintf_s(szTMP, "%s Fame: %d Guild: %s", pMob[userId].Mobs.Player.Name, pMob[userId].Mobs.Fame, g_pGuild[pMob[userId].Mobs.Player.GuildIndex].Name.c_str());
+				sprintf_s(szTMP, "%s Fame: %d Guild: %s", pMob[userId].Mobs.Player.MobName, pMob[userId].Mobs.Fame, g_pGuild[pMob[userId].Mobs.Player.Guild].MobName.c_str());
 			}
 			else
-				sprintf_s(szTMP, "%s Fame: %d", pMob[userId].Mobs.Player.Name, pMob[userId].Mobs.Fame);
+				sprintf_s(szTMP, "%s Fame: %d", pMob[userId].Mobs.Player.MobName, pMob[userId].Mobs.Fame);
 
 			SendClientMessage(clientId, szTMP);
 
@@ -1244,16 +1244,16 @@ bool CUser::RequestCommand(PacketHeader *Header)
 			packet.Header.Size = sizeof p334;
 			packet.Header.PacketId = 0x334;
 
-			strncpy_s(packet.eCommand, pMob[clientId].Mobs.Player.Name, 16);
+			strncpy_s(packet.eCommand, pMob[clientId].Mobs.Player.MobName, 16);
 			strncpy_s(packet.eValue, p->eValue, 100);
 
 			pUser[userId].AddMessage((BYTE*)&packet, sizeof p334);
 
-			Log(clientId, LOG_INGAME, "Mensagem Privada para: %s: %s", pMob[userId].Mobs.Player.Name, p->eValue);
-			Log(userId, LOG_INGAME, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.Name, p->eValue);
+			Log(clientId, LOG_INGAME, "Mensagem Privada para: %s: %s", pMob[userId].Mobs.Player.MobName, p->eValue);
+			Log(userId, LOG_INGAME, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.MobName, p->eValue);
 
-			LogPlayer(clientId, "Mensagem privada para %s: %s", pMob[userId].Mobs.Player.Name, p->eValue);
-			LogPlayer(userId, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.Name, p->eValue);
+			LogPlayer(clientId, "Mensagem privada para %s: %s", pMob[userId].Mobs.Player.MobName, p->eValue);
+			LogPlayer(userId, "Mensagem Privada recebida: %s: %s", pMob[clientId].Mobs.Player.MobName, p->eValue);
 
 			if (pUser[userId].SNDMessage[0])
 				SendClientMessage(clientId, g_pLanguageString[_NN_Message_SND], pUser[userId].SNDMessage);

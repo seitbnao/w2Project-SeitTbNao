@@ -11,7 +11,7 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 	if(value <= 0 || value >= MAX_MOB)
 		return false;
 
-	INT32 level = pMob[value].Mobs.Player.bStatus.Level;
+	INT32 level = pMob[value].Mobs.Player.BaseScore.Level;
 	if(level < 0 || level >= 5)
 		return false;
 
@@ -50,10 +50,10 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 	// Domingo
 	char ownerGuildName[32] = { 0 };
 	if(owner != 0)
-		sprintf_s(ownerGuildName, "%s", g_pGuild[owner].Name.c_str());
+		sprintf_s(ownerGuildName, "%s", g_pGuild[owner].MobName.c_str());
 
 	char challengeGuildName[32] = { 0 };
-	sprintf_s(challengeGuildName, "%s", g_pGuild[g_pCityZone[level].chall_index].Name.c_str());
+	sprintf_s(challengeGuildName, "%s", g_pGuild[g_pCityZone[level].chall_index].MobName.c_str());
 
 	if((sServer.WeekMode == 0 || sServer.WeekMode == 1 || sServer.WeekMode == 2 || sServer.WeekMode == 3))
 	{
@@ -68,10 +68,10 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 	}
 	else if(sServer.WeekMode == 4 || sServer.CastleState == 4)
 	{
-		// Checa se o cabra é líder da cidade do NPC clicado
-		if(ChargedGuildList[sServer.Channel - 1][level] == pMob[clientId].Mobs.Player.GuildIndex && pMob[clientId].Mobs.Player.GuildMemberType == 9)
+		// Checa se o cabra Ãª lÃªder da cidade do NPC clicado
+		if(ChargedGuildList[sServer.Channel - 1][level] == pMob[clientId].Mobs.Player.Guild && pMob[clientId].Mobs.Player.GuildLevel == 9)
 		{
-			Log(clientId, LOG_INGAME, "Clicou no NPC sendo líder de Guild da cidade %d. Imposto: %I64d", level, g_pCityZone[level].impost);
+			Log(clientId, LOG_INGAME, "Clicou no NPC sendo lÃªder de Guild da cidade %d. Imposto: %I64d", level, g_pCityZone[level].impost);
 
 			if((level >= 0 && level <= 3 && sServer.WeekMode == 4) || (level == 4 && sServer.WarChannel == 1 && sServer.CastleState == 4))
 			{
@@ -83,14 +83,14 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 					// Quantidade de barras que sera dado ao usuario
 					INT64 bis = gold / 1000000000LL;
 
-					// Quantidade de gold líquido que sera dado ao usuario
+					// Quantidade de gold lÃªquido que sera dado ao usuario
 					gold -= (bis * 1000000000LL);
 
-					if(static_cast<long long>(pMob[clientId].Mobs.Player.Gold) + gold > 2000000000LL)
+					if(static_cast<long long>(pMob[clientId].Mobs.Player.Coin) + gold > 2000000000LL)
 					{
 						SendSay(value, g_pLanguageString[_NN_Cant_get_more_than_2G]);
 
-						Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaço para o gold líquido! Gold atual: %d. Gold liquido: %I64d", pMob[clientId].Mobs.Player.Gold, gold);
+						Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaÃªo para o gold lÃªquido! Gold atual: %d. Gold liquido: %I64d", pMob[clientId].Mobs.Player.Coin, gold);
 						return true;
 					}
 
@@ -104,7 +104,7 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 						{
 							SendSay(value, g_pLanguageString[_NN_You_Have_No_Space_To_Trade]);
 
-							Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaço para receber as baras. Agrupadas: %d. Sozinhas: %d. Espaço: %d", agrupped, alone, null);
+							Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaÃªo para receber as baras. Agrupadas: %d. Sozinhas: %d. EspaÃªo: %d", agrupped, alone, null);
 							return true;
 						}
 						
@@ -117,12 +117,12 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 
 							memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-							pMob[clientId].Mobs.Player.Inventory[slotId].Index = 4011;
+							pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 4011;
 							pMob[clientId].Mobs.Player.Inventory[slotId].EF1   = EF_AMOUNT;
 							pMob[clientId].Mobs.Player.Inventory[slotId].EFV1  = 3;
 						}
 						
-						// Entrega as barras não agrupadas
+						// Entrega as barras nÃªo agrupadas
 						for(INT32 i = 0; i < alone; i++)
 						{
 							INT32 slotId = GetFirstSlot(clientId, 0);
@@ -131,12 +131,12 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 
 							memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-							pMob[clientId].Mobs.Player.Inventory[slotId].Index = 4011;
+							pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 4011;
 						}
 						
-						Log(clientId, LOG_GUILD, "Imposto recolhido na cidade %d. Total gold: %I64d. Bis agrupados: %d. Bis soltos: %d.	Gold líquido: %I64d", level, g_pCityZone[level].impost,
+						Log(clientId, LOG_GUILD, "Imposto recolhido na cidade %d. Total gold: %I64d. Bis agrupados: %d. Bis soltos: %d.	Gold lÃªquido: %I64d", level, g_pCityZone[level].impost,
 							agrupped, alone, gold);
-						Log(SERVER_SIDE, LOG_GUILD, "Imposto recolhido na cidade %d por %s. Total gold: %I64d. Bis agrupados: %d. Bis soltos: %d.Gold líquido: %I64d", level, pMob[clientId].Mobs.Player.Name, g_pCityZone[level].impost,
+						Log(SERVER_SIDE, LOG_GUILD, "Imposto recolhido na cidade %d por %s. Total gold: %I64d. Bis agrupados: %d. Bis soltos: %d.Gold lÃªquido: %I64d", level, pMob[clientId].Mobs.Player.MobName, g_pCityZone[level].impost,
 							agrupped, alone, gold);
 					}
 					else
@@ -146,11 +146,11 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 						{
 							SendSay(value, g_pLanguageString[_NN_You_Have_No_Space_To_Trade]);
 							
-							Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaço para receber as baras. Barras: %d Espaço: %d", bis, null);
+							Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaÃªo para receber as baras. Barras: %d EspaÃªo: %d", bis, null);
 							return true;
 						}
 
-						// Entrega as barras não agrupadas
+						// Entrega as barras nÃªo agrupadas
 						for(INT32 i = 0; i < bis; i++)
 						{
 							INT32 slotId = GetFirstSlot(clientId, 0);
@@ -159,39 +159,39 @@ bool CUser::RequestReqChallange(PacketHeader *Header)
 
 							memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-							pMob[clientId].Mobs.Player.Inventory[slotId].Index = 4011;
+							pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 4011;
 						}
 						
-						Log(clientId, LOG_GUILD, "Imposto recolhido na cidade %d. Total gold: %I64d. Bis soltos: %d.Gold líquido: %I64d", level, g_pCityZone[level].impost,
+						Log(clientId, LOG_GUILD, "Imposto recolhido na cidade %d. Total gold: %I64d. Bis soltos: %d.Gold lÃªquido: %I64d", level, g_pCityZone[level].impost,
 							bis, gold);
-						Log(SERVER_SIDE, LOG_GUILD, "Imposto recolhido na cidade %d por %s. Total gold: %I64d. Bis soltos: %d.Gold líquido: %I64d", level, pMob[clientId].Mobs.Player.Name, g_pCityZone[level].impost,
+						Log(SERVER_SIDE, LOG_GUILD, "Imposto recolhido na cidade %d por %s. Total gold: %I64d. Bis soltos: %d.Gold lÃªquido: %I64d", level, pMob[clientId].Mobs.Player.MobName, g_pCityZone[level].impost,
 							bis, gold);
 					}
 
-					pMob[clientId].Mobs.Player.Gold += static_cast<int>(gold);
+					pMob[clientId].Mobs.Player.Coin += static_cast<int>(gold);
 				}
 				else
 				{
-					if(static_cast<long long>(pMob[clientId].Mobs.Player.Gold) + gold > 2000000000LL)
+					if(static_cast<long long>(pMob[clientId].Mobs.Player.Coin) + gold > 2000000000LL)
 					{
 						SendSay(value, g_pLanguageString[_NN_Cant_get_more_than_2G]);
 						
-						Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaço para o gold líquido! Gold atual: %d. Gold liquido: %I64d", pMob[clientId].Mobs.Player.Gold, gold);
+						Log(clientId, LOG_INGAME, "Falha no recolhimento. Falta de espaÃªo para o gold lÃªquido! Gold atual: %d. Gold liquido: %I64d", pMob[clientId].Mobs.Player.Coin, gold);
 						return true;
 					}
 					
-					pMob[clientId].Mobs.Player.Gold += static_cast<int>(gold);
+					pMob[clientId].Mobs.Player.Coin += static_cast<int>(gold);
 						
-					Log(clientId, LOG_GUILD, "Imposto recolhido na cidade %d. Total gold: %I64d. Gold líquido: %I64d", level, g_pCityZone[level].impost, gold);
-					Log(SERVER_SIDE, LOG_GUILD, "Imposto recolhido na cidade %d por %s. Total gold: %I64d. Gold líquido: %I64d", level, pMob[clientId].Mobs.Player.Name, g_pCityZone[level].impost, gold);
+					Log(clientId, LOG_GUILD, "Imposto recolhido na cidade %d. Total gold: %I64d. Gold lÃªquido: %I64d", level, g_pCityZone[level].impost, gold);
+					Log(SERVER_SIDE, LOG_GUILD, "Imposto recolhido na cidade %d por %s. Total gold: %I64d. Gold lÃªquido: %I64d", level, pMob[clientId].Mobs.Player.MobName, g_pCityZone[level].impost, gold);
 				}
 				
 				// Seta o imposto da cidade como 0 ja que o mesmo foi recolhido
 				g_pCityZone[level].impost = 0;
 
 				// Seta o estado da guerra de castelos como 0
-				// Se chegou até esta parte do código quer dizer que 
-				// era possível recolher os impostos de Noatun
+				// Se chegou atÃª esta parte do cÃªdigo quer dizer que 
+				// era possÃªvel recolher os impostos de Noatun
 				if(level == 4)
 					sServer.CastleState = 0;
 				

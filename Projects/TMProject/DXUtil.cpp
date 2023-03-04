@@ -23,7 +23,7 @@ typedef HINSTANCE(WINAPI* LPShellExecute)(HWND hwnd, LPCSTR lpOperation, LPCSTR 
 
 #ifndef UNDER_CE
 //-----------------------------------------------------------------------------
-// Name: DXUtil_GetDXSDKMediaPathCch()
+// ItemName: DXUtil_GetDXSDKMediaPathCch()
 // Desc: Returns the DirectX SDK media path
 //       cchDest is the size in TCHARs of strDest.  Be careful not to 
 //       pass in sizeof(strDest) on UNICODE builds.
@@ -67,7 +67,7 @@ HRESULT DXUtil_GetDXSDKMediaPathCch(TCHAR* strDest, int cchDest)
 
 #ifndef UNDER_CE
 //-----------------------------------------------------------------------------
-// Name: DXUtil_FindMediaFileCch()
+// ItemName: DXUtil_FindMediaFileCch()
 // Desc: Returns a valid path to a DXSDK media file
 //       cchDest is the size in TCHARs of strDestPath.  Be careful not to 
 //       pass in sizeof(strDest) on UNICODE builds.
@@ -141,7 +141,7 @@ HRESULT DXUtil_FindMediaFileCch(TCHAR* strDestPath, int cchDest, TCHAR* strFilen
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ReadStringRegKeyCch()
+// ItemName: DXUtil_ReadStringRegKeyCch()
 // Desc: Helper function to read a registry key string
 //       cchDest is the size in TCHARs of strDest.  Be careful not to 
 //       pass in sizeof(strDest) on UNICODE builds.
@@ -171,7 +171,7 @@ HRESULT DXUtil_ReadStringRegKeyCch(HKEY hKey, TCHAR* strRegName, TCHAR* strDest,
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_WriteStringRegKey()
+// ItemName: DXUtil_WriteStringRegKey()
 // Desc: Helper function to write a registry key string
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteStringRegKey(HKEY hKey, TCHAR* strRegName,
@@ -193,7 +193,7 @@ HRESULT DXUtil_WriteStringRegKey(HKEY hKey, TCHAR* strRegName,
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ReadIntRegKey()
+// ItemName: DXUtil_ReadIntRegKey()
 // Desc: Helper function to read a registry key int
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_ReadIntRegKey(HKEY hKey, TCHAR* strRegName, DWORD* pdwDest,
@@ -219,7 +219,7 @@ HRESULT DXUtil_ReadIntRegKey(HKEY hKey, TCHAR* strRegName, DWORD* pdwDest,
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_WriteIntRegKey()
+// ItemName: DXUtil_WriteIntRegKey()
 // Desc: Helper function to write a registry key int
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteIntRegKey(HKEY hKey, TCHAR* strRegName, DWORD dwValue)
@@ -235,7 +235,7 @@ HRESULT DXUtil_WriteIntRegKey(HKEY hKey, TCHAR* strRegName, DWORD dwValue)
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ReadBoolRegKey()
+// ItemName: DXUtil_ReadBoolRegKey()
 // Desc: Helper function to read a registry key BOOL
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_ReadBoolRegKey(HKEY hKey, TCHAR* strRegName, BOOL* pbDest,
@@ -261,7 +261,7 @@ HRESULT DXUtil_ReadBoolRegKey(HKEY hKey, TCHAR* strRegName, BOOL* pbDest,
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_WriteBoolRegKey()
+// ItemName: DXUtil_WriteBoolRegKey()
 // Desc: Helper function to write a registry key BOOL
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteBoolRegKey(HKEY hKey, TCHAR* strRegName, BOOL bValue)
@@ -277,7 +277,7 @@ HRESULT DXUtil_WriteBoolRegKey(HKEY hKey, TCHAR* strRegName, BOOL bValue)
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ReadGuidRegKey()
+// ItemName: DXUtil_ReadGuidRegKey()
 // Desc: Helper function to read a registry key guid
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_ReadGuidRegKey(HKEY hKey, TCHAR* strRegName, GUID* pGuidDest,
@@ -303,7 +303,7 @@ HRESULT DXUtil_ReadGuidRegKey(HKEY hKey, TCHAR* strRegName, GUID* pGuidDest,
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_WriteGuidRegKey()
+// ItemName: DXUtil_WriteGuidRegKey()
 // Desc: Helper function to write a registry key guid
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteGuidRegKey(HKEY hKey, TCHAR* strRegName, GUID guidValue)
@@ -319,7 +319,7 @@ HRESULT DXUtil_WriteGuidRegKey(HKEY hKey, TCHAR* strRegName, GUID guidValue)
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_Timer()
+// ItemName: DXUtil_Timer()
 // Desc: Performs timer opertations. Use the following commands:
 //          TIMER_RESET           - to reset the timer
 //          TIMER_START           - to start the timer
@@ -512,7 +512,7 @@ FLOAT __stdcall DXUtil_Timer(TIMER_COMMAND command)
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertAnsiStringToWideCch()
+// ItemName: DXUtil_ConvertAnsiStringToWideCch()
 // Desc: This is a UNICODE conversion utility to convert a CHAR string into a
 //       WCHAR string. 
 //       cchDestChar is the size in TCHARs of wstrDestination.  Be careful not to 
@@ -537,7 +537,7 @@ HRESULT DXUtil_ConvertAnsiStringToWideCch(WCHAR* wstrDestination, const CHAR* st
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertWideStringToAnsi()
+// ItemName: DXUtil_ConvertWideStringToAnsi()
 // Desc: This is a UNICODE conversion utility to convert a WCHAR string into a
 //       CHAR string. 
 //       cchDestChar is the size in TCHARs of strDestination
@@ -561,7 +561,7 @@ HRESULT DXUtil_ConvertWideStringToAnsiCch(CHAR* strDestination, const WCHAR* wst
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertGenericStringToAnsi()
+// ItemName: DXUtil_ConvertGenericStringToAnsi()
 // Desc: This is a UNICODE conversion utility to convert a TCHAR string into a
 //       CHAR string. 
 //       cchDestChar is the size in TCHARs of strDestination
@@ -585,7 +585,7 @@ HRESULT DXUtil_ConvertGenericStringToAnsiCch(CHAR* strDestination, const TCHAR* 
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertGenericStringToWide()
+// ItemName: DXUtil_ConvertGenericStringToWide()
 // Desc: This is a UNICODE conversion utility to convert a TCHAR string into a
 //       WCHAR string. 
 //       cchDestChar is the size in TCHARs of wstrDestination.  Be careful not to 
@@ -610,7 +610,7 @@ HRESULT DXUtil_ConvertGenericStringToWideCch(WCHAR* wstrDestination, const TCHAR
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertAnsiStringToGeneric()
+// ItemName: DXUtil_ConvertAnsiStringToGeneric()
 // Desc: This is a UNICODE conversion utility to convert a CHAR string into a
 //       TCHAR string. 
 //       cchDestChar is the size in TCHARs of tstrDestination.  Be careful not to 
@@ -635,7 +635,7 @@ HRESULT DXUtil_ConvertAnsiStringToGenericCch(TCHAR* tstrDestination, const CHAR*
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertAnsiStringToGeneric()
+// ItemName: DXUtil_ConvertAnsiStringToGeneric()
 // Desc: This is a UNICODE conversion utility to convert a WCHAR string into a
 //       TCHAR string. 
 //       cchDestChar is the size in TCHARs of tstrDestination.  Be careful not to 
@@ -661,7 +661,7 @@ HRESULT DXUtil_ConvertWideStringToGenericCch(TCHAR* tstrDestination, const WCHAR
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_LaunchReadme()
+// ItemName: DXUtil_LaunchReadme()
 // Desc: Finds and opens the readme.txt for this sample
 //-----------------------------------------------------------------------------
 VOID DXUtil_LaunchReadme(HWND hWnd, TCHAR* strLoc)
@@ -826,7 +826,7 @@ VOID DXUtil_LaunchReadme(HWND hWnd, TCHAR* strLoc)
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_Trace()
+// ItemName: DXUtil_Trace()
 // Desc: Outputs to the debug stream a formatted string with a variable-
 //       argument list.
 //-----------------------------------------------------------------------------
@@ -850,7 +850,7 @@ VOID DXUtil_Trace(TCHAR* strMsg, ...)
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertStringToGUID()
+// ItemName: DXUtil_ConvertStringToGUID()
 // Desc: Converts a string to a GUID
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_ConvertStringToGUID(const TCHAR* strSrc, GUID* pGuidDest)
@@ -888,7 +888,7 @@ HRESULT DXUtil_ConvertStringToGUID(const TCHAR* strSrc, GUID* pGuidDest)
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_ConvertGUIDToStringCch()
+// ItemName: DXUtil_ConvertGUIDToStringCch()
 // Desc: Converts a GUID to a string 
 //       cchDestChar is the size in TCHARs of strDest.  Be careful not to 
 //       pass in sizeof(strDest) on UNICODE builds
@@ -911,7 +911,7 @@ HRESULT DXUtil_ConvertGUIDToStringCch(const GUID* pGuidSrc, TCHAR* strDest, int 
 
 
 //-----------------------------------------------------------------------------
-// Name: CArrayList constructor
+// ItemName: CArrayList constructor
 // Desc: 
 //-----------------------------------------------------------------------------
 CArrayList::CArrayList(ArrayListType Type, UINT BytesPerEntry)
@@ -928,7 +928,7 @@ CArrayList::CArrayList(ArrayListType Type, UINT BytesPerEntry)
 
 
 //-----------------------------------------------------------------------------
-// Name: CArrayList destructor
+// ItemName: CArrayList destructor
 // Desc: 
 //-----------------------------------------------------------------------------
 CArrayList::~CArrayList(void)
@@ -941,7 +941,7 @@ CArrayList::~CArrayList(void)
 
 
 //-----------------------------------------------------------------------------
-// Name: CArrayList::Add
+// ItemName: CArrayList::Add
 // Desc: Adds pEntry to the list.
 //-----------------------------------------------------------------------------
 HRESULT CArrayList::Add(void* pEntry)
@@ -981,7 +981,7 @@ HRESULT CArrayList::Add(void* pEntry)
 
 
 //-----------------------------------------------------------------------------
-// Name: CArrayList::Remove
+// ItemName: CArrayList::Remove
 // Desc: Remove the item at Entry in the list, and collapse the array. 
 //-----------------------------------------------------------------------------
 void CArrayList::Remove(UINT Entry)
@@ -1000,7 +1000,7 @@ void CArrayList::Remove(UINT Entry)
 
 
 //-----------------------------------------------------------------------------
-// Name: CArrayList::GetPtr
+// ItemName: CArrayList::GetPtr
 // Desc: Returns a pointer to the Entry'th entry in the list.
 //-----------------------------------------------------------------------------
 void* CArrayList::GetPtr(UINT Entry)
@@ -1015,7 +1015,7 @@ void* CArrayList::GetPtr(UINT Entry)
 
 
 //-----------------------------------------------------------------------------
-// Name: CArrayList::Contains
+// ItemName: CArrayList::Contains
 // Desc: Returns whether the list contains an entry identical to the 
 //       specified entry data.
 //-----------------------------------------------------------------------------
@@ -1041,7 +1041,7 @@ bool CArrayList::Contains(void* pEntryData)
 
 
 //-----------------------------------------------------------------------------
-// Name: BYTE helper functions
+// ItemName: BYTE helper functions
 // Desc: cchDestChar is the size in BYTEs of strDest.  Be careful not to 
 //       pass use sizeof() if the strDest is a string pointer.  
 //       eg.

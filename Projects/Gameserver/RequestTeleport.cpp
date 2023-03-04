@@ -31,7 +31,7 @@ bool CUser::RequestTeleport(PacketHeader *Header)
 			if (m->Price != 0)
 			{
 				// Casp seja, faz a checagem se possui gold ou nao
-				int gold = pMob[clientId].Mobs.Player.Gold;
+				int gold = pMob[clientId].Mobs.Player.Coin;
 				if (gold < m->Price)
 				{
 					SendClientMessage(clientId, g_pLanguageString[_NN_NotEnoughGold_Teleport]);
@@ -47,7 +47,7 @@ bool CUser::RequestTeleport(PacketHeader *Header)
 				gold -= m->Price;
 
 				// Seta o gold na estrutura do mob
-				pMob[clientId].Mobs.Player.Gold = gold;
+				pMob[clientId].Mobs.Player.Coin = gold;
 
 				// Atualiza o gold no personagem
 				SendSignalParm(clientId, clientId, 0x3AF, gold);
@@ -68,7 +68,7 @@ bool CUser::RequestTeleport(PacketHeader *Header)
 			}
 			else if (i == 6)
 			{
-				if (!sServer.RvR.Status)
+				if (!sServer.RvR.CurrentScore)
 				{
 					SendClientMessage(clientId, "Somente as 22:00hrs de segunda a sabado.");
 
@@ -134,7 +134,7 @@ bool CUser::RequestTeleport(PacketHeader *Header)
 			}
 			else if (i == 43)
 			{
-				if (pMob[clientId].Mobs.Player.Equip[13].Index != 3916 && pMob[clientId].Mobs.Player.Equip[13].Index != 3917)
+				if (pMob[clientId].Mobs.Player.Equip[13].sIndex != 3916 && pMob[clientId].Mobs.Player.Equip[13].sIndex != 3917)
 				{
 					SendClientMessage(clientId, "Necessario a Fada do Vale para ser teleportado");
 

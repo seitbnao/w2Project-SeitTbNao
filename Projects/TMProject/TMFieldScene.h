@@ -176,7 +176,7 @@ public:
 	int OnPacketCNFCharacterLogout(PacketHeader* pStd);
 	int OnPacketCNFRemoveServer(MSG_CNFRemoveServer* pStd);
 	int OnPacketCNFAccountLogin(MSG_CNFRemoveServerLogin* pStd);
-	int OnPacketCNFCharacterLogin(MSG_CNFCharacterLogin* pStd);
+	int OnPacketCNFCharacterLogin(p114* pStd);
 	int OnPacketItemSold(MSG_STANDARDPARM2* pStd);
 	int OnPacketUpdateCargoCoin(MSG_STANDARDPARM* pStd);
 	int OnPacketWeather(MSG_STANDARDPARM* pStd);

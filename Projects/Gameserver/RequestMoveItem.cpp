@@ -6,7 +6,7 @@
 void GiveTime(p376 *p)
 {
 	INT32 clientId = p->Header.ClientId;
-	// Serve para quando equipar a Esfera d� a validade ao item
+	// Serve para quando equipar a Esfera dê a validade ao item
 	int days = 0;
 
 	if (p->SrcType != (unsigned char)SlotType::Equip && p->DstType != (unsigned char)SlotType::Equip)
@@ -31,7 +31,7 @@ void GiveTime(p376 *p)
 	if (item == nullptr)
 		return;
 
-	switch (item->Index)
+	switch (item->sIndex)
 	{
 	case 3916:
 	case 3917:
@@ -168,7 +168,7 @@ void GiveTime(p376 *p)
 	}
 
 	bool isCostume = IsCostume(item);
-	if ((item->Index >= 3980 && item->Index <= 3999) || (item->Index >= 3995 && item->Index <= 3995) || isCostume)
+	if ((item->sIndex >= 3980 && item->sIndex <= 3999) || (item->sIndex >= 3995 && item->sIndex <= 3995) || isCostume)
 	{
 		if ((item->EF1 == 106 && item->EF2 == 110 && item->EF3 == 109) || (isCostume && item->EFV1 != 0 && item->EFV2 != 0 && item->EFV3 != 0))
 		{
@@ -187,7 +187,7 @@ void GiveTime(p376 *p)
 			{
 				if (isCostume && item->EF1 == 106 && item->EF2 == 110 && item->EF3 == 109)
 				{
-					Log(clientId, LOG_INGAME, "Removido os adicionais de tempo do traje %s %s", ItemList[item->Index].Name, item->toString().c_str());
+					Log(clientId, LOG_INGAME, "Removido os adicionais de tempo do traje %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
 					item->EF1 = 0;
 					item->EF2 = 0;
@@ -198,7 +198,7 @@ void GiveTime(p376 *p)
 			return;
 		}
 	}
-	else if ((item->Index >= 3900 && item->Index <= 3908) || item->Index == 3916 || item->Index == 3917)
+	else if ((item->sIndex >= 3900 && item->sIndex <= 3908) || item->sIndex == 3916 || item->sIndex == 3917)
 	{
 		if (item->EF1 != 0)
 			return;
@@ -229,7 +229,7 @@ void GiveTime(p376 *p)
 	}
 
 	SendItem(clientId, type, slot, item);
-	Log(clientId, LOG_INGAME, "Aplicado tempo no item %s %s - %d/%d/%d", ItemList[item->Index].Name, item->toString().c_str(), dia, mes, ano);
+	Log(clientId, LOG_INGAME, "Aplicado tempo no item %s %s - %d/%d/%d", g_pItemList[item->sIndex].ItemName, item->toString().c_str(), dia, mes, ano);
 }
 
 bool CUser::RequestMoveItem(PacketHeader *header)
@@ -237,7 +237,7 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 	static const char *szSlotType[] = { "EQUIPAMENTO", "INVENTaRIO", "BANCO", "RUNA" };
 
 	p376* p = (p376*)header;
-	if (!pMob[clientId].Mobs.Player.Status.curHP || Status != USER_PLAY)
+	if (!pMob[clientId].Mobs.Player.CurrentScore.Hp || CurrentScore != USER_PLAY)
 	{
 		SendHpMode(clientId);
 
@@ -399,8 +399,8 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 		return false;
 	}
 
-	// Testa se s�o os mesmos itens
-	if (equipSrcSlot->Index == equipDstSlot->Index)
+	// Testa se sêo os mesmos itens
+	if (equipSrcSlot->sIndex == equipDstSlot->sIndex)
 	{
 		STRUCT_ITEM* srcItem = GetItemPointer(p->Header.ClientId, p->SrcType, p->SrcSlot);
 		STRUCT_ITEM* dstItem = GetItemPointer(p->Header.ClientId, p->DstType, p->DstSlot);
@@ -416,20 +416,20 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 		}
 	}
 
-	if ((equipSrcSlot->Index >= 5110 && equipSrcSlot->Index <= 5133) && equipDstSlot->Index == 4854)
+	if ((equipSrcSlot->sIndex >= 5110 && equipSrcSlot->sIndex <= 5133) && equipDstSlot->sIndex == 4854)
 	{
 		EnergizeEmptyRune(clientId, p);
 
 		return true;
 	}
 
-	if (equipDstSlot->Index == 747 || equipSrcSlot->Index == 747 ||
-		equipDstSlot->Index == 3993 || equipSrcSlot->Index == 3993 ||
-		equipDstSlot->Index == 3994 || equipSrcSlot->Index == 3994)
+	if (equipDstSlot->sIndex == 747 || equipSrcSlot->sIndex == 747 ||
+		equipDstSlot->sIndex == 3993 || equipSrcSlot->sIndex == 3993 ||
+		equipDstSlot->sIndex == 3994 || equipSrcSlot->sIndex == 3994)
 	{
 		if (p->DstType == 2 || p->SrcType == 2)
 		{
-			INT32 guildId = pMob[clientId].Mobs.Player.GuildIndex;
+			INT32 guildId = pMob[clientId].Mobs.Player.Guild;
 			if (guildId <= 0)
 				return false;
 
@@ -446,7 +446,7 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 		}
 	}
 
-	if (equipDstSlot->Index == 877 || equipSrcSlot->Index == 877)
+	if (equipDstSlot->sIndex == 877 || equipSrcSlot->sIndex == 877)
 		return true;
 
 	STRUCT_ITEM newEquipSrcSlot; // LOCAL1655
@@ -461,11 +461,11 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 	INT32 canMove1 = 1; // LOCAL1659
 	INT32 canMove2 = 1; // LOCAL1660
 
-	if (newEquipDstSlot.Index != 0)
+	if (newEquipDstSlot.sIndex != 0)
 	{
 		INT32 error = -2; // LOCAL1661
 		if (p->SrcType == (unsigned char)SlotType::Equip)
-			canMove1 = CanEquip(&newEquipDstSlot, &pMob[clientId].Mobs.Player, p->SrcSlot, pMob[clientId].Mobs.Player.ClassInfo, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
+			canMove1 = CanEquip(&newEquipDstSlot, &pMob[clientId].Mobs.Player, p->SrcSlot, pMob[clientId].Mobs.Player.Class, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
 
 		else if (p->SrcType == (unsigned char)SlotType::Inv)
 		{
@@ -483,11 +483,11 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 			canMove1 = CanCargo(&newEquipDstSlot, pUser[clientId].User.Storage.Item, (p->SrcSlot % 9), (p->SrcSlot / 9));
 	}
 
-	if (newEquipSrcSlot.Index != 0)
+	if (newEquipSrcSlot.sIndex != 0)
 	{
 		INT32 error = -2; // LOCAL1662
 		if (p->DstType == (unsigned char)SlotType::Equip)
-			canMove2 = CanEquip(&newEquipSrcSlot, &pMob[clientId].Mobs.Player, p->DstSlot, pMob[clientId].Mobs.Player.ClassInfo, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
+			canMove2 = CanEquip(&newEquipSrcSlot, &pMob[clientId].Mobs.Player, p->DstSlot, pMob[clientId].Mobs.Player.Class, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
 
 		else if (p->DstType == (unsigned char)SlotType::Inv)
 		{
@@ -530,8 +530,8 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 				memcpy(equipSrcSlot, &newEquipSrcSlot, 8);
 				memcpy(equipDstSlot, &newEquipDstSlot, 8);
 
-				Log(SERVER_SIDE, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posi��o: %ux %uy", User.Username, equipSrcSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
-				Log(clientId, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posi��o: %ux %uy", User.Username, equipSrcSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
+				Log(SERVER_SIDE, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posição: %ux %uy", User.Username, equipSrcSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
+				Log(clientId, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posição: %ux %uy", User.Username, equipSrcSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
 				return true;
 			}
 		}
@@ -539,15 +539,15 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 		memcpy(equipSrcSlot, &newEquipDstSlot, 8);
 		memcpy(equipDstSlot, &newEquipSrcSlot, 8);
 
-		Log(p->Header.ClientId, LOG_INGAME, "Moveu item %s [%d] [%d %d %d %d %d %d] do tipo %s do slot %d para tipo %s slot %d", ItemList[equipDstSlot->Index].Name, equipDstSlot->Index, equipDstSlot->EF1,
+		Log(p->Header.ClientId, LOG_INGAME, "Moveu item %s [%d] [%d %d %d %d %d %d] do tipo %s do slot %d para tipo %s slot %d", g_pItemList[equipDstSlot->sIndex].ItemName, equipDstSlot->sIndex, equipDstSlot->EF1,
 			equipDstSlot->EFV1, equipDstSlot->EF2, equipDstSlot->EFV2, equipDstSlot->EF3, equipDstSlot->EFV3, szSlotType[p->SrcType], p->SrcSlot, szSlotType[p->DstType], p->DstSlot);
 
 		GiveTime(p);
 	}
 
-	if (equipSrcSlot->Index <= 40)
+	if (equipSrcSlot->sIndex <= 40)
 		memset(equipSrcSlot, 0, 8);
-	if (equipDstSlot->Index <= 40)
+	if (equipDstSlot->sIndex <= 40)
 		memset(equipDstSlot, 0, 8);
 
 	pMob[clientId].GetCurrentScore(clientId);
@@ -555,7 +555,7 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 	AddMessage((BYTE*)p, sizeof p376);
 
 	//434182
-	if (pMob[clientId].Mobs.Player.Equip[6].Index == 0 && pMob[clientId].Mobs.Player.Equip[7].Index != 0)
+	if (pMob[clientId].Mobs.Player.Equip[6].sIndex == 0 && pMob[clientId].Mobs.Player.Equip[7].sIndex != 0)
 	{
 		INT32 itemAbility = GetItemAbility(&pMob[clientId].Mobs.Player.Equip[7], 17); // LOCAL1663
 

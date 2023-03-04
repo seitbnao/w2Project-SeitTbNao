@@ -12,7 +12,7 @@ std::array<CUser, MAX_PLAYER> pUser;
 
 CUser::CUser()
 {
-	Status = USER_EMPTY;
+	CurrentScore = USER_EMPTY;
 	Socket.Socket = 0;
 
 	hashIncrement = 0;
@@ -47,7 +47,7 @@ CUser::~CUser()
 	}
 
 	Socket.SizeOfSend = 0;
-	Status = USER_EMPTY;
+	CurrentScore = USER_EMPTY;
 }
 
 BYTE CUser::GetHashKey()
@@ -82,15 +82,15 @@ BYTE CUser::GetHashKey()
 bool CUser::CloseUser()
 {
 	// Usuario esta ingame
-	if(Status == USER_PLAY)
+	if(CurrentScore == USER_PLAY)
 	{
 		RemoveParty(clientId, 0);
 		
 		DeleteMob(clientId, 0);
-		// Checa se a posi��o � valida
-		// Se o usuario estiver dentro de uma posi��o valida e se � o usuario que esta registrado, 
+		// Checa se a posição ê valida
+		// Se o usuario estiver dentro de uma posição valida e se ê o usuario que esta registrado, 
 		// apaga ele do local onde lee esta
-		// Para os outros usuarios ent�o n�o verem ele
+		// Para os outros usuarios entêo nêo verem ele
 		INT32 posX = pMob[clientId].Target.X;
 		INT32 posY = pMob[clientId].Target.Y;
 		if(posX >= 0 && posX < 4096 && posY >= 0 && posY < 4096 && g_pMobGrid[posY][posX] == clientId)
@@ -109,7 +109,7 @@ bool CUser::CloseUser()
 
 		memcpy(&packet.Storage, &User.Storage.Item, sizeof STRUCT_ITEM * 128);
 		memcpy(&packet.Mob, &pMob[clientId].Mobs, sizeof STRUCT_CHARINFO);
-		memcpy(packet.SkillBar, &pMob[clientId].Mobs.Player.SkillBar1, 4);
+		memcpy(packet.SkillBar, &pMob[clientId].Mobs.Player.ShortSkill, 4);
 		memcpy(&packet.SkillBar[4], pMob[clientId].Mobs.SkillBar, 16);
 		strncpy_s(packet.User, this->User.Username, 16);
 
@@ -119,7 +119,7 @@ bool CUser::CloseUser()
 
 		AddMessageDB((BYTE*)&packet, sizeof STRUCT_SAVECHARACTER);
 	}
-	else if(Status > 0)
+	else if(CurrentScore > 0)
 	{
 		STRUCT_SAVECHARACTER packet;
 		memset(&packet, 0, sizeof packet);
@@ -147,7 +147,7 @@ bool CUser::CloseUser()
 
 	// Apaga o SND do usuario
 	SNDMessage[0] = 0;
-	// Apaga a �ltima pessoa que o usuario conversou
+	// Apaga a êltima pessoa que o usuario conversou
 	LastWhisper = 0;
 
 	// 
@@ -162,7 +162,7 @@ bool CUser::CloseUser()
 	inGame.incorrectNumeric = 0;
 
 	Socket.SizeOfSend = 0;
-	Status = USER_EMPTY;
+	CurrentScore = USER_EMPTY;
 	
 	hashIncrement = 0;
 	memset(&Keys[0], 0, 16);
@@ -211,7 +211,7 @@ bool CUser::CloseUser_OL1()
 	CloseSocket();
 
 	Socket.Socket = 0;
-	Status = USER_EMPTY;
+	CurrentScore = USER_EMPTY;
 	User.Username[0] = 0;
 	return 1;
 }
@@ -332,12 +332,12 @@ std::string CUser::LogSameAccounts() const
 		{
 			str << "[" << user->User.Username << "]\t";
 
-			if (user->Status == USER_SELCHAR)
+			if (user->CurrentScore == USER_SELCHAR)
 				str << "SELCHAR\t";
-			else if (user->Status == USER_PLAY)
+			else if (user->CurrentScore == USER_PLAY)
 			{
 				const auto& mob = pMob[user->clientId].Mobs.Player;
-				str << "USER_PLAY\t" << "[" << pMob[user->clientId].Mobs.Player.Name << "] (level: " << mob.Status.Level << " ev: " << (int)mob.GetEvolution() << ")\t";
+				str << "USER_PLAY\t" << "[" << pMob[user->clientId].Mobs.Player.MobName << "] (level: " << mob.CurrentScore.Level << " ev: " << (int)mob.GetEvolution() << ")\t";
 			}
 
 			str << std::endl;
@@ -356,31 +356,31 @@ void CUser::LogEquipsAndInventory(bool force) const
 		return;
 
 	std::stringstream strItems;
-	if (Status == USER_SELCHAR)
+	if (CurrentScore == USER_SELCHAR)
 	{
-		strItems << "[INFORMA��ES DA CONTA]\n";
-		strItems << "Personagem na sele��o de personagem. Sem informa��es no momento\n";
-		strItems << "Tempo online at� o momento: "
+		strItems << "[INFORMAçãES DA CONTA]\n";
+		strItems << "Personagem na seleção de personagem. Sem informaçães no momento\n";
+		strItems << "Tempo online atê o momento: "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 86400) << " dias e "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 3600) % 24
 			<< ":" << std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 60) % 60
 			<< ":" << std::setfill('0') << std::setw(2) << (pUser[clientId].Time % 60) << " horas\n";
 	}
-	else if(Status == USER_PLAY)
+	else if(CurrentScore == USER_PLAY)
 	{
         auto evolution = pMob[clientId].Mobs.Player.GetEvolution();
-		strItems << "[INFORMA��ES DA CONTA]\n";
-		strItems << "Personagem online: " << pMob[clientId].Mobs.Player.Name << "\n";
-		strItems << "Gold atual: " << pMob[clientId].Mobs.Player.Gold << "\n";
-		strItems << "Level atual: " << pMob[clientId].Mobs.Player.bStatus.Level << "\n";
-		strItems << "Experi�ncia atual: " << pMob[clientId].Mobs.Player.Exp << "\n";
-		strItems << "Evolu��o atual: " << GetEvolutionName(evolution) << "\n";
-		strItems << "Tempo online at� o momento: "
+		strItems << "[INFORMAçãES DA CONTA]\n";
+		strItems << "Personagem online: " << pMob[clientId].Mobs.Player.MobName << "\n";
+		strItems << "Gold atual: " << pMob[clientId].Mobs.Player.Coin << "\n";
+		strItems << "Level atual: " << pMob[clientId].Mobs.Player.BaseScore.Level << "\n";
+		strItems << "Experiência atual: " << pMob[clientId].Mobs.Player.Exp << "\n";
+		strItems << "Evolução atual: " << GetEvolutionName(evolution) << "\n";
+		strItems << "Tempo online atê o momento: "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 86400) << " dias e "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 3600) % 24
 			<< ":" << std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 60) % 60
 			<< ":" << std::setfill('0') << std::setw(2) << (pUser[clientId].Time % 60) << " horas\n";
-		strItems << "Posi��o atual: " << pMob[clientId].Target.X << "x " << pMob[clientId].Target.Y << "y\n\n";
+		strItems << "Posição atual: " << pMob[clientId].Target.X << "x " << pMob[clientId].Target.Y << "y\n\n";
 		strItems << "Pontos NT: " << ((int)pMob[clientId].Mobs.PesaEnter) << "\n";
 		strItems << "Entradas Hall: " << pMob[clientId].Mobs.HallEnter << "\n";
 		strItems << "Info: " << pMob[clientId].Mobs.Info.Value << "\n";
@@ -393,14 +393,14 @@ void CUser::LogEquipsAndInventory(bool force) const
 		strItems << "LastGuildKickout: " << pMob[clientId].Mobs.LastGuildKickOut.toString().c_str() << "\n";
 
         // verifica se esta no sub ou se tem subcelestial
-        if (evolution == eClass::SubCelestial || pMob[clientId].Mobs.Sub.Status == 1)
+        if (evolution == eClass::SubCelestial || pMob[clientId].Mobs.Sub.CurrentScore == 1)
         {
             const auto& sub = pMob[clientId].Mobs.Sub;
             strItems << "\n[PEDRA MISTERIOSA]\n";
-            strItems << "Evolu��o: " << GetEvolutionName(static_cast<eClass>(sub.Equip[0].EFV2)) << "\n";
+            strItems << "Evolução: " << GetEvolutionName(static_cast<eClass>(sub.Equip[0].EFV2)) << "\n";
             strItems << "Level atual: " << sub.SubStatus.Level << "\n";
-            strItems << "Experi�ncia atual: " << sub.Exp << "\n";
-            strItems << "Learn: " << sub.Learn << "\n";
+            strItems << "Experiência atual: " << sub.Exp << "\n";
+            strItems << "Learn: " << sub.LearnedSkill << "\n";
             strItems << "SecLearn: " << sub.SecLearn << "\n";
             strItems << "Info: " << sub.Info.Value << "\n";
             strItems << "Soul: " << ((int)sub.Soul) << "\n\n";
@@ -411,10 +411,10 @@ void CUser::LogEquipsAndInventory(bool force) const
 		for (int i = 0; i < 16; i++)
 		{
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Equip[i];
-			if (item->Index <= 0 || item->Index > MAX_ITEMLIST)
+			if (item->sIndex <= 0 || item->sIndex > MAX_ITEMLIST)
 				continue;
 
-			strItems << "[" << std::setw(2) << i << "] - " << ItemList[item->Index].Name << item->toString().c_str() << "\n";
+			strItems << "[" << std::setw(2) << i << "] - " << g_pItemList[item->sIndex].ItemName << item->toString().c_str() << "\n";
 		}
 
 		strItems << "\n[INVENTaRIO]\n";
@@ -422,17 +422,17 @@ void CUser::LogEquipsAndInventory(bool force) const
 		for (int i = 0; i < 64; i++)
 		{
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[i];
-			if (item->Index <= 0 || item->Index > MAX_ITEMLIST)
+			if (item->sIndex <= 0 || item->sIndex > MAX_ITEMLIST)
 				continue;
 
-			strItems << "[" << std::setw(2) << i << "] - " << ItemList[item->Index].Name << item->toString().c_str() << "\n";
+			strItems << "[" << std::setw(2) << i << "] - " << g_pItemList[item->sIndex].ItemName << item->toString().c_str() << "\n";
 		}
 	}
 	else
 	{
-		strItems << "[INFORMA��ES DA CONTA]\n";
-		strItems << "Personagem com status \"" << Status << "\". Sem informa��es no momento\n";
-		strItems << "Tempo online at� o momento: "
+		strItems << "[INFORMAçãES DA CONTA]\n";
+		strItems << "Personagem com status \"" << CurrentScore << "\". Sem informaçães no momento\n";
+		strItems << "Tempo online atê o momento: "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 86400) << " dias e "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 3600) % 24
 			<< ":" << std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 60) % 60

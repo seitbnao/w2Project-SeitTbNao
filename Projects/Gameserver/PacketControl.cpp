@@ -51,7 +51,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			pUser[i].AddMessage((BYTE*)header, header->Size);
@@ -61,7 +61,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		pCOE *p = (pCOE*)(header);
 
-		if (pUser[clientId].Status < USER_SELCHAR)
+		if (pUser[clientId].CurrentScore < USER_SELCHAR)
 		{
 			Log(clientId, LOG_ERROR, "Falha ao entregar cash ImportCash - Status < USER_SELCHAR - %d",
 				p->Cash);
@@ -79,12 +79,12 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 
 		pUser[clientId].User.Cash += p->Cash;
 
-		if (pUser[clientId].Status == USER_SELCHAR)
+		if (pUser[clientId].CurrentScore == USER_SELCHAR)
 			SaveUser(clientId, 0);
 
 		Log(clientId, LOG_INGAME, "Recebeu %d de Cash - Total %d - ImportCash", p->Cash, pUser[clientId].User.Cash);
 
-		if (pUser[clientId].Status == USER_PLAY)
+		if (pUser[clientId].CurrentScore == USER_PLAY)
 		{
 			SendClientMessage(clientId, "!Chegou [ %d ] Cash", p->Cash);
 			SendSignalParm(clientId, clientId, RefreshGoldPacket, pUser[clientId].User.Cash);
@@ -116,10 +116,10 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		pCOF *p = (pCOF*)(header);
 
-		if (pUser[clientId].Status < USER_SELCHAR)
+		if (pUser[clientId].CurrentScore < USER_SELCHAR)
 		{
 			Log(clientId, LOG_ERROR, "Falha ao receber item do ImportItem - Status < USER_SELCHAR - %d %d %d %d %d %d %d",
-				p->item.Index, p->item.Effect[0].Index, p->item.Effect[0].Value, p->item.Effect[1].Index, p->item.Effect[1].Value, p->item.Effect[2].Index, p->item.Effect[2].Value);
+				p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
 
 			break;
 		}
@@ -127,25 +127,25 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 		if (strncmp(p->Username, pUser[clientId].User.Username, 16))
 		{
 			Log(clientId, LOG_ERROR, "Falha ao receber item do ImportItem - %s != %s - %d %d %d %d %d %d %d",
-				p->Username, pUser[clientId].User.Username, p->item.Index, p->item.Effect[0].Index, p->item.Effect[0].Value, p->item.Effect[1].Index, p->item.Effect[1].Value, p->item.Effect[2].Index, p->item.Effect[2].Value);
+				p->Username, pUser[clientId].User.Username, p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
 
 			break;
 		}
 
 		for (INT32 i = 0; i < 120; i++)
 		{
-			if (pUser[clientId].User.Storage.Item[i].Index != 0)
+			if (pUser[clientId].User.Storage.Item[i].sIndex != 0)
 				continue;
 
 			pUser[clientId].User.Storage.Item[i] = p->item;
 			SendItem(clientId, SlotType::Storage, i, &p->item);
 
-			SendClientMessage(clientId, "!Chegou um item [ %s ]", ItemList[p->item.Index].Name);
+			SendClientMessage(clientId, "!Chegou um item [ %s ]", g_pItemList[p->item.sIndex].ItemName);
 
 			Log(clientId, LOG_INGAME, "Recebeu o item %s [%d] [%d %d %d %d %d %d]",
-				ItemList[p->item.Index].Name, p->item.Index, p->item.Effect[0].Index, p->item.Effect[0].Value, p->item.Effect[1].Index, p->item.Effect[1].Value, p->item.Effect[2].Index, p->item.Effect[2].Value);
+				g_pItemList[p->item.sIndex].ItemName, p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
 
-			if (pUser[clientId].Status == USER_SELCHAR)
+			if (pUser[clientId].CurrentScore == USER_SELCHAR)
 				SaveUser(clientId, 0);
 
 			return true;
@@ -153,18 +153,18 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 
 		for (INT32 i = 119; i > 0; i--)
 		{
-			if (pUser[clientId].User.Storage.Item[i].Index != 0)
+			if (pUser[clientId].User.Storage.Item[i].sIndex != 0)
 				continue;
 
 			pUser[clientId].User.Storage.Item[i] = p->item;
 			SendItem(clientId, SlotType::Storage, i, &p->item);
 
-			SendClientMessage(clientId, "!Chegou um item [ %s ]", ItemList[p->item.Index].Name);
+			SendClientMessage(clientId, "!Chegou um item [ %s ]", g_pItemList[p->item.sIndex].ItemName);
 
 			Log(clientId, LOG_INGAME, "Recebeu o item %s [%d] [%d %d %d %d %d %d]",
-				ItemList[p->item.Index].Name, p->item.Index, p->item.Effect[0].Index, p->item.Effect[0].Value, p->item.Effect[1].Index, p->item.Effect[1].Value, p->item.Effect[2].Index, p->item.Effect[2].Value);
+				g_pItemList[p->item.sIndex].ItemName, p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
 
-			if (pUser[clientId].Status == USER_SELCHAR)
+			if (pUser[clientId].CurrentScore == USER_SELCHAR)
 				SaveUser(clientId, 0);
 
 			return true;
@@ -173,7 +173,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 		SaveUser(clientId, 1);
 
 		Log(clientId, LOG_ERROR, "Nao recebeu o item %s [%d] [%d %d %d %d %d %d] por falta de espaao",
-			ItemList[p->item.Index].Name, p->item.Index, p->item.Effect[0].Index, p->item.Effect[0].Value, p->item.Effect[1].Index, p->item.Effect[1].Value, p->item.Effect[2].Index, p->item.Effect[2].Value);
+			g_pItemList[p->item.sIndex].ItemName, p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
 
 		SendClientMessage(clientId, "!Falta espaao para receber o item! Libere seu baa!");
 	}
@@ -246,20 +246,20 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		SendSignal(clientId, 0, 0x11A);
 
-		pUser[clientId].Status = USER_SELCHAR;
+		pUser[clientId].CurrentScore = USER_SELCHAR;
 	}
 	break;
 	case 0x41E:
 	{
 		SendSignal(clientId, 0, 0x11B);
 
-		pUser[clientId].Status = USER_SELCHAR;
+		pUser[clientId].CurrentScore = USER_SELCHAR;
 	}
 	break;
 	case 0x40A:
 	{// 0044E5DD
 		MSG_DBSavingQuit *p = (MSG_DBSavingQuit *)(header);
-		if (pUser[clientId].Status != USER_PLAY && pUser[clientId].Status != USER_SAVING4QUIT)
+		if (pUser[clientId].CurrentScore != USER_PLAY && pUser[clientId].CurrentScore != USER_SAVING4QUIT)
 		{
 			pMsgSignal packet;
 			packet.Header.PacketId = 0x805;
@@ -268,7 +268,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 			AddMessageDB((BYTE*)&packet, 12);
 		}
 
-		if (pUser[clientId].Status != USER_PLAY || pUser[clientId].Status == USER_SELCHAR)
+		if (pUser[clientId].CurrentScore != USER_PLAY || pUser[clientId].CurrentScore == USER_SELCHAR)
 		{
 			if (p->Mode == 0)
 				SendClientMessage(clientId, g_pLanguageString[_NN_Your_Account_From_Others]);
@@ -285,7 +285,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		pMob[clientId].Mode = 0;
 
-		pUser[clientId].Status = USER_ACCEPT;
+		pUser[clientId].CurrentScore = USER_ACCEPT;
 		CloseUser(clientId);
 	}
 	break;
@@ -339,7 +339,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 		// Copia a estrutura da charlist para o User
 		memcpy(&pUser[clientId].CharList, &p->CharList, sizeof p->CharList);
 
-		pUser[clientId].Status = USER_SELCHAR;
+		pUser[clientId].CurrentScore = USER_SELCHAR;
 	}
 	break;
 	case 0x426:
@@ -363,7 +363,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 		//	SendSignal(clientId, 0x7532, 0x11C);
 		SendClientMessage(clientId, g_pLanguageString[_NN_Wrong_Password]);
 
-		pUser[clientId].Status = USER_SELCHAR;
+		pUser[clientId].CurrentScore = USER_SELCHAR;
 		//	Users[clientId].SendMessageA();
 		//	CloseUser(clientId);
 	}
@@ -445,7 +445,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		pDC3 *packet = reinterpret_cast<pDC3*>(header);
 
-		if (packet->Info.Status == -1)
+		if (packet->Info.CurrentScore == -1)
 		{
 			CloseUser(clientId);
 
@@ -453,7 +453,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 		}
 
 		auto sealIt = std::find_if(std::begin(sServer.SealCache), std::end(sServer.SealCache), [&](const InfoCache<STRUCT_SEALINFO> seal) {
-			return seal.Info.Status == packet->Info.Status;
+			return seal.Info.CurrentScore == packet->Info.CurrentScore;
 		});
 
 		if (sealIt == std::end(sServer.SealCache))
@@ -500,7 +500,7 @@ case MSG_REWARDWARTOWER_OPCODE:
 {
 	_MSG_REWARDWARTOWER *p = (_MSG_REWARDWARTOWER*)(header);
 
-	g_pCityZone[4].impost += p->Gold;
+	g_pCityZone[4].impost += p->Coin;
 	sServer.CitizenEXP.Bonus += p->Taxe;
 
 	if(sServer.CitizenEXP.Bonus > MAX_CITIZENXP)
@@ -719,7 +719,7 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 			return true;
 		}
 
-		if (mobId < MAX_PLAYER && pUser[mobId].Status != USER_PLAY)
+		if (mobId < MAX_PLAYER && pUser[mobId].CurrentScore != USER_PLAY)
 		{
 			SendRemoveMob(clientId, mobId, 0, 0);
 
@@ -790,7 +790,7 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 		}
 		return true;
 #else
-		if (Status != USER_SELCHAR)
+		if (CurrentScore != USER_SELCHAR)
 			return true;
 
 		Header->PacketId = 0x804;
@@ -881,7 +881,7 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 
 		if (Trade.ClientId)
 		{
-			if (pUser[Trade.ClientId].Status == USER_PLAY && pUser[Trade.ClientId].Trade.ClientId == clientId)
+			if (pUser[Trade.ClientId].CurrentScore == USER_PLAY && pUser[Trade.ClientId].Trade.ClientId == clientId)
 			{
 				SendClientMessage(clientId, "Nao a possavel trocar com o modo PvP ativo");
 				SendClientMessage(Trade.ClientId, "O outro jogador esta com o modo PvP ativo");

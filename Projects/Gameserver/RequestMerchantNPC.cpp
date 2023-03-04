@@ -10,7 +10,7 @@ void NPCEvento(int clientId, int npcId)
 {
 	// NPCs sao baseados no seu level
 	// O Level deve iniciar por 500 (primeiro npc) e terminar ata 509
-	int mobId = pMob[npcId].Mobs.Player.bStatus.Level - 500;
+	int mobId = pMob[npcId].Mobs.Player.BaseScore.Level - 500;
 
 	// Checagem para limite de NPCs
 	if(mobId < 0 || mobId >= MAX_NPCEVENTO)
@@ -19,7 +19,7 @@ void NPCEvento(int clientId, int npcId)
 	char szTMP[256];
 	STRUCT_NPC_EVENT *ev = &npcEvent[mobId];
 
-	if(ev->goldRequired > pMob[clientId].Mobs.Player.Gold)
+	if(ev->goldRequired > pMob[clientId].Mobs.Player.Coin)
 	{
 		sprintf_s(szTMP, "Sao necessarios %d de gold", ev->goldRequired);
 
@@ -30,17 +30,17 @@ void NPCEvento(int clientId, int npcId)
 	for(int i = 0; i < 10 ; i++)
 	{
 		STRUCT_ITEM *item = &ev->itemRequired[i];
-		if(item->Index <= 0 || item->Index >= 6500)
+		if(item->sIndex <= 0 || item->sIndex >= 6500)
 			continue;
 
 		// Quantidade de itens possuados pelo usuario
-		int amountItem = GetInventoryAmount(clientId, item->Index);
+		int amountItem = GetInventoryAmount(clientId, item->sIndex);
 		int reqAmount = ev->amountRequired[i];
 
 		// Checagem se possui a quantidade necessaria
 		if(amountItem < reqAmount)
 		{
-			SendSay(npcId, "Traga-me [%02d] %s", reqAmount, ItemList[item->Index].Name);
+			SendSay(npcId, "Traga-me [%02d] %s", reqAmount, g_pItemList[item->sIndex].ItemName);
 
 			return;
 		}
@@ -48,9 +48,9 @@ void NPCEvento(int clientId, int npcId)
 		int eventId = -1;
 		for(int g = 0; g < 3; g++)
 		{
-			if(item->Effect[g].Index == 41)
+			if(item->stEffect[g].cEffect == 41)
 			{
-				eventId = item->Effect[g].Value;
+				eventId = item->stEffect[g].cValue;
 				break;
 			}
 		}
@@ -59,8 +59,8 @@ void NPCEvento(int clientId, int npcId)
 		{
 			for(INT32 x = 0; x < 30; x++)
 			{
-				INT32 itemId = pMob[clientId].Mobs.Player.Inventory[x].Index;
-				if(itemId != item->Index)
+				INT32 itemId = pMob[clientId].Mobs.Player.Inventory[x].sIndex;
+				if(itemId != item->sIndex)
 					continue;
 
 				// Checa se o item que esta buscando a necessario ter o ID DO EVENTO
@@ -72,9 +72,9 @@ void NPCEvento(int clientId, int npcId)
 
 					for(int w = 0; w < 3; w++)
 					{
-						if(pMob[clientId].Mobs.Player.Inventory[x].Effect[w].Index == 41)
+						if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[w].cEffect == 41)
 						{
-							if(pMob[clientId].Mobs.Player.Inventory[x].Effect[w].Value == eventId)
+							if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[w].cValue == eventId)
 							{
 								isEvent = true;
 
@@ -91,9 +91,9 @@ void NPCEvento(int clientId, int npcId)
 				INT32 totalAmount = 1;
 				for(INT32 o = 0; o < 3; o++)
 				{
-					if(pMob[clientId].Mobs.Player.Inventory[x].Effect[o].Index == 61)
+					if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[o].cEffect == 61)
 					{
-						totalAmount = pMob[clientId].Mobs.Player.Inventory[x].Effect[0].Value;
+						totalAmount = pMob[clientId].Mobs.Player.Inventory[x].stEffect[0].cValue;
 
 						break;
 					}
@@ -105,13 +105,13 @@ void NPCEvento(int clientId, int npcId)
 				reqAmount -= totalAmount;
 			}
 
-			if(pMob[clientId].Mobs.Player.Inventory[60].Index == 3467)
+			if(pMob[clientId].Mobs.Player.Inventory[60].sIndex == 3467)
 			{
 				float remainingDays = TimeRemaining(pMob[clientId].Mobs.Player.Inventory[60].EFV1, pMob[clientId].Mobs.Player.Inventory[60].EFV2, pMob[clientId].Mobs.Player.Inventory[60].EFV3 + 1900);
 				for(INT32 x = 30; x < 45; x++)
 				{
-					INT32 itemId = pMob[clientId].Mobs.Player.Inventory[x].Index;
-					if(itemId != item->Index)
+					INT32 itemId = pMob[clientId].Mobs.Player.Inventory[x].sIndex;
+					if(itemId != item->sIndex)
 						continue;
 
 					// Checa se o item que esta buscando a necessario ter o ID DO EVENTO
@@ -123,9 +123,9 @@ void NPCEvento(int clientId, int npcId)
 
 						for(int w = 0; w < 3; w++)
 						{
-							if(pMob[clientId].Mobs.Player.Inventory[x].Effect[w].Index == 41)
+							if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[w].cEffect == 41)
 							{
-								if(pMob[clientId].Mobs.Player.Inventory[x].Effect[w].Value == eventId)
+								if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[w].cValue == eventId)
 								{
 									isEvent = true;
 
@@ -142,9 +142,9 @@ void NPCEvento(int clientId, int npcId)
 					INT32 totalAmount = 1;
 					for(INT32 o = 0; o < 3; o++)
 					{
-						if(pMob[clientId].Mobs.Player.Inventory[x].Effect[o].Index == 61)
+						if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[o].cEffect == 61)
 						{
-							totalAmount = pMob[clientId].Mobs.Player.Inventory[x].Effect[0].Value;
+							totalAmount = pMob[clientId].Mobs.Player.Inventory[x].stEffect[0].cValue;
 
 							break;
 						}
@@ -157,14 +157,14 @@ void NPCEvento(int clientId, int npcId)
 				}
 			}
 
-			if(pMob[clientId].Mobs.Player.Inventory[61].Index == 3467)
+			if(pMob[clientId].Mobs.Player.Inventory[61].sIndex == 3467)
 			{
 				float remainingDays = TimeRemaining(pMob[clientId].Mobs.Player.Inventory[61].EFV1, pMob[clientId].Mobs.Player.Inventory[61].EFV2, pMob[clientId].Mobs.Player.Inventory[61].EFV3 + 1900);
 				
 				for(INT32 x = 45; x < 60; x++)
 				{
-					INT32 itemId = pMob[clientId].Mobs.Player.Inventory[x].Index;
-					if(itemId != item->Index)
+					INT32 itemId = pMob[clientId].Mobs.Player.Inventory[x].sIndex;
+					if(itemId != item->sIndex)
 						continue;
 
 					// Checa se o item que esta buscando a necessario ter o ID DO EVENTO
@@ -176,9 +176,9 @@ void NPCEvento(int clientId, int npcId)
 
 						for(int w = 0; w < 3; w++)
 						{
-							if(pMob[clientId].Mobs.Player.Inventory[x].Effect[w].Index == 41)
+							if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[w].cEffect == 41)
 							{
-								if(pMob[clientId].Mobs.Player.Inventory[x].Effect[w].Value == eventId)
+								if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[w].cValue == eventId)
 								{
 									isEvent = true;
 
@@ -195,9 +195,9 @@ void NPCEvento(int clientId, int npcId)
 					INT32 totalAmount = 1;
 					for(INT32 o = 0; o < 3; o++)
 					{
-						if(pMob[clientId].Mobs.Player.Inventory[x].Effect[o].Index == 61)
+						if(pMob[clientId].Mobs.Player.Inventory[x].stEffect[o].cEffect == 61)
 						{
-							totalAmount = pMob[clientId].Mobs.Player.Inventory[x].Effect[0].Value;
+							totalAmount = pMob[clientId].Mobs.Player.Inventory[x].stEffect[0].cValue;
 
 							break;
 						}
@@ -213,7 +213,7 @@ void NPCEvento(int clientId, int npcId)
 
 		if(reqAmount > 0)
 		{
-			SendSay(npcId, "Traga-me [%02d] %s", reqAmount, ItemList[item->Index].Name);
+			SendSay(npcId, "Traga-me [%02d] %s", reqAmount, g_pItemList[item->sIndex].ItemName);
 
 			return;
 		}
@@ -224,7 +224,7 @@ void NPCEvento(int clientId, int npcId)
 	for(int i = 0 ; i < 10; i++)
 	{
 		STRUCT_ITEM *item = &ev->itemRequired[i];
-		if(item->Index <= 0 || item->Index >= MAX_ITEMLIST)
+		if(item->sIndex <= 0 || item->sIndex >= MAX_ITEMLIST)
 			continue;
 		
 		INT32 reqAmount = ev->amountRequired[i];
@@ -232,17 +232,17 @@ void NPCEvento(int clientId, int npcId)
 		int eventId = -1;
 		for(int g = 0; g < 3; g++)
 		{
-			if(item->Effect[g].Index == 41)
+			if(item->stEffect[g].cEffect == 41)
 			{
-				eventId = item->Effect[g].Value;
+				eventId = item->stEffect[g].cValue;
 				break;
 			}
 		}
 
-		INT32 itemId = item->Index;
+		INT32 itemId = item->sIndex;
 		for(INT32 t = 0; t < 60 ; t++)
 		{
-			if(itemId != pMob[clientId].Mobs.Player.Inventory[t].Index)
+			if(itemId != pMob[clientId].Mobs.Player.Inventory[t].sIndex)
 				continue;
 
 			// Checa se o item que esta buscando a necessario ter o ID DO EVENTO
@@ -254,9 +254,9 @@ void NPCEvento(int clientId, int npcId)
 
 				for(int w = 0; w < 3; w++)
 				{
-					if(pMob[clientId].Mobs.Player.Inventory[t].Effect[w].Index == 41)
+					if(pMob[clientId].Mobs.Player.Inventory[t].stEffect[w].cEffect == 41)
 					{
-						if(pMob[clientId].Mobs.Player.Inventory[t].Effect[w].Value == eventId)
+						if(pMob[clientId].Mobs.Player.Inventory[t].stEffect[w].cValue == eventId)
 						{
 							isEvent = true;
 
@@ -271,9 +271,9 @@ void NPCEvento(int clientId, int npcId)
 				continue;
 
 			
-			if(pMob[clientId].Mobs.Player.Inventory[t].Index == itemId)
+			if(pMob[clientId].Mobs.Player.Inventory[t].sIndex == itemId)
 			{
-				while(pMob[clientId].Mobs.Player.Inventory[t].Index == itemId)
+				while(pMob[clientId].Mobs.Player.Inventory[t].sIndex == itemId)
 				{
 					AmountMinus(&pMob[clientId].Mobs.Player.Inventory[t]);
 
@@ -290,14 +290,14 @@ void NPCEvento(int clientId, int npcId)
 		}
 	}
 	
-	int gold = pMob[clientId].Mobs.Player.Gold - ev->goldRequired;
+	int gold = pMob[clientId].Mobs.Player.Coin - ev->goldRequired;
 	if(gold < 0)
 		gold = 0;
 
 	if(gold > 2000000000)
 		gold = 2000000000;
 
-	pMob[clientId].Mobs.Player.Gold = gold;
+	pMob[clientId].Mobs.Player.Coin = gold;
 
 	SendSignalParm(clientId, clientId, 0x3AF, gold);
 
@@ -320,14 +320,14 @@ void NPCEvento(int clientId, int npcId)
 			// Ponteiro para o item que sera recebido
 			STRUCT_ITEM *item = &ev->itemEarned[i][x];
 			
-			if(item->Index <= 0 || item->Index >= 6500)
+			if(item->sIndex <= 0 || item->sIndex >= 6500)
 				continue;
 
-			if(item->Index == 3214) 
+			if(item->sIndex == 3214) 
 			{
-				pMob[clientId].Mobs.Player.Gold += 500000;
+				pMob[clientId].Mobs.Player.Coin += 500000;
 
-				SendSignalParm(clientId, SERVER_SIDE, clientId, pMob[clientId].Mobs.Player.Gold);
+				SendSignalParm(clientId, SERVER_SIDE, clientId, pMob[clientId].Mobs.Player.Coin);
 				
 				// Log do item recebido
 				Log(clientId, LOG_INGAME, "[EVENTO BONE]  NPC %d - Recebido 500.000 de gold - %d %d", mobId, _rand, interator);
@@ -342,14 +342,14 @@ void NPCEvento(int clientId, int npcId)
 			if(slotId == -1)
 			{
 				// Log para item que caiu no chao
-				Log(clientId, LOG_INGAME, "[EVENTO BONE] NPC %d - Item caiu no chao [%s] [%d] [%d %d %d %d %d %d] - %d %d", mobId, ItemList[item->Index].Name, item->Index, item->EF1, 
+				Log(clientId, LOG_INGAME, "[EVENTO BONE] NPC %d - Item caiu no chao [%s] [%d] [%d %d %d %d %d %d] - %d %d", mobId, g_pItemList[item->sIndex].ItemName, item->sIndex, item->EF1, 
 					item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, _rand, interator);
 
 				// Envia mensagem dizendo que falta espaa no inventario
 				SendClientMessage(clientId, "!Falta espaao no inventario");
 
 				// Envia a mensagem de que o item chegou
-				SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[item->Index].Name);
+				SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[item->sIndex].ItemName);
 			}
 			else
 			{
@@ -360,15 +360,15 @@ void NPCEvento(int clientId, int npcId)
 				SendItem(clientId, SlotType::Inv, slotId, item);
 
 				if(mobId == 5 || mobId == 6)
-					Log(SERVER_SIDE, LOG_INGAME, "[EVENTO BONE]  %s - NPC %d - Recebido [%s] [%d] [%d %d %d %d %d %d] - %d %d", pMob[clientId].Mobs.Player.Name, mobId, ItemList[item->Index].Name, item->Index, item->EF1, 
+					Log(SERVER_SIDE, LOG_INGAME, "[EVENTO BONE]  %s - NPC %d - Recebido [%s] [%d] [%d %d %d %d %d %d] - %d %d", pMob[clientId].Mobs.Player.MobName, mobId, g_pItemList[item->sIndex].ItemName, item->sIndex, item->EF1, 
 						item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, _rand, interator);
 
 				// Log do item recebido
-				Log(clientId, LOG_INGAME, "[EVENTO BONE]  NPC %d - Recebido [%s] [%d] [%d %d %d %d %d %d] - %d %d", mobId, ItemList[item->Index].Name, item->Index, item->EF1, 
+				Log(clientId, LOG_INGAME, "[EVENTO BONE]  NPC %d - Recebido [%s] [%d] [%d %d %d %d %d %d] - %d %d", mobId, g_pItemList[item->sIndex].ItemName, item->sIndex, item->EF1, 
 					item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, _rand, interator);
 				
 				// Envia a mensagem de que o item chegou
-				SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[item->Index].Name);
+				SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[item->sIndex].ItemName);
 			}
 		}
 		
@@ -411,7 +411,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	{
 		AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
-		Log(clientId, LOG_INGAME, "Clicado no NPC %s fora do range %ux %uy %ux %uy. Distancia: %d", pMob[npcId].Mobs.Player.Name, pMob[npcId].Target.X, pMob[npcId].Target.Y, pMob[clientId].Target.X, pMob[clientId].Target.Y, distance);
+		Log(clientId, LOG_INGAME, "Clicado no NPC %s fora do range %ux %uy %ux %uy. Distancia: %d", pMob[npcId].Mobs.Player.MobName, pMob[npcId].Target.X, pMob[npcId].Target.Y, pMob[clientId].Target.X, pMob[clientId].Target.Y, distance);
 		return true;
 	}
 
@@ -440,10 +440,10 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	if(LOCAL_527 == 8)	LOCAL_526 = 100;
 	if(LOCAL_527 == 51)	LOCAL_526 = 51;
 
-	INT32 race = pMob[npcId].Mobs.Player.bStatus.Merchant.Merchant,
-		  face = pMob[npcId].Mobs.Player.Equip[0].Index;
+	INT32 race = pMob[npcId].Mobs.Player.BaseScore.Merchant.Merchant,
+		  face = pMob[npcId].Mobs.Player.Equip[0].sIndex;
 
-	Log(clientId, LOG_INGAME, "Clicado no NPC [%s]. Face %d. Race: %d. GenerateId: %d. Posiaao do usuario: %ux %uy. Posiaao do NPC: %dx %dy", pMob[npcId].Mobs.Player.Name, face, race, pMob[npcId].GenerateID, pMob[clientId].Target.X, pMob[clientId].Target.Y, pMob[npcId].Target.X, pMob[npcId].Target.Y);
+	Log(clientId, LOG_INGAME, "Clicado no NPC [%s]. Face %d. Race: %d. GenerateId: %d. Posiaao do usuario: %ux %uy. Posiaao do NPC: %dx %dy", pMob[npcId].Mobs.Player.MobName, face, race, pMob[npcId].GenerateID, pMob[clientId].Target.X, pMob[clientId].Target.Y, pMob[npcId].Target.X, pMob[npcId].Target.Y);
 
 	// 00428D24
 	INT32 LOCAL_528 = 1,
@@ -455,16 +455,16 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	LOCAL_530 = LOCAL_530 << (LOCAL_526 - 1);
 
 #pragma region NPC CONFIGURADO POR TXT
-	if(pMob[npcId].Mobs.Player.bStatus.Level >= 700 && pMob[npcId].Mobs.Player.bStatus.Level <= 750)
+	if(pMob[npcId].Mobs.Player.BaseScore.Level >= 700 && pMob[npcId].Mobs.Player.BaseScore.Level <= 750)
 	{
 		STRUCT_MOB *player = &pMob[clientId].Mobs.Player;
 		STRUCT_MOB *mob = &pMob[npcId].Mobs.Player;
 
-		INT32 questId = mob->bStatus.Level - 700;
+		INT32 questId = mob->BaseScore.Level - 700;
 		if(questId < 0 || questId >= MAX_NPCQUEST)
 			return true;
 
-		Log(clientId, LOG_INGAME, "O NPC %s foi clicado. QuestId: %d", mob->Name, questId);
+		Log(clientId, LOG_INGAME, "O NPC %s foi clicado. QuestId: %d", mob->MobName, questId);
 
 		char szTMP[108];
 		STRUCT_NPCQUEST_CFILE *npc = &questNPC[questId];
@@ -474,7 +474,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			stNPCQuest_Condition *cond = &npc->Condition[i];
 			if(cond->maxLevel != 0)
 			{
-				INT32 level = player->bStatus.Level;
+				INT32 level = player->BaseScore.Level;
 				if(level < cond->minLevel || level > cond->maxLevel)
 				{
 					SendSay(npcId, cond->Speech);
@@ -484,7 +484,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			}
 			else if(cond->Equip.ItemID != 0)
 			{
-				if(player->Equip[cond->Equip.Slot].Index != cond->Equip.ItemID)
+				if(player->Equip[cond->Equip.Slot].sIndex != cond->Equip.ItemID)
 				{
 					SendSay(npcId, cond->Speech);
 
@@ -500,9 +500,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					return true;
 				}
 			}
-			else if(cond->Gold)
+			else if(cond->Coin)
 			{
-				if(player->Gold < cond->Gold)
+				if(player->Coin < cond->Coin)
 				{
 					SendSay(npcId, cond->Speech);
 
@@ -558,7 +558,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			}
 			else if(cond->Class)
 			{
-				if((player->ClassInfo + 1) != cond->Class)
+				if((player->Class + 1) != cond->Class)
 				{
 					SendSay(npcId, cond->Speech);
 
@@ -575,7 +575,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					int amountItem = GetInventoryAmount(clientId, cond->Item.Item);
 					if(amountItem < cond->Item.Amount)
 					{
-						sprintf_s(szTMP, "Traga-me [%d] %s", cond->Item.Amount, ItemList[cond->Item.Item].Name);
+						sprintf_s(szTMP, "Traga-me [%d] %s", cond->Item.Amount, g_pItemList[cond->Item.Item].ItemName);
 						SendSay(npcId, szTMP);
 
 						return true;
@@ -595,13 +595,13 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			{
 				if(r->Exp > 0)
 				{
-					while(player->Exp >= g_pNextLevel[player->Equip[0].EFV2][player->bStatus.Level])
-						player->bStatus.Level ++;
+					while(player->Exp >= g_pNextLevel[player->Equip[0].EFV2][player->BaseScore.Level])
+						player->BaseScore.Level ++;
 				}
 				else
 				{
-					while(player->bStatus.Level > 0 && player->Exp < g_pNextLevel[player->Equip[0].EFV2][player->bStatus.Level - 1])
-						player->bStatus.Level --;
+					while(player->BaseScore.Level > 0 && player->Exp < g_pNextLevel[player->Equip[0].EFV2][player->BaseScore.Level - 1])
+						player->BaseScore.Level --;
 				}
 
 				Log(clientId, LOG_INGAME, "Foram removidos %d de experiancia", r->Exp);
@@ -609,36 +609,36 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			else if(r->Level)
 			{
-				INT32 level = player->bStatus.Level + r->Level;
+				INT32 level = player->BaseScore.Level + r->Level;
 
 				if(player->Equip[0].EFV2 >= 3)
 				{
 					if(level > 199)
 						level = 199;
 
-					player->bStatus.Level = level;
-					player->Exp = g_pNextLevel[player->Equip[0].EFV3][player->bStatus.Level];
+					player->BaseScore.Level = level;
+					player->Exp = g_pNextLevel[player->Equip[0].EFV3][player->BaseScore.Level];
 				}
 				else
 				{
 					if(level > 399)
 						level = 399;
 
-					player->bStatus.Level = level;
-					player->Exp = g_pNextLevel[player->Equip[0].EFV3][player->bStatus.Level];
+					player->BaseScore.Level = level;
+					player->Exp = g_pNextLevel[player->Equip[0].EFV3][player->BaseScore.Level];
 				}
 
 				Log(clientId, LOG_INGAME, "Foram adicionados %d leveis", level);
 			}
-			else if(r->Gold)
+			else if(r->Coin)
 			{
-				INT64 gold = player->Gold + r->Gold;
+				INT64 gold = player->Coin + r->Coin;
 
 				if(gold >= 2000000000LL)
 					gold = 2000000000LL;
 
-				player->Gold = static_cast<int>(gold);
-				Log(clientId, LOG_INGAME, "Foram adiciaondos %d gold", r->Gold);
+				player->Coin = static_cast<int>(gold);
+				Log(clientId, LOG_INGAME, "Foram adiciaondos %d gold", r->Coin);
 			}
 			else if (r->Teleport.X != 0 && r->Teleport.Y != 0)
 			{
@@ -646,7 +646,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				Log(clientId, LOG_INGAME, "Usuario teleportado para %dx %dy", r->Teleport.X, r->Teleport.Y);
 			}
-			else if(r->Equip.Item.Index != 0)
+			else if(r->Equip.Item.sIndex != 0)
 			{
 				Log(clientId, LOG_INGAME, "Setado o item %s do slot %d. Item anteriormente no slot: %s", r->Equip.Item.toString().c_str(), r->Equip.Slot, player->Equip[r->Equip.Slot].toString().c_str());
 
@@ -682,14 +682,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		}
 
 		// A partir deste ponto, o sistema vai comeaar a remover o que for necessario
-		if(npc->Remove.Gold)
+		if(npc->Remove.Coin)
 		{
-			if(player->Gold < npc->Remove.Gold)
-				player->Gold = 0;
+			if(player->Coin < npc->Remove.Coin)
+				player->Coin = 0;
 			else
-				player->Gold -= npc->Remove.Gold;
+				player->Coin -= npc->Remove.Coin;
 
-			Log(clientId, LOG_INGAME, "Removido %d gold", npc->Remove.Gold);
+			Log(clientId, LOG_INGAME, "Removido %d gold", npc->Remove.Coin);
 		}
 
 		if(npc->Remove.Exp)
@@ -701,13 +701,13 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			else
 				player->Exp += npc->Remove.Exp;
 
-			while(player->bStatus.Level > 0 && player->Exp < g_pNextLevel[player->Equip[0].EFV2][player->bStatus.Level - 1])
-				player->bStatus.Level --;
+			while(player->BaseScore.Level > 0 && player->Exp < g_pNextLevel[player->Equip[0].EFV2][player->BaseScore.Level - 1])
+				player->BaseScore.Level --;
 		}
 
 		if(npc->Remove.Equip.Item != 0)
 		{
-			if (npc->Remove.Equip.Item == player->Equip[npc->Remove.Equip.Slot].Index)
+			if (npc->Remove.Equip.Item == player->Equip[npc->Remove.Equip.Slot].sIndex)
 			{
 				Log(clientId, LOG_INGAME, "Item %s equipado em %d removido", player->Equip[npc->Remove.Equip.Slot].toString().c_str(), npc->Remove.Equip.Slot);
 				memset(&player->Equip[npc->Remove.Equip.Slot], 0, sizeof STRUCT_ITEM);
@@ -730,9 +730,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			Log(clientId, LOG_INGAME, "Removendo item %d. Quantidade: %d", rem->Item[i].Item, amount);
 			for(INT32 t = 0; t < 60; t++)
 			{
-				if(player->Inventory[t].Index == rem->Item[i].Item)
+				if(player->Inventory[t].sIndex == rem->Item[i].Item)
 				{
-					while(player->Inventory[t].Index == player->Inventory[t].Index)
+					while(player->Inventory[t].sIndex == player->Inventory[t].sIndex)
 					{
 						AmountMinus(&player->Inventory[t]);
 
@@ -755,7 +755,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	}
 #pragma endregion
 #pragma region NPC EVENTO
-		if(pMob[npcId].Mobs.Player.Status.Level >= 500 && pMob[npcId].Mobs.Player.Status.Level <= (500 + MAX_NPCEVENTO))
+		if(pMob[npcId].Mobs.Player.CurrentScore.Level >= 500 && pMob[npcId].Mobs.Player.CurrentScore.Level <= (500 + MAX_NPCEVENTO))
 		{
 			NPCEvento(clientId, p->npcId);
 
@@ -776,7 +776,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		}
 
 		INT32 totaloop  = total / need,
-		      guild     = pMob[clientId].Mobs.Player.GuildIndex,
+		      guild     = pMob[clientId].Mobs.Player.Guild,
 			  totalFame = 0;
 
 		for(INT32 i = 0; i < totaloop; i++)
@@ -805,7 +805,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			total, totaloop, totalFame, guild);
 
 		if(totalFame != 0)
-			Log(SERVER_SIDE, LOG_INGAME, "Guild %s [%d] ganhou %d de fame por resetar pk. Fame anterior: %d", g_pGuild[guild].Name.c_str(), guild, totalFame, g_pGuild[guild].Fame);
+			Log(SERVER_SIDE, LOG_INGAME, "Guild %s [%d] ganhou %d de fame por resetar pk. Fame anterior: %d", g_pGuild[guild].MobName.c_str(), guild, totalFame, g_pGuild[guild].Fame);
 	}
 #pragma endregion
 #pragma region MOUNT MASTER
@@ -813,14 +813,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	{ // 00428D91
 		STRUCT_ITEM *LOCAL_531 = &pMob[clientId].Mobs.Player.Equip[14];
 
-		if(LOCAL_531->Index < 2330 || LOCAL_531->Index >= 2390)
+		if(LOCAL_531->sIndex < 2330 || LOCAL_531->sIndex >= 2390)
 		{
 			SendClientMessage(clientId, "Voca nao possui uma montaria");
 
 			return true;
 		}
 
-		INT16 LOCAL_532 = *(WORD*)&LOCAL_531->Effect[0].Index;
+		INT16 LOCAL_532 = *(WORD*)&LOCAL_531->stEffect[0].cEffect;
 		if(LOCAL_532 > 0)
 		{
 			SendClientMessage(clientId, "Sua montaria nao esta morta");
@@ -828,15 +828,15 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			return true;
 		}
 
-		INT32 LOCAL_533 = ItemList[LOCAL_531->Index].Price;
+		INT32 LOCAL_533 = g_pItemList[LOCAL_531->sIndex].Price;
 		if(LOCAL_525 == 0)
 		{
-			SendClientMessage(clientId, g_pLanguageString[_DS_S_cure_price_D], ItemList[LOCAL_531->Index].Name, LOCAL_533);
+			SendClientMessage(clientId, g_pLanguageString[_DS_S_cure_price_D], g_pItemList[LOCAL_531->sIndex].ItemName, LOCAL_533);
 
 			return true;
 		}
 
-		if(pMob[clientId].Mobs.Player.Gold < LOCAL_533)
+		if(pMob[clientId].Mobs.Player.Coin < LOCAL_533)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Havent_Money_So_Much]);
 
@@ -846,28 +846,28 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		if(LOCAL_533 < 0 || LOCAL_533 > 100000000)
 			return true;
 
-		pMob[clientId].Mobs.Player.Gold -= LOCAL_533;
+		pMob[clientId].Mobs.Player.Coin -= LOCAL_533;
 		
 		INT32 LOCAL_534 = GetItemAbility(LOCAL_531, EF_MOUNTLIFE);
 		LOCAL_534 = (LOCAL_534 - (Rand() % 4));
 		
 		if(LOCAL_534 <= 0)
 		{
-			Log(clientId, LOG_INGAME, "Reviver montaria: morta. %s [%d] [%d %d %d %d %d %d]", ItemList[LOCAL_531->Index].Name, LOCAL_531->Index, LOCAL_531->EF1, LOCAL_531->EFV1, LOCAL_531->EF2, LOCAL_531->EFV2, LOCAL_531->EF3, LOCAL_531->EFV3);
+			Log(clientId, LOG_INGAME, "Reviver montaria: morta. %s [%d] [%d %d %d %d %d %d]", g_pItemList[LOCAL_531->sIndex].ItemName, LOCAL_531->sIndex, LOCAL_531->EF1, LOCAL_531->EFV1, LOCAL_531->EF2, LOCAL_531->EFV2, LOCAL_531->EF3, LOCAL_531->EFV3);
 
 			memset(LOCAL_531, 0, sizeof STRUCT_ITEM);
 			SendClientMessage(clientId, g_pLanguageString[_NN_Cure_faild]);
 		}
 		else
 		{
-			int level = LOCAL_531->Effect[1].Index;
+			int level = LOCAL_531->stEffect[1].cEffect;
 			if (level > 120)
 			{
 				int rand = Rand() % 100;
 				int protector = GetFirstSlot(clientId, 3251);
 				if (rand <= 25 && protector == -1)
 				{
-					LOCAL_531->Effect[1].Index--;
+					LOCAL_531->stEffect[1].cEffect--;
 					Log(clientId, LOG_INGAME, "Perdeu um navel devido. Level atual: %d", level - 1);
 				}
 
@@ -880,13 +880,13 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				}
 			}
 
-			Log(clientId, LOG_INGAME, "Reviver concluado %s [%d] [%d %d %d %d %d %d]", ItemList[LOCAL_531->Index].Name, LOCAL_531->Index, LOCAL_531->EF1, LOCAL_531->EFV1, LOCAL_531->EF2, LOCAL_531->EFV2, LOCAL_531->EF3, LOCAL_531->EFV3);
+			Log(clientId, LOG_INGAME, "Reviver concluado %s [%d] [%d %d %d %d %d %d]", g_pItemList[LOCAL_531->sIndex].ItemName, LOCAL_531->sIndex, LOCAL_531->EF1, LOCAL_531->EFV1, LOCAL_531->EF2, LOCAL_531->EFV2, LOCAL_531->EF3, LOCAL_531->EFV3);
 
 			SendClientMessage(clientId, g_pLanguageString[_NN_Cured]);
-			LOCAL_531->Effect[1].Value = LOCAL_534;
+			LOCAL_531->stEffect[1].cValue = LOCAL_534;
 			
-			*(WORD*)&LOCAL_531->Effect[0].Index = 20;
-			LOCAL_531->Effect[2].Index = 5;
+			*(WORD*)&LOCAL_531->stEffect[0].cEffect = 20;
+			LOCAL_531->stEffect[2].cEffect = 5;
 		}
 
 		pMob[clientId].GetCurrentScore(clientId);
@@ -904,7 +904,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 		STRUCT_MOB *player = &pMob[clientId].Mobs.Player;
 
-		if (now.tm_wday != 6 && now.tm_wday != 0 && now.tm_hour == 21 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL && pMob[clientId].Mobs.Player.Status.Level <= 299)
+		if (now.tm_wday != 6 && now.tm_wday != 0 && now.tm_hour == 21 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL && pMob[clientId].Mobs.Player.CurrentScore.Level <= 299)
 		{
 			INT32 slotId = GetFirstSlot(clientId, 420);
 			if (slotId != -1)
@@ -943,18 +943,18 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			}
 		}
 
-		if(player->bStatus.Level >= 369 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL)
+		if(player->BaseScore.Level >= 369 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL)
 		{
 			INT32 searchedId = 5334;
-			if(player->ClassInfo == 1)
+			if(player->Class == 1)
 				searchedId = 5336;
-			else if(player->ClassInfo == 2)
+			else if(player->Class == 2)
 				searchedId = 5335;
-			else if(player->ClassInfo == 3)
+			else if(player->Class == 3)
 				searchedId = 5337;
 		
 			INT32 slotId = GetFirstSlot(clientId, searchedId),
-				  cape   = player->Equip[15].Index;
+				  cape   = player->Equip[15].sIndex;
 
 			if(slotId != -1 && cape != 574 && cape != 1769 && cape != 1768)
 			{
@@ -962,24 +962,24 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				memset(&player->Equip[15], 0, sizeof STRUCT_ITEM);
 
 				if(player->CapeInfo == CAPE_BLUE)
-					player->Equip[15].Index = 1768;
+					player->Equip[15].sIndex = 1768;
 				else if(player->CapeInfo == CAPE_RED)
-					player->Equip[15].Index = 1769;
+					player->Equip[15].sIndex = 1769;
 				else if(player->CapeInfo == CAPE_WHITE)
-					player->Equip[15].Index = 574;
+					player->Equip[15].sIndex = 574;
 
 				SendItem(clientId, SlotType::Inv, slotId, &player->Inventory[slotId]);
 				SendItem(clientId, SlotType::Equip, 15, &player->Equip[15]);
 
-				if(!(player->Learn[0] & (1 << 30)))
-					player->Learn[0] |= 1 << 30;
+				if(!(player->LearnedSkill[0] & (1 << 30)))
+					player->LearnedSkill[0] |= 1 << 30;
 
 				CharLogOut(clientId);
 				SendClientMessage(clientId, g_pLanguageString[_NN_God_Continue_Blessing]);
 
 				SendSignalParm(clientId, clientId, 0x3B4, pUser[clientId].inGame.CharSlot);
 
-				Log(clientId, LOG_INGAME, "Adquirido capa %d, adquirindo soul", player->Equip[15].Index);
+				Log(clientId, LOG_INGAME, "Adquirido capa %d, adquirindo soul", player->Equip[15].sIndex);
 				return true;
 			}
 		}
@@ -1005,7 +1005,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		{
 			int attackerId = zakum.Users.back();
 
-			SendClientMessage(clientId, g_pLanguageString[_SD_Zakum_Quest_by_S_N], pMob[attackerId].Mobs.Player.Name, zakum.Users.size());
+			SendClientMessage(clientId, g_pLanguageString[_SD_Zakum_Quest_by_S_N], pMob[attackerId].Mobs.Player.MobName, zakum.Users.size());
 			return true;
 		}
 
@@ -1019,7 +1019,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		if (leader == 0)
 			leader = clientId;
 
-		str << "Personagem " << pMob[leader].Mobs.Player.Name << "(" << pUser[leader].User.Username << ")" << std::endl;
+		str << "Personagem " << pMob[leader].Mobs.Player.MobName << "(" << pUser[leader].User.Username << ")" << std::endl;
 		for (int i = 0; i < 12; ++i)
 		{
 			int memberId = pMob[leader].PartyList[i];
@@ -1028,7 +1028,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			zakum.Users.push_back(memberId);
 
-			str << "Personagem " << pMob[memberId].Mobs.Player.Name <<  "(" << pUser[memberId].User.Username << ")" << std::endl;
+			str << "Personagem " << pMob[memberId].Mobs.Player.MobName <<  "(" << pUser[memberId].User.Username << ")" << std::endl;
 		}
 
 		zakum.Users.push_back(leader);
@@ -1054,7 +1054,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		INT32 LOCAL_619[18] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 		INT32 LOCAL_637[18] = {4, 3, 2, 2, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-		if(pMob[clientId].Mobs.Player.Gold < 2000000)
+		if(pMob[clientId].Mobs.Player.Coin < 2000000)
 		{
 			SendSay(npcId, g_pLanguageString[_NN_snowimp_need_2MGold]);
 
@@ -1064,7 +1064,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		INT32  LOCAL_655 = 0;
 		for(; LOCAL_655 < 64; LOCAL_655++)
 		{
-			INT32 LOCAL_656 = pMob[clientId].Mobs.Player.Inventory[LOCAL_655].Index;
+			INT32 LOCAL_656 = pMob[clientId].Mobs.Player.Inventory[LOCAL_655].sIndex;
 			if(LOCAL_656 < 1721 || LOCAL_656 > 1725)
 				continue;
 
@@ -1103,14 +1103,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			SendItem(clientId, SlotType::Inv, LOCAL_659, &pMob[clientId].Mobs.Player.Inventory[LOCAL_659]);
 		}
 
-		pMob[clientId].Mobs.Player.Gold -= 2000000;
+		pMob[clientId].Mobs.Player.Coin -= 2000000;
 		SendEtc(clientId);
 
 		INT32 LOCAL_660 = Rand() & 0x80000003;
 
 		STRUCT_ITEM LOCAL_662{};
-		LOCAL_662.Index = 1726;
-		LOCAL_662.Effect[0].Index = EF_SANC;
+		LOCAL_662.sIndex = 1726;
+		LOCAL_662.stEffect[0].cEffect = EF_SANC;
 		
 		SetItemSanc(&LOCAL_662, LOCAL_660, 0);
 
@@ -1119,50 +1119,50 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			INT32 LOCAL_781 = Rand() & 0x80000007;
 			if (LOCAL_781 == 0)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_HP;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() % 41) + 20;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_HP;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() % 41) + 20;
 			}
 			else if (LOCAL_781 == 1)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_DAMAGE;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() % 21) + 5;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_DAMAGE;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() % 21) + 5;
 			}
 			else if (LOCAL_781 == 2)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_ATTSPEED;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() % 11) + 5;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_ATTSPEED;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() % 11) + 5;
 			}
 			else if (LOCAL_781 == 3)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_MP;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() % 51) + 20;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_MP;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() % 51) + 20;
 			}
 			else if (LOCAL_781 == 4)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_MAGIC;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() % 7) + 2;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_MAGIC;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() % 7) + 2;
 			}
 			else if (LOCAL_781 == 5)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_STR;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_STR;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 			}
 			else if (LOCAL_781 == 6)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_INT;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_INT;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 			}
 			else if (LOCAL_781 == 7)
 			{
-				LOCAL_662.Effect[LOCAL_780].Index = EF_DEX;
-				LOCAL_662.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+				LOCAL_662.stEffect[LOCAL_780].cEffect = EF_DEX;
+				LOCAL_662.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 			}
 		}
 
 		INT32 LOCAL_663 = 0;
 		for(; LOCAL_663 < 64; LOCAL_663 ++)
 		{
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_663].Index == 0)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_663].sIndex == 0)
 				break;
 		}
 
@@ -1189,7 +1189,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		INT32 LOCAL_671 = 0;
 		for(; LOCAL_671 < 60; LOCAL_671 ++)
 		{
-			INT32 LOCAL_672 = pMob[clientId].Mobs.Player.Inventory[LOCAL_671].Index;
+			INT32 LOCAL_672 = pMob[clientId].Mobs.Player.Inventory[LOCAL_671].sIndex;
 			if(LOCAL_672 <= 0)
 				continue;
 
@@ -1226,7 +1226,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			else if(LOCAL_739 < sServer.Treasure[LOCAL_673].Rate[4])
 				LOCAL_741 = sServer.Treasure[LOCAL_673].Target[4];
 
-			if(LOCAL_741.Index == 0)
+			if(LOCAL_741.sIndex == 0)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Next_Chance]);
 
@@ -1255,7 +1255,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		
 		for(LOCAL_671 = 0; LOCAL_671 < 60; LOCAL_671 ++)
 		{
-			INT32 LOCAL_757 = pMob[clientId].Mobs.Player.Inventory[LOCAL_671].Index;
+			INT32 LOCAL_757 = pMob[clientId].Mobs.Player.Inventory[LOCAL_671].sIndex;
 
 			if(LOCAL_757 >= 421 && LOCAL_757 <= 427)
 			{
@@ -1273,7 +1273,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			return true;
 		}
 
-		if(!pMob[clientId].Mobs.Player.Equip[6].Index)
+		if(!pMob[clientId].Mobs.Player.Equip[6].sIndex)
 		{
 			SendSay(npcId, g_pLanguageString[_NN_Equip_Weapon_To_Enchant]);
 
@@ -1291,21 +1291,21 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		STRUCT_ITEM* LOCAL_761 = &pMob[clientId].Mobs.Player.Equip[6];
 
 		INT32 LOCAL_764 = LOCAL_756 / 10 * 25;
-		INT32 LOCAL_765 = ItemList[LOCAL_761->Index].Level;
+		INT32 LOCAL_765 = g_pItemList[LOCAL_761->sIndex].Level;
 		
 		// nao necessariamente nesta ordem, mas a isso
-		LOCAL_761->Effect[0].Index = 0;
-		LOCAL_761->Effect[1].Index = 0;
-		LOCAL_761->Effect[2].Index = 0;
-		LOCAL_761->Effect[0].Value = 0;
-		LOCAL_761->Effect[1].Value = 0;
-		LOCAL_761->Effect[2].Value = 0;
+		LOCAL_761->stEffect[0].cEffect = 0;
+		LOCAL_761->stEffect[1].cEffect = 0;
+		LOCAL_761->stEffect[2].cEffect = 0;
+		LOCAL_761->stEffect[0].cValue = 0;
+		LOCAL_761->stEffect[1].cValue = 0;
+		LOCAL_761->stEffect[2].cValue = 0;
 
 		SetItemBonus(LOCAL_761, LOCAL_765 + LOCAL_764, 1, pMob[clientId].DropBonus);
 
 		for(LOCAL_671 = 0; LOCAL_671 < 60; LOCAL_671 ++)
 		{
-			INT32 LOCAL_766 = pMob[clientId].Mobs.Player.Inventory[LOCAL_671].Index;
+			INT32 LOCAL_766 = pMob[clientId].Mobs.Player.Inventory[LOCAL_671].sIndex;
 			if(LOCAL_766 >= 421 && LOCAL_766 <= 427)
 				memset(&pMob[clientId].Mobs.Player.Inventory[LOCAL_671], 0, sizeof STRUCT_ITEM);
 		}
@@ -1314,7 +1314,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 		SendItem(clientId, SlotType::Equip, 6, &pMob[clientId].Mobs.Player.Equip[6]);
 
-		SendSay(npcId, g_pLanguageString[_SN_Now_I_Will_Enchant_Your], pMob[clientId].Mobs.Player.Name);
+		SendSay(npcId, g_pLanguageString[_SN_Now_I_Will_Enchant_Your], pMob[clientId].Mobs.Player.MobName);
 		SetAffect(clientId, 0x2C, 200, 200);
 
 		SendAffect(clientId);
@@ -1324,7 +1324,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 		GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)&create, 0);
 
-		INT32 LOCAL_760 = pMob[clientId].Mobs.Player.Equip[0].Index / 10;
+		INT32 LOCAL_760 = pMob[clientId].Mobs.Player.Equip[0].sIndex / 10;
 		if(LOCAL_760 == 0)
 			SendEmotion(clientId, 0x17, 0);
 		else if(LOCAL_760 == 1)
@@ -1339,7 +1339,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region PEGAR QUEST DO AMULETO MaSTICO (NPC DE ARZAN)
 	else if(LOCAL_526 == 2)
 	{ // 0042A67D - NPC do Amuleto Mastico
-		if((pMob[clientId].Mobs.Player.QuestInfo.Mystical_GetQuest) == 0 && pMob[clientId].Mobs.Player.bStatus.Level >= 59)
+		if((pMob[clientId].Mobs.Player.QuestInfo.Mystical_GetQuest) == 0 && pMob[clientId].Mobs.Player.BaseScore.Level >= 59)
 		{
 			if(LOCAL_525 == 0)
 			{
@@ -1364,14 +1364,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	{// 0042A7F6
 		if((pMob[clientId].Mobs.Player.QuestInfo.Mystical_GetQuest) && !(pMob[clientId].Mobs.Player.QuestInfo.Mystical_CanGetAmuleto))
 		{
-			SendSay(npcId, g_pLanguageString[_SN_All_Villagers_Thanks_Your], pMob[clientId].Mobs.Player.Name);
+			SendSay(npcId, g_pLanguageString[_SN_All_Villagers_Thanks_Your], pMob[clientId].Mobs.Player.MobName);
 
 			return true;
 		}
 
-		if((pMob[clientId].Mobs.Player.QuestInfo.Mystical_GetQuest) && (pMob[clientId].Mobs.Player.QuestInfo.Mystical_GetAmuleto) == 0 && pMob[clientId].Mobs.Player.bStatus.Level >= 59)
+		if((pMob[clientId].Mobs.Player.QuestInfo.Mystical_GetQuest) && (pMob[clientId].Mobs.Player.QuestInfo.Mystical_GetAmuleto) == 0 && pMob[clientId].Mobs.Player.BaseScore.Level >= 59)
 		{
-			INT32 LOCAL_769 = pMob[clientId].Mobs.Player.bStatus.Level;
+			INT32 LOCAL_769 = pMob[clientId].Mobs.Player.BaseScore.Level;
 			INT32 LOCAL_770 = 551;
 			INT32 LOCAL_771 = 1;
 
@@ -1392,53 +1392,53 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			}
 
 			STRUCT_ITEM LOCAL_772;
-			LOCAL_772.Index = LOCAL_770;
+			LOCAL_772.sIndex = LOCAL_770;
 
-			LOCAL_772.Effect[0].Index = EF_SANC;
-			LOCAL_772.Effect[0].Value = 0;
+			LOCAL_772.stEffect[0].cEffect = EF_SANC;
+			LOCAL_772.stEffect[0].cValue = 0;
 
 			for(INT32 LOCAL_780 = 1; LOCAL_780 <= 2; LOCAL_780++)
 			{
 				INT32 LOCAL_781 = Rand() & 0x80000007;
 				if(LOCAL_781 == 0)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_HP;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() % 41) + 20;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_HP;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() % 41) + 20;
 				}
 				else if(LOCAL_781 == 1)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_DAMAGE;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() % 21) + 5;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_DAMAGE;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() % 21) + 5;
 				}
 				else if(LOCAL_781 == 2)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_ATTSPEED;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() % 11) + 5;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_ATTSPEED;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() % 11) + 5;
 				}
 				else if(LOCAL_781 == 3)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_MP;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() % 51) + 20;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_MP;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() % 51) + 20;
 				}
 				else if(LOCAL_781 == 4)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_MAGIC;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() % 7) + 2;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_MAGIC;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() % 7) + 2;
 				}
 				else if(LOCAL_781 == 5)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_STR;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_STR;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 				}
 				else if(LOCAL_781 == 6)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_INT;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_INT;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 				}
 				else if(LOCAL_781 == 7)
 				{
-					LOCAL_772.Effect[LOCAL_780].Index = EF_DEX;
-					LOCAL_772.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+					LOCAL_772.stEffect[LOCAL_780].cEffect = EF_DEX;
+					LOCAL_772.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 				}
 			}
 
@@ -1450,7 +1450,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			Log(clientId, LOG_INGAME, "Adquirido %s [%d] [%d %d %d %d %d %d] quest Amuleto Mastico", ItemList[LOCAL_772.Index].Name, LOCAL_772.Index, LOCAL_772.EF1, LOCAL_772.EFV1, LOCAL_772.EF2, LOCAL_772.EFV2, LOCAL_772.EF3, LOCAL_772.EFV3);
+			Log(clientId, LOG_INGAME, "Adquirido %s [%d] [%d %d %d %d %d %d] quest Amuleto Mastico", g_pItemList[LOCAL_772.sIndex].ItemName, LOCAL_772.sIndex, LOCAL_772.EF1, LOCAL_772.EFV1, LOCAL_772.EF2, LOCAL_772.EFV2, LOCAL_772.EF3, LOCAL_772.EFV3);
 
 			memcpy(&pMob[clientId].Mobs.Player.Inventory[LOCAL_782], &LOCAL_772, sizeof STRUCT_ITEM);
 			SendItem(clientId, SlotType::Inv, LOCAL_782, &pMob[clientId].Mobs.Player.Inventory[LOCAL_782]);
@@ -1475,7 +1475,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region JEFFI
 	else if(LOCAL_526 == 4)
 	{// 0042AE24
-		if(pMob[clientId].Mobs.Player.Equip[13].Index != 447 && pMob[clientId].Mobs.Player.Equip[13].Index != 692)
+		if(pMob[clientId].Mobs.Player.Equip[13].sIndex != 447 && pMob[clientId].Mobs.Player.Equip[13].sIndex != 692)
 		{
 			INT32 LOCAL_787 = GetInventoryAmount(clientId, 419),
 				  LOCAL_788 = GetInventoryAmount(clientId, 420);
@@ -1487,7 +1487,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			if(pMob[clientId].Mobs.Player.Gold < 1000000)
+			if(pMob[clientId].Mobs.Player.Coin < 1000000)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Need_1000000_Gold]);
 
@@ -1524,7 +1524,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			// SUPER IMPROVAVEL DISSO ACONTECER MAS BELEZA PODE ACONTECER!!!
 			if (LOCAL_787 != -1 || LOCAL_788 != -1)	
 			{
-				pMob[clientId].Mobs.Player.Gold -= 1000000;
+				pMob[clientId].Mobs.Player.Coin -= 1000000;
 
 				SetAffect(clientId, 44, 20, 20);
 
@@ -1532,21 +1532,21 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				SendCarry(clientId);
 				SendEtc(clientId);
 				SendAffect(clientId);
-				Log(clientId, LOG_INGAME, "%s usou o npc Jeffi e compos PO/PL. Resto de ori: %d Resto de lac: %d. Poeira de Ori: %d. Poeira de Lac: %d", pMob[clientId].Mobs.Player.Name,
+				Log(clientId, LOG_INGAME, "%s usou o npc Jeffi e compos PO/PL. Resto de ori: %d Resto de lac: %d. Poeira de Ori: %d. Poeira de Lac: %d", pMob[clientId].Mobs.Player.MobName,
 					totalRO, totalRL, totalPO, totalPL);
 			}
 			return true;
 		}
 
 		INT32 LOCAL_790 = 0;
-		if(pMob[clientId].Mobs.Player.Equip[13].Index == 447)
+		if(pMob[clientId].Mobs.Player.Equip[13].sIndex == 447)
 			LOCAL_790 = 1000000;
-		else if(pMob[clientId].Mobs.Player.Equip[13].Index == 692)
+		else if(pMob[clientId].Mobs.Player.Equip[13].sIndex == 692)
 			LOCAL_790 = 5000000;
 		else
 			return true;
 
-		if(pMob[clientId].Mobs.Player.Gold < LOCAL_790)
+		if(pMob[clientId].Mobs.Player.Coin < LOCAL_790)
 		{
 			if(LOCAL_790 == 1000000)
 				SendSay(npcId, g_pLanguageString[_NN_Need_1000000_Gold]);
@@ -1558,15 +1558,15 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 		if(LOCAL_790 == 1000000)
 		{
-			pMob[clientId].Mobs.Player.Gold -= 1000000;
+			pMob[clientId].Mobs.Player.Coin -= 1000000;
 
-			pMob[clientId].Mobs.Player.Equip[13].Index = 448 + (Rand () % 3);
+			pMob[clientId].Mobs.Player.Equip[13].sIndex = 448 + (Rand () % 3);
 		}
 		else
 		{
-			pMob[clientId].Mobs.Player.Gold -= 5000000;
+			pMob[clientId].Mobs.Player.Coin -= 5000000;
 
-			pMob[clientId].Mobs.Player.Equip[13].Index = 693 + (Rand () % 3);
+			pMob[clientId].Mobs.Player.Equip[13].sIndex = 693 + (Rand () % 3);
 		}
 
 		SendItem(clientId, SlotType::Equip, 13, &pMob[clientId].Mobs.Player.Equip[13]);
@@ -1578,13 +1578,13 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		SendScore(clientId);
 		SendAffect(clientId);
 
-		Log(clientId, LOG_INGAME, "Usou o npc Jeffi e compas o item: %s", ItemList[pMob[clientId].Mobs.Player.Equip[13].Index].Name);
+		Log(clientId, LOG_INGAME, "Usou o npc Jeffi e compas o item: %s", g_pItemList[pMob[clientId].Mobs.Player.Equip[13].sIndex].ItemName);
 	}
 #pragma endregion
 #pragma region SHAMa
 	else if(LOCAL_526 == 5)
 	{// 0042B1D9
-		INT32 LOCAL_791 = pMob[clientId].Mobs.Player.Equip[13].Index, 
+		INT32 LOCAL_791 = pMob[clientId].Mobs.Player.Equip[13].sIndex, 
 			  LOCAL_792 = LOCAL_791,
 			  LOCAL_793;
 
@@ -1616,31 +1616,31 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		if(LOCAL_793 == 2)
 			LOCAL_794 = 100;
 
-		INT32 LOCAL_795 = pMob[clientId].Mobs.Player.MasterPoint;
+		INT32 LOCAL_795 = pMob[clientId].Mobs.Player.SpecialBonus;
 		for(INT32 LOCAL_796 = 0; LOCAL_796 < 4; LOCAL_796 ++)
 		{
-			if(pMob[clientId].Mobs.Player.bStatus.Mastery[LOCAL_796] > LOCAL_794)
+			if(pMob[clientId].Mobs.Player.BaseScore.Special[LOCAL_796] > LOCAL_794)
 			{
 				LOCAL_795 += LOCAL_794;
 
-				pMob[clientId].Mobs.Player.bStatus.Mastery[LOCAL_796] -= LOCAL_794;
+				pMob[clientId].Mobs.Player.BaseScore.Special[LOCAL_796] -= LOCAL_794;
 			}
 			else
 			{
-				LOCAL_795 += pMob[clientId].Mobs.Player.bStatus.Mastery[LOCAL_796];
+				LOCAL_795 += pMob[clientId].Mobs.Player.BaseScore.Special[LOCAL_796];
 
-				pMob[clientId].Mobs.Player.bStatus.Mastery[LOCAL_796] = 0;
+				pMob[clientId].Mobs.Player.BaseScore.Special[LOCAL_796] = 0;
 			}
 		}
 
-		pMob[clientId].Mobs.Player.MasterPoint = LOCAL_795;
+		pMob[clientId].Mobs.Player.SpecialBonus = LOCAL_795;
 		
 		int initial = (LOCAL_792 * 8); 
 		for(int i = initial; i < initial + 8;i++)
 		{
-			int has = (pMob[clientId].Mobs.Player.Learn[0] & (1 << i));
+			int has = (pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << i));
 			if(has != 0)
-				pMob[clientId].Mobs.Player.Learn[0] -= (1 << i);
+				pMob[clientId].Mobs.Player.LearnedSkill[0] -= (1 << i);
 		}
 
 		pMob[clientId].GetCurrentScore(clientId);
@@ -1664,7 +1664,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		for (int i = 0; i < 16; i++)
 		{
 			if (i < 4)
-				pMob[clientId].Mobs.Player.SkillBar1[i] = -1;
+				pMob[clientId].Mobs.Player.ShortSkill[i] = -1;
 			
 			pMob[clientId].Mobs.SkillBar[i] = -1;
 		}
@@ -1674,7 +1674,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		m_refreshSkillBar.Header.ClientId = clientId;
 		m_refreshSkillBar.Header.Size = sizeof p378;
 
-		memcpy(m_refreshSkillBar.SkillBar1, pMob[clientId].Mobs.Player.SkillBar1, 4);
+		memcpy(m_refreshSkillBar.ShortSkill, pMob[clientId].Mobs.Player.ShortSkill, 4);
 		memcpy(m_refreshSkillBar.SkillBar2, pMob[clientId].Mobs.SkillBar, 16);
 
 		pUser[clientId].AddMessage((BYTE*)&m_refreshSkillBar, sizeof m_refreshSkillBar);
@@ -1687,9 +1687,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	{ // 0042B5EE
 		INT32 LOCAL_797 = pMob[npcId].Mobs.Player.CapeInfo;
 		INT32 LOCAL_798 = pMob[clientId].Mobs.Player.CapeInfo;
-		INT32 LOCAL_799 = pMob[clientId].Mobs.Player.bStatus.Level;
+		INT32 LOCAL_799 = pMob[clientId].Mobs.Player.BaseScore.Level;
 		INT32 LOCAL_800 = 0;
-		INT32 LOCAL_801 = pMob[clientId].Mobs.Player.Equip[15].Index;
+		INT32 LOCAL_801 = pMob[clientId].Mobs.Player.Equip[15].sIndex;
 		INT32 LOCAL_802 = 0;
 
 		if(LOCAL_801 == 543 || LOCAL_801 == 545)
@@ -1738,12 +1738,12 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				LOCAL_803 = 1;
 		}
 
-		if(pMob[clientId].Mobs.Player.Equip[13].Index == 4081 && pMob[clientId].Mobs.Player.Status.Level >= 219 && pMob[clientId].Mobs.Player.Status.Level < 250 && pMob[clientId].Mobs.Player.CapeInfo == 0)
+		if(pMob[clientId].Mobs.Player.Equip[13].sIndex == 4081 && pMob[clientId].Mobs.Player.CurrentScore.Level >= 219 && pMob[clientId].Mobs.Player.CurrentScore.Level < 250 && pMob[clientId].Mobs.Player.CapeInfo == 0)
 		{
 			memset(&pMob[clientId].Mobs.Player.Equip[13], 0, sizeof STRUCT_ITEM);
 
 			INT32 capeId = 0;
-			switch(pMob[npcId].Mobs.Player.Equip[0].Index)
+			switch(pMob[npcId].Mobs.Player.Equip[0].sIndex)
 			{
 				case 303:
 					capeId = 545; // blue
@@ -1756,7 +1756,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			if(capeId != 0)
 			{
 				memset(&pMob[clientId].Mobs.Player.Equip[15], 0, sizeof STRUCT_ITEM);
-				pMob[clientId].Mobs.Player.Equip[15].Index = capeId;
+				pMob[clientId].Mobs.Player.Equip[15].sIndex = capeId;
 
 				SendItem(clientId, SlotType::Equip, 15, &pMob[clientId].Mobs.Player.Equip[15]);
 
@@ -1764,23 +1764,23 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			}
 				
 			SendItem(clientId, SlotType::Equip, 13, &pMob[clientId].Mobs.Player.Equip[13]);
-			Log(clientId, LOG_INGAME, "%s pegou a capa com o emblema do reino. Capa: %d", pMob[clientId].Mobs.Player.Name, capeId);
+			Log(clientId, LOG_INGAME, "%s pegou a capa com o emblema do reino. Capa: %d", pMob[clientId].Mobs.Player.MobName, capeId);
 			return true;
 		}
 
-		if(LOCAL_800 == 2 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL && pMob[clientId].Mobs.Player.Status.Level >= 299)
+		if(LOCAL_800 == 2 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL && pMob[clientId].Mobs.Player.CurrentScore.Level >= 299)
 		{ // Fazer arch
-			if(pMob[clientId].Mobs.Player.Equip[10].Index != 1742)
+			if(pMob[clientId].Mobs.Player.Equip[10].sIndex != 1742)
 				return true;
 
-			if(pMob[clientId].Mobs.Player.Equip[11].Index < 1760 || pMob[clientId].Mobs.Player.Equip[11].Index > 1763)
+			if(pMob[clientId].Mobs.Player.Equip[11].sIndex < 1760 || pMob[clientId].Mobs.Player.Equip[11].sIndex > 1763)
 				return true;
 
-			INT32 _face = pMob[clientId].Mobs.Player.Equip[0].Index;
+			INT32 _face = pMob[clientId].Mobs.Player.Equip[0].sIndex;
 			if((_face >= 22 && _face <= 25) || _face == 32)
 				_face = 21;
 
-			INT32 sephirot = pMob[clientId].Mobs.Player.Equip[11].Index;
+			INT32 sephirot = pMob[clientId].Mobs.Player.Equip[11].sIndex;
 			if(_face == 1)
 				_face = 6 + (sephirot - 1760);
 			else if(_face == 11)
@@ -1796,7 +1796,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			if(_face == pMob[clientId].Mobs.Player.Equip[0].Index)
+			if(_face == pMob[clientId].Mobs.Player.Equip[0].sIndex)
 			{
 				SendClientMessage(clientId, "Contate a administraaao!");
 
@@ -1806,7 +1806,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			INT32 slot = -1;
 			for(INT32 i = 0; i < 4; i++)
 			{
-				if(!pUser[clientId].CharList.Name[i][0])
+				if(!pUser[clientId].CharList.MobName[i][0])
 				{
 					slot = i;
 					break;
@@ -1820,11 +1820,11 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			Log(clientId, LOG_INGAME, "Arch criado. Sephirot: %d. Face: %d. Level: %d. SlotId: %d", sephirot, _face, pMob[clientId].Mobs.Player.Status.Level, pUser[clientId].inGame.CharSlot);
-			Log(SERVER_SIDE, LOG_INGAME, "Criado o arch do personagem %s. Sephirot: %d. Face: %d. Level: %d. SlotId: %d", pMob[clientId].Mobs.Player.Name, 
-				sephirot, _face, pMob[clientId].Mobs.Player.Status.Level, pUser[clientId].inGame.CharSlot);
+			Log(clientId, LOG_INGAME, "Arch criado. Sephirot: %d. Face: %d. Level: %d. SlotId: %d", sephirot, _face, pMob[clientId].Mobs.Player.CurrentScore.Level, pUser[clientId].inGame.CharSlot);
+			Log(SERVER_SIDE, LOG_INGAME, "Criado o arch do personagem %s. Sephirot: %d. Face: %d. Level: %d. SlotId: %d", pMob[clientId].Mobs.Player.MobName, 
+				sephirot, _face, pMob[clientId].Mobs.Player.CurrentScore.Level, pUser[clientId].inGame.CharSlot);
 
-			SendNotice("Parabans %s pela criaaao do personagem Arch", pMob[clientId].Mobs.Player.Name);
+			SendNotice("Parabans %s pela criaaao do personagem Arch", pMob[clientId].Mobs.Player.MobName);
 
 			MSG_DBNewArch packet;
 			memset(&packet, 0, sizeof packet);
@@ -1834,10 +1834,10 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			packet.Header.ClientId = clientId;
 
 			packet.ClassID = _face;
-			packet.ClassInfo = (sephirot - 1760);
+			packet.Class = (sephirot - 1760);
 			packet.MortalSlot = pUser[clientId].inGame.CharSlot;
 		
-			strncpy_s(packet.Name, pMob[clientId].Mobs.Player.Name, 12);
+			strncpy_s(packet.MobName, pMob[clientId].Mobs.Player.MobName, 12);
 
 			packet.PosID = slot;
 
@@ -1852,16 +1852,16 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			return true;
 		}
 
-		if (LOCAL_800 == 2 && pMob[clientId].Mobs.Player.Equip[0].EFV2 >= ARCH && pMob[clientId].Mobs.Player.Equip[10].Index == 1742 && pMob[clientId].Mobs.Player.Equip[11].Index >= 1760 && pMob[clientId].Mobs.Player.Equip[11].Index <= 1763)
+		if (LOCAL_800 == 2 && pMob[clientId].Mobs.Player.Equip[0].EFV2 >= ARCH && pMob[clientId].Mobs.Player.Equip[10].sIndex == 1742 && pMob[clientId].Mobs.Player.Equip[11].sIndex >= 1760 && pMob[clientId].Mobs.Player.Equip[11].sIndex <= 1763)
 		{
-			if (pMob[clientId].Mobs.Player.Equip[10].Index != 1742 || GetItemAbility(&pMob[clientId].Mobs.Player.Equip[10], EF_NOTRADE) != 0)
+			if (pMob[clientId].Mobs.Player.Equip[10].sIndex != 1742 || GetItemAbility(&pMob[clientId].Mobs.Player.Equip[10], EF_NOTRADE) != 0)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_My_King_Bless1]);
 
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.Equip[11].Index < 1760 || pMob[clientId].Mobs.Player.Equip[11].Index > 1763 || GetItemAbility(&pMob[clientId].Mobs.Player.Equip[11], EF_NOTRADE) != 0)
+			if (pMob[clientId].Mobs.Player.Equip[11].sIndex < 1760 || pMob[clientId].Mobs.Player.Equip[11].sIndex > 1763 || GetItemAbility(&pMob[clientId].Mobs.Player.Equip[11], EF_NOTRADE) != 0)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_My_King_Bless1]);
 
@@ -1891,11 +1891,11 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			SendItem(clientId, SlotType::Equip, 10, &pMob[clientId].Mobs.Player.Equip[10]);
 			SendItem(clientId, SlotType::Equip, 11, &pMob[clientId].Mobs.Player.Equip[11]);
 
-			pMob[clientId].Mobs.Player.Inventory[secretSlots[0]].Index = 5338;
+			pMob[clientId].Mobs.Player.Inventory[secretSlots[0]].sIndex = 5338;
 			SendItem(clientId, SlotType::Inv, secretSlots[0], &pMob[clientId].Mobs.Player.Inventory[secretSlots[0]]);
 
 			Log(clientId, LOG_INGAME, "Composiaao da Pedra Ideal realizada com sucesso");
-			SendNotice("%s compas com sucesso a Pedra Ideal", pMob[clientId].Mobs.Player.Name);
+			SendNotice("%s compas com sucesso a Pedra Ideal", pMob[clientId].Mobs.Player.MobName);
 
 			SendClientMessage(clientId, g_pLanguageString[_NN_My_King_Bless1]);
 			return true;
@@ -1921,9 +1921,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			if(pMob[clientId].Mobs.Player.GuildIndex != 0 && pMob[clientId].Mobs.Player.CapeInfo == 0) // membro de guild com capa verde
+			if(pMob[clientId].Mobs.Player.Guild != 0 && pMob[clientId].Mobs.Player.CapeInfo == 0) // membro de guild com capa verde
 			{
-				if(LOCAL_797 != g_pGuild[pMob[clientId].Mobs.Player.GuildIndex].Kingdom)
+				if(LOCAL_797 != g_pGuild[pMob[clientId].Mobs.Player.Guild].Kingdom)
 				{
 					SendSay(npcId, "Voca nao pode ser recrutado aqui porque sua guild a de outro reino");
 
@@ -1967,9 +1967,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			int sapphire = LOCAL_803;
 			for(LOCAL_806 = 0; LOCAL_806 < 60 ; LOCAL_806++)
 			{
-				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].Index == 697)
+				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].sIndex == 697)
 				{
-					while(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].Index == 697)
+					while(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].sIndex == 697)
 					{
 						AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_806]);
 
@@ -1981,7 +1981,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					SendItem(clientId, SlotType::Inv, LOCAL_806, &pMob[clientId].Mobs.Player.Inventory[LOCAL_806]);
 				}
 				
-				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].Index == 4131)
+				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].sIndex == 4131)
 				{
 					AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_806]);
 					SendItem(clientId, SlotType::Inv, LOCAL_806, &pMob[clientId].Mobs.Player.Inventory[LOCAL_806]);
@@ -1999,13 +1999,13 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			if(LOCAL_800 == 1)
 			{
 				if(LOCAL_797 == 7)
-					pMob[clientId].Mobs.Player.Equip[15].Index = 543;
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = 543;
 				else
-					pMob[clientId].Mobs.Player.Equip[15].Index = 544;
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = 544;
 			}
 			else if(LOCAL_800 == 3)
 			{
-				int capeId = pMob[clientId].Mobs.Player.Equip[15].Index;
+				int capeId = pMob[clientId].Mobs.Player.Equip[15].sIndex;
 				auto newCapeId = std::find(g_pCapesID[2].begin(), g_pCapesID[2].end(), capeId);
 
 				if (newCapeId == g_pCapesID[2].end())
@@ -2018,16 +2018,16 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				int capeIndex = std::distance(g_pCapesID[2].begin(), newCapeId);
 				if (LOCAL_797 == CAPE_BLUE)
-					pMob[clientId].Mobs.Player.Equip[15].Index = g_pCapesID[0][capeIndex];
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = g_pCapesID[0][capeIndex];
 				else
-					pMob[clientId].Mobs.Player.Equip[15].Index = g_pCapesID[1][capeIndex];
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = g_pCapesID[1][capeIndex];
 			}
 			else 
 			{
 				if (LOCAL_797 == 7)
-					pMob[clientId].Mobs.Player.Equip[15].Index = 545;
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = 545;
 				else
-					pMob[clientId].Mobs.Player.Equip[15].Index = 546;
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = 546;
 			}
 
 			SendItem(clientId, SlotType::Equip, 15, &pMob[clientId].Mobs.Player.Equip[15]);
@@ -2056,7 +2056,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	else if(LOCAL_526 == 8)
 	{//0042BB69
 		INT32 LOCAL_811 = pMob[clientId].Leader;
-		INT32 LOCAL_812 = pMob[clientId].Mobs.Player.Equip[12].Index;
+		INT32 LOCAL_812 = pMob[clientId].Mobs.Player.Equip[12].sIndex;
 
 		if(LOCAL_812 != 508 && (LOCAL_812 < 526 || LOCAL_812 > 528) && (LOCAL_812 < 532 || LOCAL_812 > 534))
 		{
@@ -2073,21 +2073,21 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			return true;
 		}
 
-		if(pUser[LOCAL_811].Status != USER_PLAY)
+		if(pUser[LOCAL_811].CurrentScore != USER_PLAY)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Need_Master]);
 
 			return true;
 		}
 
-		if(pMob[LOCAL_811].Mobs.Player.GuildIndex != pMob[clientId].Mobs.Player.GuildIndex)
+		if(pMob[LOCAL_811].Mobs.Player.Guild != pMob[clientId].Mobs.Player.Guild)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Need_Master]);
 
 			return true;
 		}
 
-		if(pMob[LOCAL_811].Mobs.Player.GuildMemberType == 0)
+		if(pMob[LOCAL_811].Mobs.Player.GuildLevel == 0)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Need_Master]);
 
@@ -2125,9 +2125,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 		for(LOCAL_817 = 0; LOCAL_817 < 60; LOCAL_817 ++)
 		{
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_817].Index == 697)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_817].sIndex == 697)
 			{
-				while(pMob[clientId].Mobs.Player.Inventory[LOCAL_817].Index == 697)
+				while(pMob[clientId].Mobs.Player.Inventory[LOCAL_817].sIndex == 697)
 				{
 					AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_817]);
 
@@ -2181,7 +2181,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		short itens[8]; 
 		memset(itens, 0, sizeof itens);
 
-		if (pMob[clientId].Mobs.Player.Equip[10].Index == 1742)
+		if (pMob[clientId].Mobs.Player.Equip[10].sIndex == 1742)
 		{
 			for (int i = 0; i < 8; i++)
 			{
@@ -2196,17 +2196,17 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				itens[i] = item;
 			}
 
-			if (pMob[clientId].Mobs.Player.Gold < 30000000)
+			if (pMob[clientId].Mobs.Player.Coin < 30000000)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Sephirot_Need30MGold]);
 
 				return true;
 			}
 
-			pMob[clientId].Mobs.Player.Gold -= 30000000;
-			pMob[clientId].Mobs.Player.Inventory[itens[0]].Index = 1760 + static_cast<short>(pMob[npcId].Mobs.Player.Exp);
+			pMob[clientId].Mobs.Player.Coin -= 30000000;
+			pMob[clientId].Mobs.Player.Inventory[itens[0]].sIndex = 1760 + static_cast<short>(pMob[npcId].Mobs.Player.Exp);
 
-			Log(clientId, LOG_INGAME, "Sephirot %s criada.", ItemList[1760 + pMob[npcId].Mobs.Player.Exp].Name);
+			Log(clientId, LOG_INGAME, "Sephirot %s criada.", g_pItemList[1760 + pMob[npcId].Mobs.Player.Exp].ItemName);
 
 			for (int i = 1; i < 8; i++)
 			{
@@ -2217,10 +2217,10 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			SendItem(clientId, SlotType::Inv, itens[0], &pMob[clientId].Mobs.Player.Inventory[itens[0]]);
 
-			SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Gold);
+			SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Coin);
 			SendSay(npcId, g_pLanguageString[_NN_Sephirot_Compose]);
 		}
-		else if (pMob[clientId].Mobs.Player.Equip[10].Index == 4646)
+		else if (pMob[clientId].Mobs.Player.Equip[10].sIndex == 4646)
 		{
 			int slotId = GetFirstSlot(clientId, 0);
 			if (slotId == -1)
@@ -2231,14 +2231,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			}
 
 			pMob[clientId].Mobs.Player.Inventory[slotId] = STRUCT_ITEM{};
-			pMob[clientId].Mobs.Player.Inventory[slotId].Index = 1760 + static_cast<short>(pMob[npcId].Mobs.Player.Exp);
+			pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 1760 + static_cast<short>(pMob[npcId].Mobs.Player.Exp);
 
 			SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
 
 			AmountMinus(&pMob[clientId].Mobs.Player.Equip[10]);
 
 			SendItem(clientId, SlotType::Equip, 10, &pMob[clientId].Mobs.Player.Equip[10]);
-			Log(clientId, LOG_INGAME, "Sephirot %s criada usando Sephirot Vazia.", ItemList[1760 + pMob[npcId].Mobs.Player.Exp].Name);
+			Log(clientId, LOG_INGAME, "Sephirot %s criada usando Sephirot Vazia.", g_pItemList[1760 + pMob[npcId].Mobs.Player.Exp].ItemName);
 
 			SendSay(npcId, g_pLanguageString[_NN_Sephirot_Compose]);
 		}
@@ -2265,7 +2265,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		INT32 LOCAL_832 = 1;
 		for(; LOCAL_832 < 8; LOCAL_832 ++)
 		{
-			if(pMob[clientId].Mobs.Player.Equip[LOCAL_832].Index != 0)
+			if(pMob[clientId].Mobs.Player.Equip[LOCAL_832].sIndex != 0)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Cant_with_armor]);
 
@@ -2308,61 +2308,61 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			LOCAL_833 -= iterator;
 		}
 
-		INT32 LOCAL_835 = pMob[clientId].Mobs.Player.ClassInfo;
+		INT32 LOCAL_835 = pMob[clientId].Mobs.Player.Class;
 		if(LOCAL_835 < 0 || LOCAL_835 > 3)
 			return true;
 
 		INT32 LOCAL_836 = 100,
-			  LOCAL_837 = pMob[clientId].Mobs.Player.StatusPoint,
-			  LOCAL_838 = pMob[clientId].Mobs.Player.bStatus.STR - BaseSIDCHM[LOCAL_835][0],
-			  LOCAL_839 = pMob[clientId].Mobs.Player.bStatus.INT - BaseSIDCHM[LOCAL_835][1],
-			  LOCAL_840 = pMob[clientId].Mobs.Player.bStatus.DEX - BaseSIDCHM[LOCAL_835][2],
-			  LOCAL_841 = pMob[clientId].Mobs.Player.bStatus.CON - BaseSIDCHM[LOCAL_835][3];
+			  LOCAL_837 = pMob[clientId].Mobs.Player.ScoreBonus,
+			  LOCAL_838 = pMob[clientId].Mobs.Player.BaseScore.Str - BaseSIDCHM[LOCAL_835][0],
+			  LOCAL_839 = pMob[clientId].Mobs.Player.BaseScore.Int - BaseSIDCHM[LOCAL_835][1],
+			  LOCAL_840 = pMob[clientId].Mobs.Player.BaseScore.Dex - BaseSIDCHM[LOCAL_835][2],
+			  LOCAL_841 = pMob[clientId].Mobs.Player.BaseScore.Con - BaseSIDCHM[LOCAL_835][3];
 		
 		if(retorno != -1)
 			LOCAL_836 = 2000;
 
 		if(LOCAL_838 > LOCAL_836)
 		{
-			pMob[clientId].Mobs.Player.bStatus.STR -= LOCAL_836;
+			pMob[clientId].Mobs.Player.BaseScore.Str -= LOCAL_836;
 			LOCAL_837 += LOCAL_836;
 		}
 		else
 		{
-			pMob[clientId].Mobs.Player.bStatus.STR -= LOCAL_838;
+			pMob[clientId].Mobs.Player.BaseScore.Str -= LOCAL_838;
 			LOCAL_837 += LOCAL_838;
 		}
 
 		if(LOCAL_839 > LOCAL_836)
 		{
-			pMob[clientId].Mobs.Player.bStatus.INT -= LOCAL_836;
+			pMob[clientId].Mobs.Player.BaseScore.Int -= LOCAL_836;
 			LOCAL_837 += LOCAL_836;
 		}
 		else
 		{
-			pMob[clientId].Mobs.Player.bStatus.INT -= LOCAL_839;
+			pMob[clientId].Mobs.Player.BaseScore.Int -= LOCAL_839;
 			LOCAL_837 += LOCAL_839;
 		}
 		
 		if(LOCAL_840> LOCAL_836)
 		{
-			pMob[clientId].Mobs.Player.bStatus.DEX -= LOCAL_836;
+			pMob[clientId].Mobs.Player.BaseScore.Dex -= LOCAL_836;
 			LOCAL_837 += LOCAL_836;
 		}
 		else
 		{
-			pMob[clientId].Mobs.Player.bStatus.DEX -= LOCAL_840;
+			pMob[clientId].Mobs.Player.BaseScore.Dex -= LOCAL_840;
 			LOCAL_837 += LOCAL_840;
 		}
 
 		if(LOCAL_841 > LOCAL_836)
 		{
-			pMob[clientId].Mobs.Player.bStatus.CON -= LOCAL_836;
+			pMob[clientId].Mobs.Player.BaseScore.Con -= LOCAL_836;
 			LOCAL_837 += LOCAL_836;
 		}
 		else
 		{
-			pMob[clientId].Mobs.Player.bStatus.CON -= LOCAL_841;
+			pMob[clientId].Mobs.Player.BaseScore.Con -= LOCAL_841;
 			LOCAL_837 += LOCAL_841;
 		}
 
@@ -2391,7 +2391,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 	// TODO : Alterar para merchant + race
 	else if(LOCAL_526 == 100)
 	{ 
-		INT32 npcType = pMob[npcId].Mobs.Player.Status.Level;
+		INT32 npcType = pMob[npcId].Mobs.Player.CurrentScore.Level;
 #pragma region NPCS ENTRADA QUEST INICIANTE (COVEIRO, ...)
 		// NPCs de entradas de quest
 		if(npcType >= 5 && npcType <= 9)
@@ -2407,7 +2407,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			if(pMob[clientId].Mobs.Player.bStatus.Level >= reqMinLevel && pMob[clientId].Mobs.Player.bStatus.Level <= reqMaxLevel)
+			if(pMob[clientId].Mobs.Player.BaseScore.Level >= reqMinLevel && pMob[clientId].Mobs.Player.BaseScore.Level <= reqMaxLevel)
 			{
 				if (pMob[clientId].Target.X >= MaxMinCoordsQuest[questId][0] && pMob[clientId].Target.Y >= MaxMinCoordsQuest[questId][1] &&
 					pMob[clientId].Target.X <= MaxMinCoordsQuest[questId][2] && pMob[clientId].Target.Y <= MaxMinCoordsQuest[questId][3])
@@ -2419,7 +2419,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				for (int i = 1; i < MAX_PLAYER; i++)
 				{
-					if (pUser[i].Status != USER_PLAY || memcmp(MacAddress, pUser[i].MacAddress, 8) != 0)
+					if (pUser[i].CurrentScore != USER_PLAY || memcmp(MacAddress, pUser[i].MacAddress, 8) != 0)
 						continue;
 
 					if (pMob[i].Target.X >= MaxMinCoordsQuest[questId][0] && pMob[i].Target.Y >= MaxMinCoordsQuest[questId][1] &&
@@ -2433,11 +2433,11 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				Teleportar(clientId, g_pQuestTele[questId][0], g_pQuestTele[questId][1]);
 
-				SendSay(npcId, g_pLanguageString[_NN_Player_QuestEnter], pMob[clientId].Mobs.Player.Name);
+				SendSay(npcId, g_pLanguageString[_NN_Player_QuestEnter], pMob[clientId].Mobs.Player.MobName);
 
 				static const char QuestsNames[][16]  = {"Coveiro", "Jardim", "Kaizen", "Hidra", "Elfo"};
 
-				Log(clientId, LOG_INGAME, "%s entrou na quest [%s].", pMob[clientId].Mobs.Player.Name, QuestsNames[questId]);
+				Log(clientId, LOG_INGAME, "%s entrou na quest [%s].", pMob[clientId].Mobs.Player.MobName, QuestsNames[questId]);
 				QuestAccess = questId + 1;
 			}
 			else
@@ -2455,7 +2455,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			if (slot == -1)
 			{
-				SendSay(npcId, g_pLanguageString[_NN_GiveMe_Item], ItemList[searched].Name);
+				SendSay(npcId, g_pLanguageString[_NN_GiveMe_Item], g_pItemList[searched].ItemName);
 
 				return true;
 			}
@@ -2464,13 +2464,13 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			memset(&pMob[clientId].Mobs.Player.Inventory[slot], 0, sizeof STRUCT_ITEM);
 
 			// Entrega o item
-			pMob[clientId].Mobs.Player.Inventory[slot].Index = 3986 + type;
+			pMob[clientId].Mobs.Player.Inventory[slot].sIndex = 3986 + type;
 
 			// Atualiza o inventario
 			SendItem(clientId, SlotType::Inv, slot, &pMob[clientId].Mobs.Player.Inventory[slot]);
 
 			// Envia a mensagem
-			SendSay(npcId, g_pLanguageString[_NN_Received_Mount_Perzen], ItemList[3986 + type].Name);
+			SendSay(npcId, g_pLanguageString[_NN_Received_Mount_Perzen], g_pItemList[3986 + type].ItemName);
 		}
 #pragma endregion
 #pragma region JULI
@@ -2482,7 +2482,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				Teleportar(clientId, 2482, 1652);
 			else
 			{
-				INT32 level = pMob[clientId].Mobs.Player.Status.Level,
+				INT32 level = pMob[clientId].Mobs.Player.CurrentScore.Level,
 					ev = pMob[clientId].Mobs.Player.Equip[0].EFV2;
 
 				if (ev == MORTAL && level < 255)
@@ -2501,7 +2501,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region QUEST CAPA VERDE - TELEPORTADOR
 		else if (npcType == 20)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 99 || pMob[clientId].Mobs.Player.bStatus.Level > 149)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 99 || pMob[clientId].Mobs.Player.BaseScore.Level > 149)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Level_NotAllowed], 100, 150);
 
@@ -2536,7 +2536,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region QUEST CAPA VERDE - ENTREGAR CAPA
 		else if(npcType == 21 && LOCAL_525 == 0)
 		{
-			if(pMob[clientId].Mobs.Player.bStatus.Level < 99 || pMob[clientId].Mobs.Player.bStatus.Level > 149)
+			if(pMob[clientId].Mobs.Player.BaseScore.Level < 99 || pMob[clientId].Mobs.Player.BaseScore.Level > 149)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Level_NotAllowed], 100, 150);
 
@@ -2550,14 +2550,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			if(pMob[clientId].Mobs.Player.Equip[15].Index == 4006)
+			if(pMob[clientId].Mobs.Player.Equip[15].sIndex == 4006)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Already_A_Learner]);
 
 				return true;
 			}
 
-			if(pMob[clientId].Mobs.Player.Equip[13].Index != 4080)
+			if(pMob[clientId].Mobs.Player.Equip[13].sIndex != 4080)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_BringMe_ToLearner]);
 
@@ -2567,14 +2567,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			memset(&pMob[clientId].Mobs.Player.Equip[15], 0, sizeof STRUCT_ITEM);
 			memset(&pMob[clientId].Mobs.Player.Equip[13], 0, sizeof STRUCT_ITEM);
 
-			pMob[clientId].Mobs.Player.Equip[15].Index = 4006;
+			pMob[clientId].Mobs.Player.Equip[15].sIndex = 4006;
 			
 			SendItem(clientId, SlotType::Equip, 13, &pMob[clientId].Mobs.Player.Equip[13]);
 			SendItem(clientId, SlotType::Equip, 15, &pMob[clientId].Mobs.Player.Equip[15]);
 
-			SendSay(npcId, g_pLanguageString[_NN_Welcome_Learner], pMob[clientId].Mobs.Player.Name);
+			SendSay(npcId, g_pLanguageString[_NN_Welcome_Learner], pMob[clientId].Mobs.Player.MobName);
 
-			Log(clientId, LOG_INGAME, "%s finalizou a quest da capa verde.", pMob[clientId].Mobs.Player.Name);
+			Log(clientId, LOG_INGAME, "%s finalizou a quest da capa verde.", pMob[clientId].Mobs.Player.MobName);
 			pMob[clientId].GetCurrentScore(clientId);
 			SendScore(clientId);
 		}
@@ -2606,7 +2606,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			else if (_rand < 40)
 				SendSay(npcId, "Que os Deuses te ajude, guerreiro!");
 			else if (_rand < 60)
-				SendSay(npcId, "Voca vai precisar de muita sorte, %s", pMob[clientId].Mobs.Player.Name);
+				SendSay(npcId, "Voca vai precisar de muita sorte, %s", pMob[clientId].Mobs.Player.MobName);
 			else
 				SendSay(npcId, "Vai precisar de uma equipe aa dentro!");
 
@@ -2616,7 +2616,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region NPC MOLAR DE GaRGULA (TELEPORTADOR)
 		else if (npcType == 30)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 199 || pMob[clientId].Mobs.Player.bStatus.Level > 254)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 199 || pMob[clientId].Mobs.Player.BaseScore.Level > 254)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Level_NotAllowed], 200, 255);
 
@@ -2625,7 +2625,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			for (const auto& user : pUser)
 			{
-				if (user.Status != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
+				if (user.CurrentScore != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
 					continue;
 
 				if (pMob[user.clientId].Target.X >= 793 && pMob[user.clientId].Target.X <= 828 && pMob[user.clientId].Target.Y >= 4046 && pMob[user.clientId].Target.Y <= 4080)
@@ -2649,7 +2649,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Sorry]);
 
-				Log(SERVER_SIDE, LOG_HACK, "Clicou no Uxmal sem ser no canal que o Kefra morreu primeiro %s [%s] [%dx %dy]", pMob[clientId].Mobs.Player.Name,
+				Log(SERVER_SIDE, LOG_HACK, "Clicou no Uxmal sem ser no canal que o Kefra morreu primeiro %s [%s] [%dx %dy]", pMob[clientId].Mobs.Player.MobName,
 					User.Username, pMob[clientId].Target.X, pMob[clientId].Target.Y);
 				return true;
 			}
@@ -2744,7 +2744,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				// Registra o lader para o grupo estar como usado
 				pista->Clients[i][12] = clientId;
 
-				Log(clientId, LOG_INGAME, "Pista de Runas %d registrada. %s", ref, pMob[clientId].Mobs.Player.Name);
+				Log(clientId, LOG_INGAME, "Pista de Runas %d registrada. %s", ref, pMob[clientId].Mobs.Player.MobName);
 
 				// Pega todos os membros do grupo
 				for (int x = 0; x < 12; x++)
@@ -2753,16 +2753,16 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					if (memberId <= 0 || memberId >= MAX_PLAYER)
 						continue;
 
-					if (pUser[memberId].Status != USER_PLAY)
+					if (pUser[memberId].CurrentScore != USER_PLAY)
 						continue;
 
 					pista->Clients[i][x] = memberId;
 
-					Log(clientId, LOG_INGAME, "Pista de Runas +%d - %d - %s", ref, x, pMob[memberId].Mobs.Player.Name);
-					Log(memberId, LOG_INGAME, "Pista de Runas +%d grupo de %s", ref, pMob[clientId].Mobs.Player.Name);
+					Log(clientId, LOG_INGAME, "Pista de Runas +%d - %d - %s", ref, x, pMob[memberId].Mobs.Player.MobName);
+					Log(memberId, LOG_INGAME, "Pista de Runas +%d grupo de %s", ref, pMob[clientId].Mobs.Player.MobName);
 				}
 
-				SendSay(npcId, "Pista +%d registrada por %s", ref, pMob[clientId].Mobs.Player.Name);
+				SendSay(npcId, "Pista +%d registrada por %s", ref, pMob[clientId].Mobs.Player.MobName);
 
 				pMob[clientId].Mobs.Player.Inventory[slotId] = STRUCT_ITEM{};
 				SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
@@ -2781,7 +2781,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			if(pMob[clientId].Mobs.Player.bStatus.Level < 219 || pMob[clientId].Mobs.Player.bStatus.Level > 250)
+			if(pMob[clientId].Mobs.Player.BaseScore.Level < 219 || pMob[clientId].Mobs.Player.BaseScore.Level > 250)
 			{
 				SendSay(npcId, g_pLanguageString[_NN_Level_NotAllowed], 220, 250);
 
@@ -2796,7 +2796,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		else if (npcType >= 40 && npcType <= 43)
 		{
 			INT32 LOCAL_535 = npcType - 40;
-			if(pMob[clientId].Mobs.Player.bStatus.Level > 40 && pMob[clientId].Mobs.Player.bStatus.Level < 1000)
+			if(pMob[clientId].Mobs.Player.BaseScore.Level > 40 && pMob[clientId].Mobs.Player.BaseScore.Level < 1000)
 				return true;
 
 			INT32 questId = 1 << (6 + LOCAL_535);
@@ -2814,7 +2814,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			INT32 LOCAL_537 = 0;
 			for(; LOCAL_537 < 60; LOCAL_537 ++)
 			{
-				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_537].Index == LOCAL_536)
+				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_537].sIndex == LOCAL_536)
 					break;
 			}
 
@@ -2835,19 +2835,19 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				STRUCT_ITEM LOCAL_539;
 				memset(&LOCAL_539, 0, sizeof STRUCT_ITEM);
 
-				LOCAL_539.Index = 682;
-				LOCAL_539.Effect[0].Index = EF_AMOUNT;
-				LOCAL_539.Effect[0].Value = 20;
+				LOCAL_539.sIndex = 682;
+				LOCAL_539.stEffect[0].cEffect = EF_AMOUNT;
+				LOCAL_539.stEffect[0].cValue = 20;
 
 				PutItem(clientId, &LOCAL_539);
 			}
 			else if(LOCAL_535 == 1)
 			{
-				INT32 LOCAL_540 = pMob[clientId].Mobs.Player.Equip[6].Index;
+				INT32 LOCAL_540 = pMob[clientId].Mobs.Player.Equip[6].sIndex;
 
 				if(LOCAL_540 > 0 && LOCAL_540 <= MAX_ITEMLIST)
 				{
-					INT32 LOCAL_541 = ItemList[LOCAL_540].Level;
+					INT32 LOCAL_541 = g_pItemList[LOCAL_540].Level;
 
 					if(LOCAL_541 > 32 && LOCAL_541 < 1000)
 						return true;
@@ -2855,7 +2855,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					INT32 t = 0;
 					for( ; t < 3; t++)
 					{
-						if(pMob[clientId].Mobs.Player.Equip[6].Effect[t].Index == 43)
+						if(pMob[clientId].Mobs.Player.Equip[6].stEffect[t].cEffect == 43)
 							break;
 					}
 
@@ -2863,22 +2863,22 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 						t = 0;
 
 					INT32 LOCAL_542 = 50;
-					INT32 LOCAL_543 = *(WORD*)&pMob[clientId].Mobs.Player.Equip[6].Effect[t].Index;
+					INT32 LOCAL_543 = *(WORD*)&pMob[clientId].Mobs.Player.Equip[6].stEffect[t].cEffect;
 					
-					pMob[clientId].Mobs.Player.Equip[6].Effect[0].Index = 0;
-					pMob[clientId].Mobs.Player.Equip[6].Effect[1].Index = 0;
-					pMob[clientId].Mobs.Player.Equip[6].Effect[2].Index = 0;
-					pMob[clientId].Mobs.Player.Equip[6].Effect[0].Value = 0;
-					pMob[clientId].Mobs.Player.Equip[6].Effect[1].Value = 0;
-					pMob[clientId].Mobs.Player.Equip[6].Effect[2].Value = 0;
+					pMob[clientId].Mobs.Player.Equip[6].stEffect[0].cEffect = 0;
+					pMob[clientId].Mobs.Player.Equip[6].stEffect[1].cEffect = 0;
+					pMob[clientId].Mobs.Player.Equip[6].stEffect[2].cEffect = 0;
+					pMob[clientId].Mobs.Player.Equip[6].stEffect[0].cValue = 0;
+					pMob[clientId].Mobs.Player.Equip[6].stEffect[1].cValue = 0;
+					pMob[clientId].Mobs.Player.Equip[6].stEffect[2].cValue = 0;
 
 					SetItemBonus(&pMob[clientId].Mobs.Player.Equip[6], LOCAL_541 + LOCAL_542, 1, 0);
 
 					for(t = 0; t < 3; t++)
 					{
-						if(pMob[clientId].Mobs.Player.Equip[6].Effect[t].Index == 43)
+						if(pMob[clientId].Mobs.Player.Equip[6].stEffect[t].cEffect == 43)
 						{
-							*(WORD*)&pMob[clientId].Mobs.Player.Equip[6].Effect[t].Index = LOCAL_543;
+							*(WORD*)&pMob[clientId].Mobs.Player.Equip[6].stEffect[t].cEffect = LOCAL_543;
 
 							break;
 						}
@@ -2888,9 +2888,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					{
 						for(t = 0; t < 3; t++)
 						{
-							if(pMob[clientId].Mobs.Player.Equip[6].Effect[t].Index == 0)
+							if(pMob[clientId].Mobs.Player.Equip[6].stEffect[t].cEffect == 0)
 							{
-								*(WORD*)&pMob[clientId].Mobs.Player.Equip[6].Effect[t].Index = LOCAL_543;
+								*(WORD*)&pMob[clientId].Mobs.Player.Equip[6].stEffect[t].cEffect = LOCAL_543;
 
 								break;
 							}
@@ -2903,7 +2903,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			{
 				for(INT32 LOCAL_544 = 1; LOCAL_544 < 8; LOCAL_544++)
 				{
-					INT32 LOCAL_545 = pMob[clientId].Mobs.Player.Equip[LOCAL_544].Index;
+					INT32 LOCAL_545 = pMob[clientId].Mobs.Player.Equip[LOCAL_544].sIndex;
 
 					if(LOCAL_545 < 500 || LOCAL_545 > MAX_ITEMLIST)
 						continue;
@@ -2933,9 +2933,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					STRUCT_ITEM& item = pMob[clientId].Mobs.Player.Inventory[slotId];
 					memset(&item, 0, sizeof STRUCT_ITEM);
 
-					item.Index = 4016;
-					item.Effect[0].Index = EF_AMOUNT;
-					item.Effect[0].Value = 5;
+					item.sIndex = 4016;
+					item.stEffect[0].cEffect = EF_AMOUNT;
+					item.stEffect[0].cValue = 5;
 
 					SendItem(clientId, SlotType::Inv, slotId, &item);
 				}
@@ -2948,21 +2948,21 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				if(LOCAL_547 == 0)
 				{
-					LOCAL_549.Index = 682;
-					LOCAL_549.Effect[0].Index = EF_AMOUNT;
-					LOCAL_549.Effect[0].Value = 20;
+					LOCAL_549.sIndex = 682;
+					LOCAL_549.stEffect[0].cEffect = EF_AMOUNT;
+					LOCAL_549.stEffect[0].cValue = 20;
 
 					PutItem(clientId, &LOCAL_549);
 				}
 				else if(LOCAL_547 == 1)
 				{
-					LOCAL_549.Index = 481;
+					LOCAL_549.sIndex = 481;
 
 					PutItem(clientId, &LOCAL_549);
 				}
 				else if(LOCAL_547 == 2)
 				{
-					LOCAL_549.Index = 652;
+					LOCAL_549.sIndex = 652;
 
 					PutItem(clientId, &LOCAL_549);
 				}
@@ -2998,7 +2998,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				return true;
 			}
-			if (pMob[clientId].Mobs.Player.bStatus.Level >= 255)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level >= 255)
 			{
 				SendSay(npcId, "Voca ja a forte! Nao precisa mais de ajuda.");
 
@@ -3042,7 +3042,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			SendScore(clientId);
 
-			SendSay(npcId, "Sente-se mais forte agora, %s?", pMob[clientId].Mobs.Player.Name);
+			SendSay(npcId, "Sente-se mais forte agora, %s?", pMob[clientId].Mobs.Player.MobName);
 			return true;
 		}
 #pragma endregion
@@ -3050,9 +3050,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		else if (npcType == 49)
 		{
 			//TROCA DE CLASSE SUB
-			if (pMob[clientId].Mobs.Player.Equip[11].Index >= 1760 && pMob[clientId].Mobs.Player.Equip[11].Index <= 1763)
+			if (pMob[clientId].Mobs.Player.Equip[11].sIndex >= 1760 && pMob[clientId].Mobs.Player.Equip[11].sIndex <= 1763)
 			{
-				if (pMob[clientId].Mobs.Sub.Status == 0)
+				if (pMob[clientId].Mobs.Sub.CurrentScore == 0)
 				{
 					SendClientMessage(clientId, g_pLanguageString[_NN_Sorry]);
 					return true;
@@ -3070,7 +3070,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					return true;
 				}
 
-				if((pMob[clientId].Mobs.Player.Equip[0].Index >= 22 && pMob[clientId].Mobs.Player.Equip[0].Index <= 25) || pMob[clientId].Mobs.Player.Equip[0].Index == 32)
+				if((pMob[clientId].Mobs.Player.Equip[0].sIndex >= 22 && pMob[clientId].Mobs.Player.Equip[0].sIndex <= 25) || pMob[clientId].Mobs.Player.Equip[0].sIndex == 32)
 				{
 					SendClientMessage(clientId, "Nao a possavel trocar de classe transformado.");
 					return true;
@@ -3078,17 +3078,17 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				pMob[clientId].Mobs.Fame -= 2000;
 
-				INT32 classInfo = (pMob[clientId].Mobs.Player.Equip[11].Index - 1760);
+				INT32 classInfo = (pMob[clientId].Mobs.Player.Equip[11].sIndex - 1760);
 
-				INT32 baseFace = GetInfoClass(pMob[clientId].Mobs.Player.Equip[0].Index);
+				INT32 baseFace = GetInfoClass(pMob[clientId].Mobs.Player.Equip[0].sIndex);
 				if(baseFace == 4)
 					return true;
 
 				baseFace = (baseFace * 10) + 6;
-				Log(clientId, LOG_INGAME, "Trocou a classe do SubCelestial. Antiga:%d Nova:%d. Level: %d", pMob[clientId].Mobs.Sub.Equip[0].Index - baseFace, classInfo,
+				Log(clientId, LOG_INGAME, "Trocou a classe do SubCelestial. Antiga:%d Nova:%d. Level: %d", pMob[clientId].Mobs.Sub.Equip[0].sIndex - baseFace, classInfo,
 					pMob[clientId].Mobs.Sub.SubStatus.Level);
 
-				pMob[clientId].Mobs.Sub.Equip[0].Index = baseFace + classInfo;
+				pMob[clientId].Mobs.Sub.Equip[0].sIndex = baseFace + classInfo;
 				pMob[clientId].Mobs.Sub.Equip[0].EF2 = baseFace + classInfo;
 
 				memset(pMob[clientId].Mobs.Sub.Affect, 0, 32);
@@ -3107,8 +3107,8 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		{		
 			int slot = GetFirstSlot(clientId, 4125);
 
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 119 ||
-				pMob[clientId].Mobs.Player.bStatus.Level > 124)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 119 ||
+				pMob[clientId].Mobs.Player.BaseScore.Level > 124)
 			{
 				SendClientMessage(clientId, "Level inadequado.");
 
@@ -3135,7 +3135,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			STRUCT_ITEM item;
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
-			item.Index = 4126;
+			item.sIndex = 4126;
 
 			PutItem(clientId, &item);
 
@@ -3147,8 +3147,8 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region GUARDA EQUILIBRIO DA FORaA
 		else if (npcType == 52)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 119 ||
-				pMob[clientId].Mobs.Player.bStatus.Level > 124)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 119 ||
+				pMob[clientId].Mobs.Player.BaseScore.Level > 124)
 			{
 				SendClientMessage(clientId, "Level inadequado.");
 
@@ -3170,7 +3170,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region KINGDOM BROKER
 		else if(npcType == 374)
 		{
-			if(pMob[clientId].Mobs.Player.GuildIndex != 0)
+			if(pMob[clientId].Mobs.Player.Guild != 0)
 			{
 				SendClientMessage(clientId, "Membros de guild nao podem alterar a capa");
 
@@ -3185,7 +3185,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 			
-			int capeId = pMob[clientId].Mobs.Player.Equip[15].Index;
+			int capeId = pMob[clientId].Mobs.Player.Equip[15].sIndex;
 			if (capeId == 0 || capeId == 4006)
 			{
 				SendClientMessage(clientId, "Necessario ter um reino!");
@@ -3207,9 +3207,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			for(LOCAL_806 = 0; LOCAL_806 < 60 ; LOCAL_806++)
 			{
-				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].Index == 697)
+				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].sIndex == 697)
 				{
-					while(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].Index == 697)
+					while(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].sIndex == 697)
 					{
 						AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_806]);
 
@@ -3221,7 +3221,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					SendItem(clientId, SlotType::Inv, LOCAL_806, &pMob[clientId].Mobs.Player.Inventory[LOCAL_806]);
 				}
 				
-				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].Index == 4131)
+				if(pMob[clientId].Mobs.Player.Inventory[LOCAL_806].sIndex == 4131)
 				{
 					AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_806]);
 
@@ -3240,12 +3240,12 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			INT32 _index = capeInfo - CAPE_BLUE;
 			for(INT32 i = 0; i < 10; i++)
 			{
-				if(pMob[clientId].Mobs.Player.Equip[15].Index == g_pCapesID[_index][i])
+				if(pMob[clientId].Mobs.Player.Equip[15].sIndex == g_pCapesID[_index][i])
 				{
-					pMob[clientId].Mobs.Player.Equip[15].Index = g_pCapesID[2][i];
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = g_pCapesID[2][i];
 
 					SendItem(clientId, SlotType::Equip, 15, &pMob[clientId].Mobs.Player.Equip[15]);
-					Log(clientId, LOG_INGAME, "Realizou a troca de capa. %d nova capa", pMob[clientId].Mobs.Player.Equip[15].Index);
+					Log(clientId, LOG_INGAME, "Realizou a troca de capa. %d nova capa", pMob[clientId].Mobs.Player.Equip[15].sIndex);
 					break;
 				}
 			}
@@ -3263,8 +3263,8 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region SARCEDOTE JESTER
 		else if (npcType == 53)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 69 ||
-				pMob[clientId].Mobs.Player.bStatus.Level > 74)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 69 ||
+				pMob[clientId].Mobs.Player.BaseScore.Level > 74)
 			{
 				SendClientMessage(clientId, "Level inadequado.");
 
@@ -3286,8 +3286,8 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 #pragma region KRUNO
 		else if (npcType == 54)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 69 ||
-				pMob[clientId].Mobs.Player.bStatus.Level > 74)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 69 ||
+				pMob[clientId].Mobs.Player.BaseScore.Level > 74)
 			{
 				SendClientMessage(clientId, "Level inadequado.");
 
@@ -3313,7 +3313,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			STRUCT_ITEM item;
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
-			item.Index = 4124;
+			item.sIndex = 4124;
 
 			PutItem(clientId, &item);
 
@@ -3331,9 +3331,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			INT32    sanc = GetItemSanc(item); 
 			
 			INT32 index = npcType - 55;
-			if(item->Index != dwUniWeapon[index])
+			if(item->sIndex != dwUniWeapon[index])
 			{
-				SendSay(npcId, "Traga-me o %s para que eu possa recompensa-lo", ItemList[dwUniWeapon[index]].Name);
+				SendSay(npcId, "Traga-me o %s para que eu possa recompensa-lo", g_pItemList[dwUniWeapon[index]].ItemName);
 
 				return true;
 			}
@@ -3354,10 +3354,10 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			memset(item, 0, sizeof STRUCT_ITEM);
 
-			item->Index = dwUniWeaponW[index];
+			item->sIndex = dwUniWeaponW[index];
 
-			item->Effect[0].Index = EF_SANC;
-			item->Effect[0].Value = 3;
+			item->stEffect[0].cEffect = EF_SANC;
+			item->stEffect[0].cValue = 3;
 
 			SendItem(clientId, SlotType::Equip, 6, item);
 
@@ -3387,9 +3387,9 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				INT32 totalPiece = amountItem;
 				for(INT32 LOCAL_832 = 0; LOCAL_832 < 60 ; LOCAL_832++)
 				{
-					if(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].Index == 4522)
+					if(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].sIndex == 4522)
 					{
-						while(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].Index == 4522)
+						while(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].sIndex == 4522)
 						{
 							AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_832]);
 							Log(clientId, LOG_INGAME, "Removido Pedaao da Alma do slot %d", LOCAL_832);
@@ -3416,19 +3416,19 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					if((Rand() % 100) >= 50)
 						soul = 1741;
 
-					Log(SERVER_SIDE, LOG_INGAME, "%s compos %s com Pedaao da Alma - Rate: %d/%d", User.Username, ItemList[soul].Name, _rate, rate);
+					Log(SERVER_SIDE, LOG_INGAME, "%s compos %s com Pedaao da Alma - Rate: %d/%d", User.Username, g_pItemList[soul].ItemName, _rate, rate);
 
 					STRUCT_ITEM item{};
-					item.Index = soul;
+					item.sIndex = soul;
 
 					PutItem(clientId, &item);
-					Log(clientId, LOG_INGAME, "Composto com sucesso ALMA com PEDAaO DE ALMA - %s - Rate: %d/%d", ItemList[item.Index].Name, _rate, rate);
+					Log(clientId, LOG_INGAME, "Composto com sucesso ALMA com PEDAaO DE ALMA - %s - Rate: %d/%d", g_pItemList[item.sIndex].ItemName, _rate, rate);
 
-					SendNotice("%s compas com sucesso a %s usando Pedaao da Alma", pMob[clientId].Mobs.Player.Name, ItemList[soul].Name);
+					SendNotice("%s compas com sucesso a %s usando Pedaao da Alma", pMob[clientId].Mobs.Player.MobName, g_pItemList[soul].ItemName);
 				}
 				else
 				{
-					SendNotice("%s falhou na composiaao usando Pedaao da Alma", pMob[clientId].Mobs.Player.Name);
+					SendNotice("%s falhou na composiaao usando Pedaao da Alma", pMob[clientId].Mobs.Player.MobName);
 
 					Log(SERVER_SIDE, LOG_INGAME, "%s falhou na composiaaa com Pedaao da Alma - Rate: %d/%d", User.Username, _rate, rate);
 					Log(clientId, LOG_INGAME, "Composto com FALHA ALMA com PEDAaO DE ALMA - Rate: %d/%d", _rate, rate);
@@ -3437,7 +3437,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.Inventory[slotId + 1].Index != 1741)
+			if (pMob[clientId].Mobs.Player.Inventory[slotId + 1].sIndex != 1741)
 			{
 				SendSay(npcId, "Deixe as duas almas juntas para a composiaao.");
 
@@ -3452,11 +3452,11 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				// Se tiver consome as 10
 				for (int i = 0; i < 60; i++)
 				{
-					INT32 itemId = pMob[clientId].Mobs.Player.Inventory[i].Index;
+					INT32 itemId = pMob[clientId].Mobs.Player.Inventory[i].sIndex;
 					if (itemId != 697)
 						continue;
 
-					while (pMob[clientId].Mobs.Player.Inventory[i].Index == 697)
+					while (pMob[clientId].Mobs.Player.Inventory[i].sIndex == 697)
 					{
 						AmountMinus(&pMob[clientId].Mobs.Player.Inventory[i]);
 
@@ -3488,7 +3488,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			AmountMinus(&pMob[clientId].Mobs.Player.Inventory[slotId]);
 			AmountMinus(&pMob[clientId].Mobs.Player.Inventory[slotId + 1]);
 			
-			pMob[clientId].Mobs.Player.Inventory[slotId].Index = 1742;
+			pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 1742;
 			
 			SendCarry(clientId);
 
@@ -3566,14 +3566,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 							}
 						}
 
-						Log(memberId, LOG_INGAME, "Registrado no Calabouao Zumbi - Grupo de %s", pMob[clientId].Mobs.Player.Name);
-						Log(clientId, LOG_INGAME, "Registrou no grupo: %s", pMob[clientId].Mobs.Player.Name);
+						Log(memberId, LOG_INGAME, "Registrado no Calabouao Zumbi - Grupo de %s", pMob[clientId].Mobs.Player.MobName);
+						Log(clientId, LOG_INGAME, "Registrou no grupo: %s", pMob[clientId].Mobs.Player.MobName);
 					}
 
 					SendClientMessage(clientId, "Registrado com sucesso!");
 					Log(clientId, LOG_INGAME, "Se registrou no calabouao zumbi.");
 
-					Log(SERVER_SIDE, LOG_INGAME, "%s registrou o grupo para o Calabouao Zumbi", pMob[clientId].Mobs.Player.Name);
+					Log(SERVER_SIDE, LOG_INGAME, "%s registrou o grupo para o Calabouao Zumbi", pMob[clientId].Mobs.Player.MobName);
 
 					AmountMinus(&pMob[clientId].Mobs.Player.Inventory[itemId]);
 
@@ -3593,7 +3593,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			auto func = [&](int searched) {
 				return std::find_if(items.begin(), items.end(), [&](int slotId) {
-					auto itemId = pMob[clientId].Mobs.Player.Inventory[slotId].Index;
+					auto itemId = pMob[clientId].Mobs.Player.Inventory[slotId].sIndex;
 
 					return itemId == searched;
 				}) != std::end(items);
@@ -3637,14 +3637,14 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			int daggerId = 4603;
 			int powder = 413;
 			int totalPowder = 10;
-			if (scrollItem->Index == 4600)
+			if (scrollItem->sIndex == 4600)
 			{
 				duelId = 3172;
 				powder = 412;
 				totalPowder = 5;
 				daggerId = 4599;
 			}
-			else if (scrollItem->Index == 4602)
+			else if (scrollItem->sIndex == 4602)
 			{
 				duelId = 3171;
 				daggerId = 4601;
@@ -3655,7 +3655,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			for (int i = 0; i < 60; i++)
 			{
 				STRUCT_ITEM& item = pMob[clientId].Mobs.Player.Inventory[i];
-				if (item.Index <= 0 || item.Index >= 6500)
+				if (item.sIndex <= 0 || item.sIndex >= 6500)
 					continue;
 
 				if (i >= 30 && i <= 44 && !bag1)
@@ -3663,15 +3663,15 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				if (i >= 45 && i <= 59 && !bag2)
 					continue;
 
-				if (item.Index == powder && GetItemAmount(&item) == totalPowder && !func(powder))
+				if (item.sIndex == powder && GetItemAmount(&item) == totalPowder && !func(powder))
 					items.push_back(i);
-				else if (item.Index >= 2441 && item.Index <= 2444 && !func(2441) && !func(2442) && !func(2443) && !func(2444))
+				else if (item.sIndex >= 2441 && item.sIndex <= 2444 && !func(2441) && !func(2442) && !func(2443) && !func(2444))
 					items.push_back(i);
-				else if (item.Index == daggerId && GetItemAmount(&item) == 8 && !func(daggerId))
+				else if (item.sIndex == daggerId && GetItemAmount(&item) == 8 && !func(daggerId))
 					items.push_back(i);
-				else if (item.Index == scrollItem->Index && !func(scrollItem->Index))
+				else if (item.sIndex == scrollItem->sIndex && !func(scrollItem->sIndex))
 					items.push_back(i);
-				else if (item.Index == 697 && !func(697))
+				else if (item.sIndex == 697 && !func(697))
 					items.push_back(i);
 
 				if (items.size() == 5)
@@ -3689,7 +3689,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			{
 				STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slot];
 
-				Log(clientId, LOG_INGAME, "Excluado item %s %s do slot %d", ItemList[item->Index].Name, item->toString().c_str(), slot);
+				Log(clientId, LOG_INGAME, "Excluado item %s %s do slot %d", g_pItemList[item->sIndex].ItemName, item->toString().c_str(), slot);
 
 				*item = STRUCT_ITEM{};
 				SendItem(clientId, SlotType::Inv, slot, item);
@@ -3698,11 +3698,11 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			int slotId = GetFirstSlot(clientId, 0);
 
 			memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
-			pMob[clientId].Mobs.Player.Inventory[slotId].Index = duelId;
+			pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = duelId;
 
 			SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
 			SendSay(npcId, "Composiaao concluada com sucesso");
-			Log(clientId, LOG_INGAME, "%s composta com sucesso", ItemList[duelId].Name);
+			Log(clientId, LOG_INGAME, "%s composta com sucesso", g_pItemList[duelId].ItemName);
 		}
 #pragma endregion
  
@@ -3711,7 +3711,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		{
 			for (const auto& user : pUser)
 			{
-				if (user.Status != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
+				if (user.CurrentScore != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
 					continue;
 
 				const CMob* mob = &pMob[user.clientId];
@@ -3724,7 +3724,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 				}
 			}
 
-			if (pMob[clientId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL || (pMob[clientId].Mobs.Player.Equip[0].EFV2 <= ARCH && pMob[clientId].Mobs.Player.bStatus.Level >= 20))
+			if (pMob[clientId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL || (pMob[clientId].Mobs.Player.Equip[0].EFV2 <= ARCH && pMob[clientId].Mobs.Player.BaseScore.Level >= 20))
 			{
 				SendClientMessage(clientId, "Somente mortais ata navel 20");
 

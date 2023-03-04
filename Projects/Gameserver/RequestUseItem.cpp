@@ -30,12 +30,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 	if (srcItem == NULL)
 		return false;
 
-	if (Status != USER_PLAY)
+	if (CurrentScore != USER_PLAY)
 	{
-		Log(clientId, LOG_INGAME, "Enviado pacote 0x373 (RequestUseItem) nao estando dentro do jogo. Status: %d", Status);
+		Log(clientId, LOG_INGAME, "Enviado pacote 0x373 (RequestUseItem) nao estando dentro do jogo. Status: %d", CurrentScore);
 		return false;
 	}
-	if (pMob[clientId].Mobs.Player.Status.curHP <= 0)
+	if (pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0)
 	{
 		SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 		return false;
@@ -67,25 +67,25 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 	}
 
-	if (srcItem->Index <= 0 || srcItem->Index >= MAX_ITEMLIST)
+	if (srcItem->sIndex <= 0 || srcItem->sIndex >= MAX_ITEMLIST)
 	{
 		SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
 		return true;
 	}
 
-	if (_volatile != 1 && _volatile != 15 && _volatile != 191 && srcItem->Index != 0)
+	if (_volatile != 1 && _volatile != 15 && _volatile != 191 && srcItem->sIndex != 0)
 	{
-		Log(clientId, LOG_INGAME, "Item %s [%d] [%d %d %d %d %d %d] utilizado em %hux %huy", ItemList[srcItem->Index].Name, srcItem->Index, srcItem->EF1, srcItem->EFV1, srcItem->EF2, srcItem->EFV2, srcItem->EF3, srcItem->EFV3,
+		Log(clientId, LOG_INGAME, "Item %s [%d] [%d %d %d %d %d %d] utilizado em %hux %huy", g_pItemList[srcItem->sIndex].ItemName, srcItem->sIndex, srcItem->EF1, srcItem->EFV1, srcItem->EF2, srcItem->EFV2, srcItem->EF3, srcItem->EFV3,
 			p->PosX, p->PosY);
-		LogPlayer(clientId, "Item %s utilizado", ItemList[srcItem->Index].Name);
+		LogPlayer(clientId, "Item %s utilizado", g_pItemList[srcItem->sIndex].ItemName);
 
 		auto now = std::chrono::steady_clock::now();
 		auto timeInMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - Times.LastUsedItem);
 		if (timeInMs < 169ms)
 		{
-			Log(clientId, LOG_HACK, "O usuario usou itens muito rapidamente. Tempo para usar o item: %lld. Item: %s", timeInMs.count(), ItemList[srcItem->Index].Name);
-			Log(SERVER_SIDE, LOG_HACK, "[%s] - O usuario usou itens muito rapidamente. Tempo para usar o item: %lld. Item: %s", User.Username, timeInMs.count(), ItemList[srcItem->Index].Name);
+			Log(clientId, LOG_HACK, "O usuario usou itens muito rapidamente. Tempo para usar o item: %lld. Item: %s", timeInMs.count(), g_pItemList[srcItem->sIndex].ItemName);
+			Log(SERVER_SIDE, LOG_HACK, "[%s] - O usuario usou itens muito rapidamente. Tempo para usar o item: %lld. Item: %s", User.Username, timeInMs.count(), g_pItemList[srcItem->sIndex].ItemName);
 		}
 
 		Times.LastUsedItem = now;
@@ -98,14 +98,14 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 	}
 
-	INT32 itemId = srcItem->Index;
+	INT32 itemId = srcItem->sIndex;
 #pragma region PAC ITENS
 	if (_volatile == 210)
 	{
 		INT32 index = -1;
 		for (INT32 i = 0; i < MAX_PACITEM; i++)
 		{
-			if (g_pPacItem[i].ItemId == srcItem->Index)
+			if (g_pPacItem[i].ItemId == srcItem->sIndex)
 			{
 				index = i;
 				break;
@@ -138,7 +138,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		for (INT32 i = 0; i < 8; i++)
 		{
-			if (pac->Item[i].Index <= 0 || pac->Item[i].Index >= MAX_ITEMLIST || pac->Amount[i] <= 0)
+			if (pac->Item[i].sIndex <= 0 || pac->Item[i].sIndex >= MAX_ITEMLIST || pac->Amount[i] <= 0)
 				continue;
 
 			for (INT32 t = 0; t < pac->Amount[i]; t++)
@@ -183,8 +183,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			countHeal = pUser[clientId].Potion.CountHp;
 			countHeal += hpHeal;
 
-			if (countHeal > pMob[clientId].Mobs.Player.Status.maxHP)
-				countHeal = pMob[clientId].Mobs.Player.Status.maxHP;
+			if (countHeal > pMob[clientId].Mobs.Player.CurrentScore.MaxHp)
+				countHeal = pMob[clientId].Mobs.Player.CurrentScore.MaxHp;
 
 			pUser[clientId].Potion.CountHp = countHeal;
 		}
@@ -198,8 +198,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			countHeal = pUser[clientId].Potion.CountMp;
 			countHeal += mpHeal;
 
-			if (countHeal > pMob[clientId].Mobs.Player.Status.maxMP)
-				countHeal = pMob[clientId].Mobs.Player.Status.maxMP;
+			if (countHeal > pMob[clientId].Mobs.Player.CurrentScore.MaxMp)
+				countHeal = pMob[clientId].Mobs.Player.CurrentScore.MaxMp;
 
 			pUser[clientId].Potion.CountMp = countHeal;
 		}
@@ -213,7 +213,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 	}
 #pragma endregion
 #pragma region POEIRAS
-	else if ((_volatile == 4 || _volatile == 5) && srcItem->Index != 4141)
+	else if ((_volatile == 4 || _volatile == 5) && srcItem->sIndex != 4141)
 	{ // poeira - 0042DFB2
 		static const int Rate[2][7][9] =
 		{
@@ -262,7 +262,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		if (p->DstSlot == 0 && p->DstType == 0)
 			return true;
 
-		if (dstItem->Index == 769)
+		if (dstItem->sIndex == 769)
 		{
 			for (int i = 0; i < 5; i++)
 			{
@@ -283,7 +283,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		switch (dstItem->Index)
+		switch (dstItem->sIndex)
 		{
 		case 3994:
 		case 3993:
@@ -295,7 +295,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		break;
 		}
 
-		if (dstItem->Index == NUCLEO_LAC_ITEMID && _volatile == 4)
+		if (dstItem->sIndex == NUCLEO_LAC_ITEMID && _volatile == 4)
 		{
 			SendClientMessage(clientId, "Somente com poeiras de lac.");
 
@@ -305,19 +305,19 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		// Nacleo de lac
-		if (dstItem->Index == NUCLEO_LAC_ITEMID && _volatile == 5)
+		if (dstItem->sIndex == NUCLEO_LAC_ITEMID && _volatile == 5)
 		{
 			// Inicializa o nacleo
-			if (dstItem->Effect[0].Index != EF_AMOUNT)
+			if (dstItem->stEffect[0].cEffect != EF_AMOUNT)
 			{
-				dstItem->Effect[0].Index = EF_AMOUNT;
-				dstItem->Effect[0].Value = 0;
+				dstItem->stEffect[0].cEffect = EF_AMOUNT;
+				dstItem->stEffect[0].cValue = 0;
 			}
 
 			// Nacleo ja incializado.
-			if (dstItem->Effect[0].Index == EF_AMOUNT)
+			if (dstItem->stEffect[0].cEffect == EF_AMOUNT)
 			{
-				if (dstItem->Effect[0].Value >= 100)
+				if (dstItem->stEffect[0].cValue >= 100)
 				{
 					SendClientMessage(clientId, "O nacleo ja esta totalmente carregado!");
 
@@ -326,7 +326,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 					return true;
 				}
 
-				dstItem->Effect[0].Value += 2;
+				dstItem->stEffect[0].cValue += 2;
 				SendClientMessage(clientId, "Nacleo refinado com sucesso!");
 
 				SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
@@ -339,9 +339,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		if (p->DstSlot == 13)
 		{
-			if (dstItem->Index >= 3397 && dstItem->Index <= 3406)
+			if (dstItem->sIndex >= 3397 && dstItem->sIndex <= 3406)
 			{
-				dstItem->Index += 10;
+				dstItem->sIndex += 10;
 
 				SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
 
@@ -352,7 +352,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		if (p->DstSlot == 14 && p->DstType == 0)
 		{ // Ovo 
-			if (player->Equip[p->DstSlot].Index >= 2300 && player->Equip[p->DstSlot].Index < 2330)
+			if (player->Equip[p->DstSlot].sIndex >= 2300 && player->Equip[p->DstSlot].sIndex < 2330)
 			{
 				int add = player->Equip[14].EFV3;
 
@@ -366,7 +366,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				if (player->Equip[14].EFV1 <= 1)
 				{
-					player->Equip[p->DstSlot].Index += 30;
+					player->Equip[p->DstSlot].sIndex += 30;
 
 					player->Equip[p->DstSlot].EF2 = 1;
 					player->Equip[p->DstSlot].EFV2 = (Rand() % 20 + 10);
@@ -407,19 +407,19 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		if (p->DstType == 0 && p->DstSlot == 11)
 		{
-			if (dstItem->Index >= 1752 && dstItem->Index < 1760)
+			if (dstItem->sIndex >= 1752 && dstItem->sIndex < 1760)
 			{
 				int _rand = Rand() % 101;
 				if (_rand <= 80)
 				{
-					dstItem->Index -= 8;
+					dstItem->sIndex -= 8;
 
-					Log(clientId, LOG_INGAME, "Pedra %s foi aberta", ItemList[dstItem->Index + 8].Name);
+					Log(clientId, LOG_INGAME, "Pedra %s foi aberta", g_pItemList[dstItem->sIndex + 8].ItemName);
 					SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 				}
 				else
 				{
-					Log(clientId, LOG_INGAME, "Pedra %s falhou para abrir", ItemList[dstItem->Index + 8].Name);
+					Log(clientId, LOG_INGAME, "Pedra %s falhou para abrir", g_pItemList[dstItem->sIndex + 8].ItemName);
 
 					SendClientMessage(clientId, g_pLanguageString[_NN_Fail_To_Refine]);
 				}
@@ -436,7 +436,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		int sanc = GetItemSanc(dstItem);
 		if (p->DstType == 0 && p->DstSlot == 8 && _volatile == 5)
 		{
-			if (dstItem->Index >= 591 && dstItem->Index <= 595)
+			if (dstItem->sIndex >= 591 && dstItem->sIndex <= 595)
 			{
 				if (sanc >= 9 && sanc <= 14)
 				{
@@ -453,7 +453,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 					{
 						SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
-						Log(clientId, LOG_INGAME, "Sucesso - Item %s para %d %s %d/%d", ItemList[dstItem->Index].Name, sanc + 1, dstItem->toString().c_str(), _rand, rate);
+						Log(clientId, LOG_INGAME, "Sucesso - Item %s para %d %s %d/%d", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->toString().c_str(), _rand, rate);
 
 						SetItemSanc(dstItem, sanc + 1, 0);
 					}
@@ -463,12 +463,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 						if (protectionSlot == -1)
 						{
-							Log(clientId, LOG_INGAME, "Destruado - Item %s para %d %s %d/%d", ItemList[dstItem->Index].Name, sanc + 1, dstItem->toString().c_str(), _rand, rate);
+							Log(clientId, LOG_INGAME, "Destruado - Item %s para %d %s %d/%d", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->toString().c_str(), _rand, rate);
 
 							memset(dstItem, 0, sizeof STRUCT_ITEM);
 						}
 						else
-							Log(clientId, LOG_INGAME, "Falhou - Item %s para %d %s %d/%d", ItemList[dstItem->Index].Name, sanc + 1, dstItem->toString().c_str(), _rand, rate);
+							Log(clientId, LOG_INGAME, "Falhou - Item %s para %d %s %d/%d", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->toString().c_str(), _rand, rate);
 					}
 
 					if (protectionSlot != -1)
@@ -487,7 +487,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		// Cythera Desencantada - Se falhar, volta pra +0
-		if (dstItem->Index == 3508)
+		if (dstItem->sIndex == 3508)
 		{
 			if (_volatile != 5)
 			{
@@ -517,10 +517,10 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
 				if (sanc == 8)
-					SendNotice(".%s refinou Cythera Desencantada para +9", pMob[clientId].Mobs.Player.Name);
+					SendNotice(".%s refinou Cythera Desencantada para +9", pMob[clientId].Mobs.Player.MobName);
 
-				Log(clientId, LOG_INGAME, "Sucesso na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d] ", ItemList[dstItem->Index].Name, sanc + 1, dstItem->Index, dstItem->Effect[0].Index, dstItem->Effect[0].Value,
-					dstItem->Effect[1].Index, dstItem->Effect[1].Value, dstItem->Effect[2].Index, dstItem->Effect[2].Value);
+				Log(clientId, LOG_INGAME, "Sucesso na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d] ", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->sIndex, dstItem->stEffect[0].cEffect, dstItem->stEffect[0].cValue,
+					dstItem->stEffect[1].cEffect, dstItem->stEffect[1].cValue, dstItem->stEffect[2].cEffect, dstItem->stEffect[2].cValue);
 			}
 			else if (sanc != 6)
 			{
@@ -529,8 +529,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				SetItemSanc(dstItem, 0, 0);
 				SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
 
-				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d] ", ItemList[dstItem->Index].Name, sanc + 1, dstItem->Index, dstItem->Effect[0].Index, dstItem->Effect[0].Value,
-					dstItem->Effect[1].Index, dstItem->Effect[1].Value, dstItem->Effect[2].Index, dstItem->Effect[2].Value);
+				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d] ", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->sIndex, dstItem->stEffect[0].cEffect, dstItem->stEffect[0].cValue,
+					dstItem->stEffect[1].cEffect, dstItem->stEffect[1].cValue, dstItem->stEffect[2].cEffect, dstItem->stEffect[2].cValue);
 			}
 			else
 			{
@@ -539,23 +539,23 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				SendClientMessage(clientId, "Item destruado");
 
-				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d] - ITEM DESTRUaDO", ItemList[dstItem->Index].Name, sanc + 1, dstItem->Index, dstItem->Effect[0].Index, dstItem->Effect[0].Value,
-					dstItem->Effect[1].Index, dstItem->Effect[1].Value, dstItem->Effect[2].Index, dstItem->Effect[2].Value);
+				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d] - ITEM DESTRUaDO", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->sIndex, dstItem->stEffect[0].cEffect, dstItem->stEffect[0].cValue,
+					dstItem->stEffect[1].cEffect, dstItem->stEffect[1].cValue, dstItem->stEffect[2].cEffect, dstItem->stEffect[2].cValue);
 
-				LogPlayer(clientId, "Destruiu o item %s tentando refinar para +7", ItemList[dstItem->Index].Name);
+				LogPlayer(clientId, "Destruiu o item %s tentando refinar para +7", g_pItemList[dstItem->sIndex].ItemName);
 			}
 
 			AmountMinus(srcItem);
 			return true;
 		}
 
-		if (((dstItem->Index >= 762 && dstItem->Index <= 768)  || (dstItem->Index >= 788 && dstItem->Index <= 791)) && (sanc == 9 || sanc == 10) && _volatile == 5)
+		if (((dstItem->sIndex >= 762 && dstItem->sIndex <= 768)  || (dstItem->sIndex >= 788 && dstItem->sIndex <= 791)) && (sanc == 9 || sanc == 10) && _volatile == 5)
 		{
 			int rate = 30;
 			if (sanc == 10)
 				rate = 15;
 
-			if (dstItem->Index >= 788 && dstItem->Index <= 791)
+			if (dstItem->sIndex >= 788 && dstItem->sIndex <= 791)
 			{
 				rate = 15;
 				if (sanc == 10)
@@ -570,9 +570,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
 				SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
-				SendNotice(".%s refinou %s para +%d", pMob[clientId].Mobs.Player.Name, ItemList[dstItem->Index].Name, sanc + 1);
+				SendNotice(".%s refinou %s para +%d", pMob[clientId].Mobs.Player.MobName, g_pItemList[dstItem->sIndex].ItemName, sanc + 1);
 
-				Log(clientId, LOG_INGAME, "Sucesso na refinaaao de %s para %d - %s ", ItemList[dstItem->Index].Name, sanc + 1, dstItem->toString().c_str());
+				Log(clientId, LOG_INGAME, "Sucesso na refinaaao de %s para %d - %s ", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->toString().c_str());
 			}
 			else
 			{
@@ -581,19 +581,19 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
 				SendClientMessage(clientId, g_pLanguageString[_NN_Fail_To_Refine]);
 
-				SendNotice(".%s falhou %s para +%d", pMob[clientId].Mobs.Player.Name, ItemList[dstItem->Index].Name, sanc + 1);
+				SendNotice(".%s falhou %s para +%d", pMob[clientId].Mobs.Player.MobName, g_pItemList[dstItem->sIndex].ItemName, sanc + 1);
 
-				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d  %s", ItemList[dstItem->Index].Name, sanc + 1, dstItem->toString().c_str());
+				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d  %s", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->toString().c_str());
 			}
 
 			AmountMinus(srcItem);
 			return true;
 		}
 
-		int _type = GetEffectValueByIndex(player->Equip[p->DstSlot].Index, EF_MOBTYPE);
+		int _type = GetEffectValueByIndex(player->Equip[p->DstSlot].sIndex, EF_MOBTYPE);
 		if (_volatile == 5 && _type == 3)
 		{
-			if (player->Equip[p->DstSlot].Index)
+			if (player->Equip[p->DstSlot].sIndex)
 			{
 				if (sanc == 15)
 				{
@@ -613,7 +613,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 					SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
-					Log(clientId, LOG_INGAME, "Refinado %s (%d %d %d %d %d %d) para %d - %d", ItemList[dstItem->Index].Name, dstItem->EF1, dstItem->EFV1, dstItem->EF2,
+					Log(clientId, LOG_INGAME, "Refinado %s (%d %d %d %d %d %d) para %d - %d", g_pItemList[dstItem->sIndex].ItemName, dstItem->EF1, dstItem->EFV1, dstItem->EF2,
 						dstItem->EFV2, dstItem->EF3, dstItem->EFV3, sanc + 1, _rate);
 				}
 				else
@@ -641,20 +641,20 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				INT32 i = 0;
 				for (; i < 3; i++)
 				{
-					if (dstItem->Effect[i].Index == EF_SANC || (dstItem->Effect[i].Index >= 116 && dstItem->Effect[i].Index <= 125))
+					if (dstItem->stEffect[i].cEffect == EF_SANC || (dstItem->stEffect[i].cEffect >= 116 && dstItem->stEffect[i].cEffect <= 125))
 						break;
 				}
 
 				if (i != 3)
 				{
-					dstItem->Effect[i].Value += 4;
+					dstItem->stEffect[i].cValue += 4;
 
 					SendEmotion(clientId, 14, 3);
 
 					SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
-					Log(clientId, LOG_INGAME, "Item %s refinado com sucesso para %d - [%d] [%d %d %d %d %d %d]", ItemList[dstItem->Index].Name, sanc + 1, dstItem->Index, dstItem->Effect[0].Index, dstItem->Effect[0].Value,
-						dstItem->Effect[1].Index, dstItem->Effect[1].Value, dstItem->Effect[2].Index, dstItem->Effect[2].Value);
+					Log(clientId, LOG_INGAME, "Item %s refinado com sucesso para %d - [%d] [%d %d %d %d %d %d]", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->sIndex, dstItem->stEffect[0].cEffect, dstItem->stEffect[0].cValue,
+						dstItem->stEffect[1].cEffect, dstItem->stEffect[1].cValue, dstItem->stEffect[2].cEffect, dstItem->stEffect[2].cValue);
 				}
 				else
 					Log(clientId, LOG_ERROR, "Nao encontrado o ef 43 para refinar para +11");
@@ -663,8 +663,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Fail_To_Refine]);
 
-				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d]", ItemList[dstItem->Index].Name, sanc + 1, dstItem->Index, dstItem->Effect[0].Index, dstItem->Effect[0].Value,
-					dstItem->Effect[1].Index, dstItem->Effect[1].Value, dstItem->Effect[2].Index, dstItem->Effect[2].Value);
+				Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - [%d] [%d %d %d %d %d %d]", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->sIndex, dstItem->stEffect[0].cEffect, dstItem->stEffect[0].cValue,
+					dstItem->stEffect[1].cEffect, dstItem->stEffect[1].cValue, dstItem->stEffect[2].cEffect, dstItem->stEffect[2].cValue);
 			}
 
 			SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
@@ -682,7 +682,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		int i = 0;
 		for (i = 0; i < 3; i++)
 		{
-			if (dstItem->Effect[i].Index == 0 || dstItem->Effect[i].Index == 43 || (dstItem->Effect[i].Index >= 116 && dstItem->Effect[i].Index <= 125))
+			if (dstItem->stEffect[i].cEffect == 0 || dstItem->stEffect[i].cEffect == 43 || (dstItem->stEffect[i].cEffect >= 116 && dstItem->stEffect[i].cEffect <= 125))
 				break;
 		}
 
@@ -694,7 +694,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		int blocked = GetEffectValueByIndex(dstItem->Index, 125);
+		int blocked = GetEffectValueByIndex(dstItem->sIndex, 125);
 		if (blocked == 1)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_CantRefine]);
@@ -704,7 +704,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 
-		int _pos = ItemList[dstItem->Index].Pos;
+		int _pos = g_pItemList[dstItem->sIndex].Pos;
 		if (_pos == 0)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_CantRefine]);
@@ -716,17 +716,17 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		int fails = 0;
 		for (i = 0; i < 3; i++)
 		{
-			if (dstItem->Effect[i].Index == 43 || (dstItem->Effect[i].Index >= 116 && dstItem->Effect[i].Index <= 125))
+			if (dstItem->stEffect[i].cEffect == 43 || (dstItem->stEffect[i].cEffect >= 116 && dstItem->stEffect[i].cEffect <= 125))
 			{
-				if (dstItem->Effect[i].Value != 0)
+				if (dstItem->stEffect[i].cValue != 0)
 				{
-					fails = dstItem->Effect[i].Value / 10;
+					fails = dstItem->stEffect[i].cValue / 10;
 					break;
 				}
 			}
 		}
 
-		int type = GetEffectValueByIndex(dstItem->Index, EF_UNKNOW1);
+		int type = GetEffectValueByIndex(dstItem->sIndex, EF_UNKNOW1);
 		if (type < 0 || type >= 6)
 			type = 5;
 
@@ -738,15 +738,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		int _rate = Rand() % 101;
 
-		STRUCT_ITEMLIST* item = (STRUCT_ITEMLIST*)& ItemList[dstItem->Index];
+		STRUCT_ITEMLIST* item = (STRUCT_ITEMLIST*)& g_pItemList[dstItem->sIndex];
 
 		if (_rate > rate)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Fail_To_Refine]);
 
-			Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - %s %d/%d", ItemList[dstItem->Index].Name, sanc + 1, dstItem->toString().c_str(), _rate, rate);
+			Log(clientId, LOG_INGAME, "Falha na refinaaao de %s para %d - %s %d/%d", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->toString().c_str(), _rate, rate);
 
-			LogPlayer(clientId, "Falhou ao tentar refinar %s para %d", ItemList[dstItem->Index].Name, sanc + 1);
+			LogPlayer(clientId, "Falhou ao tentar refinar %s para %d", g_pItemList[dstItem->sIndex].ItemName, sanc + 1);
 			SetItemSanc(dstItem, sanc, _Fails);
 
 			SendEmotion(clientId, 15, 1);
@@ -755,8 +755,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
-			Log(clientId, LOG_INGAME, "Item %s refinado com sucesso para %d - %s %d/%d", ItemList[dstItem->Index].Name, sanc + 1, dstItem->toString().c_str(), _rate, rate);
-			LogPlayer(clientId, "Sucesso na refinaaao de %s para %d", ItemList[dstItem->Index].Name, sanc + 1);
+			Log(clientId, LOG_INGAME, "Item %s refinado com sucesso para %d - %s %d/%d", g_pItemList[dstItem->sIndex].ItemName, sanc + 1, dstItem->toString().c_str(), _rate, rate);
+			LogPlayer(clientId, "Sucesso na refinaaao de %s para %d", g_pItemList[dstItem->sIndex].ItemName, sanc + 1);
 
 			SetItemSanc(dstItem, sanc + 1, _Fails);
 		}
@@ -830,7 +830,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 	{
 		STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
 
-		int itemIndex = srcItem->Index;
+		int itemIndex = srcItem->sIndex;
 		itemIndex = itemIndex - 575;
 
 		if (itemIndex < 0 || itemIndex > 4)
@@ -839,7 +839,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		int itemPos = ItemList[dstItem->Index].Pos;
+		int itemPos = g_pItemList[dstItem->sIndex].Pos;
 		if (itemPos < 2 || itemPos > 32)
 		{
 			SendClientMessage(clientId, "Utilize em equipamentos");
@@ -866,7 +866,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		int UniqueType = -1;
-		int nUnique = ItemList[dstItem->Index].Unique;
+		int nUnique = g_pItemList[dstItem->sIndex].Unique;
 
 		if (nUnique == 5 || nUnique == 14 || nUnique == 24 || nUnique == 34)
 			UniqueType = 0;
@@ -891,7 +891,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		int itemExtreme = ItemList[dstItem->Index].Extreme;
+		int itemExtreme = g_pItemList[dstItem->sIndex].Extreme;
 		if (itemExtreme <= 0 || itemExtreme >= MAX_ITEMLIST)
 		{
 			SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
@@ -902,16 +902,16 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Fail_To_Refine]);
 
-			Log(clientId, LOG_INGAME, "Item %s utilizado em %s - FALHOU %d/%d", ItemList[srcItem->Index].Name, dstItem->toString().c_str());
+			Log(clientId, LOG_INGAME, "Item %s utilizado em %s - FALHOU %d/%d", g_pItemList[srcItem->sIndex].ItemName, dstItem->toString().c_str());
 
 			AmountMinus(srcItem);
 			return true;
 		}
 
-		int dstIndex = dstItem->Index;
-		dstItem->Index = itemExtreme;
+		int dstIndex = dstItem->sIndex;
+		dstItem->sIndex = itemExtreme;
 
-		Log(clientId, LOG_INGAME, "Item %s utilizado em %s %d [%d %d %d %d %d %d]", ItemList[srcItem->Index].Name, ItemList[dstIndex].Name, dstItem->Index, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
+		Log(clientId, LOG_INGAME, "Item %s utilizado em %s %d [%d %d %d %d %d %d]", g_pItemList[srcItem->sIndex].ItemName, g_pItemList[dstIndex].ItemName, dstItem->sIndex, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
 
 		SendEquip(clientId);
 		AmountMinus(srcItem);
@@ -953,9 +953,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		int value = 6;
 		int time = 15;
-		if (srcItem->Index == 1764)
+		if (srcItem->sIndex == 1764)
 			value = 7;
-		else if (srcItem->Index == 600)
+		else if (srcItem->sIndex == 600)
 		{
 			value = 8;
 			time = 15 * 60 / 8;
@@ -1004,7 +1004,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			map = GetAttribute(nTargetX, nTargetY);
-			if (map.CantSummon && pMob[clientId].Mobs.Player.bStatus.Level < 1000)
+			if (map.CantSummon && pMob[clientId].Mobs.Player.BaseScore.Level < 1000)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Cant_Use_That_Here]);
 
@@ -1030,13 +1030,13 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 	{ // 0042F533
 		eMapAttribute map = GetAttribute(pMob[clientId].Target.X, pMob[clientId].Target.Y);
 
-		if (map.CantSummon && pMob[clientId].Mobs.Player.bStatus.Level < 1000)
+		if (map.CantSummon && pMob[clientId].Mobs.Player.BaseScore.Level < 1000)
 		{
 			for (INT32 i = 0; i < 3; i++)
 			{
 				if (pMob[clientId].Target.X >= g_pPesaArea[i][0] && pMob[clientId].Target.X <= g_pPesaArea[i][2] && pMob[clientId].Target.Y >= g_pPesaArea[i][1] && pMob[clientId].Target.Y <= g_pPesaArea[i][3])
 				{
-					INT32 face = pMob[clientId].Mobs.Player.Equip[0].Index / 10; // local960
+					INT32 face = pMob[clientId].Mobs.Player.Equip[0].sIndex / 10; // local960
 					if (face == 0)
 						SendEmotion(clientId, 23, 0);
 					else if (face >= 1 && face <= 3)
@@ -1070,7 +1070,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		INT32 face = pMob[clientId].Mobs.Player.Equip[0].Index / 10; // local960
+		INT32 face = pMob[clientId].Mobs.Player.Equip[0].sIndex / 10; // local960
 		if (face == 0)
 			SendEmotion(clientId, 23, 0);
 		else if (face >= 1 && face <= 3)
@@ -1110,7 +1110,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		STRUCT_ITEM* mont = &pMob[clientId].Mobs.Player.Equip[14];
-		if (mont->Index < 2330 || mont->Index > 2390)
+		if (mont->sIndex < 2330 || mont->sIndex > 2390)
 		{
 			SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
@@ -1118,14 +1118,14 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		INT32 baseId = 0;
-		if (mont->Index >= 2330 && mont->Index < 2360)
+		if (mont->sIndex >= 2330 && mont->sIndex < 2360)
 			baseId = 2330;
 
-		if (mont->Index >= 2360 && mont->Index < 2390)
+		if (mont->sIndex >= 2360 && mont->sIndex < 2390)
 			baseId = 2360;
 
-		INT32 mountId = (mont->Index - baseId) % 30; // local1028
-		INT32 feedId = (srcItem->Index - 2420);	// LOCAL1029
+		INT32 mountId = (mont->sIndex - baseId) % 30; // local1028
+		INT32 feedId = (srcItem->sIndex - 2420);	// LOCAL1029
 
 		if (mountId >= 6 && mountId <= 15 || mountId == 27)
 			mountId = 6;
@@ -1153,7 +1153,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		if (*(short*)& mont->Effect[0].Index <= 0)
+		if (*(short*)& mont->stEffect[0].cEffect <= 0)
 		{
 			SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
@@ -1162,25 +1162,25 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Equip[14];
 
-		INT32 index = item->Index - baseId + 10;
-		INT32 hp = *(short*)& item->Effect[0].Index + 5000;
-		INT32 maxHp = NPCBase[index].bStatus.maxHP;
+		INT32 index = item->sIndex - baseId + 10;
+		INT32 hp = *(short*)& item->stEffect[0].cEffect + 5000;
+		INT32 maxHp = NPCBase[index].BaseScore.MaxHp;
 
 		if (hp > maxHp)
 			hp = maxHp;
 
-		*(short*)& item->Effect[0].Index = hp;
+		*(short*)& item->stEffect[0].cEffect = hp;
 
-		INT32 LOCAL_1032 = item->Effect[2].Index + 2; // local1032
+		INT32 LOCAL_1032 = item->stEffect[2].cEffect + 2; // local1032
 		if (LOCAL_1032 > 100)
 			LOCAL_1032 = 100;
 
-		item->Effect[2].Index = LOCAL_1032;
+		item->stEffect[2].cEffect = LOCAL_1032;
 
-		if (mont->Index >= 2330 && mont->Index < 2360)
+		if (mont->sIndex >= 2330 && mont->sIndex < 2360)
 			MountProcess(clientId, 0);
 
-		if (mont->Index >= 2360 && mont->Index < 2390)
+		if (mont->sIndex >= 2360 && mont->sIndex < 2390)
 			ProcessAdultMount(clientId, 0);
 
 		AmountMinus(srcItem);
@@ -1214,11 +1214,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			type = 0;
 		}
 
-		int Index = srcItem->Index - minus;
+		int sIndex = srcItem->sIndex - minus;
 
-		if (sServer.pWater[type][Index].Time != -1)
+		if (sServer.pWater[type][sIndex].Time != -1)
 		{
-			sprintf_s(tmp, "Sala ocupada por %s e seu grupo. Tempo restante: %d seg.", pMob[sServer.pWater[type][Index].Leader].Mobs.Player.Name, sServer.pWater[type][Index].Time);
+			sprintf_s(tmp, "Sala ocupada por %s e seu grupo. Tempo restante: %d seg.", pMob[sServer.pWater[type][sIndex].Leader].Mobs.Player.MobName, sServer.pWater[type][sIndex].Time);
 
 			SendClientMessage(clientId, tmp);
 			SendItem(clientId, SlotType::Inv, p->SrcSlot, srcItem);
@@ -1256,7 +1256,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		if ((pMob[clientId].Target.X > 1961 && pMob[clientId].Target.X < 1970 && pMob[clientId].Target.Y > 1770 && pMob[clientId].Target.Y < 1778) || (t != 9 && sServer.pWater[type][t].Mode == 2))
 		{
-			if (t == Index)
+			if (t == sIndex)
 			{
 				SendItem(clientId, SlotType::Inv, p->SrcSlot, srcItem);
 				return true;
@@ -1287,11 +1287,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				sServer.pWater[type][t].Mode = 0;
 			}
 
-			sServer.pWater[type][Index].Time = 120;
+			sServer.pWater[type][sIndex].Time = 120;
 
-			int Generated = initial + Index;
+			int Generated = initial + sIndex;
 
-			if (Index == 8)
+			if (sIndex == 8)
 			{
 				int chance = Rand() % 100;
 				if (chance >= 75)
@@ -1312,11 +1312,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			GenerateMob(Generated, 0, 0);
 
-			Teleportar(clientId, waterPlace[type][Index][0], waterPlace[type][Index][1]);
+			Teleportar(clientId, waterPlace[type][sIndex][0], waterPlace[type][sIndex][1]);
 			SendSignalParm(clientId, 0x7530, 0x3A1, 120);
 			SendSignalParm(clientId, clientId, 0x3B0, Generated);
 
-			Log(clientId, LOG_INGAME, "agua %d - Grupo teleportado para a area. Entradas restantes: %d", srcItem->Index, sServer.MaxWaterEntrance - User.Water.Total);
+			Log(clientId, LOG_INGAME, "agua %d - Grupo teleportado para a area. Entradas restantes: %d", srcItem->sIndex, sServer.MaxWaterEntrance - User.Water.Total);
 
 			for (INT32 i = 0; i < 12; i++)
 			{
@@ -1324,7 +1324,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				if (mobId <= 0 || mobId >= MAX_PLAYER)
 					continue;
 
-				if (pUser[mobId].Status != USER_PLAY)
+				if (pUser[mobId].CurrentScore != USER_PLAY)
 					continue;
 
 				if (pUser[mobId].User.Water.Total >= sServer.MaxWaterEntrance)
@@ -1335,12 +1335,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 					continue;
 				}
 
-				Teleportar(mobId, waterPlace[type][Index][0], waterPlace[type][Index][1]);
+				Teleportar(mobId, waterPlace[type][sIndex][0], waterPlace[type][sIndex][1]);
 
-				Log(clientId, LOG_INGAME, "agua %d - Grupo: %d - Nome: %s", srcItem->Index, i, pMob[mobId].Mobs.Player.Name);
-				Log(mobId, LOG_INGAME, "agua %d - Grupo de %s. Entradas restantes: %d", srcItem->Index, pMob[clientId].Mobs.Player.Name, sServer.MaxWaterEntrance - pUser[mobId].User.Water.Total);
+				Log(clientId, LOG_INGAME, "agua %d - Grupo: %d - Nome: %s", srcItem->sIndex, i, pMob[mobId].Mobs.Player.MobName);
+				Log(mobId, LOG_INGAME, "agua %d - Grupo de %s. Entradas restantes: %d", srcItem->sIndex, pMob[clientId].Mobs.Player.MobName, sServer.MaxWaterEntrance - pUser[mobId].User.Water.Total);
 
-				LogPlayer(mobId, "%s usou a entrada da agua. Entradas restantes: %d", pMob[clientId].Mobs.Player.Name, sServer.MaxWaterEntrance - pUser[mobId].User.Water.Total);
+				LogPlayer(mobId, "%s usou a entrada da agua. Entradas restantes: %d", pMob[clientId].Mobs.Player.MobName, sServer.MaxWaterEntrance - pUser[mobId].User.Water.Total);
 
 				SendSignalParm(mobId, mobId, 0x3B0, Generated);
 				SendSignalParm(mobId, 0x7530, 0x3A1, 120);
@@ -1348,9 +1348,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				pUser[mobId].User.Water.Total++;
 			}
 
-			sServer.pWater[type][Index].Leader = clientId;
-			sServer.pWater[type][Index].Mode = 1;
-			sServer.pWater[type][Index].Time = 120;
+			sServer.pWater[type][sIndex].Leader = clientId;
+			sServer.pWater[type][sIndex].Mode = 1;
+			sServer.pWater[type][sIndex].Time = 120;
 
 			User.Water.Total++;
 
@@ -1388,7 +1388,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		if (sServer.Nightmare[0].Status != 1 || sServer.Nightmare[0].TimeLeft <= 0)
+		if (sServer.Nightmare[0].CurrentScore != 1 || sServer.Nightmare[0].TimeLeft <= 0)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_CantEnter]);
 
@@ -1416,7 +1416,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 					continue;
 				}
-				else if (pMob[memberId].Mobs.Player.Status.Level >= sServer.MaximumPesaLevel)
+				else if (pMob[memberId].Mobs.Player.CurrentScore.Level >= sServer.MaximumPesaLevel)
 				{
 					SendClientMessage(memberId, g_pLanguageString[_NN_Level_NotAllowed], 1, sServer.MaximumPesaLevel);
 
@@ -1469,8 +1469,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			sServer.Nightmare[0].Members[x] = memberId;
 			Teleportar(memberId, 1210, 180);
 
-			Log(clientId, LOG_INGAME, "Pesadelo N - Slot: %d - Name: %s", i, pMob[memberId].Mobs.Player.Name);
-			Log(memberId, LOG_INGAME, "Pesadelo N - Grupo de %s", pMob[clientId].Mobs.Player.Name);
+			Log(clientId, LOG_INGAME, "Pesadelo N - Slot: %d - Name: %s", i, pMob[memberId].Mobs.Player.MobName);
+			Log(memberId, LOG_INGAME, "Pesadelo N - Grupo de %s", pMob[clientId].Mobs.Player.MobName);
 
 			int _rand = Rand() % 3;
 			if (_rand >= 3)
@@ -1513,7 +1513,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		if (sServer.Nightmare[1].Status != 1 || sServer.Nightmare[1].TimeLeft <= 0)
+		if (sServer.Nightmare[1].CurrentScore != 1 || sServer.Nightmare[1].TimeLeft <= 0)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_CantEnter]);
 
@@ -1541,7 +1541,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 					continue;
 				}
-				else if (pMob[memberId].Mobs.Player.Status.Level >= sServer.MaximumPesaLevel)
+				else if (pMob[memberId].Mobs.Player.CurrentScore.Level >= sServer.MaximumPesaLevel)
 				{
 					SendClientMessage(memberId, g_pLanguageString[_NN_Level_NotAllowed], 1, sServer.MaximumPesaLevel);
 
@@ -1595,8 +1595,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			Teleportar(memberId, 1210, 180);
 
-			Log(clientId, LOG_INGAME, "Pesadelo M - Slot: %d - Name: %s", i, pMob[memberId].Mobs.Player.Name);
-			Log(memberId, LOG_INGAME, "Pesadelo M - Grupo de %s", pMob[clientId].Mobs.Player.Name);
+			Log(clientId, LOG_INGAME, "Pesadelo M - Slot: %d - Name: %s", i, pMob[memberId].Mobs.Player.MobName);
+			Log(memberId, LOG_INGAME, "Pesadelo M - Grupo de %s", pMob[clientId].Mobs.Player.MobName);
 
 			int _rand = Rand() % 6;
 			if (_rand >= 6)
@@ -1639,7 +1639,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		if (sServer.Nightmare[2].Status != 1 || sServer.Nightmare[2].TimeLeft <= 0)
+		if (sServer.Nightmare[2].CurrentScore != 1 || sServer.Nightmare[2].TimeLeft <= 0)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_CantEnter]);
 
@@ -1666,20 +1666,20 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				{
 					SendClientMessage(memberId, g_pLanguageString[_NN_NT_Zero]);
 
-					str << "O jogador " << pMob[memberId].Mobs.Player.Name << "(" << pUser[memberId].User.Username << ") nao entrara por falta de NT" << std::endl;
+					str << "O jogador " << pMob[memberId].Mobs.Player.MobName << "(" << pUser[memberId].User.Username << ") nao entrara por falta de NT" << std::endl;
 					continue;
 				}
-				else if (pMob[memberId].Mobs.Player.Status.Level >= sServer.MaximumPesaLevel)
+				else if (pMob[memberId].Mobs.Player.CurrentScore.Level >= sServer.MaximumPesaLevel)
 				{
 					SendClientMessage(memberId, g_pLanguageString[_NN_Level_NotAllowed], 1, sServer.MaximumPesaLevel);
 
-					str << "O jogador " << pMob[memberId].Mobs.Player.Name << "(" << pUser[memberId].User.Username << ") nao entrara por conta do limite de navel" << std::endl;
+					str << "O jogador " << pMob[memberId].Mobs.Player.MobName << "(" << pUser[memberId].User.Username << ") nao entrara por conta do limite de navel" << std::endl;
 					continue;
 				}
 			}
 
 			players.push_back(memberId);
-			str << "O jogador " << pMob[memberId].Mobs.Player.Name << "(" << pUser[memberId].User.Username << ") foi adicionado a lista" << std::endl;
+			str << "O jogador " << pMob[memberId].Mobs.Player.MobName << "(" << pUser[memberId].User.Username << ") foi adicionado a lista" << std::endl;
 		}
 
 		size_t remaining = 0;
@@ -1724,7 +1724,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			sServer.Nightmare[2].Members[x] = memberId;
-			sServer.Nightmare[2].MembersName[x] = pMob[memberId].Mobs.Player.Name;
+			sServer.Nightmare[2].MembersName[x] = pMob[memberId].Mobs.Player.MobName;
 
 			INT32 posX = 1210,
 				posY = 180;
@@ -1736,7 +1736,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			Teleportar(memberId, posX, posY);
 
-			str << "[Pesadelo A] - " << pUser[memberId].User.Username << " - " << pMob[memberId].Mobs.Player.Name << std::endl;
+			str << "[Pesadelo A] - " << pUser[memberId].User.Username << " - " << pMob[memberId].Mobs.Player.MobName << std::endl;
 
 			SendSignalParm(memberId, SERVER_SIDE, 0x3A7, 2);
 			SendSignalParm(memberId, memberId, 0x3A1, sServer.Nightmare[2].TimeLeft);
@@ -1752,9 +1752,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 	else if (_volatile == 211)
 	{
 		INT32 classMaster = pMob[clientId].Mobs.Player.Equip[0].EFV2;
-		if (classMaster >= eClass::Celestial && pMob[clientId].Mobs.GetTotalResets() == 3 && pMob[clientId].Mobs.Player.bStatus.Level >= 199 && pMob[clientId].Mobs.Info.LvBlocked)
+		if (classMaster >= eClass::Celestial && pMob[clientId].Mobs.GetTotalResets() == 3 && pMob[clientId].Mobs.Player.BaseScore.Level >= 199 && pMob[clientId].Mobs.Info.LvBlocked)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level == 199 && pMob[clientId].Mobs.Sub.SubStatus.Level == 199)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level == 199 && pMob[clientId].Mobs.Sub.SubStatus.Level == 199)
 			{
 				int realSealSlot = GetFirstSlot(clientId, 4683);
 				if (realSealSlot == -1)
@@ -1798,7 +1798,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		if (classMaster == ARCH)
 		{ // Transformar-se em celestial
-			INT32 level = pMob[clientId].Mobs.Player.Status.Level;
+			INT32 level = pMob[clientId].Mobs.Player.CurrentScore.Level;
 			if (level < 354)
 			{
 				//TODO : HardCore
@@ -1862,7 +1862,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			INT32 levelMortal = pUser[clientId].CharList.Status[pMob[clientId].Mobs.MortalSlot].Level;
+			INT32 levelMortal = pUser[clientId].CharList.CurrentScore[pMob[clientId].Mobs.MortalSlot].Level;
 			if (levelMortal != 399)
 			{
 				SendClientMessage(clientId, "Necessario que o Mortal seja navel 400");
@@ -1871,7 +1871,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.Equip[1].Index != 0)
+			if (pMob[clientId].Mobs.Player.Equip[1].sIndex != 0)
 			{
 				SendClientMessage(clientId, "Desequipe sua cythera para continuar");
 
@@ -1887,31 +1887,31 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			if (face > 31)
 			{
-				pMob[clientId].Mobs.Player.bStatus.STR = points_ht[0];
-				pMob[clientId].Mobs.Player.bStatus.INT = points_ht[1];
-				pMob[clientId].Mobs.Player.bStatus.DEX = points_ht[2];
-				pMob[clientId].Mobs.Player.bStatus.CON = points_ht[3];
+				pMob[clientId].Mobs.Player.BaseScore.Str = points_ht[0];
+				pMob[clientId].Mobs.Player.BaseScore.Int = points_ht[1];
+				pMob[clientId].Mobs.Player.BaseScore.Dex = points_ht[2];
+				pMob[clientId].Mobs.Player.BaseScore.Con = points_ht[3];
 			}
 			else if (face > 21)
 			{
-				pMob[clientId].Mobs.Player.bStatus.STR = points_bm[0];
-				pMob[clientId].Mobs.Player.bStatus.INT = points_fm[1];
-				pMob[clientId].Mobs.Player.bStatus.DEX = points_fm[2];
-				pMob[clientId].Mobs.Player.bStatus.CON = points_fm[3];
+				pMob[clientId].Mobs.Player.BaseScore.Str = points_bm[0];
+				pMob[clientId].Mobs.Player.BaseScore.Int = points_fm[1];
+				pMob[clientId].Mobs.Player.BaseScore.Dex = points_fm[2];
+				pMob[clientId].Mobs.Player.BaseScore.Con = points_fm[3];
 			}
 			else if (face > 11)
 			{
-				pMob[clientId].Mobs.Player.bStatus.STR = points_fm[0];
-				pMob[clientId].Mobs.Player.bStatus.INT = points_fm[1];
-				pMob[clientId].Mobs.Player.bStatus.DEX = points_fm[2];
-				pMob[clientId].Mobs.Player.bStatus.CON = points_fm[3];
+				pMob[clientId].Mobs.Player.BaseScore.Str = points_fm[0];
+				pMob[clientId].Mobs.Player.BaseScore.Int = points_fm[1];
+				pMob[clientId].Mobs.Player.BaseScore.Dex = points_fm[2];
+				pMob[clientId].Mobs.Player.BaseScore.Con = points_fm[3];
 			}
 			else if (face > 1)
 			{
-				pMob[clientId].Mobs.Player.bStatus.STR = points_tk[0];
-				pMob[clientId].Mobs.Player.bStatus.INT = points_tk[1];
-				pMob[clientId].Mobs.Player.bStatus.DEX = points_tk[2];
-				pMob[clientId].Mobs.Player.bStatus.CON = points_tk[3];
+				pMob[clientId].Mobs.Player.BaseScore.Str = points_tk[0];
+				pMob[clientId].Mobs.Player.BaseScore.Int = points_tk[1];
+				pMob[clientId].Mobs.Player.BaseScore.Dex = points_tk[2];
+				pMob[clientId].Mobs.Player.BaseScore.Con = points_tk[3];
 			}
 
 			if (level >= 355 && level <= 369)
@@ -1932,27 +1932,27 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			Log(clientId, LOG_INGAME, "Celestial criado. Level: %d - Cythera: %d. Points %d. Cape %d", level, cythera, points, capeId);
 
-			SendServerNotice("Parabans para %s pela criaaao do seu Celestial", pMob[clientId].Mobs.Player.Name);
+			SendServerNotice("Parabans para %s pela criaaao do seu Celestial", pMob[clientId].Mobs.Player.MobName);
 
-			memset(&pMob[clientId].Mobs.Player.SkillBar1, -1, 4);
+			memset(&pMob[clientId].Mobs.Player.ShortSkill, -1, 4);
 			memset(&pMob[clientId].Mobs.SkillBar, -1, 16);
 
 			memset(&pMob[clientId].Mobs.Player.Equip[1], 0, sizeof STRUCT_ITEM);
 
-			pMob[clientId].Mobs.Player.Learn[0] = (1 << 30);
+			pMob[clientId].Mobs.Player.LearnedSkill[0] = (1 << 30);
 
 			pMob[clientId].Mobs.Player.Equip[0].EFV2 = CELESTIAL;
 			pMob[clientId].Mobs.Player.Equip[1] = STRUCT_ITEM{ cythera };
 
-			pMob[clientId].Mobs.Player.bStatus.Level = 0;
-			pMob[clientId].Mobs.Player.Status.Level = 0;
+			pMob[clientId].Mobs.Player.BaseScore.Level = 0;
+			pMob[clientId].Mobs.Player.CurrentScore.Level = 0;
 			pMob[clientId].Mobs.Player.Exp = 0;
 
 			for (size_t i = 0; i < 4; i++)
-				pMob[clientId].Mobs.Player.bStatus.Mastery[i] = 0;
+				pMob[clientId].Mobs.Player.BaseScore.Special[i] = 0;
 
 			memset(&pMob[clientId].Mobs.Player.Equip[15], 0, sizeof STRUCT_ITEM);
-			pMob[clientId].Mobs.Player.Equip[15].Index = capeId;
+			pMob[clientId].Mobs.Player.Equip[15].sIndex = capeId;
 
 			SendItem(clientId, SlotType::Equip, 15, &pMob[clientId].Mobs.Player.Equip[15]);
 			SendItem(clientId, SlotType::Equip, 1, &pMob[clientId].Mobs.Player.Equip[1]);
@@ -1967,7 +1967,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 		else if (classMaster == CELESTIAL)
 		{
-			if (pMob[clientId].Mobs.Sub.Status == 1)
+			if (pMob[clientId].Mobs.Sub.CurrentScore == 1)
 			{
 				SendClientMessage(clientId, "Voca ja possui subcelestial");
 
@@ -1975,7 +1975,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.Status.Level < 119)
+			if (pMob[clientId].Mobs.Player.CurrentScore.Level < 119)
 			{
 				SendClientMessage(clientId, "Sa a possavel criar Subcelestial a partir do level 120");
 
@@ -1983,7 +1983,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.Equip[11].Index < 1760 || pMob[clientId].Mobs.Player.Equip[11].Index > 1763)
+			if (pMob[clientId].Mobs.Player.Equip[11].sIndex < 1760 || pMob[clientId].Mobs.Player.Equip[11].sIndex > 1763)
 			{
 				SendClientMessage(clientId, "a necessario uma Sephirot para a criaaao do Sub Celestial");
 
@@ -1999,8 +1999,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			packet.Header.ClientId = clientId;
 
 			packet.CharPos = pUser[clientId].inGame.CharSlot;
-			packet.ClassInfo = (pMob[clientId].Mobs.Player.Equip[11].Index - 1760);
-			packet.Learn = pMob[clientId].Mobs.Player.Learn[0];
+			packet.Class = (pMob[clientId].Mobs.Player.Equip[11].sIndex - 1760);
+			packet.LearnedSkill = pMob[clientId].Mobs.Player.LearnedSkill[0];
 			packet.Face = pMob[clientId].Mobs.Player.Equip[0].EF2;
 
 			int capeId = 0;
@@ -2019,7 +2019,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			packet.Mantle = capeId;
 
-			strncpy_s(packet.Name, pMob[clientId].Mobs.Player.Name, 12);
+			strncpy_s(packet.MobName, pMob[clientId].Mobs.Player.MobName, 12);
 
 			AmountMinus(srcItem);
 			memset(&pMob[clientId].Mobs.Player.Equip[11], 0, sizeof STRUCT_ITEM);
@@ -2032,7 +2032,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				if (24 + i == 30)
 					continue;
 
-				int has = (pMob[clientId].Mobs.Player.Learn[0] & (1 << (24 + i)));
+				int has = (pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << (24 + i)));
 				if (has)
 					learn |= (1 << (24 + i));
 			}
@@ -2051,17 +2051,17 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			memset(&pMob[clientId].Mobs.Sub, 0, sizeof STRUCT_SUBINFO);
 
-			pMob[clientId].Mobs.Sub.Equip[0].Index = baseFace + packet.ClassInfo;
-			pMob[clientId].Mobs.Sub.Equip[0].EF2 = baseFace + packet.ClassInfo;
+			pMob[clientId].Mobs.Sub.Equip[0].sIndex = baseFace + packet.Class;
+			pMob[clientId].Mobs.Sub.Equip[0].EF2 = baseFace + packet.Class;
 			pMob[clientId].Mobs.Sub.Equip[0].EFV2 = SUBCELESTIAL;
 
 			pMob[clientId].Mobs.Sub.Exp = 0;
-			pMob[clientId].Mobs.Sub.Learn = learn;
-			pMob[clientId].Mobs.Sub.Status = 1;
+			pMob[clientId].Mobs.Sub.LearnedSkill = learn;
+			pMob[clientId].Mobs.Sub.CurrentScore = 1;
 
-			SendServerNotice("Parabans para %s pela criaaao do seu SubCelestial", pMob[clientId].Mobs.Player.Name);
+			SendServerNotice("Parabans para %s pela criaaao do seu SubCelestial", pMob[clientId].Mobs.Player.MobName);
 
-			Log(clientId, LOG_INGAME, "Subcelestial criado. Classe %d - Level cele: %d - Reino: %d", packet.ClassInfo, pMob[clientId].Mobs.Player.Status.Level, capeId);
+			Log(clientId, LOG_INGAME, "Subcelestial criado. Classe %d - Level cele: %d - Reino: %d", packet.Class, pMob[clientId].Mobs.Player.CurrentScore.Level, capeId);
 
 			memset(&pMob[clientId].Mobs.Sub.SkillBar[0], -1, sizeof(char) * 20);
 			AmountMinus(srcItem);
@@ -2093,8 +2093,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		int heal = pUser[clientId].Potion.CountHp + 25;
-		if (heal > pMob[clientId].Mobs.Player.Status.maxHP)
-			heal = pMob[clientId].Mobs.Player.Status.maxHP;
+		if (heal > pMob[clientId].Mobs.Player.CurrentScore.MaxHp)
+			heal = pMob[clientId].Mobs.Player.CurrentScore.MaxHp;
 
 		pUser[clientId].Potion.CountHp = heal;
 		pUser[clientId].Potion.bQuaff = 1;
@@ -2121,7 +2121,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
-		if (dstItem == NULL || dstItem->Index == 0)
+		if (dstItem == NULL || dstItem->sIndex == 0)
 		{
 			SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
@@ -2129,14 +2129,14 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		bool any = false;
-		if (srcItem->Index != 3417)
+		if (srcItem->sIndex != 3417)
 		{
-			int efAdd = 116 + (srcItem->Index - 3407);
+			int efAdd = 116 + (srcItem->sIndex - 3407);
 			for (int i = 0; i < 3; i++)
 			{
-				if (dstItem->Effect[i].Index == EF_SANC)
+				if (dstItem->stEffect[i].cEffect == EF_SANC)
 				{
-					dstItem->Effect[i].Index = efAdd;
+					dstItem->stEffect[i].cEffect = efAdd;
 
 					any = true;
 					break;
@@ -2155,9 +2155,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		{
 			for (int i = 0; i < 3; i++)
 			{
-				if (dstItem->Effect[i].Index >= 116 && dstItem->Effect[i].Index <= 125)
+				if (dstItem->stEffect[i].cEffect >= 116 && dstItem->stEffect[i].cEffect <= 125)
 				{
-					dstItem->Effect[i].Index = EF_SANC;
+					dstItem->stEffect[i].cEffect = EF_SANC;
 
 					any = true;
 					break;
@@ -2196,16 +2196,16 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
-			if (dstItem == nullptr || dstItem->Index == 0)
+			if (dstItem == nullptr || dstItem->sIndex == 0)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
 				return true;
 			}
 
-			INT32 itemType = GetEffectValueByIndex(dstItem->Index, EF_UNKNOW1);
-			INT32 mobType = GetEffectValueByIndex(dstItem->Index, EF_MOBTYPE);
-			if (itemType != (srcItem->Index - 4015) || mobType == 1 || ItemList[dstItem->Index].Pos > 32)
+			INT32 itemType = GetEffectValueByIndex(dstItem->sIndex, EF_UNKNOW1);
+			INT32 mobType = GetEffectValueByIndex(dstItem->sIndex, EF_MOBTYPE);
+			if (itemType != (srcItem->sIndex - 4015) || mobType == 1 || g_pItemList[dstItem->sIndex].Pos > 32)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Item_NotMatch]);
 
@@ -2221,34 +2221,34 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			Log(clientId, LOG_INGAME, "Replation usado em %s %s", ItemList[dstItem->Index].Name, dstItem->toString().c_str());
+			Log(clientId, LOG_INGAME, "Replation usado em %s %s", g_pItemList[dstItem->sIndex].ItemName, dstItem->toString().c_str());
 
 			if (IsImpossibleToRefine(dstItem))
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					dstItem->Effect[i].Index = 0;
-					dstItem->Effect[i].Value = 0;
+					dstItem->stEffect[i].cEffect = 0;
+					dstItem->stEffect[i].cValue = 0;
 				}
 			}
 
-			if (dstItem->Effect[0].Index != 43 && (dstItem->Effect[0].Index < 116 || dstItem->Effect[0].Index > 125))
+			if (dstItem->stEffect[0].cEffect != 43 && (dstItem->stEffect[0].cEffect < 116 || dstItem->stEffect[0].cEffect > 125))
 			{
 				int sanc = GetItemSanc(dstItem);
 				if (sanc != 0)
 				{
-					if ((dstItem->Effect[1].Index == 43 || (dstItem->Effect[1].Index >= 116 && dstItem->Effect[1].Index <= 125)) ||
-						(dstItem->Effect[2].Index == 43 || (dstItem->Effect[2].Index >= 116 && dstItem->Effect[2].Index <= 125)))
+					if ((dstItem->stEffect[1].cEffect == 43 || (dstItem->stEffect[1].cEffect >= 116 && dstItem->stEffect[1].cEffect <= 125)) ||
+						(dstItem->stEffect[2].cEffect == 43 || (dstItem->stEffect[2].cEffect >= 116 && dstItem->stEffect[2].cEffect <= 125)))
 					{
-						std::swap(dstItem->Effect[1], dstItem->Effect[2]);
+						std::swap(dstItem->stEffect[1], dstItem->stEffect[2]);
 					}
 				}
 			}
 
 			for (int i = 1; i < 3; i++)
 			{
-				dstItem->Effect[i].Index = 0;
-				dstItem->Effect[i].Value = 0;
+				dstItem->stEffect[i].cEffect = 0;
+				dstItem->stEffect[i].cValue = 0;
 			}
 
 			SetItemBonus(dstItem);
@@ -2270,7 +2270,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		if (dstItem->Index < 2400 || dstItem->Index > 2418)
+		if (dstItem->sIndex < 2400 || dstItem->sIndex > 2418)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Mount_Not_Match]);
 
@@ -2279,7 +2279,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		int essenceBlessed = 0;
-		switch (dstItem->Index)
+		switch (dstItem->sIndex)
 		{
 		case 2400:
 			essenceBlessed = 3230;
@@ -2302,12 +2302,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		case 2411:
 		case 2412:
 		case 2413:
-			essenceBlessed = 3236 + (dstItem->Index - 2411);
+			essenceBlessed = 3236 + (dstItem->sIndex - 2411);
 			break;
 		case 2414:
 		case 2415:
 		case 2416:
-			essenceBlessed = 3239 + (dstItem->Index - 2414);
+			essenceBlessed = 3239 + (dstItem->sIndex - 2414);
 			break;
 		case 2417:
 			essenceBlessed = 3242;
@@ -2334,7 +2334,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		}
 
 		*dstItem = STRUCT_ITEM{};
-		dstItem->Index = essenceBlessed;
+		dstItem->sIndex = essenceBlessed;
 
 		AmountMinus(srcItem);
 
@@ -2357,7 +2357,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		INT32
 			sanc = GetItemSanc(dstItem),
-			mobType = GetEffectValueByIndex(dstItem->Index, EF_MOBTYPE),
+			mobType = GetEffectValueByIndex(dstItem->sIndex, EF_MOBTYPE),
 			type = _volatile - 235;
 
 		if (sanc < 11 || mobType != 1)
@@ -2367,35 +2367,35 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			return true;
 		}
 
-		INT32 pos = ItemList[dstItem->Index].Pos,
+		INT32 pos = g_pItemList[dstItem->sIndex].Pos,
 			totalAdd = 0;
 
 		int addFound = 0;
 		for (INT32 i = 0; i < 3; i++)
 		{
-			if (dstItem->Effect[i].Index != 0 && dstItem->Effect[i].Index == g_pAddMyt[type][6] || dstItem->Effect[i].Index == g_pAddMyt[type][7] || dstItem->Effect[i].Index == g_pAddMyt[type][8])
+			if (dstItem->stEffect[i].cEffect != 0 && dstItem->stEffect[i].cEffect == g_pAddMyt[type][6] || dstItem->stEffect[i].cEffect == g_pAddMyt[type][7] || dstItem->stEffect[i].cEffect == g_pAddMyt[type][8])
 			{
-				totalAdd += dstItem->Effect[i].Value;
-				addFound = dstItem->Effect[i].Index;
+				totalAdd += dstItem->stEffect[i].cValue;
+				addFound = dstItem->stEffect[i].cEffect;
 			}
 		}
 
 		if (g_pAddMyt[type][6] == EF_CRITICAL)
 		{
-			totalAdd += GetEffectValueByIndex(dstItem->Index, EF_CRITICAL);
+			totalAdd += GetEffectValueByIndex(dstItem->sIndex, EF_CRITICAL);
 
 			for (INT32 i = 0; i < 3; i++)
 			{
-				if (dstItem->Effect[i].Index == EF_CRITICAL2)
+				if (dstItem->stEffect[i].cEffect == EF_CRITICAL2)
 				{
-					totalAdd = dstItem->Effect[i].Value;
+					totalAdd = dstItem->stEffect[i].cValue;
 
 					break;
 				}
 			}
 		}
 		else if (g_pAddMyt[type][7] == EF_ACADD && addFound != EF_ACADD2)
-			totalAdd += GetEffectValueByIndex(dstItem->Index, EF_ACADD);
+			totalAdd += GetEffectValueByIndex(dstItem->sIndex, EF_ACADD);
 
 		INT32 maxAdd = g_pAddMyt[type][0],
 			minAdd = g_pAddMyt[type][2],
@@ -2423,34 +2423,34 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		{
 			for (INT32 i = 0; i < 3; i++)
 			{
-				if (dstItem->Effect[i].Index == g_pAddMyt[type][6] || dstItem->Effect[i].Index == g_pAddMyt[type][7] || dstItem->Effect[i].Index == g_pAddMyt[type][8])
+				if (dstItem->stEffect[i].cEffect == g_pAddMyt[type][6] || dstItem->stEffect[i].cEffect == g_pAddMyt[type][7] || dstItem->stEffect[i].cEffect == g_pAddMyt[type][8])
 				{
-					dstItem->Effect[i].Value += sumAdd;
+					dstItem->stEffect[i].cValue += sumAdd;
 					break;
 				}
 			}
 
-			Log(clientId, LOG_INGAME, "Adicional de %s [%d] [%d %d %d %d %d %d] aumentou.", ItemList[dstItem->Index].Name, dstItem->Index, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
+			Log(clientId, LOG_INGAME, "Adicional de %s [%d] [%d %d %d %d %d %d] aumentou.", g_pItemList[dstItem->sIndex].ItemName, dstItem->sIndex, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
 		}
 		else if (_rand <= 20)
 		{
 			for (INT32 i = 0; i < 3; i++)
 			{
-				if (dstItem->Effect[i].Index == g_pAddMyt[type][6] || dstItem->Effect[i].Index == g_pAddMyt[type][7] || dstItem->Effect[i].Index == g_pAddMyt[type][8])
+				if (dstItem->stEffect[i].cEffect == g_pAddMyt[type][6] || dstItem->stEffect[i].cEffect == g_pAddMyt[type][7] || dstItem->stEffect[i].cEffect == g_pAddMyt[type][8])
 				{
-					if (dstItem->Effect[i].Value - sumAdd < 0)
-						dstItem->Effect[i].Value = 0;
+					if (dstItem->stEffect[i].cValue - sumAdd < 0)
+						dstItem->stEffect[i].cValue = 0;
 					else
-						dstItem->Effect[i].Value -= sumAdd;
+						dstItem->stEffect[i].cValue -= sumAdd;
 
 					break;
 				}
 			}
 
-			Log(clientId, LOG_INGAME, "Adicional de %s [%d] [%d %d %d %d %d %d] reduziu.", ItemList[dstItem->Index].Name, dstItem->Index, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
+			Log(clientId, LOG_INGAME, "Adicional de %s [%d] [%d %d %d %d %d %d] reduziu.", g_pItemList[dstItem->sIndex].ItemName, dstItem->sIndex, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
 		}
 		else
-			Log(clientId, LOG_INGAME, "Adicional de %s [%d] [%d %d %d %d %d %d] nao aconteceu nada.", ItemList[dstItem->Index].Name, dstItem->Index, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
+			Log(clientId, LOG_INGAME, "Adicional de %s [%d] [%d %d %d %d %d %d] nao aconteceu nada.", g_pItemList[dstItem->sIndex].ItemName, dstItem->sIndex, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
 
 		SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
 		AmountMinus(srcItem);
@@ -2463,9 +2463,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		if (itemId == 3467)
 		{ // Bolsa do Andarilho
 			INT32 slot = -1;
-			if (pMob[clientId].Mobs.Player.Inventory[60].Index == 0)
+			if (pMob[clientId].Mobs.Player.Inventory[60].sIndex == 0)
 				slot = 60;
-			else if (pMob[clientId].Mobs.Player.Inventory[61].Index == 0)
+			else if (pMob[clientId].Mobs.Player.Inventory[61].sIndex == 0)
 				slot = 61;
 			else if (TimeRemaining(pMob[clientId].Mobs.Player.Inventory[60].EFV1, pMob[clientId].Mobs.Player.Inventory[60].EFV2, pMob[clientId].Mobs.Player.Inventory[60].EFV3 + 1900) <= 0)
 				slot = 60;
@@ -2506,7 +2506,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				ano += 1;
 			}
 
-			pMob[clientId].Mobs.Player.Inventory[slot].Index = 3467;
+			pMob[clientId].Mobs.Player.Inventory[slot].sIndex = 3467;
 			pMob[clientId].Mobs.Player.Inventory[slot].EF1 = 106;
 			pMob[clientId].Mobs.Player.Inventory[slot].EFV1 = dia;
 			pMob[clientId].Mobs.Player.Inventory[slot].EF3 = 109;
@@ -2544,11 +2544,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 			*item = STRUCT_ITEM{};
-			item->Index = 2441 + Rand() % 4;
+			item->sIndex = 2441 + Rand() % 4;
 			SendItem(clientId, (SlotType)p->SrcType, slotId, item);
 
-			SendClientMessage(clientId, "!Chegou um item [%s]", ItemList[item->Index].Name);
-			Log(clientId, LOG_INGAME, "Abriu Caixa de Joia e recebeu: %s", ItemList[item->Index].Name);
+			SendClientMessage(clientId, "!Chegou um item [%s]", g_pItemList[item->sIndex].ItemName);
+			Log(clientId, LOG_INGAME, "Abriu Caixa de Joia e recebeu: %s", g_pItemList[item->sIndex].ItemName);
 
 			if (remove)
 				AmountMinus(srcItem);
@@ -2558,7 +2558,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		else if (itemId == 3020)
 		{
 			INT32 evId = pMob[clientId].Mobs.Player.Equip[0].EFV2;
-			INT32 level = pMob[clientId].Mobs.Player.bStatus.Level;
+			INT32 level = pMob[clientId].Mobs.Player.BaseScore.Level;
 
 			if (evId == SUBCELESTIAL || evId == CELESTIAL)
 			{
@@ -2609,19 +2609,19 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 						if (!pMob[clientId].Mobs.Info.Reset_1)
 						{
-							Log(clientId, LOG_INGAME, "O personagem %s completou o primeiro reset do celestial.", pMob[clientId].Mobs.Player.Name);
+							Log(clientId, LOG_INGAME, "O personagem %s completou o primeiro reset do celestial.", pMob[clientId].Mobs.Player.MobName);
 							pMob[clientId].Mobs.Info.Reset_1 = 1;
 							pMob[clientId].Mobs.Sub.Info.Reset_1 = 1;
 						}
 						else if (!pMob[clientId].Mobs.Info.Reset_2)
 						{
-							Log(clientId, LOG_INGAME, "O personagem %s completou o segundo reset do celestial.", pMob[clientId].Mobs.Player.Name);
+							Log(clientId, LOG_INGAME, "O personagem %s completou o segundo reset do celestial.", pMob[clientId].Mobs.Player.MobName);
 							pMob[clientId].Mobs.Info.Reset_2 = 1;
 							pMob[clientId].Mobs.Sub.Info.Reset_2 = 1;
 						}
 						else if (!pMob[clientId].Mobs.Info.Reset_3)
 						{
-							Log(clientId, LOG_INGAME, "O personagem %s completou o terceiro reset do celestial.", pMob[clientId].Mobs.Player.Name);
+							Log(clientId, LOG_INGAME, "O personagem %s completou o terceiro reset do celestial.", pMob[clientId].Mobs.Player.MobName);
 							pMob[clientId].Mobs.Info.Reset_3 = 1;
 							pMob[clientId].Mobs.Sub.Info.Reset_3 = 1;
 						}
@@ -2641,9 +2641,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 						pMob[clientId].Mobs.Player.Exp -= 200000000LL;
 
-						while (pMob[clientId].Mobs.Player.bStatus.Level > 0 && pMob[clientId].Mobs.Player.Exp < g_pNextLevel[pMob[clientId].Mobs.Player.Equip[0].EFV2][level - 1])
+						while (pMob[clientId].Mobs.Player.BaseScore.Level > 0 && pMob[clientId].Mobs.Player.Exp < g_pNextLevel[pMob[clientId].Mobs.Player.Equip[0].EFV2][level - 1])
 						{
-							pMob[clientId].Mobs.Player.bStatus.Level--;
+							pMob[clientId].Mobs.Player.BaseScore.Level--;
 							level--;
 						}
 
@@ -2655,7 +2655,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 						return true;
 					}
 				}
-				if (level == 199 && pMob[clientId].Mobs.Player.Equip[1].Index == 3502)
+				if (level == 199 && pMob[clientId].Mobs.Player.Equip[1].sIndex == 3502)
 				{
 					if (pMob[clientId].Mobs.Info.Arcana || pMob[clientId].Mobs.Sub.Info.Arcana)
 					{
@@ -2673,7 +2673,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 						return true;
 					}
 
-					if (pMob[clientId].Mobs.Player.Equip[1].Index == 3502)
+					if (pMob[clientId].Mobs.Player.Equip[1].sIndex == 3502)
 					{
 						int szStones[4] = { 0, 0, 0, 0 };
 						for (int i = 0; i < 4; i++)
@@ -2708,7 +2708,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 						if (_rand < 50)
 						{
-							pMob[clientId].Mobs.Player.Equip[1].Index = 3507;
+							pMob[clientId].Mobs.Player.Equip[1].sIndex = 3507;
 
 							SendItem(clientId, SlotType::Equip, 1, &pMob[clientId].Mobs.Player.Equip[1]);
 							SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
@@ -2717,14 +2717,14 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 							pMob[clientId].Mobs.Sub.Info.Arcana = 1;
 
 							Log(clientId, LOG_INGAME, "Sucesso ao criar Cythera Arcana");
-							SendNotice(".O jogador %s concluiu com sucesso a criaaaoo da Cythera Arcana", pMob[clientId].Mobs.Player.Name);
+							SendNotice(".O jogador %s concluiu com sucesso a criaaaoo da Cythera Arcana", pMob[clientId].Mobs.Player.MobName);
 						}
 						else
 						{
 							SendClientMessage(clientId, g_pLanguageString[_NN_CombineFailed]);
 
 							Log(clientId, LOG_INGAME, "Falha ao criar Cythera Arcana");
-							SendNotice(".O jogador %s falhou a criaaao da Cythera Arcana", pMob[clientId].Mobs.Player.Name);
+							SendNotice(".O jogador %s falhou a criaaao da Cythera Arcana", pMob[clientId].Mobs.Player.MobName);
 						}
 					}
 					else if (level == 199 && evId == 4)
@@ -2764,7 +2764,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				INT32 slotId = GetFirstSlot(clientId, 0);
 				if (slotId == -1)
 				{
-					SendClientMessage(clientId, g_pLanguageString[_NN_NoSpace_Item], ItemList[3502].Name);
+					SendClientMessage(clientId, g_pLanguageString[_NN_NoSpace_Item], g_pItemList[3502].ItemName);
 
 					Log(clientId, LOG_INGAME, "Desbloqueio 90: Sem espaao para receber cythera");
 				}
@@ -2776,7 +2776,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 					memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
 					// Atualiza o inventario
-					pMob[clientId].Mobs.Player.Inventory[slotId].Index = 3502;
+					pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 3502;
 
 					SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
 				}
@@ -2929,7 +2929,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			if (totalAmount == 0)
 			{
-				SendClientMessage(clientId, "Nao ha %s para juntar", ItemList[searched].Name);
+				SendClientMessage(clientId, "Nao ha %s para juntar", g_pItemList[searched].ItemName);
 
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 				return true;
@@ -2947,9 +2947,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 total = totalAmount;
 			for (INT32 i = 0; i < 60; i++)
 			{
-				if (pMob[clientId].Mobs.Player.Inventory[i].Index == searched)
+				if (pMob[clientId].Mobs.Player.Inventory[i].sIndex == searched)
 				{
-					while (pMob[clientId].Mobs.Player.Inventory[i].Index == searched)
+					while (pMob[clientId].Mobs.Player.Inventory[i].sIndex == searched)
 					{
 						AmountMinus(&pMob[clientId].Mobs.Player.Inventory[i]);
 
@@ -2964,7 +2964,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
-			item->Index = 3447 + (itemId - 3445);
+			item->sIndex = 3447 + (itemId - 3445);
 
 			item->EF1 = EF_AMOUNT;
 			item->EFV1 = total;
@@ -3042,12 +3042,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			// SkillPoint necessario
 			const WORD BooksSkill[5] = { 0, 36, 35, 40, 39 };
 
-			int _index = srcItem->Index - 666;
+			int _index = srcItem->sIndex - 666;
 
 			if (_index <= 0 || _index > 5)
 				return true;
 
-			int has = (pMob[clientId].Mobs.Player.Learn[0] & (1 << (24 + _index)));
+			int has = (pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << (24 + _index)));
 			if (has)
 			{
 				SendClientMessage(clientId, "Voca ja aprendeu esta skill");
@@ -3067,7 +3067,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			// Checagem da classe do personagem : <= arch , celestiais podem adquirir em qualquer level
 			if (pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL)
 			{
-				if (pMob[clientId].Mobs.Player.bStatus.Level < 255)
+				if (pMob[clientId].Mobs.Player.BaseScore.Level < 255)
 				{
 					SendClientMessage(clientId, "Level inadequado");
 
@@ -3076,11 +3076,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				}
 			}
 
-			Log(clientId, LOG_INGAME, "Aprendido skill %s", ItemList[srcItem->Index].Name);
-			LogPlayer(clientId, "Aprendeu a skill sephira %s", ItemList[srcItem->Index].Name);
+			Log(clientId, LOG_INGAME, "Aprendido skill %s", g_pItemList[srcItem->sIndex].ItemName);
+			LogPlayer(clientId, "Aprendeu a skill sephira %s", g_pItemList[srcItem->sIndex].ItemName);
 
 			pMob[clientId].Mobs.Player.SkillPoint -= BooksSkill[_index - 1];
-			pMob[clientId].Mobs.Player.Learn[0] |= (1 << (_index + 24));
+			pMob[clientId].Mobs.Player.LearnedSkill[0] |= (1 << (_index + 24));
 			pMob[clientId].GetCurrentScore(clientId);
 
 			SendScore(clientId);
@@ -3543,7 +3543,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region GEMA ANCT
 		else if (itemId >= 3386 && itemId <= 3389)
 		{
-			STRUCT_ITEMLIST itemData = ItemList[pMob[clientId].Mobs.Player.Equip[p->DstSlot].Index];
+			STRUCT_ITEMLIST itemData = g_pItemList[pMob[clientId].Mobs.Player.Equip[p->DstSlot].sIndex];
 
 			if (p->DstType != (unsigned int)SlotType::Equip)
 			{
@@ -3561,7 +3561,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			if (itemData.Pos >= 64 && itemData.Pos <= 2048)
 			{
-				if ((itemData.Grade < 5 || itemData.Grade > 8) && GetItemSanc(&pMob[clientId].Mobs.Player.Equip[p->DstSlot]) < 10)
+				if ((itemData.nGrade < 5 || itemData.nGrade > 8) && GetItemSanc(&pMob[clientId].Mobs.Player.Equip[p->DstSlot]) < 10)
 				{
 					SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
@@ -3570,7 +3570,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			INT32 actual = 0,
-				stone = pMob[clientId].Mobs.Player.Inventory[p->SrcSlot].Index - 3386;
+				stone = pMob[clientId].Mobs.Player.Inventory[p->SrcSlot].sIndex - 3386;
 
 			if (itemData.Pos <= 32)
 			{
@@ -3585,9 +3585,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				INT32 value = -1;
 				for (INT32 t = 0; t < 3; t++)
 				{
-					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[t].Index == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[t].Index >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[t].Index <= 125))
+					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[t].cEffect == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[t].cEffect >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[t].cEffect <= 125))
 					{
-						value = pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[t].Value;
+						value = pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[t].cValue;
 						break;
 					}
 				}
@@ -3602,7 +3602,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 			else
 			{
-				actual = itemData.Grade - 5;
+				actual = itemData.nGrade - 5;
 
 				// Checa se os dois nao sao os mesmos -> GARNET PARA GARNET
 				if (stone == actual)
@@ -3626,9 +3626,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index <= 125))
+					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect <= 125))
 					{
-						actual = pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Value;
+						actual = pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cValue;
 
 						break;
 					}
@@ -3655,30 +3655,30 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 					for (int i = 0; i < 3; i++)
 					{
-						if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index <= 125))
+						if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect <= 125))
 						{
-							pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Value += (stone - actual);
+							pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cValue += (stone - actual);
 
 							break;
 						}
 					}
 				}
 
-				if (itemData.Pos != 128 && (itemData.Grade >= 5 && itemData.Grade <= 8))
+				if (itemData.Pos != 128 && (itemData.nGrade >= 5 && itemData.nGrade <= 8))
 				{
-					stone = pMob[clientId].Mobs.Player.Inventory[p->SrcSlot].Index - 3386;
+					stone = pMob[clientId].Mobs.Player.Inventory[p->SrcSlot].sIndex - 3386;
 
-					actual = itemData.Grade - 5;
-					pMob[clientId].Mobs.Player.Equip[p->DstSlot].Index += (stone - actual);
+					actual = itemData.nGrade - 5;
+					pMob[clientId].Mobs.Player.Equip[p->DstSlot].sIndex += (stone - actual);
 				}
 			}
 			else if (itemData.Pos <= 32) {
 				// Pega a refinaaao atual do item
 				for (int i = 0; i < 3; i++)
 				{
-					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index <= 125))
+					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect <= 125))
 					{
-						actual = pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Value;
+						actual = pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cValue;
 
 						break;
 					}
@@ -3702,9 +3702,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				actual = actual - sanc;
 				for (int i = 0; i < 3; i++)
 				{
-					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Index <= 125))
+					if (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect == 43 || (pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect >= 116 && pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cEffect <= 125))
 					{
-						pMob[clientId].Mobs.Player.Equip[p->DstSlot].Effect[i].Value += (stone - actual);
+						pMob[clientId].Mobs.Player.Equip[p->DstSlot].stEffect[i].cValue += (stone - actual);
 
 						break;
 					}
@@ -3720,7 +3720,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			SendItem(clientId, (SlotType)p->DstType, p->DstSlot, &pMob[clientId].Mobs.Player.Equip[p->DstSlot]);
 			AmountMinus(srcItem);
 
-			Log(clientId, LOG_INGAME, "Usado Gema no item %s [%d] [%d %d %d %d %d %d]", ItemList[dstItem->Index].Name, dstItem->Index,
+			Log(clientId, LOG_INGAME, "Usado Gema no item %s [%d] [%d %d %d %d %d %d]", g_pItemList[dstItem->sIndex].ItemName, dstItem->sIndex,
 				dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
 		}
 #pragma endregion
@@ -3746,7 +3746,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 total = 0;
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].Status != USER_PLAY)
+				if (pUser[i].CurrentScore != USER_PLAY)
 					continue;
 
 				if ((pMob[i].Target.X >= 3732 && pMob[i].Target.X <= 3816 && pMob[i].Target.Y >= 3476 && pMob[i].Target.Y <= 3562) ||
@@ -3805,7 +3805,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 total = 0;
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].Status != USER_PLAY)
+				if (pUser[i].CurrentScore != USER_PLAY)
 					continue;
 
 				if ((pMob[i].Target.X >= 3732 && pMob[i].Target.X <= 3816 && pMob[i].Target.Y >= 3476 && pMob[i].Target.Y <= 3562) ||
@@ -3864,7 +3864,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 total = 0;
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].Status != USER_PLAY)
+				if (pUser[i].CurrentScore != USER_PLAY)
 					continue;
 
 				if ((pMob[i].Target.X >= 3713 && pMob[i].Target.X <= 3838 && pMob[i].Target.Y >= 3459 && pMob[i].Target.Y <= 3582) ||
@@ -3907,7 +3907,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_MOB* player = &pMob[clientId].Mobs.Player;
 			if (p->DstType == 1)
 			{
-				int _type = GetEffectValueByIndex(player->Inventory[p->DstSlot].Index, EF_SELADO);
+				int _type = GetEffectValueByIndex(player->Inventory[p->DstSlot].sIndex, EF_SELADO);
 				int sanc = GetItemSanc(&player->Inventory[p->DstSlot]);
 
 				if (sanc == 9)
@@ -3925,7 +3925,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 					SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
-					Log(clientId, LOG_INGAME, "Poeira 100 usado em %s [%d] [%d %d %d %d %d %d]", ItemList[item->Index].Name, item->Index, item->EF1, item->EF1, item->EFV1,
+					Log(clientId, LOG_INGAME, "Poeira 100 usado em %s [%d] [%d %d %d %d %d %d]", g_pItemList[item->sIndex].ItemName, item->sIndex, item->EF1, item->EF1, item->EFV1,
 						item->EF2, item->EFV2, item->EF3, item->EFV3);
 				}
 				else
@@ -3938,7 +3938,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 			else
 			{
-				int _type = GetEffectValueByIndex(player->Equip[p->DstSlot].Index, EF_MOBTYPE);
+				int _type = GetEffectValueByIndex(player->Equip[p->DstSlot].sIndex, EF_MOBTYPE);
 				if (_type == 3)
 				{
 					SendClientMessage(clientId, g_pLanguageString[_NN_CantRefine_ItemCele]);
@@ -3966,7 +3966,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 					SendClientMessage(clientId, g_pLanguageString[_NN_Refine_Success]);
 
-					Log(clientId, LOG_INGAME, "Poeira 100 usado em %s [%d] [%d %d %d %d %d %d]", ItemList[item->Index].Name, item->Index, item->EF1, item->EF1, item->EFV1,
+					Log(clientId, LOG_INGAME, "Poeira 100 usado em %s [%d] [%d %d %d %d %d %d]", g_pItemList[item->sIndex].ItemName, item->sIndex, item->EF1, item->EF1, item->EFV1,
 						item->EF2, item->EFV2, item->EF3, item->EFV3);
 				}
 				else
@@ -3988,10 +3988,10 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region SELO DO GUERREIRO
 		else if (itemId == 4146)
 		{
-			INT32 capeId = pMob[clientId].Mobs.Player.Equip[15].Index;
+			INT32 capeId = pMob[clientId].Mobs.Player.Equip[15].sIndex;
 
 			// O que ser isso?
-			if (pMob[clientId].Mobs.Player.Status.Level >= 354 && capeId != 3191 && capeId != 3192 && capeId != 3193)
+			if (pMob[clientId].Mobs.Player.CurrentScore.Level >= 354 && capeId != 3191 && capeId != 3192 && capeId != 3193)
 			{
 				INT32 newCape = -1;
 				if (pMob[clientId].Mobs.Player.CapeInfo == 7)
@@ -4005,7 +4005,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				{
 					memset(&pMob[clientId].Mobs.Player.Equip[15], 0, sizeof STRUCT_ITEM);
 
-					pMob[clientId].Mobs.Player.Equip[15].Index = newCape;
+					pMob[clientId].Mobs.Player.Equip[15].sIndex = newCape;
 					SendItem(clientId, SlotType::Equip, 15, &pMob[clientId].Mobs.Player.Equip[15]);
 				}
 			}
@@ -4023,9 +4023,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			static DWORD goldValue[5] = { 6000, 10000, 14000, 10000, 15000 };
 
 			STRUCT_MOB* player = &pMob[clientId].Mobs.Player;
-			int level = player->bStatus.Level;
+			int level = player->BaseScore.Level;
 
-			int questIndex = srcItem->Index - 4117;
+			int questIndex = srcItem->sIndex - 4117;
 			if (questIndex < 0 || questIndex > 4)
 				return true;
 
@@ -4048,10 +4048,10 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			int gold = goldValue[questIndex];
 			int exp = expValue[questIndex];
 
-			if (player->Gold + gold > 2000000000)
-				gold = (2000000000 - player->Gold);
+			if (player->Coin + gold > 2000000000)
+				gold = (2000000000 - player->Coin);
 
-			player->Gold += gold;
+			player->Coin += gold;
 
 			player->Exp += exp;
 
@@ -4067,7 +4067,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				if (pMob[memberId].Mobs.Player.Equip[0].EFV2 == MORTAL || pMob[memberId].Mobs.Player.Equip[0].EFV2 == ARCH)
 				{
-					if (pMob[memberId].Mobs.Player.Status.Level > g_pQuestLevel[questIndex][1])
+					if (pMob[memberId].Mobs.Player.CurrentScore.Level > g_pQuestLevel[questIndex][1])
 						continue;
 
 					pMob[memberId].Mobs.Player.Exp += (exp / 10);
@@ -4083,7 +4083,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			{
 				if (pMob[leader].Mobs.Player.Equip[0].EFV2 == MORTAL || pMob[leader].Mobs.Player.Equip[0].EFV2 == ARCH)
 				{
-					if (pMob[leader].Mobs.Player.Status.Level < g_pQuestLevel[questIndex][1])
+					if (pMob[leader].Mobs.Player.CurrentScore.Level < g_pQuestLevel[questIndex][1])
 					{
 						pMob[leader].Mobs.Player.Exp += (exp / 10);
 
@@ -4103,7 +4103,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			SendScore(clientId);
 			SendEtc(clientId);
 
-			SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+			SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 
 			SendClientMessage(clientId, ".+++ %d de Experiancia +++", exp);
 		}
@@ -4128,17 +4128,17 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if ((pMob[clientId].Mobs.Player.Equip[0].EFV2 == CELESTIAL && pMob[clientId].Mobs.Sub.Status == 1) || (pMob[clientId].Mobs.Player.Equip[0].EFV2 == SUBCELESTIAL))
+			if ((pMob[clientId].Mobs.Player.Equip[0].EFV2 == CELESTIAL && pMob[clientId].Mobs.Sub.CurrentScore == 1) || (pMob[clientId].Mobs.Player.Equip[0].EFV2 == SUBCELESTIAL))
 			{
                 LogEquipsAndInventory(true);
 
 				STRUCT_SUBINFO* sub = &pMob[clientId].Mobs.Sub;
 				STRUCT_MOB* player = &pMob[clientId].Mobs.Player;
 
-				STRUCT_STATUS tmpStatus;
-				memcpy(&tmpStatus, &player->bStatus, sizeof STRUCT_STATUS);
-				memcpy(&player->bStatus, &sub->SubStatus, sizeof STRUCT_STATUS);
-				memcpy(&sub->SubStatus, &tmpStatus, sizeof STRUCT_STATUS);
+				STRUCT_SCORE tmpStatus;
+				memcpy(&tmpStatus, &player->BaseScore, sizeof STRUCT_SCORE);
+				memcpy(&player->BaseScore, &sub->SubStatus, sizeof STRUCT_SCORE);
+				memcpy(&sub->SubStatus, &tmpStatus, sizeof STRUCT_SCORE);
 
 				STRUCT_ITEM item[2];
 				memcpy(&item[0], &player->Equip[0], sizeof STRUCT_ITEM);
@@ -4165,16 +4165,16 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				else if (baseFace < 40)
 					classInfo = (baseFace - 36);
 
-				player->ClassInfo = classInfo;
+				player->Class = classInfo;
 
 				Log(clientId, LOG_INGAME, "Classe %d gerada atravas da face %d", classInfo, baseFace);
 
-				auto learn = player->Learn[0];
-				auto secLearn = player->Learn[1];
-				player->Learn[0] = sub->Learn;
-				player->Learn[1] = sub->SecLearn;
+				auto learn = player->LearnedSkill[0];
+				auto secLearn = player->LearnedSkill[1];
+				player->LearnedSkill[0] = sub->LearnedSkill;
+				player->LearnedSkill[1] = sub->SecLearn;
 
-				sub->Learn = learn;
+				sub->LearnedSkill = learn;
 				sub->SecLearn = secLearn;
 
 				INT32 soul = pMob[clientId].Mobs.Soul;
@@ -4194,15 +4194,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				unsigned char skillBar[20];
 				memset(&skillBar, 255, sizeof skillBar);
 
-				memcpy(skillBar, player->SkillBar1, 4);
+				memcpy(skillBar, player->ShortSkill, 4);
 				memcpy(&skillBar[4], &pMob[clientId].Mobs.SkillBar[0], 16);
 
-				memcpy(player->SkillBar1, sub->SkillBar, 4);
+				memcpy(player->ShortSkill, sub->SkillBar, 4);
 				memcpy(pMob[clientId].Mobs.SkillBar, &sub->SkillBar[4], 16);
 
 				memcpy(sub->SkillBar, skillBar, 20);
 
-				sub->Status = 1;
+				sub->CurrentScore = 1;
 
 				if (pMob[clientId].Mobs.Player.Equip[0].EFV2 == 3)
 					pMob[clientId].Mobs.Player.Equip[0].EFV2 = 3;
@@ -4211,12 +4211,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				pMob[clientId].GetCurrentScore(clientId);
 
-				if (pMob[clientId].Mobs.Player.GetEvolution() >= Celestial && pMob[clientId].Mobs.Player.bStatus.Level == 199 && pMob[clientId].Mobs.Player.bStatus.Level < 399 && !pMob[clientId].Mobs.Info.Unlock200 && !pMob[clientId].Mobs.Info.LvBlocked && pMob[clientId].Mobs.GetTotalResets() == 3)
+				if (pMob[clientId].Mobs.Player.GetEvolution() >= Celestial && pMob[clientId].Mobs.Player.BaseScore.Level == 199 && pMob[clientId].Mobs.Player.BaseScore.Level < 399 && !pMob[clientId].Mobs.Info.Unlock200 && !pMob[clientId].Mobs.Info.LvBlocked && pMob[clientId].Mobs.GetTotalResets() == 3)
 				{
 					Log(clientId, LOG_INGAME, "Bloqueado o navel 200 do personagem devido a nao estar bloqueado e nao ter desbloqueado.");
 
 					pMob[clientId].Mobs.Info.LvBlocked = 1;
-					pMob[clientId].Mobs.Player.Exp = g_pNextLevel[pMob[clientId].Mobs.Player.Equip[0].EFV2][pMob[clientId].Mobs.Player.bStatus.Level - 1];
+					pMob[clientId].Mobs.Player.Exp = g_pNextLevel[pMob[clientId].Mobs.Player.Equip[0].EFV2][pMob[clientId].Mobs.Player.BaseScore.Level - 1];
 				}
 
 				p364 packet;
@@ -4234,7 +4234,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				skill.Header.Size = sizeof p378;
 				skill.Header.ClientId = clientId;
 
-				memcpy(skill.SkillBar1, player->SkillBar1, 4);
+				memcpy(skill.ShortSkill, player->ShortSkill, 4);
 				memcpy(skill.SkillBar2, pMob[clientId].Mobs.SkillBar, 16);
 
 				AddMessage((BYTE*)& skill, sizeof p378);
@@ -4413,7 +4413,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				{
 					memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-					pMob[clientId].Mobs.Player.Inventory[slotId].Index = (412 + (srcItem->Index - 3447));
+					pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = (412 + (srcItem->sIndex - 3447));
 					SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
 
 					AmountMinus(srcItem);
@@ -4428,7 +4428,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		{
 			pMob[clientId].Mobs.Fame += 10;
 
-			if (pMob[clientId].Mobs.Player.Equip[15].Index != 3191 && pMob[clientId].Mobs.Player.Equip[15].Index != 3192 && pMob[clientId].Mobs.Player.bStatus.Level >= 354)
+			if (pMob[clientId].Mobs.Player.Equip[15].sIndex != 3191 && pMob[clientId].Mobs.Player.Equip[15].sIndex != 3192 && pMob[clientId].Mobs.Player.BaseScore.Level >= 354)
 			{
 				INT32 cape = 3193,
 					capeInfo = pMob[clientId].Mobs.Player.CapeInfo;
@@ -4443,7 +4443,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Equip[15];
 				memset(item, 0, sizeof STRUCT_ITEM);
 
-				item->Index = cape;
+				item->sIndex = cape;
 
 				// Seta a refinaaao como +0
 				SetItemSanc(item, 0, 0);
@@ -4464,7 +4464,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		else if (itemId >= 4106 && itemId <= 4109)
 		{
 			INT32 classMaster = pMob[clientId].Mobs.Player.Equip[0].EFV2,
-				level = pMob[clientId].Mobs.Player.Status.Level;
+				level = pMob[clientId].Mobs.Player.CurrentScore.Level;
 
 			INT32 index = itemId - 4106;
 			BOOL conc = FALSE,
@@ -4572,7 +4572,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			case ARCH:
 				while (pMob[clientId].Mobs.Player.Exp < g_pNextLevel[classMaster][level - 1])
 				{
-					pMob[clientId].Mobs.Player.bStatus.Level--;
+					pMob[clientId].Mobs.Player.BaseScore.Level--;
 					level--;
 				}
 				break;
@@ -4580,7 +4580,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			case CELESTIAL:
 				while (level > 0 && pMob[clientId].Mobs.Player.Exp < g_pNextLevel[classMaster][level - 1])
 				{
-					pMob[clientId].Mobs.Player.bStatus.Level--;
+					pMob[clientId].Mobs.Player.BaseScore.Level--;
 					level--;
 				}
 				break;
@@ -4601,7 +4601,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		{
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
 
-			if (dstItem->Index < 2300 || dstItem->Index >= 2330)
+			if (dstItem->sIndex < 2300 || dstItem->sIndex >= 2330)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
@@ -4611,8 +4611,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			int totalIncubate = GetItemAbility(dstItem, EF_INCUBATE) - 1;
 			if (totalIncubate <= 0)
 			{
-				INT32 mountIndex = dstItem->Index - 2300;
-				dstItem->Index = 2330 + mountIndex;
+				INT32 mountIndex = dstItem->sIndex - 2300;
+				dstItem->sIndex = 2330 + mountIndex;
 
 				*(short*)& dstItem->EF1 = 5000;
 
@@ -4624,7 +4624,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				SendClientMessage(clientId, g_pLanguageString[_NN_INCUBATED]);
 
-				Log(clientId, LOG_INGAME, "Montaria cresceu com acelerador de nascimento: %s [%d] [%d %d %d %d %d %d]", ItemList[dstItem->Index].Name, dstItem->Index, dstItem->EF1,
+				Log(clientId, LOG_INGAME, "Montaria cresceu com acelerador de nascimento: %s [%d] [%d %d %d %d %d %d]", g_pItemList[dstItem->sIndex].ItemName, dstItem->sIndex, dstItem->EF1,
 					dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
 
 				MountProcess(clientId, 0);
@@ -4633,16 +4633,16 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					if (dstItem->Effect[i].Index == EF_INCUBATE)
+					if (dstItem->stEffect[i].cEffect == EF_INCUBATE)
 					{
-						dstItem->Effect[i].Value = totalIncubate;
+						dstItem->stEffect[i].cValue = totalIncubate;
 
 						break;
 					}
 				}
 
 				SendClientMessage(clientId, "A incubaaao foi reduzida");
-				Log(clientId, LOG_INGAME, "Diminuado incubaaao do item %s %s", ItemList[dstItem->Index].Name, dstItem->toString().c_str());
+				Log(clientId, LOG_INGAME, "Diminuado incubaaao do item %s %s", g_pItemList[dstItem->sIndex].ItemName, dstItem->toString().c_str());
 			}
 
 			SendItem(clientId, (SlotType)p->DstType, p->DstSlot, &pMob[clientId].Mobs.Player.Equip[14]);
@@ -4655,11 +4655,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 index = itemId - 3344;
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
 
-			INT32 mountId = dstItem->Index;
+			INT32 mountId = dstItem->sIndex;
 			INT32 i = 0;
 			for (; i < 6; i++)
 			{
-				if (dstItem->Index == (g_pItemRest[index][i] - 30))
+				if (dstItem->sIndex == (g_pItemRest[index][i] - 30))
 					break;
 			}
 
@@ -4671,7 +4671,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			pMob[clientId].Mobs.Player.Equip[14].Index = mountId + 30;
+			pMob[clientId].Mobs.Player.Equip[14].sIndex = mountId + 30;
 
 			*(short*)& pMob[clientId].Mobs.Player.Equip[14].EF1 = 5000;
 
@@ -4683,7 +4683,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			SendClientMessage(clientId, g_pLanguageString[_NN_INCUBATED]);
 
-			Log(clientId, LOG_INGAME, "Montaria cresceu : %s [%d] [%d %d %d %d %d %d]", ItemList[pMob[clientId].Mobs.Player.Equip[14].Index].Name, pMob[clientId].Mobs.Player.Equip[14].Index, pMob[clientId].Mobs.Player.Equip[14].EF1,
+			Log(clientId, LOG_INGAME, "Montaria cresceu : %s [%d] [%d %d %d %d %d %d]", g_pItemList[pMob[clientId].Mobs.Player.Equip[14].sIndex].ItemName, pMob[clientId].Mobs.Player.Equip[14].sIndex, pMob[clientId].Mobs.Player.Equip[14].EF1,
 				pMob[clientId].Mobs.Player.Equip[14].EFV1, pMob[clientId].Mobs.Player.Equip[14].EF2, pMob[clientId].Mobs.Player.Equip[14].EFV2, pMob[clientId].Mobs.Player.Equip[14].EFV2, pMob[clientId].Mobs.Player.Equip[14].EF3,
 				pMob[clientId].Mobs.Player.Equip[14].EFV3);
 
@@ -4703,7 +4703,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 index = itemId - 3351;
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
 
-			if (dstItem->Index <= 2360 || dstItem->Index >= 2390 || index < 0 || index > 6)
+			if (dstItem->sIndex <= 2360 || dstItem->sIndex >= 2390 || index < 0 || index > 6)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->DstType, srcItem);
 
@@ -4721,7 +4721,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 i = 0;
 			for (; i < 6; i++)
 			{
-				if (dstItem->Index == g_pItemRest[index][i])
+				if (dstItem->sIndex == g_pItemRest[index][i])
 					break;
 			}
 
@@ -4740,7 +4740,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			dstItem->EFV2 = vit;
 
-			Log(clientId, LOG_INGAME, "Utilizado item %s [%d] em %s [%d] [%d %d %d %d %d %d]. Vitalidade aumentada em %d", ItemList[itemId].Name, itemId, ItemList[dstItem->Index].Name, dstItem->Index, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3,
+			Log(clientId, LOG_INGAME, "Utilizado item %s [%d] em %s [%d] [%d %d %d %d %d %d]. Vitalidade aumentada em %d", g_pItemList[itemId].ItemName, itemId, g_pItemList[dstItem->sIndex].ItemName, dstItem->sIndex, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3,
 				rand);
 
 			SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
@@ -4752,15 +4752,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region EXTRAaaES
 		else if (itemId >= 3021 && itemId <= 3026)
 		{
-			int destino = srcItem->Index - 3020;
-			if (pMob[clientId].Mobs.Player.Equip[destino].Index == 0)
+			int destino = srcItem->sIndex - 3020;
+			if (pMob[clientId].Mobs.Player.Equip[destino].sIndex == 0)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 				return true;
 			}
 
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, (int)SlotType::Equip, destino);
-			if (dstItem->Index <= 0 || dstItem->Index >= MAX_ITEMLIST)
+			if (dstItem->sIndex <= 0 || dstItem->sIndex >= MAX_ITEMLIST)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 				return true;
@@ -4769,9 +4769,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 itemType = -1;
 			for (INT32 i = 0; i < 3; i++)
 			{
-				if (srcItem->Effect[i].Index == 87)
+				if (srcItem->stEffect[i].cEffect == 87)
 				{
-					itemType = srcItem->Effect[i].Value;
+					itemType = srcItem->stEffect[i].cValue;
 
 					break;
 				}
@@ -4796,7 +4796,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			INT32 sanc = GetItemSanc(dstItem);
 
-			INT32 mobType = GetEffectValueByIndex(dstItem->Index, EF_MOBTYPE);
+			INT32 mobType = GetEffectValueByIndex(dstItem->sIndex, EF_MOBTYPE);
 			if (itemType == 5)
 			{
 				if (mobType == 1)
@@ -4822,7 +4822,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				if (itemType == 11 || itemType == 10)
 				{// 11 = Arma arch +10+ Anct
 				 // 10 = Arma arch +9- Anct
-					INT32 grade = ItemList[dstItem->Index].Grade;
+					INT32 grade = g_pItemList[dstItem->sIndex].nGrade;
 					if (grade < 5 || grade > 8)
 					{
 						SendClientMessage(clientId, g_pLanguageString[_NN_Items_Anct]);
@@ -4866,7 +4866,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				else if (itemType == 9 || itemType == 8)
 				{
-					INT32 grade = ItemList[dstItem->Index].Grade;
+					INT32 grade = g_pItemList[dstItem->sIndex].nGrade;
 					if (grade >= 5 && grade <= 8)
 					{
 						SendClientMessage(clientId, g_pLanguageString[_NN_Items_NotAnct]);
@@ -4912,12 +4912,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 ref = 0;
 			for (INT32 i = 0; i < 3; i++)
 			{
-				if (dstItem->Effect[i].Index == EF_SANC || (dstItem->Effect[i].Index >= 116 && dstItem->Effect[i].Index <= 125))
+				if (dstItem->stEffect[i].cEffect == EF_SANC || (dstItem->stEffect[i].cEffect >= 116 && dstItem->stEffect[i].cEffect <= 125))
 				{
-					ref = dstItem->Effect[i].Index;
+					ref = dstItem->stEffect[i].cEffect;
 
 					if (sanc == 0)
-						sanc = dstItem->Effect[i].Value;
+						sanc = dstItem->stEffect[i].cValue;
 
 					break;
 				}
@@ -4925,24 +4925,24 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			for (INT32 i = 0; i < 3; i++)
 			{
-				if (srcItem->Effect[i].Index == 87)
+				if (srcItem->stEffect[i].cEffect == 87)
 				{
-					srcItem->Effect[i].Index = ref;
+					srcItem->stEffect[i].cEffect = ref;
 
 					break;
 				}
 			}
 
-			Log(clientId, LOG_INGAME, "Utilizou extraaao no item %s [%d] [%d %d %d %d %d %d]", ItemList[dstItem->Index].Name, dstItem->Index, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
+			Log(clientId, LOG_INGAME, "Utilizou extraaao no item %s [%d] [%d %d %d %d %d %d]", g_pItemList[dstItem->sIndex].ItemName, dstItem->sIndex, dstItem->EF1, dstItem->EFV1, dstItem->EF2, dstItem->EFV2, dstItem->EF3, dstItem->EFV3);
 
 			SetItemSanc(srcItem, sanc, 0);
 
-			srcItem->Index = dstItem->Index;
+			srcItem->sIndex = dstItem->sIndex;
 
-			INT32 index = dstItem->Index;
+			INT32 index = dstItem->sIndex;
 			memcpy(dstItem, srcItem, sizeof STRUCT_ITEM);
 
-			dstItem->Index = index;
+			dstItem->sIndex = index;
 
 			AmountMinus(srcItem);
 
@@ -4954,8 +4954,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region COMPOSTO DO EQUILIBRIO
 		else if (itemId == 4126)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 119 ||
-				pMob[clientId].Mobs.Player.bStatus.Level > 124)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 119 ||
+				pMob[clientId].Mobs.Player.BaseScore.Level > 124)
 			{
 				SendClientMessage(clientId, "Level inadequado.");
 
@@ -4976,24 +4976,24 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			INT32 totalMasterPoint = pMob[clientId].Mobs.Player.MasterPoint;
+			INT32 totalMasterPoint = pMob[clientId].Mobs.Player.SpecialBonus;
 			for (INT32 i = 0; i < 4; i++)
 			{
-				totalMasterPoint += pMob[clientId].Mobs.Player.bStatus.Mastery[i];
+				totalMasterPoint += pMob[clientId].Mobs.Player.BaseScore.Special[i];
 
-				pMob[clientId].Mobs.Player.bStatus.Mastery[i] = 0;
+				pMob[clientId].Mobs.Player.BaseScore.Special[i] = 0;
 			}
 
-			pMob[clientId].Mobs.Player.MasterPoint = totalMasterPoint;
+			pMob[clientId].Mobs.Player.SpecialBonus = totalMasterPoint;
 
 			for (int i = 0; i < 3; i++)
 			{
 				int initial = (i * 8);
 				for (int a = initial; a < initial + 8; a++)
 				{
-					int has = (pMob[clientId].Mobs.Player.Learn[0] & (1 << a));
+					int has = (pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << a));
 					if (has != 0)
-						pMob[clientId].Mobs.Player.Learn[0] -= (1 << a);
+						pMob[clientId].Mobs.Player.LearnedSkill[0] -= (1 << a);
 				}
 			}
 
@@ -5016,7 +5016,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region MOLAR DE GaRGULA
 		else if (itemId == 4122)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 199 || pMob[clientId].Mobs.Player.bStatus.Level > 254)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 199 || pMob[clientId].Mobs.Player.BaseScore.Level > 254)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Level_NotAllowed], 200, 255);
 
@@ -5037,19 +5037,19 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			for (INT32 i = 1; i < 6; i++)
 			{
 				STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Equip[i];
-				if (item->Index <= 0 || item->Index >= MAX_ITEMLIST)
+				if (item->sIndex <= 0 || item->sIndex >= MAX_ITEMLIST)
 				{
 					Log(clientId, LOG_INGAME, "Molar de Gargula - Slot %d : nao possuia item equipado", i);
 					continue;
 				}
 
-				Log(clientId, LOG_INGAME, "Molar de Gargula - Slot %d : %s [%d] [%d %d %d %d %d %d]", i, ItemList[item->Index].Name,
-					item->Index, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3);
+				Log(clientId, LOG_INGAME, "Molar de Gargula - Slot %d : %s [%d] [%d %d %d %d %d %d]", i, g_pItemList[item->sIndex].ItemName,
+					item->sIndex, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3);
 
 				INT32 sanc = GetItemSanc(item);
 				if (sanc >= 6)
 				{
-					Log(clientId, LOG_INGAME, "Molar de Gargula - Slot %d : %s item nao refinado por ser +%d", i, ItemList[item->Index].Name, sanc);
+					Log(clientId, LOG_INGAME, "Molar de Gargula - Slot %d : %s item nao refinado por ser +%d", i, g_pItemList[item->sIndex].ItemName, sanc);
 					continue;
 				}
 
@@ -5062,14 +5062,14 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			AmountMinus(srcItem);
-			Log(clientId, LOG_INGAME, "%s finalizou a quest do molar do gargula.", pMob[clientId].Mobs.Player.Name);
+			Log(clientId, LOG_INGAME, "%s finalizou a quest do molar do gargula.", pMob[clientId].Mobs.Player.MobName);
 		}
 #pragma endregion
 #pragma region COMPOSTO DE CHANCE
 		else if (itemId == 4124)
 		{
-			if (pMob[clientId].Mobs.Player.bStatus.Level < 69 ||
-				pMob[clientId].Mobs.Player.bStatus.Level > 74)
+			if (pMob[clientId].Mobs.Player.BaseScore.Level < 69 ||
+				pMob[clientId].Mobs.Player.BaseScore.Level > 74)
 			{
 				SendClientMessage(clientId, "Level inadequado.");
 
@@ -5093,27 +5093,27 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			INT32 totalMasterPoint = pMob[clientId].Mobs.Player.MasterPoint;
+			INT32 totalMasterPoint = pMob[clientId].Mobs.Player.SpecialBonus;
 			for (INT32 i = 0; i < 4; i++)
 			{
-				if (pMob[clientId].Mobs.Player.bStatus.Mastery[i] >= 50)
+				if (pMob[clientId].Mobs.Player.BaseScore.Special[i] >= 50)
 				{
-					totalMasterPoint += pMob[clientId].Mobs.Player.bStatus.Mastery[i];
+					totalMasterPoint += pMob[clientId].Mobs.Player.BaseScore.Special[i];
 
-					pMob[clientId].Mobs.Player.bStatus.Mastery[i] -= 50;
+					pMob[clientId].Mobs.Player.BaseScore.Special[i] -= 50;
 				}
 			}
 
-			pMob[clientId].Mobs.Player.MasterPoint = totalMasterPoint;
+			pMob[clientId].Mobs.Player.SpecialBonus = totalMasterPoint;
 
 			for (int i = 0; i < 3; i++)
 			{
 				int initial = (i * 8);
 				for (int a = initial; a < initial + 8; a++)
 				{
-					int has = (pMob[clientId].Mobs.Player.Learn[0] & (1 << a));
+					int has = (pMob[clientId].Mobs.Player.LearnedSkill[0] & (1 << a));
 					if (has != 0)
-						pMob[clientId].Mobs.Player.Learn[0] -= (1 << a);
+						pMob[clientId].Mobs.Player.LearnedSkill[0] -= (1 << a);
 				}
 			}
 
@@ -5134,7 +5134,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region RECUSA DE GUERRA
 		else if (itemId == 4031)
 		{
-			if (pMob[clientId].Mobs.Player.GuildMemberType != 9 && !IsAdmin)
+			if (pMob[clientId].Mobs.Player.GuildLevel != 9 && !IsAdmin)
 			{
 				SendClientMessage(clientId, "Somente para lader de guild.");
 
@@ -5143,7 +5143,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (ChargedGuildList[sServer.Channel - 1][4] != pMob[clientId].Mobs.Player.GuildIndex && !IsAdmin) // Somente caso possua a coroa
+			if (ChargedGuildList[sServer.Channel - 1][4] != pMob[clientId].Mobs.Player.Guild && !IsAdmin) // Somente caso possua a coroa
 			{
 				SendClientMessage(clientId, "Necessario possuir coroa.");
 
@@ -5182,7 +5182,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region NUCLEO DE LAC
 		else if (itemId == NUCLEO_LAC_ITEMID)
 		{
-			if (srcItem->Effect[0].Index != EF_AMOUNT)
+			if (srcItem->stEffect[0].cEffect != EF_AMOUNT)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
@@ -5191,7 +5191,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			int rand = Rand() % 100;
-			if (rand > srcItem->Effect[0].Value && srcItem->Effect[0].Value != 100)
+			if (rand > srcItem->stEffect[0].cValue && srcItem->stEffect[0].cValue != 100)
 			{
 				memset(srcItem, 0, sizeof(STRUCT_ITEM));
 
@@ -5208,7 +5208,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM itemLac100;
 			memset(&itemLac100, 0, sizeof(STRUCT_ITEM));
 
-			itemLac100.Index = 4141;
+			itemLac100.sIndex = 4141;
 
 			PutItem(clientId, &itemLac100);
 
@@ -5220,7 +5220,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region FLASH DO VALE
 		else if (itemId == 4688)
 		{
-			int fadaId = pMob[clientId].Mobs.Player.Equip[13].Index;
+			int fadaId = pMob[clientId].Mobs.Player.Equip[13].sIndex;
 			if (fadaId != 3916)
 			{
 				SendClientMessage(clientId, "Somente disponavel para Fada do Vale");
@@ -5229,8 +5229,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			Log(clientId, LOG_INGAME, "Recebido %s por usar o %s em %s (%s)", ItemList[3917].Name, ItemList[itemId].Name, ItemList[fadaId].Name, pMob[clientId].Mobs.Player.Equip[13].toString().c_str());
-			pMob[clientId].Mobs.Player.Equip[13].Index = 3917;
+			Log(clientId, LOG_INGAME, "Recebido %s por usar o %s em %s (%s)", g_pItemList[3917].ItemName, g_pItemList[itemId].ItemName, g_pItemList[fadaId].ItemName, pMob[clientId].Mobs.Player.Equip[13].toString().c_str());
+			pMob[clientId].Mobs.Player.Equip[13].sIndex = 3917;
 
 			SendItem(clientId, SlotType::Equip, 13, &pMob[clientId].Mobs.Player.Equip[13]);
 
@@ -5241,7 +5241,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region FLASH PRATEADO / DOURADO
 		else if (itemId == 3451 || itemId == 3452)
 		{
-			int fadaId = pMob[clientId].Mobs.Player.Equip[13].Index;
+			int fadaId = pMob[clientId].Mobs.Player.Equip[13].sIndex;
 			if (fadaId != 3902 && fadaId != 3905 && fadaId != 3908)
 			{
 				SendClientMessage(clientId, "Somente disponavel para Fada Vermelha");
@@ -5251,11 +5251,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			int destinyId = 3914;
-			if (srcItem->Index == 3452)
+			if (srcItem->sIndex == 3452)
 				destinyId = 3915;
 
-			Log(clientId, LOG_INGAME, "Recebido %s por usar o %s em %s (%s)", ItemList[destinyId].Name, ItemList[itemId].Name, ItemList[fadaId].Name, pMob[clientId].Mobs.Player.Equip[13].toString().c_str());
-			pMob[clientId].Mobs.Player.Equip[13].Index = destinyId;
+			Log(clientId, LOG_INGAME, "Recebido %s por usar o %s em %s (%s)", g_pItemList[destinyId].ItemName, g_pItemList[itemId].ItemName, g_pItemList[fadaId].ItemName, pMob[clientId].Mobs.Player.Equip[13].toString().c_str());
+			pMob[clientId].Mobs.Player.Equip[13].sIndex = destinyId;
 
 			SendItem(clientId, SlotType::Equip, 13, &pMob[clientId].Mobs.Player.Equip[13]);
 
@@ -5269,7 +5269,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 key = GetFirstSlot(clientId, 4546);
 			if (key == -1)
 			{
-				if (pMob[clientId].Mobs.Player.Gold < 10000000)
+				if (pMob[clientId].Mobs.Player.Coin < 10000000)
 				{
 					SendClientMessage(clientId, "Necessario 10 milhaes de gold ou Chave Mercantil!");
 
@@ -5277,8 +5277,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 					return true;
 				}
 
-				pMob[clientId].Mobs.Player.Gold -= 10000000;
-				SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Gold);
+				pMob[clientId].Mobs.Player.Coin -= 10000000;
+				SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Coin);
 			}
 			else
 			{
@@ -5297,10 +5297,10 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				_rand = Rand() % 2;
 
 				if (_rand == 0)
-					item.Index = 4547;
+					item.sIndex = 4547;
 				else if (_rand == 1)
 				{
-					item.Index = 412;
+					item.sIndex = 412;
 
 					item.EF1 = EF_AMOUNT;
 					item.EFV1 = 5;
@@ -5312,21 +5312,21 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				if (_rand == 0)
 				{
-					item.Index = 413;
+					item.sIndex = 413;
 
 					item.EF1 = EF_AMOUNT;
 					item.EFV1 = 2;
 				}
 				else if (_rand == 1)
 				{
-					item.Index = 404;
+					item.sIndex = 404;
 
 					item.EF1 = EF_AMOUNT;
 					item.EFV1 = 50;
 				}
 				else if (_rand == 2)
 				{
-					item.Index = 409;
+					item.sIndex = 409;
 
 					item.EF1 = EF_AMOUNT;
 					item.EFV1 = 50;
@@ -5338,7 +5338,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 				if (_rand == 0)
 				{
-					item.Index = 4547;
+					item.sIndex = 4547;
 
 					item.EF1 = EF_AMOUNT;
 					item.EFV1 = 3;
@@ -5349,15 +5349,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			if (PutItem(clientId, &item))
 			{
-				SendClientMessage(clientId, "!Chegou um item: [ %s ]", ItemList[item.Index].Name);
+				SendClientMessage(clientId, "!Chegou um item: [ %s ]", g_pItemList[item.sIndex].ItemName);
 
-				Log(clientId, LOG_INGAME, "Recebeu o item %s [%d] da Caixa Mercantil!", ItemList[item.Index].Name, item.Index);
+				Log(clientId, LOG_INGAME, "Recebeu o item %s [%d] da Caixa Mercantil!", g_pItemList[item.sIndex].ItemName, item.sIndex);
 			}
 			else
 			{
 				SendClientMessage(clientId, "!Nao recebeu o item por falta de espaao!");
 
-				Log(clientId, LOG_INGAME, "NaO Recebeu o item %s [%d] da Caixa Mercantil! - FALTA DE ESPAaO NO INVENTaRIO", ItemList[item.Index].Name, item.Index);
+				Log(clientId, LOG_INGAME, "NaO Recebeu o item %s [%d] da Caixa Mercantil! - FALTA DE ESPAaO NO INVENTaRIO", g_pItemList[item.sIndex].ItemName, item.sIndex);
 			}
 		}
 #pragma endregion 
@@ -5367,7 +5367,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			auto& player = pMob[clientId].Mobs.Player;
 			for(int i = 1; i < 8; ++i)
 			{
-				if (player.Equip[i].Index != 0)
+				if (player.Equip[i].sIndex != 0)
 				{
 					SendClientMessage(clientId, "Necessario desequipar todos os seus itens");
 
@@ -5384,7 +5384,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			int sephirotId = player.Equip[11].Index;
+			int sephirotId = player.Equip[11].sIndex;
 			if (sephirotId < 1760 || sephirotId > 1763)
 			{
 				SendClientMessage(clientId, "Necessario a sephirot da classe que deseja o novo corpo");
@@ -5396,8 +5396,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			sephirotId -= 1760;
 
 			{
-				int newFace = (sephirotId * 10) + (player.ClassInfo + 6);
-				int oldFace = player.Equip[0].Index;
+				int newFace = (sephirotId * 10) + (player.Class + 6);
+				int oldFace = player.Equip[0].sIndex;
 
 				if (newFace == oldFace)
 				{
@@ -5407,12 +5407,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 					return true;
 				}
 
-				player.Equip[0].Index = newFace;
+				player.Equip[0].sIndex = newFace;
 				player.Equip[0].EF2 = newFace;
-				Log(clientId, LOG_INGAME, "trocou o corpo de %d para %d (%hhu) - Evoluaao: %hhu", oldFace, newFace, pMob[clientId].Mobs.Player.ClassInfo, pMob[clientId].Mobs.Player.Equip[0].EFV2);
+				Log(clientId, LOG_INGAME, "trocou o corpo de %d para %d (%hhu) - Evoluaao: %hhu", oldFace, newFace, pMob[clientId].Mobs.Player.Class, pMob[clientId].Mobs.Player.Equip[0].EFV2);
 			}
 
-			bool hasSub = pMob[clientId].Mobs.Sub.Status == 1 || player.Equip[0].EFV2 == SUBCELESTIAL;
+			bool hasSub = pMob[clientId].Mobs.Sub.CurrentScore == 1 || player.Equip[0].EFV2 == SUBCELESTIAL;
 			if (hasSub)
 			{
 				auto& sub = pMob[clientId].Mobs.Sub;
@@ -5429,9 +5429,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 					classInfo = (baseFace - 36);
 
 				int newFace = (sephirotId * 10) + (classInfo + 6);
-				int oldFace = sub.Equip[0].Index;
+				int oldFace = sub.Equip[0].sIndex;
 
-				sub.Equip[0].Index = newFace;
+				sub.Equip[0].sIndex = newFace;
 				sub.Equip[0].EF2 = newFace;
 
 				Log(clientId, LOG_INGAME, "trocou o corpo de %d para %d (%hhu) - Evoluaao: %hhu", oldFace, newFace, classInfo, sub.Equip[0].EFV2);
@@ -5459,7 +5459,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			STRUCT_ITEM* seph = &pMob[clientId].Mobs.Player.Equip[11];
-			if (seph->Index < 1760 || seph->Index > 1763)
+			if (seph->sIndex < 1760 || seph->sIndex > 1763)
 			{
 				SendClientMessage(clientId, "Necessario o sephirot da classe que deseja.");
 
@@ -5467,8 +5467,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			INT32 newClass = seph->Index - 1760;
-			INT32 myFace = pMob[clientId].Mobs.Player.Equip[0].EF2 - pMob[clientId].Mobs.Player.ClassInfo;
+			INT32 newClass = seph->sIndex - 1760;
+			INT32 myFace = pMob[clientId].Mobs.Player.Equip[0].EF2 - pMob[clientId].Mobs.Player.Class;
 
 			switch (myFace)
 			{
@@ -5485,8 +5485,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			int newFace = myFace + newClass;
-			int oldFace = pMob[clientId].Mobs.Player.Equip[0].Index;
-			int oldClass = pMob[clientId].Mobs.Player.ClassInfo;
+			int oldFace = pMob[clientId].Mobs.Player.Equip[0].sIndex;
+			int oldClass = pMob[clientId].Mobs.Player.Class;
 
 			if (newFace == oldFace)
 			{
@@ -5496,15 +5496,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			pMob[clientId].Mobs.Player.ClassInfo = newClass;
+			pMob[clientId].Mobs.Player.Class = newClass;
 
-			pMob[clientId].Mobs.Player.Equip[0].Index = newFace;
+			pMob[clientId].Mobs.Player.Equip[0].sIndex = newFace;
 			pMob[clientId].Mobs.Player.Equip[0].EF2 = newFace;
 
 			memset(seph, 0, sizeof STRUCT_ITEM);
 			AmountMinus(srcItem);
 
-			Log(clientId, LOG_INGAME, "%s trocou a classe de %d (%d) para %d (%hhu) - %hhu", pMob[clientId].Mobs.Player.Name, oldFace, oldClass, newFace, pMob[clientId].Mobs.Player.ClassInfo, pMob[clientId].Mobs.Player.Equip[0].EFV2);
+			Log(clientId, LOG_INGAME, "%s trocou a classe de %d (%d) para %d (%hhu) - %hhu", pMob[clientId].Mobs.Player.MobName, oldFace, oldClass, newFace, pMob[clientId].Mobs.Player.Class, pMob[clientId].Mobs.Player.Equip[0].EFV2);
 
 			SendClientMessage(clientId, "Que os Deuses continuem te abenaoando");
 			CharLogOut(clientId);
@@ -5559,9 +5559,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		else if (itemId == 4595)
 		{
 			STRUCT_ITEM& item = pMob[clientId].Mobs.Player.Equip[14];
-			INT32 traje = item.Effect[2].Value;
+			INT32 traje = item.stEffect[2].cValue;
 
-			if (traje < 11 || item.Index < 2360 || item.Index >= 2390)
+			if (traje < 11 || item.sIndex < 2360 || item.sIndex >= 2390)
 			{
 				SendClientMessage(clientId, "Utilize com uma montaria utilizando traje");
 
@@ -5597,10 +5597,10 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			Log(clientId, LOG_INGAME, "Removido traje da montaria. Index do traje que havia: %d. Item info: %s", traje, item.toString().c_str());
 
-			item.Effect[2].Value = 0;
+			item.stEffect[2].cValue = 0;
 
 			memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
-			pMob[clientId].Mobs.Player.Inventory[slotId].Index = 4190 + (traje - 11);
+			pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 4190 + (traje - 11);
 
 			SendItem(clientId, SlotType::Equip, 14, &pMob[clientId].Mobs.Player.Equip[14]);
 			SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
@@ -5789,18 +5789,18 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = earnedItem.ItemIndex;
+			item->sIndex = earnedItem.ItemIndex;
 
 			if (earnedItem.Amount > 1)
 			{
 				if (!earnedItem.Splitted)
 				{
-					item->Effect[0].Index = EF_AMOUNT;
-					item->Effect[0].Value = earnedItem.Amount;
+					item->stEffect[0].cEffect = EF_AMOUNT;
+					item->stEffect[0].cValue = earnedItem.Amount;
 				}
 
-				item->Effect[1].Index = EF_NOTRADE;
-				item->Effect[1].Value = 1;
+				item->stEffect[1].cEffect = EF_NOTRADE;
+				item->stEffect[1].cValue = 1;
 
 				if (earnedItem.Splitted)
 				{
@@ -5818,27 +5818,27 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 						STRUCT_ITEM* otherItem = &pMob[clientId].Mobs.Player.Inventory[otherSlotId];
 
 						*otherItem = STRUCT_ITEM{};
-						otherItem->Index = earnedItem.ItemIndex;
+						otherItem->sIndex = earnedItem.ItemIndex;
 
-						otherItem->Effect[0].Index = EF_NOTRADE;
-						otherItem->Effect[0].Value = 1;
+						otherItem->stEffect[0].cEffect = EF_NOTRADE;
+						otherItem->stEffect[0].cValue = 1;
 
-						Log(clientId, LOG_INGAME, "Recebido item %s %s no slot %d", ItemList[otherItem->Index].Name, otherItem->toString().c_str(), otherSlotId);
+						Log(clientId, LOG_INGAME, "Recebido item %s %s no slot %d", g_pItemList[otherItem->sIndex].ItemName, otherItem->toString().c_str(), otherSlotId);
 						SendItem(clientId, SlotType::Inv, otherSlotId, otherItem);
 					}
 				}
 			}
 			else
 			{
-				if (item->Index != 4542)
+				if (item->sIndex != 4542)
 				{
-					item->Effect[0].Index = EF_NOTRADE;
-					item->Effect[0].Value = 1;
+					item->stEffect[0].cEffect = EF_NOTRADE;
+					item->stEffect[0].cValue = 1;
 				}
 			}
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
-			Log(clientId, LOG_INGAME, "Recebido item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
 			if (remove)
 				AmountMinus(srcItem);
@@ -5897,24 +5897,24 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = earnedItem.ItemIndex;
+			item->sIndex = earnedItem.ItemIndex;
 
 			if (earnedItem.Amount > 1)
 			{
-				item->Effect[0].Index = EF_AMOUNT;
-				item->Effect[0].Value = earnedItem.Amount;
+				item->stEffect[0].cEffect = EF_AMOUNT;
+				item->stEffect[0].cValue = earnedItem.Amount;
 
-				item->Effect[1].Index = EF_NOTRADE;
-				item->Effect[1].Value = 1;
+				item->stEffect[1].cEffect = EF_NOTRADE;
+				item->stEffect[1].cValue = 1;
 			}
 			else
 			{
-				item->Effect[0].Index = EF_NOTRADE;
-				item->Effect[0].Value = 1;
+				item->stEffect[0].cEffect = EF_NOTRADE;
+				item->stEffect[0].cValue = 1;
 			}
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
-			Log(clientId, LOG_INGAME, "Recebido item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
 			if (remove)
 				AmountMinus(srcItem);
@@ -5974,24 +5974,24 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = earnedItem.ItemIndex;
+			item->sIndex = earnedItem.ItemIndex;
 
 			if (earnedItem.Amount > 1)
 			{
-				item->Effect[0].Index = EF_AMOUNT;
-				item->Effect[0].Value = earnedItem.Amount;
+				item->stEffect[0].cEffect = EF_AMOUNT;
+				item->stEffect[0].cValue = earnedItem.Amount;
 
-				item->Effect[1].Index = EF_NOTRADE;
-				item->Effect[1].Value = 1;
+				item->stEffect[1].cEffect = EF_NOTRADE;
+				item->stEffect[1].cValue = 1;
 			}
 			else
 			{
-				item->Effect[0].Index = EF_NOTRADE;
-				item->Effect[0].Value = 1;
+				item->stEffect[0].cEffect = EF_NOTRADE;
+				item->stEffect[0].cValue = 1;
 			}
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
-			Log(clientId, LOG_INGAME, "Recebido item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
 			if (remove)
 				AmountMinus(srcItem);
@@ -6051,24 +6051,24 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = earnedItem.ItemIndex;
+			item->sIndex = earnedItem.ItemIndex;
 
 			if (earnedItem.Amount > 1)
 			{
-				item->Effect[0].Index = EF_AMOUNT;
-				item->Effect[0].Value = earnedItem.Amount;
+				item->stEffect[0].cEffect = EF_AMOUNT;
+				item->stEffect[0].cValue = earnedItem.Amount;
 
-				item->Effect[1].Index = EF_NOTRADE;
-				item->Effect[1].Value = 1;
+				item->stEffect[1].cEffect = EF_NOTRADE;
+				item->stEffect[1].cValue = 1;
 			}
 			else
 			{
-				item->Effect[0].Index = EF_NOTRADE;
-				item->Effect[0].Value = 1;
+				item->stEffect[0].cEffect = EF_NOTRADE;
+				item->stEffect[0].cValue = 1;
 			}
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
-			Log(clientId, LOG_INGAME, "Recebido item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
 			if (remove)
 				AmountMinus(srcItem);
@@ -6152,16 +6152,16 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = earnedItem.ItemIndex;
+			item->sIndex = earnedItem.ItemIndex;
 
 			if (earnedItem.Amount > 1)
 			{
-				item->Effect[0].Index = EF_AMOUNT;
-				item->Effect[0].Value = earnedItem.Amount;
+				item->stEffect[0].cEffect = EF_AMOUNT;
+				item->stEffect[0].cValue = earnedItem.Amount;
 			}
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
-			Log(clientId, LOG_INGAME, "Recebido item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
 			if (remove)
 				AmountMinus(srcItem);
@@ -6246,24 +6246,24 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = earnedItem.ItemIndex;
+			item->sIndex = earnedItem.ItemIndex;
 
 			if (earnedItem.Amount > 1)
 			{
-				item->Effect[0].Index = EF_AMOUNT;
-				item->Effect[0].Value = earnedItem.Amount;
+				item->stEffect[0].cEffect = EF_AMOUNT;
+				item->stEffect[0].cValue = earnedItem.Amount;
 			}
 
 			if (earnedItem.Ef1 != 0)
 			{
-				item->Effect[0].Index = earnedItem.Ef1;
-				item->Effect[0].Value = earnedItem.Efv1;
+				item->stEffect[0].cEffect = earnedItem.Ef1;
+				item->stEffect[0].cValue = earnedItem.Efv1;
 			}
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
-			Log(clientId, LOG_INGAME, "Recebido item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
-			SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[item->Index].Name);
+			SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[item->sIndex].ItemName);
 			if (remove)
 				AmountMinus(srcItem);
 		}
@@ -6359,20 +6359,20 @@ bool CUser::RequestUseItem(PacketHeader* Header)
             STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
             *item = STRUCT_ITEM{};
-            item->Index = earnedItem.ItemIndex;
+            item->sIndex = earnedItem.ItemIndex;
 
             if (earnedItem.ItemIndex != 3338)
             {
                 if (earnedItem.Amount > 1)
                 {
-                    item->Effect[0].Index = EF_AMOUNT;
-                    item->Effect[0].Value = earnedItem.Amount;
+                    item->stEffect[0].cEffect = EF_AMOUNT;
+                    item->stEffect[0].cValue = earnedItem.Amount;
                 }
 
                 if (earnedItem.Ef1 != 0)
                 {
-                    item->Effect[0].Index = earnedItem.Ef1;
-                    item->Effect[0].Value = earnedItem.Efv1;
+                    item->stEffect[0].cEffect = earnedItem.Ef1;
+                    item->stEffect[0].cValue = earnedItem.Efv1;
                 }
             }
             else
@@ -6381,8 +6381,8 @@ bool CUser::RequestUseItem(PacketHeader* Header)
                 {
                     if (i == 0)
                     {
-                        item->Effect[0].Index = earnedItem.Ef1;
-                        item->Effect[0].Value = earnedItem.Efv1;
+                        item->stEffect[0].cEffect = earnedItem.Ef1;
+                        item->stEffect[0].cValue = earnedItem.Efv1;
                     }
                     else
                     {
@@ -6390,18 +6390,18 @@ bool CUser::RequestUseItem(PacketHeader* Header)
                         auto otherItem = &pMob[clientId].Mobs.Player.Inventory[otherSlotId];
 
                         *otherItem = STRUCT_ITEM{};
-                        otherItem->Index = 3338;
-                        otherItem->Effect[0].Index = earnedItem.Ef1;
-                        otherItem->Effect[0].Value = earnedItem.Efv1;
+                        otherItem->sIndex = 3338;
+                        otherItem->stEffect[0].cEffect = earnedItem.Ef1;
+                        otherItem->stEffect[0].cValue = earnedItem.Efv1;
 
                         SendItem(clientId, SlotType::Inv, otherSlotId, otherItem);
                     }
                 }
             }
             SendItem(clientId, SlotType::Inv, slotId, item);
-            Log(clientId, LOG_INGAME, "Recebido item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+            Log(clientId, LOG_INGAME, "Recebido item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
-            SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[item->Index].Name);
+            SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[item->sIndex].ItemName);
             if (remove)
                 AmountMinus(srcItem);
         }
@@ -6431,11 +6431,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = 3027 + (Rand() % 4);
+			item->sIndex = 3027 + (Rand() % 4);
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
 
-			Log(clientId, LOG_INGAME, "Recebido o item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido o item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 			if (remove)
 				AmountMinus(srcItem);
 		}
@@ -6501,15 +6501,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = itemId;
-			item->Effect[0].Index = EF_SANC;
-			item->Effect[0].Value = 0;
-			item->Effect[1].Index = addId;
-			item->Effect[1].Value = addValue;
+			item->sIndex = itemId;
+			item->stEffect[0].cEffect = EF_SANC;
+			item->stEffect[0].cValue = 0;
+			item->stEffect[1].cEffect = addId;
+			item->stEffect[1].cValue = addValue;
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
 
-			Log(clientId, LOG_INGAME, "Recebido o item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido o item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 			if (remove)
 				AmountMinus(srcItem);
 
@@ -6577,15 +6577,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 
 			*item = STRUCT_ITEM{};
-			item->Index = itemId;
-			item->Effect[0].Index = EF_SANC;
-			item->Effect[0].Value = 0;
-			item->Effect[1].Index = addId;
-			item->Effect[1].Value = addValue;
+			item->sIndex = itemId;
+			item->stEffect[0].cEffect = EF_SANC;
+			item->stEffect[0].cValue = 0;
+			item->stEffect[1].cEffect = addId;
+			item->stEffect[1].cValue = addValue;
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
 
-			Log(clientId, LOG_INGAME, "Recebido o item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido o item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 			if (remove)
 				AmountMinus(srcItem);
 
@@ -6598,31 +6598,31 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			int arcaneId = 567 + (Rand() % 4);
 
 			STRUCT_ITEM newItem{};
-			newItem.Index = 567 + Rand() % 4;
-			newItem.Effect[0].Index = EF_SANC;
-			newItem.Effect[0].Value = 0;
+			newItem.sIndex = 567 + Rand() % 4;
+			newItem.stEffect[0].cEffect = EF_SANC;
+			newItem.stEffect[0].cValue = 0;
 
 			int type = Rand() % 3;
 			if (type == 0)
 			{
-				newItem.Effect[1].Index = EF_HPADD2;
-				newItem.Effect[1].Value = 10;
-				newItem.Effect[2].Index = EF_MAGIC;
-				newItem.Effect[2].Value = 16;
+				newItem.stEffect[1].cEffect = EF_HPADD2;
+				newItem.stEffect[1].cValue = 10;
+				newItem.stEffect[2].cEffect = EF_MAGIC;
+				newItem.stEffect[2].cValue = 16;
 			}
 			else if(type == 1)
 			{
-				newItem.Effect[1].Index = EF_MPADD2;
-				newItem.Effect[1].Value = 10;
-				newItem.Effect[2].Index = EF_MAGIC;
-				newItem.Effect[2].Value = 16;
+				newItem.stEffect[1].cEffect = EF_MPADD2;
+				newItem.stEffect[1].cValue = 10;
+				newItem.stEffect[2].cEffect = EF_MAGIC;
+				newItem.stEffect[2].cValue = 16;
 			}
 			else 
 			{
-				newItem.Effect[1].Index = EF_HPADD2;
-				newItem.Effect[1].Value = 10;
-				newItem.Effect[2].Index = EF_DAMAGE;
-				newItem.Effect[2].Value = 40;
+				newItem.stEffect[1].cEffect = EF_HPADD2;
+				newItem.stEffect[1].cValue = 10;
+				newItem.stEffect[2].cEffect = EF_DAMAGE;
+				newItem.stEffect[2].cValue = 40;
 			}
 
 			int slotId = -1;
@@ -6649,7 +6649,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
 
-			Log(clientId, LOG_INGAME, "Recebido o item %s %s", ItemList[item->Index].Name, item->toString().c_str());
+			Log(clientId, LOG_INGAME, "Recebido o item %s %s", g_pItemList[item->sIndex].ItemName, item->toString().c_str());
 
 			if (remove)
 				AmountMinus(srcItem);
@@ -6667,14 +6667,14 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
-			if (dstItem == nullptr || dstItem->Index == 0)
+			if (dstItem == nullptr || dstItem->sIndex == 0)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
 				return true;
 			}
 
-			if ((itemId == 4686 && dstItem->Index != 753) || (itemId == 4687 && dstItem->Index != 1726))
+			if ((itemId == 4686 && dstItem->sIndex != 753) || (itemId == 4687 && dstItem->sIndex != 1726))
 			{
 				if(itemId == 4686)
 					SendClientMessage(clientId, "Somente utilizado em auxiliares Imp");
@@ -6685,15 +6685,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			Log(clientId, LOG_INGAME, "Utilizado no item %s %s", ItemList[dstItem->Index].Name, dstItem->toString().c_str());
+			Log(clientId, LOG_INGAME, "Utilizado no item %s %s", g_pItemList[dstItem->sIndex].ItemName, dstItem->toString().c_str());
 
 			for (int i = 0; i < 1; i++)
 			{
-				if (dstItem->Effect[i].Index == EF_SANC)
+				if (dstItem->stEffect[i].cEffect == EF_SANC)
 					continue;
 
-				dstItem->Effect[i].Index = 0;
-				dstItem->Effect[i].Value = 0;
+				dstItem->stEffect[i].cEffect = 0;
+				dstItem->stEffect[i].cValue = 0;
 			}
 
 			int addEf = 0;
@@ -6739,17 +6739,17 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				}
 			}
 
-			int oldItemId = dstItem->Index;
+			int oldItemId = dstItem->sIndex;
 			int sanc = GetItemSanc(dstItem);
 
 			*dstItem = STRUCT_ITEM{};
-			dstItem->Index = oldItemId;
-			dstItem->Effect[0].Index = EF_SANC;
-			dstItem->Effect[0].Value = sanc;
-			dstItem->Effect[1].Index = addEf;
-			dstItem->Effect[1].Value = addEfv;
-			dstItem->Effect[2].Index = EF_NOTRADE;
-			dstItem->Effect[2].Value = 1;
+			dstItem->sIndex = oldItemId;
+			dstItem->stEffect[0].cEffect = EF_SANC;
+			dstItem->stEffect[0].cValue = sanc;
+			dstItem->stEffect[1].cEffect = addEf;
+			dstItem->stEffect[1].cValue = addEfv;
+			dstItem->stEffect[2].cEffect = EF_NOTRADE;
+			dstItem->stEffect[2].cValue = 1;
 
 			Log(clientId, LOG_INGAME, "Gerado o adicional: %s", dstItem->toString().c_str());
 			SendItem(clientId, (SlotType)p->DstType, p->DstSlot, dstItem);
@@ -6770,14 +6770,14 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, p->DstType, p->DstSlot);
-			if (dstItem == nullptr || dstItem->Index == 0)
+			if (dstItem == nullptr || dstItem->sIndex == 0)
 			{
 				SendItem(clientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
 
 				return true;
 			}
 
-			if (dstItem->Index < 590 || dstItem->Index > 595)
+			if (dstItem->sIndex < 590 || dstItem->sIndex > 595)
 			{
 				SendClientMessage(clientId, "Somente utilizado em Brincos");
 
@@ -6793,15 +6793,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			Log(clientId, LOG_INGAME, "Utilizado no item %s %s", ItemList[dstItem->Index].Name, dstItem->toString().c_str());
+			Log(clientId, LOG_INGAME, "Utilizado no item %s %s", g_pItemList[dstItem->sIndex].ItemName, dstItem->toString().c_str());
 
 			for (int i = 0; i < 1; i++)
 			{
-				if (dstItem->Effect[i].Index == EF_SANC)
+				if (dstItem->stEffect[i].cEffect == EF_SANC)
 					continue;
 
-				dstItem->Effect[i].Index = 0;
-				dstItem->Effect[i].Value = 0;
+				dstItem->stEffect[i].cEffect = 0;
+				dstItem->stEffect[i].cValue = 0;
 			}
 
 			int effectIndex = 0;
@@ -6830,11 +6830,11 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			for (int i = 1; i < 3; i++)
 			{
-				if (dstItem->Effect[i].Index == EF_SANC)
+				if (dstItem->stEffect[i].cEffect == EF_SANC)
 					continue;
 
-				dstItem->Effect[i].Index = effectIndex;
-				dstItem->Effect[i].Value = effectValue;
+				dstItem->stEffect[i].cEffect = effectIndex;
+				dstItem->stEffect[i].cValue = effectValue;
 				break;
 			}
 
@@ -6871,17 +6871,17 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			STRUCT_ITEM item{};
 
 			if (itemId == 4615)
-				item.Index = 2360 + (Rand() % 6);
+				item.sIndex = 2360 + (Rand() % 6);
 			else
 			{
 				constexpr std::array mountId = { 2366, 2367, 2368, 2371, 2372, 2373 };
-				item.Index = *select_randomly(std::begin(mountId), std::end(mountId));
+				item.sIndex = *select_randomly(std::begin(mountId), std::end(mountId));
 			}
 
-			*(WORD*)&item.Effect[0].Index = 5000;
-			item.Effect[1].Index = 120;
-			item.Effect[1].Value = 10;
-			item.Effect[2].Index = 100;
+			*(WORD*)&item.stEffect[0].cEffect = 5000;
+			item.stEffect[1].cEffect = 120;
+			item.stEffect[1].cValue = 10;
+			item.stEffect[2].cEffect = 100;
 
 			pMob[clientId].Mobs.Player.Inventory[slotId] = item;
 			SendItem(clientId, SlotType::Inv, slotId, &item);
@@ -6889,19 +6889,19 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			if (remove)
 				AmountMinus(srcItem);
 
-			Log(clientId, LOG_INGAME, "Recebido o item %s %s", ItemList[item.Index].Name, item.toString().c_str());
-			SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[item.Index].Name);
+			Log(clientId, LOG_INGAME, "Recebido o item %s %s", g_pItemList[item.sIndex].ItemName, item.toString().c_str());
+			SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[item.sIndex].ItemName);
 		}
 #pragma endregion
 #pragma region SELO DAS ALMAS
 		else if (itemId == 3443)
 		{
-			if (srcItem->Effect[0].Index != 0)
+			if (srcItem->stEffect[0].cEffect != 0)
 				return true;
 
 			for (int i = 1; i < 15; i++)
 			{
-				if (pMob[clientId].Mobs.Player.Equip[i].Index > 0)
+				if (pMob[clientId].Mobs.Player.Equip[i].sIndex > 0)
 				{
 					SendClientMessage(clientId, "Desequipe todos os itens do seu personagem para sela-lo");
 
@@ -6916,7 +6916,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				if (i == p->SrcSlot)
 					continue;
 
-				if (pMob[clientId].Mobs.Player.Inventory[i].Index > 0)
+				if (pMob[clientId].Mobs.Player.Inventory[i].sIndex > 0)
 				{
 					SendClientMessage(clientId, "Deixe o inventario vazio para selar seu personagem");
 
@@ -6929,7 +6929,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			bool haveStorageSlot = false;
 			for (int i = 0; i < 120; i++)
 			{
-				if (User.Storage.Item[i].Index == 0)
+				if (User.Storage.Item[i].sIndex == 0)
 					haveStorageSlot = true;
 			}
 
@@ -6942,7 +6942,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.GuildMemberType != 0 && pMob[clientId].Mobs.Player.GuildMemberType != 1)
+			if (pMob[clientId].Mobs.Player.GuildLevel != 0 && pMob[clientId].Mobs.Player.GuildLevel != 1)
 			{
 				SendClientMessage(clientId, "Nao a possavel selar personagens laderes/subladeres de guild");
 
@@ -6951,7 +6951,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.Gold != 0)
+			if (pMob[clientId].Mobs.Player.Coin != 0)
 			{
 				SendClientMessage(clientId, "Nao a possavel selar personagem com gold no inventario");
 
@@ -6974,23 +6974,23 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			{
 				for (INT32 i = 0; i < 10; i++)
 				{
-					if (pMob[clientId].Mobs.Player.Equip[15].Index == g_pCapesID[capeIndex][i])
+					if (pMob[clientId].Mobs.Player.Equip[15].sIndex == g_pCapesID[capeIndex][i])
 					{
-						Log(clientId, LOG_INGAME, "Alterado a capa de %hu para %hu", pMob[clientId].Mobs.Player.Equip[15].Index, g_pCapesID[2][i]);
-						pMob[clientId].Mobs.Player.Equip[15].Index = g_pCapesID[2][i];
+						Log(clientId, LOG_INGAME, "Alterado a capa de %hu para %hu", pMob[clientId].Mobs.Player.Equip[15].sIndex, g_pCapesID[2][i]);
+						pMob[clientId].Mobs.Player.Equip[15].sIndex = g_pCapesID[2][i];
 
 						break;
 					}
 				}
 
-				if ((pMob[clientId].Mobs.Player.Equip[0].EFV2 == CELESTIAL && pMob[clientId].Mobs.Sub.Status == 1) || (pMob[clientId].Mobs.Player.Equip[0].EFV2 == SUBCELESTIAL))
+				if ((pMob[clientId].Mobs.Player.Equip[0].EFV2 == CELESTIAL && pMob[clientId].Mobs.Sub.CurrentScore == 1) || (pMob[clientId].Mobs.Player.Equip[0].EFV2 == SUBCELESTIAL))
 				{
 					for (int i = 0; i < 10; i++)
 					{
-						if (pMob[clientId].Mobs.Sub.Equip[1].Index == g_pCapesID[capeIndex][i])
+						if (pMob[clientId].Mobs.Sub.Equip[1].sIndex == g_pCapesID[capeIndex][i])
 						{
-							Log(clientId, LOG_INGAME, "Alterado a capa do Sub/cele %hu para %hu", pMob[clientId].Mobs.Sub.Equip[1].Index, g_pCapesID[2][i]);
-							pMob[clientId].Mobs.Sub.Equip[1].Index = g_pCapesID[2][i];
+							Log(clientId, LOG_INGAME, "Alterado a capa do Sub/cele %hu para %hu", pMob[clientId].Mobs.Sub.Equip[1].sIndex, g_pCapesID[2][i]);
+							pMob[clientId].Mobs.Sub.Equip[1].sIndex = g_pCapesID[2][i];
 
 							break;
 						}
@@ -7020,7 +7020,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 #pragma region COMPACTADOR DE GOLD
 		else if (itemId == 4572)
 		{
-			auto gold = pMob[clientId].Mobs.Player.Gold;
+			auto gold = pMob[clientId].Mobs.Player.Coin;
 			if (gold < 1000000000)
 			{
 				SendClientMessage(clientId, "O gold manimo para compactar a de 1 bilhao");
@@ -7049,19 +7049,19 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			Log(clientId, LOG_INGAME, "Gerado Barra de 1bi. Gold atual do inventario: %d", pMob[clientId].Mobs.Player.Gold);
+			Log(clientId, LOG_INGAME, "Gerado Barra de 1bi. Gold atual do inventario: %d", pMob[clientId].Mobs.Player.Coin);
 
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 			*item = STRUCT_ITEM{};
-			item->Index = 4011;
+			item->sIndex = 4011;
 
-			pMob[clientId].Mobs.Player.Gold -= 1000000000;
-			SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Gold);
+			pMob[clientId].Mobs.Player.Coin -= 1000000000;
+			SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Coin);
 
 			if (remove)
 				AmountMinus(srcItem);
 
-			SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[4011].Name);
+			SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[4011].ItemName);
 			SendItem(clientId, SlotType::Inv, slotId, item);
 		}
 #pragma endregion
@@ -7091,15 +7091,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 		STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 		*item = STRUCT_ITEM{};
-		item->Index = 5110 + (Rand() % 24);
+		item->sIndex = 5110 + (Rand() % 24);
 
 		SendItem(clientId, SlotType::Inv, slotId, item);
 
 		if (remove)
 			AmountMinus(srcItem);
 
-		SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[item->Index].Name);
-		Log(clientId, LOG_INGAME, "Recebeu o item [%s]", ItemList[item->Index].Name);
+		SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[item->sIndex].ItemName);
+		Log(clientId, LOG_INGAME, "Recebeu o item [%s]", g_pItemList[item->sIndex].ItemName);
 		}
 #pragma endregion
 #pragma region CAIXA DE SECRETAS
@@ -7127,21 +7127,21 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			STRUCT_ITEM* item = &pMob[clientId].Mobs.Player.Inventory[slotId];
 			*item = STRUCT_ITEM{};
-			item->Index = 5334 + (Rand() % 4);
+			item->sIndex = 5334 + (Rand() % 4);
 
 			SendItem(clientId, SlotType::Inv, slotId, item);
 
 			if (remove)
 				AmountMinus(srcItem);
 
-			SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[item->Index].Name);
-			Log(clientId, LOG_INGAME, "Recebeu o item [%s]", ItemList[item->Index].Name);
+			SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[item->sIndex].ItemName);
+			Log(clientId, LOG_INGAME, "Recebeu o item [%s]", g_pItemList[item->sIndex].ItemName);
 		}
 #pragma endregion
 #pragma region JOIA DA ALMA
 		else if (itemId == 3214)
 		{
-			if (!(pMob[clientId].Mobs.Player.Learn[0] & 0x40000000))
+			if (!(pMob[clientId].Mobs.Player.LearnedSkill[0] & 0x40000000))
 			{
 				SendClientMessage(clientId, "Voca nao possui a habilidade Limite de Alma");
 
@@ -7161,7 +7161,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 		else if (itemId >= 3230 && itemId <= 3244)
 		{
 			STRUCT_ITEM* dstItem = GetItemPointer(clientId, (int)SlotType::Equip, 14);
-			if (dstItem->Index < 2330 || dstItem->Index > 2389)
+			if (dstItem->sIndex < 2330 || dstItem->sIndex > 2389)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Mount_Not_Match]);
 
@@ -7169,7 +7169,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			int level = dstItem->Effect[1].Index;
+			int level = dstItem->stEffect[1].cEffect;
 			if (level < 120)
 			{
 				SendClientMessage(clientId, "O navel manimo a 120");
@@ -7187,7 +7187,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			}
 
 			int amagoId = -1;
-			switch (dstItem->Index)
+			switch (dstItem->sIndex)
 			{
 			case 2370:
 				amagoId = 3230;
@@ -7210,12 +7210,12 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			case 2381:
 			case 2382:
 			case 2383:
-				amagoId = 3236 + (dstItem->Index - 2381);
+				amagoId = 3236 + (dstItem->sIndex - 2381);
 				break;
 			case 2384:
 			case 2385:
 			case 2386:
-				amagoId = 3239 + (dstItem->Index - 2384);
+				amagoId = 3239 + (dstItem->sIndex - 2384);
 				break;
 			case 2388:
 				amagoId = 3243;
@@ -7225,7 +7225,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				break;	
 			}
 
-			if (srcItem->Index != amagoId)
+			if (srcItem->sIndex != amagoId)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Mount_Not_Match]);
 
@@ -7239,18 +7239,18 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 
 			if (rand <= rate)
 			{
-				dstItem->Effect[1].Index++;
+				dstItem->stEffect[1].cEffect++;
 				SendItem(clientId, SlotType::Equip, 14, dstItem);
 
 				SendClientMessage(clientId, "Sucesso na refinaaao (%d/%d)", rand, rate);
 
-				Log(clientId, LOG_INGAME, "Sucesso no uso do %s. Chance: %d/%d", ItemList[amagoId].Name, rand, rate);
+				Log(clientId, LOG_INGAME, "Sucesso no uso do %s. Chance: %d/%d", g_pItemList[amagoId].ItemName, rand, rate);
 			}
 			else
 			{
 				SendClientMessage(clientId, "Falha na refinaaao (%d/%d)", rand, rate);
 
-				Log(clientId, LOG_INGAME, "Falhou no uso do %s. Chance: %d/%d", ItemList[amagoId].Name, rand, rate);
+				Log(clientId, LOG_INGAME, "Falhou no uso do %s. Chance: %d/%d", g_pItemList[amagoId].ItemName, rand, rate);
 			}
 
 			AmountMinus(srcItem);
@@ -7266,7 +7266,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (dstItem->Index < 762 || dstItem->Index > 765)
+			if (dstItem->sIndex < 762 || dstItem->sIndex > 765)
 			{
 				SendClientMessage(clientId, "Equipe um planeta no slot adequado");
 
@@ -7305,7 +7305,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				int slotId = GetFirstSlot(clientId, 4127);
 				if (slotId != -1)
 				{
-					Log(clientId, LOG_INGAME, "Removido item %s do slot %d", ItemList[mob->Player.Inventory[slotId].Index].Name, slotId);
+					Log(clientId, LOG_INGAME, "Removido item %s do slot %d", g_pItemList[mob->Player.Inventory[slotId].sIndex].ItemName, slotId);
 					mob->Player.Inventory[slotId] = STRUCT_ITEM{};
 
 					SendItem(clientId, SlotType::Inv, slotId, &mob->Player.Inventory[slotId]);
@@ -7315,7 +7315,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			mob->Fame -= 500;
 			AmountMinus(srcItem);
 
-			dstItem->Index += 26;
+			dstItem->sIndex += 26;
 
 			SetItemSanc(dstItem, 0, 0);
 			SendItem(clientId, SlotType::Equip, 11, dstItem);
@@ -7398,7 +7398,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			if (pMob[clientId].Mobs.Player.Gold < 100000000)
+			if (pMob[clientId].Mobs.Player.Coin < 100000000)
 			{
 				SendClientMessage(clientId, "Necessario 100 milhaes de gold");
 
@@ -7406,15 +7406,15 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				return true;
 			}
 
-			pMob[clientId].Mobs.Player.Gold -= 100000000;
-			SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Gold);
+			pMob[clientId].Mobs.Player.Coin -= 100000000;
+			SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Coin);
 
 			*srcItem = STRUCT_ITEM{};
-			srcItem->Index = 4611;
+			srcItem->sIndex = 4611;
 
 			SendItem(clientId, SlotType::Inv, p->SrcSlot, srcItem);
 
-			SendClientMessage(clientId, "!Chegou um item: [%s]", ItemList[4611].Name);
+			SendClientMessage(clientId, "!Chegou um item: [%s]", g_pItemList[4611].ItemName);
 			Log(clientId, LOG_INGAME, "Recebeu Emblema da Proteaao (Brinco)");
 			return true;
 		}

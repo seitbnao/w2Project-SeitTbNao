@@ -5,7 +5,7 @@
 
 int GetItemType(int ItemID)
 {
-	int unique = ItemList[ItemID].Pos;
+	int unique = g_pItemList[ItemID].Pos;
 	if(unique == 2) 
 		unique = 3021;
 	else if(unique == 4) 
@@ -32,8 +32,8 @@ bool CUser::RequestOdin(PacketHeader *Header)
 	{
 		if(p->slot[i] < 0 || p->slot[i] >= 60)
 		{			
-			Log(clientId, LOG_HACK, "[HACK] Banido por enviar índice invalido - NPC Lindy - %d", p->slot[i]);
-			Log(SERVER_SIDE, LOG_HACK, "[HACK] %s - Banido por enviar índice invalido - NPC Lindy - %d", player->Name, p->slot[i]);
+			Log(clientId, LOG_HACK, "[HACK] Banido por enviar Ãªndice invalido - NPC Lindy - %d", p->slot[i]);
+			Log(SERVER_SIDE, LOG_HACK, "[HACK] %s - Banido por enviar Ãªndice invalido - NPC Lindy - %d", player->MobName, p->slot[i]);
 			
 			SendCarry(clientId);
 
@@ -42,8 +42,8 @@ bool CUser::RequestOdin(PacketHeader *Header)
 
 		if(memcmp(&player->Inventory[p->slot[i]], &p->items[i], 8) != 0)
 		{
-			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Lindy - %d", p->items[i].Index);
-			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Lindy - %d", player->Name, p->items[i].Index);
+			Log(clientId, LOG_HACK, "Banido por enviar item inexistente - NPC Lindy - %d", p->items[i].sIndex);
+			Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item inexistente - NPC Lindy - %d", player->MobName, p->items[i].sIndex);
 			
 			SendCarry(clientId);
 
@@ -57,8 +57,8 @@ bool CUser::RequestOdin(PacketHeader *Header)
 
 			if(p->slot[i] == p->slot[y])
 			{
-				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Lindy - %d", p->items[i].Index);
-				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Lindy- %d", player->Name, p->items[i].Index);
+				Log(clientId, LOG_HACK, "Banido por enviar item com mesmo slotId - NPC Lindy - %d", p->items[i].sIndex);
+				Log(SERVER_SIDE, LOG_HACK, "%s - Banido por enviar item com mesmo slotId  - NPC Lindy- %d", player->MobName, p->items[i].sIndex);
 
 				CloseUser(clientId);
 				return true;
@@ -82,7 +82,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			continue;
 		}
 
-		Log(clientId, LOG_COMP, "Alq. Odin - %d - %s %s - %hhd", i, ItemList[p->items[i].Index].Name, p->items[i].toString().c_str(), p->slot[i]);
+		Log(clientId, LOG_COMP, "Alq. Odin - %d - %s %s - %hhd", i, g_pItemList[p->items[i].sIndex].ItemName, p->items[i].toString().c_str(), p->slot[i]);
 	}
 
 	// Fecha o trade caso esteja aberto
@@ -95,10 +95,10 @@ bool CUser::RequestOdin(PacketHeader *Header)
 	// Fecha o inventario
 	SendSignalParm(clientId, SERVER_SIDE, 0x3A7, 2);
 	
-	if((p->items[0].Index == 4043 && p->items[1].Index == 4043) || (p->items[0].Index == 413 && GetItemAmount(&p->items[0]) == 10 && p->items[1].Index == 413 && GetItemAmount(&p->items[1]) == 10))
+	if((p->items[0].sIndex == 4043 && p->items[1].sIndex == 4043) || (p->items[0].sIndex == 413 && GetItemAmount(&p->items[0]) == 10 && p->items[1].sIndex == 413 && GetItemAmount(&p->items[1]) == 10))
 	{
 		INT32 sanc = GetItemSanc(&p->items[2]);
-		if(sanc >= 12) //Limite de refinação = 13
+		if(sanc >= 12) //Limite de refinaÃ§Ã£o = 13
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Cant_Refine_More]);
 
@@ -112,7 +112,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			return true;
 		}
 		
-		int mobType = GetEffectValueByIndex(p->items[2].Index, EF_MOBTYPE);
+		int mobType = GetEffectValueByIndex(p->items[2].sIndex, EF_MOBTYPE);
 		if(mobType == 3)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Cant_Refine_With_Me]);
@@ -121,7 +121,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		}
 		
 		int goldRequired = 1000000000;
-		if(pMob[clientId].Mobs.Player.Gold < goldRequired)
+		if(pMob[clientId].Mobs.Player.Coin < goldRequired)
 		{
 			SendClientMessage(clientId, "Gold insuficiente");
 
@@ -141,20 +141,20 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		else
 			rate = 1;
 
-		if (p->items[0].Index == 4043 && p->items[1].Index == 4043)
+		if (p->items[0].sIndex == 4043 && p->items[1].sIndex == 4043)
 		{
 			extracao = true;
 
 			rate += 2;
 		}
 
-		if(p->items[2].Index >= 3500 && p->items[2].Index <= 3507)
+		if(p->items[2].sIndex >= 3500 && p->items[2].sIndex <= 3507)
 		{
 			extracao = false;
 			canBreak = false;
 		}
 
-		if(ItemList[p->items[2].Index].Pos == 128)
+		if(g_pItemList[p->items[2].sIndex].Pos == 128)
 		{
 			extracao = false;
 			canBreak = false;
@@ -163,7 +163,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		bool secrets{ false };
 		for(int i = 0; i < 4; i++)
 		{
-			if(p->items[3 + i].Index >= 5334 && p->items[3 + i].Index <= 5337)
+			if(p->items[3 + i].sIndex >= 5334 && p->items[3 + i].sIndex <= 5337)
 			{
 				rate += 1;
 
@@ -171,7 +171,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 				continue;
 			}
 
-			if (p->items[3 + i].Index != 3338)
+			if (p->items[3 + i].sIndex != 3338)
 				continue;
 
 			if (secrets)
@@ -191,7 +191,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			}
 		}
 		
-		int pos = ItemList[p->items[2].Index].Pos;
+		int pos = g_pItemList[p->items[2].sIndex].Pos;
 		if(pos > 192)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_CantRefine]);
@@ -199,7 +199,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			return true;
 		}
 
-		if(rate > 100) //padrão : 65
+		if(rate > 100) //padrÃªo : 65
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Bad_Network_Packets]);
 
@@ -209,33 +209,33 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		if(rate < 0)
 			rate = 4;
 
-		pMob[clientId].Mobs.Player.Gold -= goldRequired;
-		SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+		pMob[clientId].Mobs.Player.Coin -= goldRequired;
+		SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 
 		STRUCT_ITEM *item = player->Inventory;
 		int _rand = Rand() % 100;
 		if(_rand <= rate)
-		{ // Sucesso na composição
+		{ // Sucesso na composiÃ§Ã£o
 			
 			for(int i = 0 ; i < 3; i++)
 			{
-				if(item[p->slot[2]].Effect[i].Index == 43 || (item[p->slot[2]].Effect[i].Index >= 116 && item[p->slot[2]].Effect[i].Index <= 125))
+				if(item[p->slot[2]].stEffect[i].cEffect == 43 || (item[p->slot[2]].stEffect[i].cEffect >= 116 && item[p->slot[2]].stEffect[i].cEffect <= 125))
 				{
-					item[p->slot[2]].Effect[i].Value += 4;
+					item[p->slot[2]].stEffect[i].cValue += 4;
 					break;
 				}
 			}
 			
 			char tmp[128];
-			sprintf_s(tmp, g_pLanguageString[_NN_Odin_CombineSucceed], player->Name, sanc + 1);
+			sprintf_s(tmp, g_pLanguageString[_NN_Odin_CombineSucceed], player->MobName, sanc + 1);
 			SendServerNotice(tmp);	
 
-			Log(clientId, LOG_COMP, "Alquimista Odin - Refinado com sucesso %s para %d (%d/%d)", ItemList[item[p->slot[2]].Index].Name, sanc + 1, _rand, rate);
-			LogPlayer(clientId, "Refinado com sucesso %s para +%d", ItemList[item[p->slot[2]].Index].Name, sanc + 1);
+			Log(clientId, LOG_COMP, "Alquimista Odin - Refinado com sucesso %s para %d (%d/%d)", g_pItemList[item[p->slot[2]].sIndex].ItemName, sanc + 1, _rand, rate);
+			LogPlayer(clientId, "Refinado com sucesso %s para +%d", g_pItemList[item[p->slot[2]].sIndex].ItemName, sanc + 1);
 		}
 		else
 		{
-			SendServerNotice("%s falhou a refinação de %s para %d", player->Name, ItemList[item[p->slot[2]].Index].Name, sanc + 1);
+			SendServerNotice("%s falhou a refinaÃ§Ã£o de %s para %d", player->MobName, g_pItemList[item[p->slot[2]].sIndex].ItemName, sanc + 1);
 
 			if(canBreak && !(_rand % 5)) 
 			{ // Se pode quebrar, vemos a chance para tal acontecer
@@ -244,13 +244,13 @@ bool CUser::RequestOdin(PacketHeader *Header)
 					int value = 0;
 					for(int i = 0; i < 3; i++)
 						{
-						if(item[p->slot[2]].Effect[i].Index == 43 || (item[p->slot[2]].Effect[i].Index >= 116 && item[p->slot[2]].Effect[i].Index <= 125))
+						if(item[p->slot[2]].stEffect[i].cEffect == 43 || (item[p->slot[2]].stEffect[i].cEffect >= 116 && item[p->slot[2]].stEffect[i].cEffect <= 125))
 						{
-							value = GetEffectValueByIndex(item[p->slot[2]].Index, EF_UNKNOW1);
-							int mobtype = GetEffectValueByIndex(item[p->slot[2]].Index, EF_MOBTYPE);
+							value = GetEffectValueByIndex(item[p->slot[2]].sIndex, EF_UNKNOW1);
+							int mobtype = GetEffectValueByIndex(item[p->slot[2]].sIndex, EF_MOBTYPE);
 
 							if(value <= 5 && mobtype == 0)
-							{ // Itens <= [E] e é item mortal
+							{ // Itens <= [E] e Ãª item mortal
 								value = value;
 							}
 							else
@@ -264,7 +264,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 									else
 										value = 6 ; // Item apenas anct
 								}
-								else if(mobtype == 1) // Item arch não anct
+								else if(mobtype == 1) // Item arch nÃªo anct
 								{
 									if(sanc >= 10)
 										value = 9;
@@ -276,35 +276,35 @@ bool CUser::RequestOdin(PacketHeader *Header)
 							}
 
 							// Calculo realizado - Item entregue
-							item[p->slot[2]].Effect[i].Index = 87;
-							item[p->slot[2]].Effect[i].Value = value;
+							item[p->slot[2]].stEffect[i].cEffect = 87;
+							item[p->slot[2]].stEffect[i].cValue = value;
 							break;
 						}
 					}
 
 					for(int i = 0; i < 3; i++)
 					{
-						if(item[p->slot[2]].Effect[i].Index == 43 || (item[p->slot[2]].Effect[i].Index >= 116 && item[p->slot[2]].Effect[i].Index <= 125))
+						if(item[p->slot[2]].stEffect[i].cEffect == 43 || (item[p->slot[2]].stEffect[i].cEffect >= 116 && item[p->slot[2]].stEffect[i].cEffect <= 125))
 							continue;
 
-						if(item[p->slot[2]].Effect[i].Index == 0)
+						if(item[p->slot[2]].stEffect[i].cEffect == 0)
 							continue;
 
-						if(item[p->slot[2]].Effect[i].Index == 87)
+						if(item[p->slot[2]].stEffect[i].cEffect == 87)
 							continue;
 
-						if(ItemList[item[p->slot[2]].Index].Pos > 32)
+						if(g_pItemList[item[p->slot[2]].sIndex].Pos > 32)
 							continue;
 
-						int value = GetEffectValueByIndex(item[p->slot[2]].Index, item[p->slot[2]].Effect[i].Index);
+						int value = GetEffectValueByIndex(item[p->slot[2]].sIndex, item[p->slot[2]].stEffect[i].cEffect);
 
-						item[p->slot[2]].Effect[i].Value += value;
+						item[p->slot[2]].stEffect[i].cValue += value;
 					}
 
-					item[p->slot[2]].Index = GetItemType(item[p->slot[2]].Index);	
+					item[p->slot[2]].sIndex = GetItemType(item[p->slot[2]].sIndex);	
 
-					Log(clientId, LOG_COMP, "Alquimista Odin - Extração criada. Tipo: %d", value);
-					LogPlayer(clientId, "Extração criada no Alquimista Odin com a falha na composição de %s para +%d", ItemList[item[p->slot[2]].Index].Name, sanc + 1);
+					Log(clientId, LOG_COMP, "Alquimista Odin - ExtraÃ§Ã£o criada. Tipo: %d", value);
+					LogPlayer(clientId, "ExtraÃ§Ã£o criada no Alquimista Odin com a falha na composiÃ§Ã£o de %s para +%d", g_pItemList[item[p->slot[2]].sIndex].ItemName, sanc + 1);
 				}
 				else
 				{
@@ -314,18 +314,16 @@ bool CUser::RequestOdin(PacketHeader *Header)
 				}
 			}
 			else
-			{ // Falhou apenas, refinação volta
+			{ // Falhou apenas, refinaÃ§Ã£o volta
 				for(int i = 0 ; i < 3; i++)
 				{
-					if(item[p->slot[2]].Effect[i].Index == 43 || (item[p->slot[2]].Effect[i].Index >= 116 && item[p->slot[2]].Effect[i].Index <= 125))
+					if(item[p->slot[2]].stEffect[i].cEffect == 43 || (item[p->slot[2]].stEffect[i].cEffect >= 116 && item[p->slot[2]].stEffect[i].cEffect <= 125))
 					{
-						item[p->slot[2]].Effect[i].Value -= 4;
+						item[p->slot[2]].stEffect[i].cValue -= 4;
 
 						break;
 					}
 				}
-				LogPlayer(clientId, "Falha na composição de %s para +%d", ItemList[item[p->slot[2]].Index].Name, sanc +1);
-				Log(clientId, LOG_COMP, "Alquimista Odin - Refinado com falha %s para %d. %d/%d", ItemList[item[p->slot[2]].Index].Name, sanc + 1, _rand, rate);
 			}
 		}
 			
@@ -344,17 +342,17 @@ bool CUser::RequestOdin(PacketHeader *Header)
 
 		SaveUser(clientId, 0);
 	}
-	else if(p->items[0].Index == 4127 && p->items[1].Index == 4127 && p->items[2].Index == 5135 && p->items[3].Index == 5113 &&
-		p->items[4].Index == 5129 && p->items[5].Index == 5112 && p->items[6].Index == 5110)
+	else if(p->items[0].sIndex == 4127 && p->items[1].sIndex == 4127 && p->items[2].sIndex == 5135 && p->items[3].sIndex == 5113 &&
+		p->items[4].sIndex == 5129 && p->items[5].sIndex == 5112 && p->items[6].sIndex == 5110)
 	{
-		if(pMob[clientId].Mobs.Player.Equip[0].EFV2 != CELESTIAL || player->bStatus.Level != 39 || !pMob[clientId].Mobs.Info.LvBlocked || pMob[clientId].Mobs.Info.Unlock39)
+		if(pMob[clientId].Mobs.Player.Equip[0].EFV2 != CELESTIAL || player->BaseScore.Level != 39 || !pMob[clientId].Mobs.Info.LvBlocked || pMob[clientId].Mobs.Info.Unlock39)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_IncorrectComp]);
 
 			return true;
 		}
 
-		// Remove os itens, independente se deu certo ou não
+		// Remove os itens, independente se deu certo ou nÃªo
 		for(int i = 0 ; i < 7 ; i++)
 		{
 			memset(&player->Inventory[p->slot[i]], 0, sizeof STRUCT_ITEM);
@@ -369,23 +367,23 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			pMob[clientId].Mobs.Info.Unlock39  = true;
 
 			SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
-			Log(clientId, LOG_COMP, "Composição de desbloqueio 40 efetuada com SUCESSO");
+			Log(clientId, LOG_COMP, "ComposiÃ§Ã£o de desbloqueio 40 efetuada com SUCESSO");
 		}
 		else
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_CombineFailed]);
 
-			Log(clientId, LOG_COMP, "Composição de desbloqueio 40 fetuada com FALHA");
+			Log(clientId, LOG_COMP, "ComposiÃ§Ã£o de desbloqueio 40 fetuada com FALHA");
 		}
 
 		SaveUser(clientId, 0);
 	}
-	else if(p->items[0].Index == 5125 && p->items[1].Index == 5115 && p->items[2].Index == 5111 && p->items[3].Index == 5112 && p->items[4].Index == 5120 && 
-		p->items[5].Index == 5128 && p->items[6].Index == 5119)
+	else if(p->items[0].sIndex == 5125 && p->items[1].sIndex == 5115 && p->items[2].sIndex == 5111 && p->items[3].sIndex == 5112 && p->items[4].sIndex == 5120 && 
+		p->items[5].sIndex == 5128 && p->items[6].sIndex == 5119)
 	{
 		int _rand = Rand() % 100;
 		
-		// Remove os itens, independente se deu certo ou não
+		// Remove os itens, independente se deu certo ou nÃªo
 		for(int i = 0 ; i < 7 ; i++)
 		{
 			memset(&player->Inventory[p->slot[i]], 0, sizeof STRUCT_ITEM);
@@ -396,18 +394,18 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
 
 		// Seta o item no inventario
-		player->Inventory[p->slot[0]].Index = 3020;
+		player->Inventory[p->slot[0]].sIndex = 3020;
 
 		// Atualiza o inventario
 		SendItem(clientId, SlotType::Inv, p->slot[0], &player->Inventory[p->slot[0]]);
 
-		Log(clientId, LOG_INGAME, "Sucesso na composição de Pedra da Fúria");
-		LogPlayer(clientId, "Sucesso na composição da pedra da Fúria");
+		Log(clientId, LOG_INGAME, "Sucesso na composiÃ§Ã£o de Pedra da FÃªria");
+		LogPlayer(clientId, "Sucesso na composiÃ§Ã£o da pedra da FÃªria");
 
 		SaveUser(clientId, 0);
 	}
-	else if(p->items[0].Index == 4127 && p->items[1].Index == 4127 && p->items[2].Index == 5135 && p->items[3].Index == 413 &&
-		p->items[4].Index == 413 && p->items[5].Index == 413 && p->items[6].Index == 413)
+	else if(p->items[0].sIndex == 4127 && p->items[1].sIndex == 4127 && p->items[2].sIndex == 5135 && p->items[3].sIndex == 413 &&
+		p->items[4].sIndex == 413 && p->items[5].sIndex == 413 && p->items[6].sIndex == 413)
 	{
 		if(pMob[clientId].Mobs.Player.Equip[0].EFV2 < CELESTIAL)
 		{
@@ -424,7 +422,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			return true;
 		}
 		
-		// Remove os itens, independente se deu certo ou não
+		// Remove os itens, independente se deu certo ou nÃªo
 		for(int i = 0 ; i < 7 ; i++)
 		{
 			memset(&player->Inventory[p->slot[i]], 0, sizeof STRUCT_ITEM);
@@ -437,17 +435,17 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
 		SendItem(clientId, SlotType::Equip, 15, &player->Equip[15]);
 
-		Log(clientId, LOG_COMP, "Refinação da capa obtida com sucesso: %d - Capa: %d. Ev: %d", sanc + 1, player->Equip[15].Index, pMob[clientId].Mobs.Player.Equip[0].EFV2);
+		Log(clientId, LOG_COMP, "RefinaÃ§Ã£o da capa obtida com sucesso: %d - Capa: %d. Ev: %d", sanc + 1, player->Equip[15].sIndex, pMob[clientId].Mobs.Player.Equip[0].EFV2);
 
 		pMob[clientId].GetCurrentScore(clientId);
 		SendScore(clientId);
 
 		SaveUser(clientId, 0);
 	}
-	else if(p->items[0].Index == 413 && p->items[1].Index == 413 && p->items[2].Index == 413 && p->items[3].Index == 413 && p->items[4].Index == 413 && p->items[5].Index == 413 && 
-		p->items[6].Index == 413)
+	else if(p->items[0].sIndex == 413 && p->items[1].sIndex == 413 && p->items[2].sIndex == 413 && p->items[3].sIndex == 413 && p->items[4].sIndex == 413 && p->items[5].sIndex == 413 && 
+		p->items[6].sIndex == 413)
 	{
-		// Remove os itens, independente se deu certo ou não
+		// Remove os itens, independente se deu certo ou nÃªo
 		for(int i = 0 ; i < 7 ; i++)
 		{
 			memset(&player->Inventory[p->slot[i]], 0, sizeof STRUCT_ITEM);
@@ -456,26 +454,26 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		}
 		
 		// Seta o item no inventario
-		player->Inventory[p->slot[0]].Index = 5134;
+		player->Inventory[p->slot[0]].sIndex = 5134;
 
 		// Atualiza o inventario
 		SendItem(clientId, SlotType::Inv, p->slot[0], &player->Inventory[p->slot[0]]);
 		
 		SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
 
-		Log(clientId, LOG_INGAME, "Sucesso na composição de Pista de Runas");
-		LogPlayer(clientId, "Sucesso na composição da Pista de Runas");
+		Log(clientId, LOG_INGAME, "Sucesso na composiÃ§Ã£o de Pista de Runas");
+		LogPlayer(clientId, "Sucesso na composiÃ§Ã£o da Pista de Runas");
 
 		SaveUser(clientId, 0);
 		return true;
 	}
-	else if(p->items[0].Index == 674) 
+	else if(p->items[0].sIndex == 674) 
 	{
-		// Composição da PEdra de Kersef
+		// ComposiÃ§Ã£o da PEdra de Kersef
 		INT32 nail		= GetInventoryAmount(clientId, 674); // 5x unha de Kefra
-		INT32 heart		= GetInventoryAmount(clientId, 675); // 2x Coração de Sombra Negra
+		INT32 heart		= GetInventoryAmount(clientId, 675); // 2x CoraÃ§Ã£o de Sombra Negra
 		INT32 hair		= GetInventoryAmount(clientId, 676); // 3x Cabelo do Beriel Amald
-		INT32 heartBer	= GetInventoryAmount(clientId, 677); // 01x Coração do Beriel
+		INT32 heartBer	= GetInventoryAmount(clientId, 677); // 01x CoraÃ§Ã£o do Beriel
 		INT32 seal		= GetInventoryAmount(clientId, 4127); // 2x Pergaminho Selado
 		INT32 leaf		= GetInventoryAmount(clientId, 770); // 5x Folha de Mandragora
 
@@ -486,7 +484,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			return true;
 		}
 
-		if(pMob[clientId].Mobs.Player.Gold < 100000000)
+		if(pMob[clientId].Mobs.Player.Coin < 100000000)
 		{
 			SendClientMessage(clientId, "Gold insuficiente!");
 
@@ -497,7 +495,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		if(slotId == -1)
 			return false;
 
-		pMob[clientId].Mobs.Player.Gold -= 100000000;
+		pMob[clientId].Mobs.Player.Coin -= 100000000;
 
 		INT32 _rand = Rand() % 100;
 		if(_rand >= 80)
@@ -524,11 +522,11 @@ bool CUser::RequestOdin(PacketHeader *Header)
 				totalRemoved++;
 				RemoveAmount(clientId, itemId, 1);
 
-				Log(clientId, LOG_INGAME, "Removido %s (%d) por falha na composição", ItemList[itemId].Name);
+				Log(clientId, LOG_INGAME, "Removido %s (%d) por falha na composiÃ§Ã£o", g_pItemList[itemId].ItemName);
 			}
 		
 			SendClientMessage(clientId, g_pLanguageString[_NN_CombineFailed]);
-			Log(clientId, LOG_INGAME, "Falha na composição da Pedra de Kersef lv0. %d/80", _rand);
+			Log(clientId, LOG_INGAME, "Falha na composiÃ§Ã£o da Pedra de Kersef lv0. %d/80", _rand);
 			return true;
 		}
 		
@@ -542,7 +540,7 @@ bool CUser::RequestOdin(PacketHeader *Header)
 
 		memset(&pMob[clientId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-		pMob[clientId].Mobs.Player.Inventory[slotId].Index = 4552;
+		pMob[clientId].Mobs.Player.Inventory[slotId].sIndex = 4552;
 		SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
 	
 		SendClientMessage(clientId, g_pLanguageString[_NN_Success_Comp]);
@@ -563,17 +561,17 @@ bool CUser::RequestOdin(PacketHeader *Header)
 
 		for(int y = 0 ; y < 4; y++)
 		{
-			if(p->items[0].Index == secretStone[y][0] && p->items[1].Index == secretStone[y][1] && p->items[2].Index == secretStone[y][2] && p->items[3].Index == secretStone[y][3] &&
-				p->items[4].Index == secretStone[y][4] && p->items[5].Index == secretStone[y][5] && p->items[6].Index == secretStone[y][6])
+			if(p->items[0].sIndex == secretStone[y][0] && p->items[1].sIndex == secretStone[y][1] && p->items[2].sIndex == secretStone[y][2] && p->items[3].sIndex == secretStone[y][3] &&
+				p->items[4].sIndex == secretStone[y][4] && p->items[5].sIndex == secretStone[y][5] && p->items[6].sIndex == secretStone[y][6])
 			{
-				if(player->Gold < 2000000)
+				if(player->Coin < 2000000)
 				{
-					SendClientMessage(clientId, "São necessarios 2 milhões de godl");
+					SendClientMessage(clientId, "SÃªo necessarios 2 milhÃªes de godl");
 
 					return true;
 				}
 
-				// Remove os itens, independente se deu certo ou não
+				// Remove os itens, independente se deu certo ou nÃªo
 				for(int i = 0 ; i < 7 ; i++)
 				{
 					memset(&player->Inventory[p->slot[i]], 0, sizeof STRUCT_ITEM);
@@ -582,35 +580,35 @@ bool CUser::RequestOdin(PacketHeader *Header)
 				}
 
 				// Retira o gold
-				player->Gold -= 2000000;
+				player->Coin -= 2000000;
 
 				// Atualiza o gold
-				SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+				SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 
 				any = true;
 
 				int rand = Rand() % 101;
 				if (rand > 95)
 				{
-					SendClientMessage(clientId, "Falha na composição %d/95", rand);
+					SendClientMessage(clientId, "Falha na composiÃ§Ã£o %d/95", rand);
 
-					Log(clientId, LOG_INGAME, "Combinação falhou de secreta. A secreta que deveria vir era: %s", ItemList[5334 + y].Name);
-					SendNotice(".%s falhou na composiçaõ de %s", pMob[clientId].Mobs.Player.Name, ItemList[5334 + y].Name);
+					Log(clientId, LOG_INGAME, "CombinaÃ§Ã£o falhou de secreta. A secreta que deveria vir era: %s", g_pItemList[5334 + y].ItemName);
+					SendNotice(".%s falhou na composiÃªaÃª de %s", pMob[clientId].Mobs.Player.MobName, g_pItemList[5334 + y].ItemName);
 				}
 				else
 				{
 					// Seta a Pedra Secreta
-					player->Inventory[p->slot[0]].Index = (5334 + y);
+					player->Inventory[p->slot[0]].sIndex = (5334 + y);
 
 					SendItem(clientId, SlotType::Inv, p->slot[0], &player->Inventory[p->slot[0]]);
 
 					// Envia a mensagem de sucesso
-					SendClientMessage(clientId, "Composição concluída %d/95", rand);
+					SendClientMessage(clientId, "ComposiÃ§Ã£o concluÃªda %d/95", rand);
 
-					Log(clientId, LOG_INGAME, "Composto com sucesso %s. %d/95", ItemList[5334 + y].Name, rand);
-					LogPlayer(clientId, "Composto com sucesso %s", ItemList[5334 + y].Name);
+					Log(clientId, LOG_INGAME, "Composto com sucesso %s. %d/95", g_pItemList[5334 + y].ItemName, rand);
+					LogPlayer(clientId, "Composto com sucesso %s", g_pItemList[5334 + y].ItemName);
 
-					SendNotice(".%s compôs com sucesso a %s", pMob[clientId].Mobs.Player.Name, ItemList[5334 + y].Name);
+					SendNotice(".%s compÃªs com sucesso a %s", pMob[clientId].Mobs.Player.MobName, g_pItemList[5334 + y].ItemName);
 				}
 
 				SaveUser(clientId, 0);
@@ -621,21 +619,21 @@ bool CUser::RequestOdin(PacketHeader *Header)
 		bool allIsRune = true;
 		for (int i = 0; i < 7; i++)
 		{
-			if (p->items[i].Index < 5110 || p->items[i].Index > 5133)
+			if (p->items[i].sIndex < 5110 || p->items[i].sIndex > 5133)
 				allIsRune = false;
 		}
 
 		// Tentando gerar uma Secreta aleatoriamente
 		if (allIsRune)
 		{
-			if (player->Gold < 2000000)
+			if (player->Coin < 2000000)
 			{
-				SendClientMessage(clientId, "São necessarios 2 milhões de godl");
+				SendClientMessage(clientId, "SÃªo necessarios 2 milhÃªes de godl");
 
 				return true;
 			}
 
-			// Remove os itens, independente se deu certo ou não
+			// Remove os itens, independente se deu certo ou nÃªo
 			for (int i = 0; i < 7; i++)
 			{
 				memset(&player->Inventory[p->slot[i]], 0, sizeof STRUCT_ITEM);
@@ -644,33 +642,33 @@ bool CUser::RequestOdin(PacketHeader *Header)
 			}
 
 			// Retira o gold
-			player->Gold -= 2000000;
+			player->Coin -= 2000000;
 
 			// Atualiza o gold
-			SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+			SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 
 			int rand = Rand() % 101;
 			if (rand <= 5)
 			{
 				int secretId = (5334 + (Rand() % 4));
-				player->Inventory[p->slot[0]].Index = secretId;
+				player->Inventory[p->slot[0]].sIndex = secretId;
 
 				SendItem(clientId, SlotType::Inv, p->slot[0], &player->Inventory[p->slot[0]]);
 
 				// Envia a mensagem de sucesso
-				SendClientMessage(clientId, "Composição concluída %d/05", rand);
+				SendClientMessage(clientId, "ComposiÃ§Ã£o concluÃªda %d/05", rand);
 
-				Log(clientId, LOG_INGAME, "Composto com sucesso %s usando Runas aleatórias", ItemList[secretId].Name);
-				LogPlayer(clientId, "Composto com sucesso %s usando Runas aleatórias", ItemList[secretId].Name);
+				Log(clientId, LOG_INGAME, "Composto com sucesso %s usando Runas aleatÃªrias", g_pItemList[secretId].ItemName);
+				LogPlayer(clientId, "Composto com sucesso %s usando Runas aleatÃªrias", g_pItemList[secretId].ItemName);
 
-				SendNotice(".%s compôs com sucesso a %s", pMob[clientId].Mobs.Player.Name, ItemList[secretId].Name);
+				SendNotice(".%s compÃªs com sucesso a %s", pMob[clientId].Mobs.Player.MobName, g_pItemList[secretId].ItemName);
 			}
 			else
 			{
-				SendClientMessage(clientId, "Houve uma falha na composição do item %d/05", rand);
+				SendClientMessage(clientId, "Houve uma falha na composiÃ§Ã£o do item %d/05", rand);
 
-				Log(clientId, LOG_INGAME, "Combinação falhou de secreta usando Runas aleatórias");
-				SendNotice(".%s falhou na composição da Pedra Secreta", pMob[clientId].Mobs.Player.Name);
+				Log(clientId, LOG_INGAME, "CombinaÃ§Ã£o falhou de secreta usando Runas aleatÃªrias");
+				SendNotice(".%s falhou na composiÃ§Ã£o da Pedra Secreta", pMob[clientId].Mobs.Player.MobName);
 			}
 
 			return true;

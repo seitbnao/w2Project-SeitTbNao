@@ -12,7 +12,7 @@ void SortTradeItem(STRUCT_ITEM *item, char type)
 
 	for(iterator = 0; iterator < 15 ; iterator ++)
 	{
-		if (item[iterator].Index == 0)
+		if (item[iterator].sIndex == 0)
 		{
 			buffer[iterator] = -1;
 
@@ -69,13 +69,13 @@ INT32 CanTrade(STRUCT_ITEM *dest, STRUCT_ITEM *inv, char* myTrade, STRUCT_ITEM *
 	SortTradeItem(opponentTemp, EF_GRID);
 	for (INT32 i = 0; i < 15; i++) // local17
 	{
-		if (opponentTemp[i].Index == 0)
+		if (opponentTemp[i].sIndex == 0)
 			continue;
 
 		INT32 freeSlot = -1; // LOCAL19
 		for(int i = 0 ; i < 30; i++)
 		{
-			if(dest[i].Index == 0)
+			if(dest[i].sIndex == 0)
 			{
 				freeSlot = i;
 
@@ -83,14 +83,14 @@ INT32 CanTrade(STRUCT_ITEM *dest, STRUCT_ITEM *inv, char* myTrade, STRUCT_ITEM *
 			}
 		}
 
-		if(freeSlot == -1 && dest[60].Index == 3467)
+		if(freeSlot == -1 && dest[60].sIndex == 3467)
 		{
 			float remainig = TimeRemaining(dest[60].EFV1, dest[60].EFV2, dest[60].EFV3 + 1900);
 			if(remainig > 0.0f)
 			{
 				for(int i = 30; i < 45; i++)
 				{
-					if(dest[i].Index == 0)
+					if(dest[i].sIndex == 0)
 					{
 						freeSlot = i;
 						break;
@@ -99,14 +99,14 @@ INT32 CanTrade(STRUCT_ITEM *dest, STRUCT_ITEM *inv, char* myTrade, STRUCT_ITEM *
 			}
 		}
 
-		if(freeSlot == -1 && dest[61].Index == 3467)
+		if(freeSlot == -1 && dest[61].sIndex == 3467)
 		{
 			float remainig = TimeRemaining(dest[61].EFV1, dest[61].EFV2, dest[61].EFV3 + 1900);
 			if(remainig > 0.0f)
 			{
 				for(int i = 45; i < 60; i++)
 				{
-					if(dest[i].Index == 0)
+					if(dest[i].sIndex == 0)
 					{
 						freeSlot = i;
 						break;
@@ -133,7 +133,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 {
 	p383 *msg = (p383*)(Header); // LOCAL1348
 
-	if(pMob[clientId].Mobs.Player.Status.curHP <= 0 || pUser[clientId].Status != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || pUser[clientId].CurrentScore != USER_PLAY)
 	{
 		Log(clientId, LOG_ERROR, "Tentando usar o trade sem estar no jogo ou com o HP zerado.");
 		SendHpMode(clientId);
@@ -150,7 +150,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 		return true;
 	}
 
-	if(pUser[opponentId].Status != USER_PLAY)
+	if(pUser[opponentId].CurrentScore != USER_PLAY)
 	{
 		RemoveTrade(clientId);
 
@@ -164,7 +164,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 		return true;
 	}
 
-	if(msg->Gold < 0 || msg->Gold > pMob[clientId].Mobs.Player.Gold)
+	if(msg->Coin < 0 || msg->Coin > pMob[clientId].Mobs.Player.Coin)
 	{
 		RemoveTrade(clientId);
 		RemoveTrade(opponentId);
@@ -174,7 +174,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 	
 	for(INT32 i = 0; i < 15; i ++) // local1350
 	{
-		if(msg->Item[i].Index != 0)
+		if(msg->Item[i].sIndex != 0)
 		{
 			INT32 slot = msg->Slot[i]; // local1351
 			if (slot < 0 || slot >= 60)
@@ -190,7 +190,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 			}	
 		}
 		/// 43262B
-		if(pUser[opponentId].Trade.Item[i].Index != 0)
+		if(pUser[opponentId].Trade.Item[i].sIndex != 0)
 		{
 			INT32 slot = pUser[opponentId].Trade.Slot[i]; // local1353
 			if (slot < 0 || slot > 60)
@@ -214,10 +214,10 @@ bool CUser::RequestTrade(PacketHeader *Header)
 		for(INT32 i = 0; i < 15; i++) // local1356
 		{
 			INT32 verify = 0; // local1357
-			if(pUser[clientId].Trade.Item[i].Index != 0)
+			if(pUser[clientId].Trade.Item[i].sIndex != 0)
 				verify = memcmp(&pUser[clientId].Trade.Item[i], &msg->Item[i], 8);
 
-			if(pUser[clientId].Trade.Gold  != 0 && msg->Gold != pUser[clientId].Trade.Gold)
+			if(pUser[clientId].Trade.Coin  != 0 && msg->Coin != pUser[clientId].Trade.Coin)
 				verify = 1;
 
 			if (verify != 0)
@@ -250,7 +250,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 
 	if (pUser[clientId].AllStatus.PK)
 	{
-		SendClientMessage(clientId, "N�o � poss�vel trocar com o modo PvP ativo");
+		SendClientMessage(clientId, "Nêo ê possêvel trocar com o modo PvP ativo");
 		
 		RemoveTrade(opponentId);
 		RemoveTrade(clientId);
@@ -268,23 +268,23 @@ bool CUser::RequestTrade(PacketHeader *Header)
 
 	if (pUser[clientId].AllStatus.Whisper)
 	{
-		SendClientMessage(clientId, "N�o � poss�vel trocar com o chat desativado");
+		SendClientMessage(clientId, "Nêo ê possêvel trocar com o chat desativado");
 
 		RemoveTrade(opponentId);
 		RemoveTrade(clientId);
 		return true;
 	}
 
-	INT32 clientGuildId = pMob[clientId].Mobs.Player.GuildIndex; // local1358
-	INT32 opponentGuildId = pMob[opponentId].Mobs.Player.GuildIndex; // local1359
+	INT32 clientGuildId = pMob[clientId].Mobs.Player.Guild; // local1358
+	INT32 opponentGuildId = pMob[opponentId].Mobs.Player.Guild; // local1359
 
 	// 004328C3
-	INT32 clientMemberType = pMob[clientId].Mobs.Player.GuildMemberType; // local1360
-	INT32 opponentMemberType = pMob[opponentId].Mobs.Player.GuildMemberType; // local1361
+	INT32 clientMemberType = pMob[clientId].Mobs.Player.GuildLevel; // local1360
+	INT32 opponentMemberType = pMob[opponentId].Mobs.Player.GuildLevel; // local1361
 
 	for(INT32 i = 0; i < 15; i ++) // local1362
 	{
-		if(msg->Item[i].Index == 747 || msg->Item[i].Index == 3993 || msg->Item[i].Index == 3994)
+		if(msg->Item[i].sIndex == 747 || msg->Item[i].sIndex == 3993 || msg->Item[i].sIndex == 3994)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Only_With_Guild_Master]);
 			SendClientMessage(opponentId, g_pLanguageString[_NN_Only_With_Guild_Master]);
@@ -296,8 +296,8 @@ bool CUser::RequestTrade(PacketHeader *Header)
 			return true;
 		}
 		/*
-		if(msg->Item[i].Index == 508 || msg->Item[i].Index == 522 || 
-			(msg->Item[i].Index >= 506 && msg->Item[i].Index < 537) || msg->Item[i].Index == 446)
+		if(msg->Item[i].cEffect == 508 || msg->Item[i].cEffect == 522 || 
+			(msg->Item[i].cEffect >= 506 && msg->Item[i].cEffect < 537) || msg->Item[i].cEffect == 446)
 		{
 			INT32 guild = GetGuild(&msg->Item[i]); // local1363
 
@@ -318,10 +318,10 @@ bool CUser::RequestTrade(PacketHeader *Header)
 			return true;
 		}
 		*/
-		if (msg->Item[i].Index && GetItemAbility(&msg->Item[i], EF_NOTRADE))
+		if (msg->Item[i].sIndex && GetItemAbility(&msg->Item[i], EF_NOTRADE))
 		{
-			SendClientMessage(clientId, "Este item n�o pode ser trocado.");
-			SendClientMessage(opponentId, "Este item n�o pode ser trocado.");
+			SendClientMessage(clientId, "Este item nêo pode ser trocado.");
+			SendClientMessage(opponentId, "Este item nêo pode ser trocado.");
 
 			RemoveTrade(clientId);
 			if (pUser[opponentId].Trade.ClientId == clientId)
@@ -346,7 +346,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 		memcpy(&pUser[clientId].Trade, msg, sizeof p383);
 
 		pUser[clientId].Trade.Confirm = 0;
-		pUser[clientId].Trade.Gold = 0;
+		pUser[clientId].Trade.Coin = 0;
 
 		msg->Header.ClientId = opponentId;
 		msg->ClientId = clientId;
@@ -354,7 +354,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 		pUser[opponentId].AddMessage((BYTE*)msg, sizeof p383);
 
 		pUser[opponentId].Trade.Confirm = 0;
-		pUser[opponentId].Trade.Gold = 0;
+		pUser[opponentId].Trade.Coin = 0;
 
 		LastTrade = now;
 		return true;
@@ -423,19 +423,19 @@ bool CUser::RequestTrade(PacketHeader *Header)
 
 		if(pUser[opponentId].Trade.Confirm == 1)
 		{
-			if(pUser[clientId].Trade.Gold < 0 || pUser[clientId].Trade.Gold > 2000000000)
+			if(pUser[clientId].Trade.Coin < 0 || pUser[clientId].Trade.Coin > 2000000000)
 			{
 				RemoveTrade(clientId);
 				RemoveTrade(opponentId);
 			}
 
-			if(pUser[opponentId].Trade.Gold < 0 || pUser[opponentId].Trade.Gold > 2000000000)
+			if(pUser[opponentId].Trade.Coin < 0 || pUser[opponentId].Trade.Coin > 2000000000)
 			{
 				RemoveTrade(clientId);
 				RemoveTrade(opponentId);
 			}
 
-			INT32 totalGoldClient = pMob[clientId].Mobs.Player.Gold - pUser[clientId].Trade.Gold + pUser[opponentId].Trade.Gold; // local1368
+			INT32 totalGoldClient = pMob[clientId].Mobs.Player.Coin - pUser[clientId].Trade.Coin + pUser[opponentId].Trade.Coin; // local1368
 			if (totalGoldClient > 2000000000 || totalGoldClient < 0)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Cant_get_more_than_2G]);
@@ -445,7 +445,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 				return true;
 			}
 
-			INT32 totalGoldOpponent = pMob[opponentId].Mobs.Player.Gold - pUser[opponentId].Trade.Gold + pUser[clientId].Trade.Gold; // local1369
+			INT32 totalGoldOpponent = pMob[opponentId].Mobs.Player.Coin - pUser[opponentId].Trade.Coin + pUser[clientId].Trade.Coin; // local1369
 			if (totalGoldOpponent > 2000000000 || totalGoldOpponent < 0)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Cant_get_more_than_2G]);
@@ -455,7 +455,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 				return true;
 			}
 
-			if(pUser[clientId].Trade.Gold > pMob[clientId].Mobs.Player.Gold)
+			if(pUser[clientId].Trade.Coin > pMob[clientId].Mobs.Player.Coin)
 			{
 				SendClientMessage(clientId, g_pLanguageString[_NN_Havent_Money_So_Much]);
 				SendClientMessage(opponentId, g_pLanguageString[_NN_Opponent_Havent_Money]);
@@ -463,7 +463,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 				return true;
 			}
 
-			if(pUser[opponentId].Trade.Gold > pMob[opponentId].Mobs.Player.Gold)
+			if(pUser[opponentId].Trade.Coin > pMob[opponentId].Mobs.Player.Coin)
 			{
 				SendClientMessage(opponentId, g_pLanguageString[_NN_Havent_Money_So_Much]);
 				SendClientMessage(clientId, g_pLanguageString[_NN_Opponent_Havent_Money]);
@@ -507,30 +507,30 @@ bool CUser::RequestTrade(PacketHeader *Header)
 			for(INT32 i = 0 ; i < 15; i++)
 			{
 				STRUCT_ITEM *item = &pUser[opponentId].Trade.Item[i];
-				if(item->Index > 0 && item->Index < 6500)
+				if(item->sIndex > 0 && item->sIndex < 6500)
 				{ // Esta enviando item
-					Log(opponentId, LOG_INGAME, "Trade - %d - Enviado %s para %s [%d] [%d %d %d %d %d %d]", i, ItemList[item->Index].Name, pMob[clientId].Mobs.Player.Name, item->Index, item->EF1, item->EFV1,
+					Log(opponentId, LOG_INGAME, "Trade - %d - Enviado %s para %s [%d] [%d %d %d %d %d %d]", i, g_pItemList[item->sIndex].ItemName, pMob[clientId].Mobs.Player.MobName, item->sIndex, item->EF1, item->EFV1,
 						item->EF2, item->EFV2, item->EF3, item->EFV3);
-					Log(clientId, LOG_INGAME, "Trade - %d - Recebido %s de %s [%d] [%d %d %d %d %d %d]", i, ItemList[item->Index].Name, pMob[opponentId].Mobs.Player.Name, item->Index, item->EF1, item->EFV1,
+					Log(clientId, LOG_INGAME, "Trade - %d - Recebido %s de %s [%d] [%d %d %d %d %d %d]", i, g_pItemList[item->sIndex].ItemName, pMob[opponentId].Mobs.Player.MobName, item->sIndex, item->EF1, item->EFV1,
 						item->EF2, item->EFV2, item->EF3, item->EFV3);
 					
-					LogPlayer(opponentId, "Enviado o item %s para %s por trade.", ItemList[item->Index].Name, pMob[clientId].Mobs.Player.Name);
-					LogPlayer(clientId, "Recebido o item %s para %s por trade.", ItemList[item->Index].Name, pMob[opponentId].Mobs.Player.Name);
+					LogPlayer(opponentId, "Enviado o item %s para %s por trade.", g_pItemList[item->sIndex].ItemName, pMob[clientId].Mobs.Player.MobName);
+					LogPlayer(clientId, "Recebido o item %s para %s por trade.", g_pItemList[item->sIndex].ItemName, pMob[opponentId].Mobs.Player.MobName);
 				}
 			}
 
 			for(INT32 i = 0 ; i < 15; i++)
 			{
 				STRUCT_ITEM *item = &pUser[clientId].Trade.Item[i];
-				if(item->Index > 0 && item->Index < 6500)
+				if(item->sIndex > 0 && item->sIndex < 6500)
 				{ // Esta enviando item
-					Log(clientId, LOG_INGAME, "Trade - %d - Enviado %s para %s [%d] [%d %d %d %d %d %d]", i, ItemList[item->Index].Name, pMob[opponentId].Mobs.Player.Name, item->Index, item->EF1, item->EFV1,
+					Log(clientId, LOG_INGAME, "Trade - %d - Enviado %s para %s [%d] [%d %d %d %d %d %d]", i, g_pItemList[item->sIndex].ItemName, pMob[opponentId].Mobs.Player.MobName, item->sIndex, item->EF1, item->EFV1,
 						item->EF2, item->EFV2, item->EF3, item->EFV3);
-					Log(opponentId, LOG_INGAME, "Trade - %d - Recebido %s de %s [%d] [%d %d %d %d %d %d]", i, ItemList[item->Index].Name, pMob[clientId].Mobs.Player.Name, item->Index, item->EF1, item->EFV1,
+					Log(opponentId, LOG_INGAME, "Trade - %d - Recebido %s de %s [%d] [%d %d %d %d %d %d]", i, g_pItemList[item->sIndex].ItemName, pMob[clientId].Mobs.Player.MobName, item->sIndex, item->EF1, item->EFV1,
 						item->EF2, item->EFV2, item->EF3, item->EFV3);
 					
-					LogPlayer(opponentId, "Recebido o item %s para %s por trade.", ItemList[item->Index].Name, pMob[clientId].Mobs.Player.Name);
-					LogPlayer(clientId, "Enviado o item %s para %s por trade.", ItemList[item->Index].Name, pMob[opponentId].Mobs.Player.Name);
+					LogPlayer(opponentId, "Recebido o item %s para %s por trade.", g_pItemList[item->sIndex].ItemName, pMob[clientId].Mobs.Player.MobName);
+					LogPlayer(clientId, "Enviado o item %s para %s por trade.", g_pItemList[item->sIndex].ItemName, pMob[opponentId].Mobs.Player.MobName);
 				}
 			}
 
@@ -538,20 +538,20 @@ bool CUser::RequestTrade(PacketHeader *Header)
 			memcpy(pMob[clientId].Mobs.Player.Inventory, clientDest, sizeof STRUCT_ITEM * 64);
 			memcpy(pMob[opponentId].Mobs.Player.Inventory, opponentDest, sizeof STRUCT_ITEM * 64);
 			
-			Log(clientId, LOG_INGAME, "Trade - Enviado %d de gold para o usuario", pUser[clientId].Trade.Gold);
-			Log(opponentId, LOG_INGAME, "Trade - Recebido %d de gold do usuario", pUser[clientId].Trade.Gold);
+			Log(clientId, LOG_INGAME, "Trade - Enviado %d de gold para o usuario", pUser[clientId].Trade.Coin);
+			Log(opponentId, LOG_INGAME, "Trade - Recebido %d de gold do usuario", pUser[clientId].Trade.Coin);
 
-			Log(opponentId, LOG_INGAME, "Trade - Enviado %d de gold para o usuario", pUser[opponentId].Trade.Gold);
-			Log(clientId, LOG_INGAME, "Trade - Recebido %d de gold do usuario", pUser[opponentId].Trade.Gold);
+			Log(opponentId, LOG_INGAME, "Trade - Enviado %d de gold para o usuario", pUser[opponentId].Trade.Coin);
+			Log(clientId, LOG_INGAME, "Trade - Recebido %d de gold do usuario", pUser[opponentId].Trade.Coin);
 
-			LogPlayer(clientId, "Enviado %d de gold para o usuario", pUser[clientId].Trade.Gold);
-			LogPlayer(opponentId, "Recebido %d de gold do usuario", pUser[clientId].Trade.Gold);
+			LogPlayer(clientId, "Enviado %d de gold para o usuario", pUser[clientId].Trade.Coin);
+			LogPlayer(opponentId, "Recebido %d de gold do usuario", pUser[clientId].Trade.Coin);
 
-			LogPlayer(opponentId, "Enviado %d de gold para o usuario", pUser[opponentId].Trade.Gold);
-			LogPlayer(clientId, "Recebido %d de gold do usuario", pUser[opponentId].Trade.Gold);
+			LogPlayer(opponentId, "Enviado %d de gold para o usuario", pUser[opponentId].Trade.Coin);
+			LogPlayer(clientId, "Recebido %d de gold do usuario", pUser[opponentId].Trade.Coin);
 
-			pMob[clientId].Mobs.Player.Gold = totalGoldClient;
-			pMob[opponentId].Mobs.Player.Gold = totalGoldOpponent;
+			pMob[clientId].Mobs.Player.Coin = totalGoldClient;
+			pMob[opponentId].Mobs.Player.Coin = totalGoldOpponent;
 
 			SendCarry(clientId);
 			SendCarry(opponentId);

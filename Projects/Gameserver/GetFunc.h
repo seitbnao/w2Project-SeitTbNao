@@ -15,7 +15,7 @@ int GetAnctCode(STRUCT_ITEM *item, bool usingCostume);
 int GetItemIDAndEffect(STRUCT_ITEM *Item, int mnt, bool usingCostume);
 
 // Procura um lugar vazio dentro de uma area para o usuario
-bool GetEmptyMobGrid(int Index, unsigned int *posX, unsigned int *posY);
+bool GetEmptyMobGrid(int sIndex, unsigned int *posX, unsigned int *posY);
 bool GetEmptyItemGrid(int *posX, int *posY);
 
 // Cria o pacote de movimento
@@ -30,13 +30,13 @@ int GetInfoClass (int face) ;
 
 bool IsImpossibleToRefine(STRUCT_ITEM* item);
 
-// Pega o valor do efeito baseado no Index 
-short GetEffectValueByIndex(int ItemID, int Index);
+// Pega o valor do efeito baseado no sIndex 
+short GetEffectValueByIndex(int ItemID, int sIndex);
 
 eMapAttribute GetAttribute(int posX, int posY);
 
 // Pega a velocidade atual do mob
-int GetSpeed(STRUCT_STATUS *status);
+int GetSpeed(STRUCT_SCORE *status);
 
 // Pega a distância do usuario
 int GetDistance(int x1,int y1,int x2,int y2);
@@ -57,16 +57,16 @@ INT32 GetParryRate(int clientId, int mobId, int type);
 int GetEmptyAffect(int mobId, int buffId);
 
 // Pk Point do usuario
-int GetPKPoint(int Index);
+int GetPKPoint(int sIndex);
 
 // Pega a cidade e a arena
 int GetVillage(unsigned int x, unsigned int y);
 int GetArena(unsigned int x, unsigned int y);
 
 
-int GetTotKill(int Index);
-int GetGuilty(int Index);
-int GetCurKill(int Index);
+int GetTotKill(int sIndex);
+int GetGuilty(int sIndex);
+int GetCurKill(int sIndex);
 
 void GetHitPosition(int arg1,int arg2,int *arg3,int *arg4);
 
@@ -75,7 +75,7 @@ void GetMultiAttack(int attackerId, int *target, p367 *p);
 
 STRUCT_ITEM *GetItemPointer(int clientIndex, int invType, int invSlot);
 
-void GetCreateItem(int Index, p26E *p);
+void GetCreateItem(int sIndex, p26E *p);
 
 INT32 GetUserByName(char *name);
 

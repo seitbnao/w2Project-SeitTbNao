@@ -16,7 +16,7 @@ public:
     virtual ~CMission();
 
     void ResultItemListSet();
-    void Set_NeedItemList(int Index);
+    void Set_NeedItemList(int sIndex);
     void ResultItemHelpSet();
     void TakeItResource(SControlContainer* ControlContainer, unsigned short CharID);
     void InvClear(SGridControl** GridInvList);

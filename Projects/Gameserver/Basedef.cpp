@@ -22,7 +22,7 @@ char g_pLanguageString[MAX_STRING][MAX_MESSAGE];
 WORD g_pMobGrid[4096][4096];
 char g_pHeightGrid[4096][4096];
 eMapAttribute g_pAttributeMap[1024][1024];
-STRUCT_ITEMLIST ItemList[MAX_ITEMLIST];
+STRUCT_ITEMLIST g_pItemList[MAX_ITEMLIST];
 STRUCT_SKILLDATA SkillData[256];
 char EffectName[256][32];
 STRUCT_TELEPORT mTeleport[MAX_TELEPORT];
@@ -349,7 +349,7 @@ bool ReadInitItem()
 			if(index == 773)
 				index = index;
 
-			g_pInitItemFile[sServer.InitCount].Index = index;
+			g_pInitItemFile[sServer.InitCount].sIndex = index;
 			g_pInitItemFile[sServer.InitCount].PosX = posX;
 			g_pInitItemFile[sServer.InitCount].PosY = posY;
 			g_pInitItemFile[sServer.InitCount].Rotate = rotate;
@@ -462,7 +462,7 @@ bool LoadGuild()
 		g_pGuild[guildId].Kingdom = kingdom;
 		g_pGuild[guildId].Wins	  = wins;
 		
-		g_pGuild[guildId].Name = std::string(guildName);
+		g_pGuild[guildId].MobName = std::string(guildName);
 
 		for(INT32 i = 0; i < 3; i++)
 		{
@@ -935,7 +935,7 @@ int GetEmptyUser()
 {
 	for (int i = 1; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].Status == USER_EMPTY)
+		if (pUser[i].CurrentScore == USER_EMPTY)
 			return i;
 	}
 
@@ -981,7 +981,7 @@ bool SendClientMessage(int clientId, const char *msg, ...)
 	return pUser[clientId].AddMessage((BYTE*)&packet, sizeof packet);
 }
 
-void GridMulticast_2(short posX, short posY, BYTE *sendPak, int Index)
+void GridMulticast_2(short posX, short posY, BYTE *sendPak, int sIndex)
 {
 	int VisX = VIEWGRIDX, VisY = VIEWGRIDY,
 		minPosX = (posX - HALFGRIDX),
@@ -1013,7 +1013,7 @@ void GridMulticast_2(short posX, short posY, BYTE *sendPak, int Index)
         for(int nX = minPosX; nX < maxPosX; nX++)
         {
             short mobID = g_pMobGrid[nY][nX];
-            if(mobID <= 0 || Index == mobID)
+            if(mobID <= 0 || sIndex == mobID)
                 continue;
 
             if(sendPak == NULL || mobID >= MAX_PLAYER)
@@ -1034,30 +1034,30 @@ void GridMulticast_2(short posX, short posY, BYTE *sendPak, int Index)
 }
 
 
-void GridMulticast(int Index, unsigned int posX, unsigned int posY, BYTE *buf)
+void GridMulticast(int sIndex, unsigned int posX, unsigned int posY, BYTE *buf)
 {
-    if(Index <= 0 || Index >= MAX_MOB)
+    if(sIndex <= 0 || sIndex >= MAX_MOB)
         return ;
 
-	if(Index == 0 || pMob[Index].Target.X == 0)
+	if(sIndex == 0 || pMob[sIndex].Target.X == 0)
 		return;
 	
-	CMob *mob = (CMob*)&pMob[Index];
+	CMob *mob = (CMob*)&pMob[sIndex];
 
 	INT32 mobId = g_pMobGrid[mob->Target.Y][mob->Target.X];
-	if(mobId == Index && mobId != 0)
+	if(mobId == sIndex && mobId != 0)
 		g_pMobGrid[mob->Target.Y][mob->Target.X] = 0;
 
-	if (g_pMobGrid[posY][posX] != Index && g_pMobGrid[posY][posX] != 0)
-		GetEmptyMobGrid(Index, &posX, &posY);
+	if (g_pMobGrid[posY][posX] != sIndex && g_pMobGrid[posY][posX] != 0)
+		GetEmptyMobGrid(sIndex, &posX, &posY);
 
-	if (g_pMobGrid[posY][posX] != Index && g_pMobGrid[posY][posX] != 0)
+	if (g_pMobGrid[posY][posX] != sIndex && g_pMobGrid[posY][posX] != 0)
 	{
-		if (Index < MAX_PLAYER)
-			Log(Index, LOG_INGAME, "PC step in other mob's grid", "-system", 0);
+		if (sIndex < MAX_PLAYER)
+			Log(sIndex, LOG_INGAME, "PC step in other mob's grid", "-system", 0);
 	}
 
-	g_pMobGrid[posY][posX] = Index;
+	g_pMobGrid[posY][posX] = sIndex;
 		
 	int VisX = VIEWGRIDX, VisY = VIEWGRIDY,
         minPosX = (mob->Target.X - HALFGRIDX),
@@ -1115,7 +1115,7 @@ void GridMulticast(int Index, unsigned int posX, unsigned int posY, BYTE *buf)
         for(int nX = minPosX; nX < maxPosX; nX++)
         {
             short mobID = g_pMobGrid[nY][nX];
-			if (mobID > 0 && Index != mobID)
+			if (mobID > 0 && sIndex != mobID)
 			{
 				if (buf != NULL && mobID < MAX_PLAYER)
 					pUser[mobID].AddMessage(buf, *(short*)&buf[0]);
@@ -1124,10 +1124,10 @@ void GridMulticast(int Index, unsigned int posX, unsigned int posY, BYTE *buf)
 					nY < dminPosY || nY >= dmaxPosY)
 				{
 					if (mobID < MAX_PLAYER)
-						SendRemoveMob(mobID, Index, 0, 0); //SendSignalParm(mobID, Index, 0x165, 0);
+						SendRemoveMob(mobID, sIndex, 0, 0); //SendSignalParm(mobID, sIndex, 0x165, 0);
 
-					if (Index < MAX_PLAYER)
-						SendRemoveMob(Index, mobID, 0, 0);
+					if (sIndex < MAX_PLAYER)
+						SendRemoveMob(sIndex, mobID, 0, 0);
 				}
 			}
 
@@ -1137,8 +1137,8 @@ void GridMulticast(int Index, unsigned int posX, unsigned int posY, BYTE *buf)
 				if (nX < dminPosX || nX >= dmaxPosX ||
 					nY < dminPosY || nY >= dmaxPosY)
 				{
-					if (item >= 0 && item < 4096 && Index < MAX_PLAYER)
-						SendRemoveItem(Index, item, 0);
+					if (item >= 0 && item < 4096 && sIndex < MAX_PLAYER)
+						SendRemoveItem(sIndex, item, 0);
 				}
 			}
         }
@@ -1154,28 +1154,28 @@ void GridMulticast(int Index, unsigned int posX, unsigned int posY, BYTE *buf)
             if(nX < minPosX || nX >= maxPosX ||
 			   nY < minPosY || nY >= maxPosY)
             {
-                if(mobID > 0 && Index != mobID)
+                if(mobID > 0 && sIndex != mobID)
                 {
 					if(pMob[mobID].Mode == 0)
 					{
 						g_pMobGrid[nY][nX] = 0;
 
-						Log(SERVER_SIDE, LOG_ERROR, "MOB GRID HAS EMPTY MOB - %s %dx %dy", pMob[mobID].Mobs.Player.Name, pMob[mobID].Target.X, pMob[mobID].Target.Y);
+						Log(SERVER_SIDE, LOG_ERROR, "MOB GRID HAS EMPTY MOB - %s %dx %dy", pMob[mobID].Mobs.Player.MobName, pMob[mobID].Target.X, pMob[mobID].Target.Y);
 						continue;
 					}
 
-                    if(Index < MAX_PLAYER)
-						SendCreateMob(Index, mobID);
+                    if(sIndex < MAX_PLAYER)
+						SendCreateMob(sIndex, mobID);
 
                     if(mobID < MAX_PLAYER)
-						SendCreateMob(mobID, Index);
+						SendCreateMob(mobID, sIndex);
 			
                     if(buf != NULL && mobID < MAX_PLAYER)
 						pUser[mobID].AddMessage(buf, *(short*)&buf[0]);
                 }
 				
-				if(initID > 0 && Index > 0 && Index < MAX_PLAYER)
-					SendCreateItem(Index, initID, 0);
+				if(initID > 0 && sIndex > 0 && sIndex < MAX_PLAYER)
+					SendCreateItem(sIndex, initID, 0);
 				
 				if(initID > 0 && mobID > 0 && mobID < MAX_PLAYER)
 					SendCreateItem(mobID, initID, 0);
@@ -1270,7 +1270,7 @@ bool ReadItemList()
 
     if(fp == NULL)
     {
-        memset(ItemList, 0, sizeof(ItemList));
+        memset(g_pItemList, 0, sizeof(g_pItemList));
         return false;
     }
 
@@ -1287,7 +1287,7 @@ bool ReadItemList()
 
     char line[1024];
 
-    memset(ItemList, 0, sizeof(ItemList));
+    memset(g_pItemList, 0, sizeof(g_pItemList));
     while(fgets(line, sizeof(line), fp))
     {
         char meshBuf[MAX_MESH_BUFFER];
@@ -1311,23 +1311,23 @@ bool ReadItemList()
         }
 
         ret = sscanf_s(line, "%d %s %s %s %hd %d %hd %hd %hd %s %hd %s %hd %s %hd %s %hd %s %hd %s %hd %s %hd %s %hd %s %hd %s %hd %s %hd %s %hd",
-                     &itemID, item.Name, 63, meshBuf, MAX_MESH_BUFFER, scoreBuf, MAX_SCORE_BUFFER, &item.Unique, &item.Price, &item.Pos, &item.Extreme, &item.Grade,
-                     effBuf[ 0], MAX_EFFECT_NAME, &item.Effect[ 0].Value, effBuf[ 1], MAX_EFFECT_NAME, &item.Effect[ 1].Value, effBuf[ 2], MAX_EFFECT_NAME, &item.Effect[ 2].Value,
-                     effBuf[ 3], MAX_EFFECT_NAME, &item.Effect[ 3].Value, effBuf[ 4], MAX_EFFECT_NAME, &item.Effect[ 4].Value, effBuf[ 5], MAX_EFFECT_NAME, &item.Effect[ 5].Value,
-                     effBuf[ 6], MAX_EFFECT_NAME, &item.Effect[ 6].Value, effBuf[ 7], MAX_EFFECT_NAME, &item.Effect[ 7].Value, effBuf[ 8], MAX_EFFECT_NAME, &item.Effect[ 8].Value,
-                     effBuf[ 9], MAX_EFFECT_NAME, &item.Effect[ 9].Value, effBuf[10], MAX_EFFECT_NAME, &item.Effect[10].Value, effBuf[11], MAX_EFFECT_NAME, &item.Effect[11].Value);
+                     &itemID, item.ItemName, 63, meshBuf, MAX_MESH_BUFFER, scoreBuf, MAX_SCORE_BUFFER, &item.Unique, &item.Price, &item.Pos, &item.Extreme, &item.nGrade,
+                     effBuf[ 0], MAX_EFFECT_NAME, &item.stEffect[ 0].sValue, effBuf[ 1], MAX_EFFECT_NAME, &item.stEffect[ 1].sValue, effBuf[ 2], MAX_EFFECT_NAME, &item.stEffect[ 2].sValue,
+                     effBuf[ 3], MAX_EFFECT_NAME, &item.stEffect[ 3].sValue, effBuf[ 4], MAX_EFFECT_NAME, &item.stEffect[ 4].sValue, effBuf[ 5], MAX_EFFECT_NAME, &item.stEffect[ 5].sValue,
+                     effBuf[ 6], MAX_EFFECT_NAME, &item.stEffect[ 6].sValue, effBuf[ 7], MAX_EFFECT_NAME, &item.stEffect[ 7].sValue, effBuf[ 8], MAX_EFFECT_NAME, &item.stEffect[ 8].sValue,
+                     effBuf[ 9], MAX_EFFECT_NAME, &item.stEffect[ 9].sValue, effBuf[10], MAX_EFFECT_NAME, &item.stEffect[10].sValue, effBuf[11], MAX_EFFECT_NAME, &item.stEffect[11].sValue);
 
         if(ret < 9 || itemID <= 0 || itemID >= MAX_ITEMLIST)
             continue;
 
-        sscanf_s(meshBuf, "%hd.%d", &item.Mesh1, &item.Mesh2);
+        sscanf_s(meshBuf, "%hd.%d", &item.IndexMesh, &item.nIndexTexture);
         sscanf_s(scoreBuf, "%hd.%hd.%hd.%hd.%hd", &item.Level, &item.Str, &item.Int, &item.Dex, &item.Con);
 
         int i;
         for(i = 0; i < MAX_EFFECT; i++)
-            item.Effect[i].Index = get_effect_index(effBuf[i]);
+            item.stEffect[i].sEffect = get_effect_index(effBuf[i]);
 
-        memcpy(&ItemList[itemID], &item, sizeof(STRUCT_ITEMLIST));
+        memcpy(&g_pItemList[itemID], &item, sizeof(STRUCT_ITEMLIST));
     }
 
     fclose(fp);
@@ -1429,7 +1429,7 @@ bool ReadTeleport()
 
 bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *p, int classMaster)
 {
-    if(pItem->Index <= 0 || pItem->Index >= 6500)
+    if(pItem->sIndex <= 0 || pItem->sIndex >= 6500)
     { // Verifica se o id do item eh valido
         return false;
     }
@@ -1439,7 +1439,7 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
         return false;
     }
 
-    short ItemUnique = ItemList[pItem->Index].Unique;
+    short ItemUnique = g_pItemList[pItem->sIndex].Unique;
     if(pSlot != -1)
     { // Verifica o slot do item
         short ItemPos = GetItemAbility(pItem, EF_POS);
@@ -1454,10 +1454,10 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
             else // pSlot = 7
                 SrcSlot = 6;
 
-			short SrcItemID = mob->Equip[SrcSlot].Index;
+			short SrcItemID = mob->Equip[SrcSlot].sIndex;
             if(SrcItemID > 0 && SrcItemID < 6500)
             { // Verifica o id da outra arma
-                short SrcUnique = ItemList[SrcItemID].Unique;
+                short SrcUnique = g_pItemList[SrcItemID].Unique;
 				short SrcPos = GetItemAbility(&mob->Equip[SrcSlot], EF_POS);
 
                 if(ItemPos == 64 || SrcPos == 64)
@@ -1486,7 +1486,7 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
     }
 
 	pClass = GetInfoClass(mob->Equip[0].EF2);
-	if((mob->Equip[0].Index >= 22 && mob->Equip[0].Index <= 25) || mob->Equip[0].Index == 32)
+	if((mob->Equip[0].sIndex >= 22 && mob->Equip[0].sIndex <= 25) || mob->Equip[0].sIndex == 32)
 	{
 		pClass = 2;
 
@@ -1499,7 +1499,7 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
 
 	if(pos == 0)
 	{
-		Log(SERVER_SIDE, LOG_ERROR, "Item com POS 0 - ItemId: %d", pItem->Index);
+		Log(SERVER_SIDE, LOG_ERROR, "Item com POS 0 - ItemId: %d", pItem->sIndex);
 		return false;
 	}
 
@@ -1540,14 +1540,14 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
         ItemRCON = ((ItemRCON * porcDim) / 100);
     }
 
-	int ItemMobType = GetEffectValueByIndex(pItem->Index, EF_MOBTYPE);
+	int ItemMobType = GetEffectValueByIndex(pItem->sIndex, EF_MOBTYPE);
 	if(ItemMobType != 0)
 	{
 		if(ItemMobType == 2)
 		{
 			if(classMaster == MORTAL)
 			{
-				if(ItemRLevel > static_cast<short>(mob->bStatus.Level))
+				if(ItemRLevel > static_cast<short>(mob->BaseScore.Level))
 					return false;
 			}
 			else 
@@ -1564,7 +1564,7 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
 		{
 			if(pSlot == 1)
 			{
-				if(pItem->Index >= 3500 && pItem->Index <= 3508)
+				if(pItem->sIndex >= 3500 && pItem->sIndex <= 3508)
 					return true;
 
 				return false;
@@ -1577,7 +1577,7 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
 	if(classMaster >= ARCH)
 	{
 		if(pSlot == 1)
-			if((pItem->Index >= 3500 && pItem->Index <= 3508) || pItem->Index == 747)
+			if((pItem->sIndex >= 3500 && pItem->sIndex <= 3508) || pItem->sIndex == 747)
 				return true;
 			else
 				return false;
@@ -1587,11 +1587,11 @@ bool CanEquip(STRUCT_ITEM *pItem, STRUCT_MOB *mob, int pSlot, int pClass, p376 *
 		return true;
 
     // Verificacao dos atributos do personagem
-	if(ItemRSTR <= mob->Status.STR &&
-       ItemRINT <= mob->Status.INT &&
-       ItemRDEX <= mob->Status.DEX &&
-       ItemRCON <= mob->Status.CON &&
-       ItemRLevel <= static_cast<int>(mob->Status.Level))
+	if(ItemRSTR <= mob->CurrentScore.Str &&
+       ItemRINT <= mob->CurrentScore.Int &&
+       ItemRDEX <= mob->CurrentScore.Dex &&
+       ItemRCON <= mob->CurrentScore.Con &&
+       ItemRLevel <= static_cast<int>(mob->CurrentScore.Level))
         return true;
 
     return false;
@@ -1601,52 +1601,52 @@ short GetItemAbility(STRUCT_ITEM *itemPtr, int eff)
 {
     int result = 0;
 
-    int itemID = itemPtr->Index;
+    int itemID = itemPtr->sIndex;
 
-    int unique = ItemList[itemID].Unique;
-    int pos = ItemList[itemID].Pos;
+    int unique = g_pItemList[itemID].Unique;
+    int pos = g_pItemList[itemID].Pos;
 
     if(eff == EF_DAMAGEADD || eff == EF_MAGICADD)
         if(unique < 41 || unique > 50)
             return 0;
 
     if(eff == EF_CRITICAL)
-        if(itemPtr->Effect[1].Index == EF_CRITICAL2 || itemPtr->Effect[2].Index == EF_CRITICAL2)
+        if(itemPtr->stEffect[1].cEffect == EF_CRITICAL2 || itemPtr->stEffect[2].cEffect == EF_CRITICAL2)
             eff = EF_CRITICAL2;
 
     if(eff == EF_DAMAGE && pos == 32)
-        if(itemPtr->Effect[1].Index == EF_DAMAGE2 || itemPtr->Effect[2].Index == EF_DAMAGE2)
+        if(itemPtr->stEffect[1].cEffect == EF_DAMAGE2 || itemPtr->stEffect[2].cEffect == EF_DAMAGE2)
             eff = EF_DAMAGE2;
 
     if(eff == EF_ACADD)
-        if(itemPtr->Effect[1].Index == EF_ACADD2 || itemPtr->Effect[2].Index == EF_ACADD2)
+        if(itemPtr->stEffect[1].cEffect == EF_ACADD2 || itemPtr->stEffect[2].cEffect == EF_ACADD2)
             eff = EF_ACADD2;
 
     if(eff == EF_LEVEL && itemID >= 2330 && itemID < 2360)
-        result = (itemPtr->Effect[1].Index - 1);
+        result = (itemPtr->stEffect[1].cEffect - 1);
     else if(eff == EF_LEVEL)
-        result += ItemList[itemID].Level;
+        result += g_pItemList[itemID].Level;
 
     if(eff == EF_REQ_STR)
-        result += ItemList[itemID].Str;
+        result += g_pItemList[itemID].Str;
     if(eff == EF_REQ_INT)
-        result += ItemList[itemID].Int;
+        result += g_pItemList[itemID].Int;
     if(eff == EF_REQ_DEX)
-        result += ItemList[itemID].Dex;
+        result += g_pItemList[itemID].Dex;
     if(eff == EF_REQ_CON)
-        result += ItemList[itemID].Con;
+        result += g_pItemList[itemID].Con;
 
     if(eff == EF_POS)
-        result += ItemList[itemID].Pos;
+        result += g_pItemList[itemID].Pos;
 
     if(eff != EF_INCUBATE)
     {
         for(int i = 0; i < 12; i++)
         {
-            if(ItemList[itemID].Effect[i].Index != eff)
+            if(g_pItemList[itemID].stEffect[i].sEffect != eff)
                 continue;
 
-            int val = ItemList[itemID].Effect[i].Value;
+            int val = g_pItemList[itemID].stEffect[i].sValue;
             if(eff == EF_ATTSPEED && val == 1)
                 val = 10;
 
@@ -1655,32 +1655,32 @@ short GetItemAbility(STRUCT_ITEM *itemPtr, int eff)
         }
     }
 
-	if(itemPtr->Index >= 2330 && itemPtr->Index < 2390)
+	if(itemPtr->sIndex >= 2330 && itemPtr->sIndex < 2390)
     {
         if(eff == EF_MOUNTHP)
-            return *(WORD*)&itemPtr->Effect[0].Index;
+            return *(WORD*)&itemPtr->stEffect[0].cEffect;
 
         if(eff == EF_MOUNTSANC)
-            return itemPtr->Effect[1].Index;
+            return itemPtr->stEffect[1].cEffect;
 
         if(eff == EF_MOUNTLIFE)
-            return itemPtr->Effect[1].Value;
+            return itemPtr->stEffect[1].cValue;
 
         if(eff == EF_MOUNTFEED)
-            return itemPtr->Effect[2].Index;
+            return itemPtr->stEffect[2].cEffect;
 
         if(eff == EF_MOUNTKILL)
-            return itemPtr->Effect[2].Value;
+            return itemPtr->stEffect[2].cValue;
 		
-		if(itemPtr->Index >= 2360 && itemPtr->Index < 2390 && *(short*)&itemPtr->Effect[0].Index > 0)
+		if(itemPtr->sIndex >= 2360 && itemPtr->sIndex < 2390 && *(short*)&itemPtr->stEffect[0].cEffect > 0)
         {
-			int mountIndex = itemPtr->Index - 2360;
+			int mountIndex = itemPtr->sIndex - 2360;
 			if(mountIndex < 0 || mountIndex > 29)
 				return 0;
 
 			STRUCT_MOUNTDATA mont = mMont[mountIndex];
 
-            int ef2 = itemPtr->Effect[1].Index;
+            int ef2 = itemPtr->stEffect[1].cEffect;
             if(eff == EF_DAMAGE)
 				return static_cast<short>((mont.atkFisico * (ef2 + 20) / 100));
 
@@ -1701,15 +1701,15 @@ short GetItemAbility(STRUCT_ITEM *itemPtr, int eff)
         return result;
     }
 	
-	if(itemPtr->Index >= 3980 && itemPtr->Index <= 3999 && eff == EF_RUNSPEED)
+	if(itemPtr->sIndex >= 3980 && itemPtr->sIndex <= 3999 && eff == EF_RUNSPEED)
 		return 6;
 	
     for(int i = 0; i < 3; i++)
     {
-        if(itemPtr->Effect[i].Index != eff)
+        if(itemPtr->stEffect[i].cEffect != eff)
             continue;
 
-        int val = itemPtr->Effect[i].Value;
+        int val = itemPtr->stEffect[i].cValue;
         if(eff == EF_ATTSPEED && val == 1)
             val = 10;
 
@@ -1721,25 +1721,25 @@ short GetItemAbility(STRUCT_ITEM *itemPtr, int eff)
     {
         for(int i = 0; i < 12; i++)
         {
-            if(ItemList[itemID].Effect[i].Index != EF_RESISTALL)
+            if(g_pItemList[itemID].stEffect[i].sEffect != EF_RESISTALL)
                 continue;
 
-            result += ItemList[itemID].Effect[i].Value;
+            result += g_pItemList[itemID].stEffect[i].sValue;
             break;
         }
 
         for(int i = 0; i < 3; i++)
         {
-            if(itemPtr->Effect[i].Index != EF_RESISTALL)
+            if(itemPtr->stEffect[i].cEffect != EF_RESISTALL)
                 continue;
 
-            result += itemPtr->Effect[i].Value;
+            result += itemPtr->stEffect[i].cValue;
             break;
         }
     }
 
 	int sanc = GetItemSanc(itemPtr);
-	if (itemPtr->Index <= 40)
+	if (itemPtr->sIndex <= 40)
 		sanc = 0;
 
 	if (sanc >= 9 && (pos & 0xF00) != 0)
@@ -1799,52 +1799,52 @@ short GetItemAbilityNoSanc(STRUCT_ITEM *itemPtr, int eff)
 {
 	int result = 0;
 
-	int itemID = itemPtr->Index;
+	int itemID = itemPtr->sIndex;
 
-	int unique = ItemList[itemID].Unique;
-	int pos = ItemList[itemID].Pos;
+	int unique = g_pItemList[itemID].Unique;
+	int pos = g_pItemList[itemID].Pos;
 
 	if (eff == EF_DAMAGEADD || eff == EF_MAGICADD)
 		if (unique < 41 || unique > 50)
 			return 0;
 
 	if (eff == EF_CRITICAL)
-		if (itemPtr->Effect[1].Index == EF_CRITICAL2 || itemPtr->Effect[2].Index == EF_CRITICAL2)
+		if (itemPtr->stEffect[1].cEffect == EF_CRITICAL2 || itemPtr->stEffect[2].cEffect == EF_CRITICAL2)
 			eff = EF_CRITICAL2;
 
 	if (eff == EF_DAMAGE && pos == 32)
-		if (itemPtr->Effect[1].Index == EF_DAMAGE2 || itemPtr->Effect[2].Index == EF_DAMAGE2)
+		if (itemPtr->stEffect[1].cEffect == EF_DAMAGE2 || itemPtr->stEffect[2].cEffect == EF_DAMAGE2)
 			eff = EF_DAMAGE2;
 
 	if (eff == EF_ACADD)
-		if (itemPtr->Effect[1].Index == EF_ACADD2 || itemPtr->Effect[2].Index == EF_ACADD2)
+		if (itemPtr->stEffect[1].cEffect == EF_ACADD2 || itemPtr->stEffect[2].cEffect == EF_ACADD2)
 			eff = EF_ACADD2;
 
 	if (eff == EF_LEVEL && itemID >= 2330 && itemID < 2360)
-		result = (itemPtr->Effect[1].Index - 1);
+		result = (itemPtr->stEffect[1].cEffect - 1);
 	else if (eff == EF_LEVEL)
-		result += ItemList[itemID].Level;
+		result += g_pItemList[itemID].Level;
 
 	if (eff == EF_REQ_STR)
-		result += ItemList[itemID].Str;
+		result += g_pItemList[itemID].Str;
 	if (eff == EF_REQ_INT)
-		result += ItemList[itemID].Int;
+		result += g_pItemList[itemID].Int;
 	if (eff == EF_REQ_DEX)
-		result += ItemList[itemID].Dex;
+		result += g_pItemList[itemID].Dex;
 	if (eff == EF_REQ_CON)
-		result += ItemList[itemID].Con;
+		result += g_pItemList[itemID].Con;
 
 	if (eff == EF_POS)
-		result += ItemList[itemID].Pos;
+		result += g_pItemList[itemID].Pos;
 
 	if (eff != EF_INCUBATE)
 	{
 		for (int i = 0; i < 12; i++)
 		{
-			if (ItemList[itemID].Effect[i].Index != eff)
+			if (g_pItemList[itemID].stEffect[i].sEffect != eff)
 				continue;
 
-			int val = ItemList[itemID].Effect[i].Value;
+			int val = g_pItemList[itemID].stEffect[i].sValue;
 			if (eff == EF_ATTSPEED && val == 1)
 				val = 10;
 
@@ -1853,32 +1853,32 @@ short GetItemAbilityNoSanc(STRUCT_ITEM *itemPtr, int eff)
 		}
 	}
 
-	if (itemPtr->Index >= 2330 && itemPtr->Index < 2390)
+	if (itemPtr->sIndex >= 2330 && itemPtr->sIndex < 2390)
 	{
 		if (eff == EF_MOUNTHP)
-			return *(WORD*)&itemPtr->Effect[0].Index;
+			return *(WORD*)&itemPtr->stEffect[0].cEffect;
 
 		if (eff == EF_MOUNTSANC)
-			return itemPtr->Effect[1].Index;
+			return itemPtr->stEffect[1].cEffect;
 
 		if (eff == EF_MOUNTLIFE)
-			return itemPtr->Effect[1].Value;
+			return itemPtr->stEffect[1].cValue;
 
 		if (eff == EF_MOUNTFEED)
-			return itemPtr->Effect[2].Index;
+			return itemPtr->stEffect[2].cEffect;
 
 		if (eff == EF_MOUNTKILL)
-			return itemPtr->Effect[2].Value;
+			return itemPtr->stEffect[2].cValue;
 
-		if (itemPtr->Index >= 2360 && itemPtr->Index < 2390 && *(short*)&itemPtr->Effect[0].Index > 0)
+		if (itemPtr->sIndex >= 2360 && itemPtr->sIndex < 2390 && *(short*)&itemPtr->stEffect[0].cEffect > 0)
 		{
-			int mountIndex = itemPtr->Index - 2360;
+			int mountIndex = itemPtr->sIndex - 2360;
 			if (mountIndex < 0 || mountIndex > 29)
 				return 0;
 
 			STRUCT_MOUNTDATA mont = mMont[mountIndex];
 
-			int ef2 = itemPtr->Effect[1].Index;
+			int ef2 = itemPtr->stEffect[1].cEffect;
 			if (eff == EF_DAMAGE)
 				return static_cast<short>((mont.atkFisico * (ef2 + 20) / 100));
 
@@ -1899,15 +1899,15 @@ short GetItemAbilityNoSanc(STRUCT_ITEM *itemPtr, int eff)
 		return result;
 	}
 
-	if (itemPtr->Index >= 3980 && itemPtr->Index <= 3999 && eff == EF_RUNSPEED)
+	if (itemPtr->sIndex >= 3980 && itemPtr->sIndex <= 3999 && eff == EF_RUNSPEED)
 		return 6;
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (itemPtr->Effect[i].Index != eff)
+		if (itemPtr->stEffect[i].cEffect != eff)
 			continue;
 
-		int val = itemPtr->Effect[i].Value;
+		int val = itemPtr->stEffect[i].cValue;
 		if (eff == EF_ATTSPEED && val == 1)
 			val = 10;
 
@@ -1919,19 +1919,19 @@ short GetItemAbilityNoSanc(STRUCT_ITEM *itemPtr, int eff)
 	{
 		for (int i = 0; i < 12; i++)
 		{
-			if (ItemList[itemID].Effect[i].Index != EF_RESISTALL)
+			if (g_pItemList[itemID].stEffect[i].sEffect != EF_RESISTALL)
 				continue;
 
-			result += ItemList[itemID].Effect[i].Value;
+			result += g_pItemList[itemID].stEffect[i].sValue;
 			break;
 		}
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (itemPtr->Effect[i].Index != EF_RESISTALL)
+			if (itemPtr->stEffect[i].cEffect != EF_RESISTALL)
 				continue;
 
-			result += itemPtr->Effect[i].Value;
+			result += itemPtr->stEffect[i].cValue;
 			break;
 		}
 	}
@@ -1945,7 +1945,7 @@ int GetMaxAbility(STRUCT_MOB *usr, int eff)
 
     for(int i = 0; i < 16; i++)
     {
-		if(usr->Equip[i].Index == 0)
+		if(usr->Equip[i].sIndex == 0)
             continue;
 
         short ItemAbility = GetItemAbility(&usr->Equip[i], eff);
@@ -1974,9 +1974,9 @@ int GetMobAbility(STRUCT_MOB *usr, int eff)
     {
         LOCAL_1 = GetMaxAbility(usr, eff);
 
-		int LOCAL_2 = (usr->Equip[0].Index / 10);
+		int LOCAL_2 = (usr->Equip[0].sIndex / 10);
         if(LOCAL_1 < 2 && LOCAL_2 == 3)
-            if((usr->Learn[0] & 0x40ULL) != 0)
+            if((usr->LearnedSkill[0] & 0x40ULL) != 0)
                 LOCAL_1 = 2;
 
         return LOCAL_1;
@@ -1987,12 +1987,12 @@ int GetMobAbility(STRUCT_MOB *usr, int eff)
     {
         LOCAL_18[LOCAL_19] = 0;
 
-		int LOCAL_20 = usr->Equip[LOCAL_19].Index;
+		int LOCAL_20 = usr->Equip[LOCAL_19].sIndex;
         if(LOCAL_20 == 0 && LOCAL_19 != 7)
             continue;
 
         if(LOCAL_19 >= 1 && LOCAL_19 <= 5)
-            LOCAL_18[LOCAL_19] = ItemList[LOCAL_20].Unique;
+            LOCAL_18[LOCAL_19] = g_pItemList[LOCAL_20].Unique;
 
         if(eff == EF_DAMAGE && LOCAL_19 == 6)
             continue;
@@ -2010,16 +2010,16 @@ int GetMobAbility(STRUCT_MOB *usr, int eff)
             int dam2 = (GetItemAbility(&usr->Equip[7], EF_DAMAGE) +
                         GetItemAbility(&usr->Equip[7], EF_DAMAGE2));
 
-			int arm1 = usr->Equip[6].Index;
-            int arm2 = usr->Equip[7].Index;
+			int arm1 = usr->Equip[6].sIndex;
+            int arm2 = usr->Equip[7].sIndex;
 
             int unique1 = 0;
             if(arm1 > 0 && arm1 < MAX_ITEMLIST)
-                unique1 = ItemList[arm1].Unique;
+                unique1 = g_pItemList[arm1].Unique;
 
             int unique2 = 0;
             if(arm2 > 0 && arm2 < MAX_ITEMLIST)
-                unique2 = ItemList[arm2].Unique;
+                unique2 = g_pItemList[arm2].Unique;
 
             if(unique1 != 0 && unique2 != 0)
             {
@@ -2072,7 +2072,7 @@ bool CanCarry(STRUCT_ITEM* Dest, STRUCT_ITEM* Inven, int DestX, int DestY, int* 
 
 	for(int i = 0; i < MAX_INVEN; i++)
     {
-		if(Inven[i].Index == 0)
+		if(Inven[i].sIndex == 0)
             continue;
 
 		pItemGrid = GetItemAbility(Dest, EF_GRID);
@@ -2136,7 +2136,7 @@ bool CanCargo(STRUCT_ITEM *destItem, STRUCT_ITEM *Inventory, int pDestX, int pDe
 
 	for(int slot = 0; slot < 128; slot++)
     {
-        if(Inventory[slot].Index == 0)
+        if(Inventory[slot].sIndex == 0)
             continue;
 
         pGrid =  GetItemAbility(&Inventory[slot], EF_GRID);
@@ -2187,7 +2187,7 @@ bool CanCargo(STRUCT_ITEM *destItem, STRUCT_ITEM *Inventory, int pDestX, int pDe
 
 void CharLogOut(int clientId)
 {
-	if(pUser[clientId].Status != USER_PLAY)
+	if(pUser[clientId].CurrentScore != USER_PLAY)
 	{
 		SendSignal(clientId, clientId, 0x116);
 
@@ -2210,7 +2210,7 @@ void CharLogOut(int clientId)
 	RemoveParty(clientId);
 
 	// Seta como o usuario esta na charList
-	pUser[clientId].Status = USER_SELCHAR;
+	pUser[clientId].CurrentScore = USER_SELCHAR;
 
 	// Remove o registro da quest atual
 	pUser[clientId].QuestAccess = 0;
@@ -2221,7 +2221,7 @@ void CharLogOut(int clientId)
 	pMob[clientId].Mode = 0;
 	SendSignal(clientId, clientId, 0x116);
 
-	pUser[clientId].PremierStore.Status = 0;
+	pUser[clientId].PremierStore.CurrentScore = 0;
 	pUser[clientId].PremierStore.Time   = 0;
 	pUser[clientId].PremierStore.Wait   = 0;
 	pUser[clientId].PremierStore.Count  = 0;
@@ -2252,7 +2252,7 @@ void CheckIdle(int clientId)
 
 	if(LOCAL_2 < (LOCAL_1 - 720))
 	{
-		Log(clientId, LOG_INGAME, "Desconectado por inatividade... Last: %d. Counter: %d. Status: %d", pUser[clientId].TimeStamp.LastReceiveTime, sServer.SecCounter, pUser[clientId].Status);
+		Log(clientId, LOG_INGAME, "Desconectado por inatividade... Last: %d. Counter: %d. Status: %d", pUser[clientId].TimeStamp.LastReceiveTime, sServer.SecCounter, pUser[clientId].CurrentScore);
 		LogPlayer(clientId, "Desconectado por inatividade");
 
 		CloseUser(clientId);
@@ -2275,7 +2275,7 @@ void SetBattle(int arg1, int arg2)
 
 	if(arg1 < MAX_PLAYER)
 	{
-		if(pUser[arg1].Status != USER_PLAY)
+		if(pUser[arg1].CurrentScore != USER_PLAY)
 			return;
 	}
 	
@@ -2306,28 +2306,28 @@ void SetBattle(int arg1, int arg2)
 			SendNotice("A Torre Guardiao do reino Blue esta sendo atacado");
 			SendKingdomBattleInfo(SERVER_SIDE, CAPE_BLUE, true);
 
-			sServer.KingdomBattle.Info[0].Status = true;
+			sServer.KingdomBattle.Info[0].CurrentScore = true;
 		}
 		else if (pMob[arg1].GenerateID == GUARDIAN_TOWER_RED)
 		{
 			SendNotice("A Torre Guardiao do reino Red esta sendo atacado");
 			SendKingdomBattleInfo(SERVER_SIDE, CAPE_RED, true);
 
-			sServer.KingdomBattle.Info[1].Status = true;
+			sServer.KingdomBattle.Info[1].CurrentScore = true;
 		}
 		else if (pMob[arg1].GenerateID == 8) // rei blue
 		{
 			SendNotice("O Rei Harabard esta sendo atacado");
 
 			SendKingdomBattleInfo(SERVER_SIDE, CAPE_BLUE, true);
-			sServer.KingdomBattle.Info[0].Status = true;
+			sServer.KingdomBattle.Info[0].CurrentScore = true;
 		}
 		else if (pMob[arg1].GenerateID == 9) // rei blue
 		{
 			SendNotice("O Rei Glantuar esta sendo atacado");
 			SendKingdomBattleInfo(SERVER_SIDE, CAPE_RED, true);
 
-			sServer.KingdomBattle.Info[1].Status = true;
+			sServer.KingdomBattle.Info[1].CurrentScore = true;
 		}
 
 		if(LOCAL_1 >= 0 && LOCAL_1 < 8192)
@@ -2480,7 +2480,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 #if defined(_DEBUG)
 	if (arg2 < MAX_PLAYER && arg1 > MAX_PLAYER)
-		Log(arg2, LOG_INGAME, "Matou o mob %s. GenerID: %d", pMob[arg1].Mobs.Player.Name, pMob[arg1].GenerateID);
+		Log(arg2, LOG_INGAME, "Matou o mob %s. GenerID: %d", pMob[arg1].Mobs.Player.MobName, pMob[arg1].GenerateID);
 #endif
 
 	if (pMob[arg1].GenerateID == TORRE_RVR_BLUE || pMob[arg1].GenerateID == TORRE_RVR_RED)
@@ -2503,11 +2503,11 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				connId = 0;
 		}
 
-		if (connId <= MAX_PLAYER && pUser[connId].Status != USER_PLAY)
+		if (connId <= MAX_PLAYER && pUser[connId].CurrentScore != USER_PLAY)
 			connId = 0;
 
 		// Ressuscita a torre
-		pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
+		pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
 
 		p364 packet;
 		GetCreateMob(arg1, (BYTE*)&packet);
@@ -2526,15 +2526,15 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 		for(INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if(pUser[i].Status != USER_PLAY)
+			if(pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			if(pMob[i].Target.X >= 1041 && pMob[i].Target.X <= 1248 && pMob[i].Target.Y >= 1950 && pMob[i].Target.Y <= 2158)
-				SendClientMessage(i, "A torre do reino %s foi destruada por %s. +25 pontos para o reino %s.", (pMob[arg1].GenerateID == TORRE_RVR_BLUE) ? "Blue" : "Red", pMob[connId].Mobs.Player.Name, (towerId == 0) ? "Blue" : "Red");
+				SendClientMessage(i, "A torre do reino %s foi destruada por %s. +25 pontos para o reino %s.", (pMob[arg1].GenerateID == TORRE_RVR_BLUE) ? "Blue" : "Red", pMob[connId].Mobs.Player.MobName, (towerId == 0) ? "Blue" : "Red");
 
 			// RVR
 			if (pMob[i].Target.X >= 1041 && pMob[i].Target.X <= 1248 &&
-				pMob[i].Target.Y >= 1950 && pMob[i].Target.Y <= 2158 && sServer.RvR.Status == 1)
+				pMob[i].Target.Y >= 1950 && pMob[i].Target.Y <= 2158 && sServer.RvR.CurrentScore == 1)
 			{
 				int cape = pMob[i].Mobs.Player.CapeInfo;
 
@@ -2577,7 +2577,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			if (pMob[i].Target.X >= 1041 && pMob[i].Target.X <= 1248 &&
 				pMob[i].Target.Y >= 1950 && pMob[i].Target.Y <= 2158)
 			{
-				if (pUser[i].Status != USER_PLAY)
+				if (pUser[i].CurrentScore != USER_PLAY)
 					continue;
 
 				// Atualiza o placar de kill
@@ -2608,17 +2608,17 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				cId = 0;
 		}
 
-		if (cId < MAX_PLAYER && pUser[cId].Status != USER_PLAY)
+		if (cId < MAX_PLAYER && pUser[cId].CurrentScore != USER_PLAY)
 			cId = 0;
 
-		INT32 guildId = pMob[cId].Mobs.Player.GuildIndex;
+		INT32 guildId = pMob[cId].Mobs.Player.Guild;
 		sServer.TowerWar.Guild = guildId;
 			
-		SendNotice("O jogador %s da guild %s derrubou a Torre de Erion.", pMob[cId].Mobs.Player.Name, g_pGuild[guildId].Name.c_str());
+		SendNotice("O jogador %s da guild %s derrubou a Torre de Erion.", pMob[cId].Mobs.Player.MobName, g_pGuild[guildId].MobName.c_str());
 
 		// Ressuscita a torre
-		pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
-		pMob[arg1].Mobs.Player.GuildIndex   = sServer.TowerWar.Guild;
+		pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
+		pMob[arg1].Mobs.Player.Guild   = sServer.TowerWar.Guild;
 
 		p364 packet;
 		GetCreateMob(arg1, (BYTE*)&packet);
@@ -2627,22 +2627,22 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		
 		ClearTowerArea(0);
 
-		Log(SERVER_SIDE, LOG_INGAME, "A Torre foi derrubada pela guild %s (%d)", g_pGuild[guildId].Name.c_str(), guildId);
+		Log(SERVER_SIDE, LOG_INGAME, "A Torre foi derrubada pela guild %s (%d)", g_pGuild[guildId].MobName.c_str(), guildId);
 		return;
 	}
 	/*
 	if(arg1 < MAX_PLAYER)
 	{
-		Users[arg1].Potion.CountHp = pMob[arg1].Mobs.Player.Status.maxHP;
+		Users[arg1].Potion.CountHp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
 		SetReqHp(arg1);
-		pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
+		pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
 		SendScore(arg1);
 		return;
 	}*/
 
 	// 0045AB5D
 	STRUCT_ITEM *LOCAL_1 = &pMob[arg1].Mobs.Player.Equip[13];
-	if(LOCAL_1->Index == 769)
+	if(LOCAL_1->sIndex == 769)
 	{
 		INT32 LOCAL_2 = GetItemSanc(LOCAL_1);
 		if(LOCAL_2 <= 0)
@@ -2668,7 +2668,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		
 		SendEquip(arg1);
 
-		pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
+		pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
 		if(arg1 < MAX_PLAYER)
 		{
 			SetReqHp(arg1);
@@ -2691,14 +2691,14 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			char szMsg[120];
 			memset(szMsg, 0, 120);
 
-			sprintf_s(szMsg, "![%s] te matou em %dx : %dy.", pMob[arg2].Mobs.Player.Name, pMob[arg1].Target.X, pMob[arg1].Target.Y);
+			sprintf_s(szMsg, "![%s] te matou em %dx : %dy.", pMob[arg2].Mobs.Player.MobName, pMob[arg1].Target.X, pMob[arg1].Target.Y);
 
 			SendClientMessage(arg1, szMsg);
 
-			LogPlayer(arg1, "[%s] te matou em %dx : %dy - Pergaminho da Ressurreiaao", pMob[arg2].Mobs.Player.Name, pMob[arg1].Target.X, pMob[arg1].Target.Y);
+			LogPlayer(arg1, "[%s] te matou em %dx : %dy - Pergaminho da Ressurreiaao", pMob[arg2].Mobs.Player.MobName, pMob[arg1].Target.X, pMob[arg1].Target.Y);
 		}
 		
-		pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
+		pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
 
 		p364 packet;
 		GetCreateMob(arg1, (BYTE*)&packet);
@@ -2710,14 +2710,14 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		return;
 	}
 	
-	if(arg1 < MAX_PLAYER && (pMob[arg1].Mobs.Player.bStatus.Level > 500 || (pUser[arg1].AccessLevel != 0 && pUser[arg1].IsAdmin)))
+	if(arg1 < MAX_PLAYER && (pMob[arg1].Mobs.Player.BaseScore.Level > 500 || (pUser[arg1].AccessLevel != 0 && pUser[arg1].IsAdmin)))
 	{
-		pUser[arg1].Potion.CountHp = pMob[arg1].Mobs.Player.Status.maxHP;
-		pUser[arg1].Potion.CountMp = pMob[arg1].Mobs.Player.Status.maxMP;
+		pUser[arg1].Potion.CountHp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
+		pUser[arg1].Potion.CountMp = pMob[arg1].Mobs.Player.CurrentScore.MaxMp;
 		SetReqHp(arg1);
 
-		pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
-		pMob[arg1].Mobs.Player.Status.curMP = pMob[arg1].Mobs.Player.Status.maxMP;
+		pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
+		pMob[arg1].Mobs.Player.CurrentScore.Mp = pMob[arg1].Mobs.Player.CurrentScore.MaxMp;
 
 		SendScore(arg1);
 		return;
@@ -2738,7 +2738,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				continue;
 
 			// identifica se a guild a ou b
-			int guildId = pMob[arg1].Mobs.Player.GuildIndex;
+			int guildId = pMob[arg1].Mobs.Player.Guild;
 
 			int zonePosX = -1;
 			int zonePosY = -1;
@@ -2746,7 +2746,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			// verifica
 			if (guildId != g_pCityZone[i].chall_index && guildId != g_pCityZone[i].chall_index_2 && guildId != ChargedGuildList[sServer.Channel - 1][i])
 			{
-				Log(SERVER_SIDE, LOG_INGAME, "O usuario %s (%s) foi identificado na area de guild mas nao a desafiante nem dono da cidade. GuildId: %d. %dx %dy", pMob[arg1].Mobs.Player.Name,
+				Log(SERVER_SIDE, LOG_INGAME, "O usuario %s (%s) foi identificado na area de guild mas nao a desafiante nem dono da cidade. GuildId: %d. %dx %dy", pMob[arg1].Mobs.Player.MobName,
 					pUser[arg1].User.Username, guildId, posX, posY);
 
 				break;
@@ -2758,11 +2758,11 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			// esta dentro da guerra e possui vidas
 			if (pMob[arg1].Lifes >= 0)
 			{
-				pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
-				pMob[arg1].Mobs.Player.Status.curMP = pMob[arg1].Mobs.Player.Status.maxMP;
+				pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
+				pMob[arg1].Mobs.Player.CurrentScore.Mp = pMob[arg1].Mobs.Player.CurrentScore.MaxMp;
 
-				pUser[arg1].Potion.CountHp = pMob[arg1].Mobs.Player.Status.maxHP;
-				pUser[arg1].Potion.CountMp = pMob[arg1].Mobs.Player.Status.maxMP;
+				pUser[arg1].Potion.CountHp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
+				pUser[arg1].Potion.CountMp = pMob[arg1].Mobs.Player.CurrentScore.MaxMp;
 
 				SetReqHp(arg1);
 
@@ -2790,41 +2790,41 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	if(sServer.CastleState > 1 && pMob[arg1].Target.X == 1046 && pMob[arg1].Target.Y == 1690 && arg1 > 0 && arg1 < MAX_PLAYER)
 		Teleportar(arg1, 1057, 1742);
 	
-	INT32 LOCAL_3 = pMob[arg2].Mobs.Player.Equip[0].Index;
+	INT32 LOCAL_3 = pMob[arg2].Mobs.Player.Equip[0].sIndex;
 
 	if(arg2 >= MAX_PLAYER && pMob[arg2].Mobs.Player.CapeInfo == 4 && LOCAL_3 >= 315 && LOCAL_3 <= 345 && arg1 > MAX_PLAYER && pMob[arg1].Mobs.Player.CapeInfo != 4)
 	{
 		INT32 LOCAL_4 = pMob[arg2].Summoner;
 
-		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].Status != 0 && pMob[LOCAL_4].Mode != 0)
+		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].CurrentScore != 0 && pMob[LOCAL_4].Mode != 0)
 		{
 			STRUCT_ITEM *LOCAL_5 = &pMob[LOCAL_4].Mobs.Player.Equip[14];
 
-			if(LOCAL_5->Index >= 2330 && LOCAL_5->Index < 2360)
+			if(LOCAL_5->sIndex >= 2330 && LOCAL_5->sIndex < 2360)
 			{
-				BYTE LOCAL_6 = LOCAL_5->Effect[1].Index; // EBP - 18h
-				BYTE LOCAL_7 = LOCAL_5->Effect[2].Value; // EBP - 1Ch
+				BYTE LOCAL_6 = LOCAL_5->stEffect[1].cEffect; // EBP - 18h
+				BYTE LOCAL_7 = LOCAL_5->stEffect[2].cValue; // EBP - 1Ch
 				BYTE LOCAL_8 = (char)((LOCAL_6 & 255)+ 100); // EBP - 20h
 				
-				if (LOCAL_5->Index == 2330)
+				if (LOCAL_5->sIndex == 2330)
 					LOCAL_8 = LOCAL_6 + 25;
 
-				else if (LOCAL_5->Index == 2331)
+				else if (LOCAL_5->sIndex == 2331)
 					LOCAL_8 = LOCAL_6 + 35;
 
-				else if (LOCAL_5->Index == 2332)
+				else if (LOCAL_5->sIndex == 2332)
 					LOCAL_8 = LOCAL_6 + 45;
 
-				else if (LOCAL_5->Index == 2333)
+				else if (LOCAL_5->sIndex == 2333)
 					LOCAL_8 = LOCAL_6 + 55;
 
-				else if (LOCAL_5->Index == 2334)
+				else if (LOCAL_5->sIndex == 2334)
 					LOCAL_8 = LOCAL_6 + 65;
 
-				else if (LOCAL_5->Index == 2335)
+				else if (LOCAL_5->sIndex == 2335)
 					LOCAL_8 = LOCAL_6 + 75;
 
-				if(LOCAL_6 < pMob[arg1].Mobs.Player.Status.Level && LOCAL_6 < 100)
+				if(LOCAL_6 < pMob[arg1].Mobs.Player.CurrentScore.Level && LOCAL_6 < 100)
 				{
 					LOCAL_7 = LOCAL_7 + 1;
 
@@ -2833,8 +2833,8 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 						LOCAL_7 = 1;
 						LOCAL_6 = LOCAL_6 + 1;
 
-						LOCAL_5->Effect[2].Value = LOCAL_7;
-						LOCAL_5->Effect[1].Index = LOCAL_6;
+						LOCAL_5->stEffect[2].cValue = LOCAL_7;
+						LOCAL_5->stEffect[1].cEffect = LOCAL_6;
 
 						SendClientMessage(LOCAL_4, "Sua montaria subiu de level.");
 
@@ -2843,7 +2843,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 					}
 					else
 					{
-						LOCAL_5->Effect[2].Value = LOCAL_7;
+						LOCAL_5->stEffect[2].cValue = LOCAL_7;
 						SendItem(LOCAL_4, SlotType::Equip, 14, &pMob[LOCAL_4].Mobs.Player.Equip[14]);
 					}
 				}
@@ -2864,7 +2864,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	LOCAL_13.Hold = static_cast<int>(pMob[arg2].Mobs.Hold);
 	LOCAL_13.Exp = pMob[arg2].Mobs.Player.Exp;
 
-	pMob[arg1].Mobs.Player.Status.curHP = 0;
+	pMob[arg1].Mobs.Player.CurrentScore.Hp = 0;
 
 
 	INT32 LOCAL_14 = pMob[arg2].Leader;
@@ -2877,7 +2877,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	{
 		INT32 LOCAL_15 = pMob[arg2].Summoner;
 
-		if(LOCAL_15 <= 0 || LOCAL_15 >= MAX_PLAYER || pUser[LOCAL_15].Status != 22)
+		if(LOCAL_15 <= 0 || LOCAL_15 >= MAX_PLAYER || pUser[LOCAL_15].CurrentScore != 22)
 		{
 			GridMulticast_2(pMob[arg1].Target.X, pMob[arg1].Target.Y, (BYTE*)&LOCAL_13, 0);
 
@@ -2893,7 +2893,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	if (arg1 < MAX_PLAYER && arg2 < MAX_PLAYER)
 	{
 		if (pMob[arg1].Target.X >= 1041 && pMob[arg1].Target.X <= 1248 &&
-			pMob[arg1].Target.Y >= 1950 && pMob[arg1].Target.Y <= 2158 && sServer.RvR.Status == 1)
+			pMob[arg1].Target.Y >= 1950 && pMob[arg1].Target.Y <= 2158 && sServer.RvR.CurrentScore == 1)
 		{
 			int capeKiller = pMob[arg2].Mobs.Player.CapeInfo;
 			int capeDead = pMob[arg1].Mobs.Player.CapeInfo;
@@ -2910,13 +2910,13 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 					for(INT32 i = 1; i < MAX_PLAYER; i++)
 					{
-						if(pUser[i].Status != USER_PLAY)
+						if(pUser[i].CurrentScore != USER_PLAY)
 							continue;
 
 						if (pMob[i].Target.X >= 1041 && pMob[i].Target.X <= 1248 &&
 							pMob[i].Target.Y >= 1950 && pMob[i].Target.Y <= 2158)
 						{
-							SendClientMessage(i, "%s matou %s e pontuou para o reino %s", pMob[arg2].Mobs.Player.Name, pMob[arg1].Mobs.Player.Name, (capeId == 0) ? "Blue" : "Red");
+							SendClientMessage(i, "%s matou %s e pontuou para o reino %s", pMob[arg2].Mobs.Player.MobName, pMob[arg1].Mobs.Player.MobName, (capeId == 0) ? "Blue" : "Red");
 							SendCounterMob(i, sServer.RvR.Points[1], sServer.RvR.Points[0]);
 						}
 					}
@@ -2925,9 +2925,9 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		}
 	}
 
-	if(arg1 < MAX_PLAYER && pMob[arg1].Mobs.Player.bStatus.Level <= 399)
+	if(arg1 < MAX_PLAYER && pMob[arg1].Mobs.Player.BaseScore.Level <= 399)
 	{
-		INT32 LOCAL_16 = pMob[arg1].Mobs.Player.bStatus.Level;
+		INT32 LOCAL_16 = pMob[arg1].Mobs.Player.BaseScore.Level;
 		if(LOCAL_16 < 0 || LOCAL_16 > 399)
 			return;
 
@@ -3006,8 +3006,8 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			if((LOCAL_27 == 7 && LOCAL_28 == 8) || (LOCAL_27 == 8 && LOCAL_28 == 7))
 				LOCAL_29 = 1;
 
-			INT32 LOCAL_33 = pMob[arg1].Mobs.Player.GuildIndex;
-			INT32 LOCAL_34 = pMob[arg2].Mobs.Player.GuildIndex;
+			INT32 LOCAL_33 = pMob[arg1].Mobs.Player.Guild;
+			INT32 LOCAL_34 = pMob[arg2].Mobs.Player.Guild;
 
 			INT32 LOCAL_35 = MAX_GUILD;
 
@@ -3018,8 +3018,8 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				LOCAL_30 = 1;
 		}
 
-		Log(arg1, LOG_INGAME, "Morreu para %s %dx %dy", pMob[arg2].Mobs.Player.Name, pMob[arg2].Target.X, pMob[arg2].Target.Y);
-		Log(arg2, LOG_INGAME, "Matou %s em %dx %dy", pMob[arg1].Mobs.Player.Name, pMob[arg1].Target.X, pMob[arg1].Target.Y);
+		Log(arg1, LOG_INGAME, "Morreu para %s %dx %dy", pMob[arg2].Mobs.Player.MobName, pMob[arg2].Target.X, pMob[arg2].Target.Y);
+		Log(arg2, LOG_INGAME, "Matou %s em %dx %dy", pMob[arg1].Mobs.Player.MobName, pMob[arg1].Target.X, pMob[arg1].Target.Y);
 
 		INT32 LOCAL_36 = GetArena(pMob[arg1].Target.X, pMob[arg1].Target.Y);
 		INT32 LOCAL_37 = GetVillage(pMob[arg1].Target.X, pMob[arg1].Target.Y);
@@ -3086,8 +3086,8 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 					Log(arg1, LOG_INGAME, "Perdeu %I64d de experiancia.", LOCAL_20);
 				}
 
-				while (pMob[arg1].Mobs.Player.bStatus.Level > 0 && pMob[arg1].Mobs.Player.Exp < g_pNextLevel[pMob[arg1].Mobs.Player.Equip[0].EFV2][pMob[arg1].Mobs.Player.bStatus.Level - 1])
-					pMob[arg1].Mobs.Player.bStatus.Level--;
+				while (pMob[arg1].Mobs.Player.BaseScore.Level > 0 && pMob[arg1].Mobs.Player.Exp < g_pNextLevel[pMob[arg1].Mobs.Player.Equip[0].EFV2][pMob[arg1].Mobs.Player.BaseScore.Level - 1])
+					pMob[arg1].Mobs.Player.BaseScore.Level--;
 
 				SendEtc(arg1);
 			}
@@ -3122,7 +3122,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				if (pMob[arg1].Target.X >= 2180 && pMob[arg1].Target.X <= 2558 && pMob[arg1].Target.Y >= 3837 && pMob[arg1].Target.Y <= 4096)
 					holdValue = 0;
 
-				if (pMob[arg1].Target.X >= 2448 && pMob[arg1].Target.X <= 2545 && pMob[arg1].Target.Y >= 1850 && pMob[arg1].Target.Y <= 1921 && sServer.TowerWar.Status)
+				if (pMob[arg1].Target.X >= 2448 && pMob[arg1].Target.X <= 2545 && pMob[arg1].Target.Y >= 1850 && pMob[arg1].Target.Y <= 1921 && sServer.TowerWar.CurrentScore)
 					holdValue = 0;
 
 				if (LOCAL_30 == 0)
@@ -3169,7 +3169,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 					if(pMob[arg1].Target.X >= 2180 && pMob[arg1].Target.X <= 2558 && pMob[arg1].Target.Y >= 3837 && pMob[arg1].Target.Y <= 4096)
 						LOCAL_42 = 0;
 
-					if (pMob[arg1].Target.X >= 2448 && pMob[arg1].Target.X <= 2545 && pMob[arg1].Target.Y >= 1850 && pMob[arg1].Target.Y <= 1924 && sServer.TowerWar.Status)
+					if (pMob[arg1].Target.X >= 2448 && pMob[arg1].Target.X <= 2545 && pMob[arg1].Target.Y >= 1850 && pMob[arg1].Target.Y <= 1924 && sServer.TowerWar.CurrentScore)
 						LOCAL_42 = 0;
 						
 					Log(arg2, LOG_INGAME, "CP %d diminuiu em %d", LOCAL_23 - 75, LOCAL_42);
@@ -3196,7 +3196,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				if(LOCAL_25 > 0)
 					LOCAL_43 = 0;
 
-				if(pMob[arg1].Mobs.Player.Equip[15].Index == 548 || pMob[arg1].Mobs.Player.Equip[15].Index == 549 || pMob[arg2].Mobs.Player.Equip[15].Index == 548 || pMob[arg2].Mobs.Player.Equip[15].Index == 549)
+				if(pMob[arg1].Mobs.Player.Equip[15].sIndex == 548 || pMob[arg1].Mobs.Player.Equip[15].sIndex == 549 || pMob[arg2].Mobs.Player.Equip[15].sIndex == 548 || pMob[arg2].Mobs.Player.Equip[15].sIndex == 549)
 					LOCAL_43 = LOCAL_43 * 3;
 	
 				if(pMob[arg1].Target.X >= 2180 && pMob[arg1].Target.X <= 2541 && pMob[arg1].Target.Y >= 3858 && pMob[arg1].Target.Y <= 4051)
@@ -3212,7 +3212,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 					}
 				}
 
-				if (pMob[arg1].Target.X >= 2448 && pMob[arg1].Target.X <= 2545 && pMob[arg1].Target.Y >= 1850 && pMob[arg1].Target.Y <= 1921 && sServer.TowerWar.Status)
+				if (pMob[arg1].Target.X >= 2448 && pMob[arg1].Target.X <= 2545 && pMob[arg1].Target.Y >= 1850 && pMob[arg1].Target.Y <= 1921 && sServer.TowerWar.CurrentScore)
 					LOCAL_43 = 0;
 
 				LOCAL_23 = LOCAL_23 + LOCAL_43;
@@ -3240,9 +3240,9 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 						INT32 LOCAL_48 = pMob[arg1].Target.Y;
 							
 						STRUCT_ITEM *LOCAL_49 = &pMob[arg1].Mobs.Player.Inventory[LOCAL_46];
-						if(LOCAL_49->Index <= 0 || LOCAL_49->Index > MAX_ITEMLIST)
+						if(LOCAL_49->sIndex <= 0 || LOCAL_49->sIndex > MAX_ITEMLIST)
 							continue;
-						if(LOCAL_49->Index == 508 || LOCAL_49 ->Index == 509 || LOCAL_49->Index == 522 || LOCAL_49->Index == 531 || LOCAL_49->Index == 446)
+						if(LOCAL_49->sIndex == 508 || LOCAL_49 ->sIndex == 509 || LOCAL_49->sIndex == 522 || LOCAL_49->sIndex == 531 || LOCAL_49->sIndex == 446)
 							continue;
 						INT32 LOCAL_50 = Rand() & 0x80000003;
 						INT32 LOCAL_51 = CreateItem(LOCAL_47, LOCAL_48, LOCAL_49, 1, 1);
@@ -3286,10 +3286,10 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 							INT32 LOCAL_70 = pMob[arg1].Target.X;
 							INT32 LOCAL_71 = pMob[arg1].Target.Y;
 							STRUCT_ITEM *LOCAL_72 = &pMob[arg1].Mobs.Player.Equip[LOCAL_69];
-							if(LOCAL_72->Index <= 0  || LOCAL_72->Index > MAX_ITEMLIST)
+							if(LOCAL_72->sIndex <= 0  || LOCAL_72->sIndex > MAX_ITEMLIST)
 								break;
 								
-							if(LOCAL_72->Index == 508 || LOCAL_72->Index == 509 || LOCAL_72->Index == 522 || LOCAL_72->Index == 531 || LOCAL_72->Index == 446)
+							if(LOCAL_72->sIndex == 508 || LOCAL_72->sIndex == 509 || LOCAL_72->sIndex == 522 || LOCAL_72->sIndex == 531 || LOCAL_72->sIndex == 446)
 								break;
 							INT32 LOCAL_73 = Rand() & 0x80000003;
 							INT32 LOCAL_74 = CreateItem(LOCAL_70, LOCAL_71, LOCAL_72, 1, 1);
@@ -3324,27 +3324,27 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			SendClientMessage(arg1, "Voca nao pode perder experiancia nesta area");
 		}
 
-		if(pMob[arg1].Mobs.Player.Equip[13].Index == 753 || pMob[arg1].Mobs.Player.Equip[13].Index == 1726)
+		if(pMob[arg1].Mobs.Player.Equip[13].sIndex == 753 || pMob[arg1].Mobs.Player.Equip[13].sIndex == 1726)
 		{
 			const auto& familiarItem = pMob[arg1].Mobs.Player.Equip[13];
 			INT32 LOCAL_123 = GetItemSanc(&pMob[arg1].Mobs.Player.Equip[13]);
 
 			if (LOCAL_123 <= 0)
 			{
-				Log(arg1, LOG_INGAME, "%s %s foi destruado", ItemList[familiarItem.Index].Name, familiarItem.toString().c_str());
+				Log(arg1, LOG_INGAME, "%s %s foi destruado", g_pItemList[familiarItem.sIndex].ItemName, familiarItem.toString().c_str());
 				memset(&pMob[arg1].Mobs.Player.Equip[13], 0, 8);
 			}
 			else
 			{
 				LOCAL_123 --;
-				if(pMob[arg1].Mobs.Player.Equip[13].Effect[0].Index == EF_SANC)
-					pMob[arg1].Mobs.Player.Equip[13].Effect[0].Value = LOCAL_123;
-				else if(pMob[arg1].Mobs.Player.Equip[13].Effect[1].Index == EF_SANC)
-					pMob[arg1].Mobs.Player.Equip[13].Effect[1].Value = LOCAL_123;
-				else if(pMob[arg1].Mobs.Player.Equip[13].Effect[2].Index == EF_SANC)
-					pMob[arg1].Mobs.Player.Equip[13].Effect[2].Value = LOCAL_123;
+				if(pMob[arg1].Mobs.Player.Equip[13].stEffect[0].cEffect == EF_SANC)
+					pMob[arg1].Mobs.Player.Equip[13].stEffect[0].cValue = LOCAL_123;
+				else if(pMob[arg1].Mobs.Player.Equip[13].stEffect[1].cEffect == EF_SANC)
+					pMob[arg1].Mobs.Player.Equip[13].stEffect[1].cValue = LOCAL_123;
+				else if(pMob[arg1].Mobs.Player.Equip[13].stEffect[2].cEffect == EF_SANC)
+					pMob[arg1].Mobs.Player.Equip[13].stEffect[2].cValue = LOCAL_123;
 
-				Log(arg1, LOG_INGAME, "%s %s perdeu uma refinaaao. Refinaaaes restantes: %d", ItemList[familiarItem.Index].Name, familiarItem.toString().c_str(), LOCAL_123);
+				Log(arg1, LOG_INGAME, "%s %s perdeu uma refinaaao. Refinaaaes restantes: %d", g_pItemList[familiarItem.sIndex].ItemName, familiarItem.toString().c_str(), LOCAL_123);
 			}
 
 			SendItem(arg1, SlotType::Equip, 13, &pMob[arg1].Mobs.Player.Equip[13]);
@@ -3397,7 +3397,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		if (LOCAL_130 >(pMob[LOCAL_131].Target.Y + HALFGRIDY))
 			continue;
 
-		LOCAL_127 = pMob[LOCAL_131].Mobs.Player.Status.Level +  LOCAL_126 + LOCAL_127;
+		LOCAL_127 = pMob[LOCAL_131].Mobs.Player.CurrentScore.Level +  LOCAL_126 + LOCAL_127;
 		LOCAL_128 ++;
 	}
 
@@ -3431,7 +3431,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		if(LOCAL_131 <= 0 || LOCAL_131 >= MAX_PLAYER)
 			continue;
 
-		if(!pMob[LOCAL_131].Mobs.Player.Status.curHP)
+		if(!pMob[LOCAL_131].Mobs.Player.CurrentScore.Hp)
 			continue;
 		
 		if((pMob[LOCAL_131].Target.X < 1152 || pMob[LOCAL_131].Target.X > 1282 || pMob[LOCAL_131].Target.Y < 130 || pMob[LOCAL_131].Target.Y > 217) &&
@@ -3447,7 +3447,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				continue;
 		}
 
-		long long LOCAL_136 = ((pMob[LOCAL_131].Mobs.Player.Status.Level + LOCAL_126) * LOCAL_135) / LOCAL_127;
+		long long LOCAL_136 = ((pMob[LOCAL_131].Mobs.Player.CurrentScore.Level + LOCAL_126) * LOCAL_135) / LOCAL_127;
 		if(LOCAL_136 < 0 || LOCAL_136 > 500000000)
 			LOCAL_136 = 500000000;
 
@@ -3505,7 +3505,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		LOCAL_141 = pMob[arg1].Target.Y;
 
 	INT32 LOCAL_142 = pMob[arg1].GenerateID;
-	if(pMob[arg1].Mobs.Player.Equip[0].Index == 219 && LOCAL_142 != GUARDIAN_TOWER_BLUE && LOCAL_142 != GUARDIAN_TOWER_RED)
+	if(pMob[arg1].Mobs.Player.Equip[0].sIndex == 219 && LOCAL_142 != GUARDIAN_TOWER_BLUE && LOCAL_142 != GUARDIAN_TOWER_RED)
 	{
 		if(pMob[arg1].Target.X < 0 || pMob[arg1].Target.X >= 4096 || pMob[arg1].Target.Y < 0 || pMob[arg1].Target.Y >= 4096)
 		{
@@ -3533,7 +3533,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			LOCAL_150.Header.ClientId = 0x7530;
 			LOCAL_150.gateId = LOCAL_143 + 10000;
 			LOCAL_150.Header.Size = 20;
-			LOCAL_150.status = g_pInitItem[LOCAL_143].Status;
+			LOCAL_150.status = g_pInitItem[LOCAL_143].CurrentScore;
 			LOCAL_150.unknow = 0;
 
 			GridMulticast_2(g_pInitItem[LOCAL_143].PosX, g_pInitItem[LOCAL_143].PosY, (BYTE*)&LOCAL_150, 0);
@@ -3542,13 +3542,13 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		}
 	}
 	// 0045CE87
-	if(LOCAL_142 == 3 && pMob[arg1].Mobs.Player.Equip[0].Index == 258)
+	if(LOCAL_142 == 3 && pMob[arg1].Mobs.Player.Equip[0].sIndex == 258)
 	{
 		Log(arg2, LOG_INGAME, "Derrotou Lorde Zakum");
 
 		char szTMP[256];
 
-		sprintf_s(szTMP, g_pLanguageString[_SN_Zakum_Killed], pMob[arg2].Mobs.Player.Name);
+		sprintf_s(szTMP, g_pLanguageString[_SN_Zakum_Killed], pMob[arg2].Mobs.Player.MobName);
 
 		//0045CEAF
 		SendNoticeArea(szTMP, 2176, 1160, 2300, 1276);
@@ -3560,7 +3560,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		STRUCT_ITEM LOCAL_173;
 		memset(&LOCAL_173, 0, 8);
 
-		LOCAL_173.Index = 753;
+		LOCAL_173.sIndex = 753;
 		
 		INT32 LOCAL_174 = (Rand() % 5) - 1;
 		INT32 LOCAL_175 = (Rand() % 5) - 1;
@@ -3574,7 +3574,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		if(LOCAL_177 < 9)
 			LOCAL_178 = Rand() % 10;
 		
-		LOCAL_173.Effect[0].Index = EF_SANC;
+		LOCAL_173.stEffect[0].cEffect = EF_SANC;
 		SetItemSanc(&LOCAL_173, LOCAL_177, LOCAL_178);
 
 		for (INT32 LOCAL_780 = 1; LOCAL_780 <= 2; LOCAL_780++)
@@ -3582,43 +3582,43 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			INT32 LOCAL_781 = Rand() & 0x80000007;
 			if (LOCAL_781 == 0)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_HP;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() % 41) + 20;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_HP;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() % 41) + 20;
 			}
 			else if (LOCAL_781 == 1)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_DAMAGE;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() % 21) + 5;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_DAMAGE;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() % 21) + 5;
 			}
 			else if (LOCAL_781 == 2)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_ATTSPEED;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() % 11) + 5;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_ATTSPEED;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() % 11) + 5;
 			}
 			else if (LOCAL_781 == 3)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_MP;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() % 51) + 20;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_MP;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() % 51) + 20;
 			}
 			else if (LOCAL_781 == 4)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_MAGIC;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() % 7) + 2;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_MAGIC;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() % 7) + 2;
 			}
 			else if (LOCAL_781 == 5)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_STR;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_STR;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 			}
 			else if (LOCAL_781 == 6)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_INT;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_INT;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 			}
 			else if (LOCAL_781 == 7)
 			{
-				LOCAL_173.Effect[LOCAL_780].Index = EF_DEX;
-				LOCAL_173.Effect[LOCAL_780].Value = (Rand() & 0x8000000F) + 5;
+				LOCAL_173.stEffect[LOCAL_780].cEffect = EF_DEX;
+				LOCAL_173.stEffect[LOCAL_780].cValue = (Rand() & 0x8000000F) + 5;
 			}
 		}
 
@@ -3630,7 +3630,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 			SendItem(arg2, SlotType::Inv, slotId, &LOCAL_173);
 
-			Log(arg2, LOG_INGAME, "Item IMP adicionado corretamente ao inventario [%d] [%d %d %d %d %d %d]", LOCAL_173.Index, LOCAL_173.EF1, LOCAL_173.EFV1, LOCAL_173.EF2,
+			Log(arg2, LOG_INGAME, "Item IMP adicionado corretamente ao inventario [%d] [%d %d %d %d %d %d]", LOCAL_173.sIndex, LOCAL_173.EF1, LOCAL_173.EFV1, LOCAL_173.EF2,
 				LOCAL_173.EFV2, LOCAL_173.EF3, LOCAL_173.EFV3);
 
 			LogPlayer(arg2, "Recebido IMP na quest Lorde Zakum");
@@ -3657,7 +3657,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		{
 			SendClientMessage(arg2, "Para derrotar o Rei, a necessario passar pela Torre Guardia!");
 
-			pMob[arg1].Mobs.Player.Status.curHP = pMob[arg1].Mobs.Player.Status.maxHP;
+			pMob[arg1].Mobs.Player.CurrentScore.Hp = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
 
 			p364 packet{};
 			GetCreateMob(arg1, reinterpret_cast<BYTE*>(&packet));
@@ -3677,17 +3677,17 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			pMob[i].GetCurrentScore(i);
 			SendScore(i);
 		}
 		
-		sServer.KingdomBattle.Info[index].Status = false;
+		sServer.KingdomBattle.Info[index].CurrentScore = false;
 
-		SendKingdomBattleInfo(SERVER_SIDE, CAPE_BLUE, sServer.KingdomBattle.Info[0].Status);
-		SendKingdomBattleInfo(SERVER_SIDE, CAPE_RED, sServer.KingdomBattle.Info[1].Status);
+		SendKingdomBattleInfo(SERVER_SIDE, CAPE_BLUE, sServer.KingdomBattle.Info[0].CurrentScore);
+		SendKingdomBattleInfo(SERVER_SIDE, CAPE_RED, sServer.KingdomBattle.Info[1].CurrentScore);
 	}
 	else if (LOCAL_142 == GUARDIAN_TOWER_BLUE || LOCAL_142 == GUARDIAN_TOWER_RED)
 	{
@@ -3712,7 +3712,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			STRUCT_ITEM LOCAL_184;
 			memset(&LOCAL_184, 0, 8);
 
-			LOCAL_184.Index = LOCAL_182;
+			LOCAL_184.sIndex = LOCAL_182;
 
 			SetItemBonus(&LOCAL_184, 0, 0, 0);
 
@@ -3732,7 +3732,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			STRUCT_ITEM LOCAL_188;
 			memset(&LOCAL_188, 0, 8);
 
-			LOCAL_188.Index = LOCAL_186;
+			LOCAL_188.sIndex = LOCAL_186;
 			
 			SetItemBonus(&LOCAL_188, 0, 0, 0);
 			
@@ -3759,7 +3759,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			STRUCT_ITEM LOCAL_192;
 			memset(&LOCAL_192, 0, sizeof STRUCT_ITEM);
 
-			LOCAL_192.Index = LOCAL_190;
+			LOCAL_192.sIndex = LOCAL_190;
 
 			SetItemBonus(&LOCAL_192, 75, 1, 0);
 			
@@ -3810,16 +3810,16 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				if (i == party)
 					continue;
 
-                LogRune(pistaId, i, "O boss "s + bossName[LOCAL_142] + "foi morto pelo grupo "s + std::to_string(party) + ". Este grupo nao recebera a premiaaao. Morto por "s + pMob[arg2].Mobs.Player.Name);
+                LogRune(pistaId, i, "O boss "s + bossName[LOCAL_142] + "foi morto pelo grupo "s + std::to_string(party) + ". Este grupo nao recebera a premiaaao. Morto por "s + pMob[arg2].Mobs.Player.MobName);
                 MessageRune(pistaId, i, "O boss foi derrotado por outro grupo.");
 			}
 
-			LogRune(pistaId, party, "O Boss "s + bossName[LOCAL_142] + " foi morto pelo jogador "s + pMob[arg2].Mobs.Player.Name + " do grupo.");
+			LogRune(pistaId, party, "O Boss "s + bossName[LOCAL_142] + " foi morto pelo jogador "s + pMob[arg2].Mobs.Player.MobName + " do grupo.");
 		}
 		else
 		{
             for (int i = 0; i < MAX_PARTYPISTA; ++i)
-                LogRune(pistaId, i, "O Boss "s + bossName[LOCAL_142] + " foi morto pelo jogador "s.append(pMob[arg2].Mobs.Player.Name).append(" que nao estava registrado na pista."));
+                LogRune(pistaId, i, "O Boss "s + bossName[LOCAL_142] + " foi morto pelo jogador "s.append(pMob[arg2].Mobs.Player.MobName).append(" que nao estava registrado na pista."));
 		}
 	}
 	else if(LOCAL_142 >= KALINTZ_MAGE && LOCAL_142 <= KALINTZ_MAGE +7 )
@@ -4025,16 +4025,16 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		{
 			killerId = pMob[arg2].Summoner;
 
-			if (killerId > 0 && killerId < MAX_PLAYER && pUser[killerId].Status != USER_PLAY)
+			if (killerId > 0 && killerId < MAX_PLAYER && pUser[killerId].CurrentScore != USER_PLAY)
 				killerId = 0;
 		}
 		
-		Log(SERVER_SIDE, LOG_INGAME, "KEFRA - Kefra derrotado por %s - GuildId: %d.", pMob[killerId].Mobs.Player.Name, pMob[killerId].Mobs.Player.GuildIndex);
+		Log(SERVER_SIDE, LOG_INGAME, "KEFRA - Kefra derrotado por %s - GuildId: %d.", pMob[killerId].Mobs.Player.MobName, pMob[killerId].Mobs.Player.Guild);
 
 		if (killerId)
 		{
-			if (pMob[killerId].Mobs.Player.GuildIndex)
-				SetGuildFame(pMob[killerId].Mobs.Player.GuildIndex, g_pGuild[pMob[killerId].Mobs.Player.GuildIndex].Fame + 100);
+			if (pMob[killerId].Mobs.Player.Guild)
+				SetGuildFame(pMob[killerId].Mobs.Player.Guild, g_pGuild[pMob[killerId].Mobs.Player.Guild].Fame + 100);
 
 			_MSG_NOTIFY_KEFRA_DEATH packet;
 			memset(&packet, 0, sizeof _MSG_NOTIFY_KEFRA_DEATH);
@@ -4043,12 +4043,12 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			packet.Header.PacketId = MSG_NOTIFY_KEFRA_DEATH;
 			packet.Header.Size	   = sizeof _MSG_NOTIFY_KEFRA_DEATH;
 
-			strncpy_s(packet.Name, pMob[killerId].Mobs.Player.Name, 16);
+			strncpy_s(packet.MobName, pMob[killerId].Mobs.Player.MobName, 16);
 
 			AddMessageDB((BYTE*)&packet, sizeof _MSG_NOTIFY_KEFRA_DEATH);
 
-			if(pMob[killerId].Mobs.Player.GuildIndex != 0)
-				sServer.KefraKiller = pMob[killerId].Mobs.Player.GuildIndex;
+			if(pMob[killerId].Mobs.Player.Guild != 0)
+				sServer.KefraKiller = pMob[killerId].Mobs.Player.Guild;
 			else
 				sServer.KefraKiller = 0;
 		}
@@ -4071,7 +4071,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 		if (sServer.KefraKiller != 0)
 		{
-			SendNotice("O jogador [%s] da guild [%s] derrotou Kefra", pMob[killerId].Mobs.Player.Name, g_pGuild[sServer.KefraKiller].Name.c_str());
+			SendNotice("O jogador [%s] da guild [%s] derrotou Kefra", pMob[killerId].Mobs.Player.MobName, g_pGuild[sServer.KefraKiller].MobName.c_str());
 
 		}
 		else
@@ -4083,7 +4083,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		int totalPO = 0;
 		for(INT32 i = 1;i < MAX_PLAYER; i++)
 		{
-			if(pUser[i].Status != USER_PLAY || pMob[i].Mobs.Player.Status.curHP <= 0)
+			if(pUser[i].CurrentScore != USER_PLAY || pMob[i].Mobs.Player.CurrentScore.Hp <= 0)
 				continue;
 				
 			if(pMob[i].Target.X >= 2604 && pMob[i].Target.Y >= 1708 && pMob[i].Target.X <= 2648 && pMob[i].Target.Y <= 1744)
@@ -4091,7 +4091,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				for(INT32 t = 0; t < 64;t++)
 				{
 					STRUCT_ITEM *item = &pMob[arg1].Mobs.Player.Inventory[t];
-					if(item->Index <= 0 || item->Index >= MAX_ITEMLIST)
+					if(item->sIndex <= 0 || item->sIndex >= MAX_ITEMLIST)
 						continue;
 
 					INT32 _rand = Rand () % 100;
@@ -4102,12 +4102,12 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 					if(_rand < rate)
 					{
-						Log(i, LOG_INGAME, "Recebeu item %s %s no Coliseu", ItemList[item->Index].Name, item->toString());
+						Log(i, LOG_INGAME, "Recebeu item %s %s no Coliseu", g_pItemList[item->sIndex].ItemName, item->toString());
 
 						PutItem(i, item);
-						if (item->Index == 413)
+						if (item->sIndex == 413)
 							totalPL++;
-						else if (item->Index == 412)
+						else if (item->sIndex == 412)
 							totalPO++;
 					}
 				}
@@ -4131,29 +4131,29 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		}
 
 		auto& boss = sServer.Boss[pMob[arg1].BossInfoId];
-		INT32 guildId = pMob[connId].Mobs.Player.GuildIndex;
+		INT32 guildId = pMob[connId].Mobs.Player.Guild;
 		if (guildId != 0)
 		{
-			SendNotice("O jogador %s da guild %s derrotou %s", pMob[connId].Mobs.Player.Name, g_pGuild[guildId].Name.c_str(), pMob[arg1].Mobs.Player.Name);
+			SendNotice("O jogador %s da guild %s derrotou %s", pMob[connId].Mobs.Player.MobName, g_pGuild[guildId].MobName.c_str(), pMob[arg1].Mobs.Player.MobName);
 
 			if (boss.Fame != 0)
 				SetGuildFame(guildId, g_pGuild[guildId].Fame + boss.Fame);
 
-			Log(SERVER_SIDE, LOG_INGAME, "%s foi derrotado por %s (%s-%d). Fame: %d. Fame ganha: %d", pMob[arg1].Mobs.Player.Name, pMob[connId].Mobs.Player.Name, g_pGuild[guildId].Name.c_str(), guildId, g_pGuild[guildId].Fame, boss.Fame);
+			Log(SERVER_SIDE, LOG_INGAME, "%s foi derrotado por %s (%s-%d). Fame: %d. Fame ganha: %d", pMob[arg1].Mobs.Player.MobName, pMob[connId].Mobs.Player.MobName, g_pGuild[guildId].MobName.c_str(), guildId, g_pGuild[guildId].Fame, boss.Fame);
 		}
 		else
 		{
-			SendNotice("O jogador %s derrotou o %s", pMob[arg2].Mobs.Player.Name, pMob[arg1].Mobs.Player.Name);
-			Log(SERVER_SIDE, LOG_INGAME, "%s foi derrotado por %s, SEM GUILD", pMob[arg1].Mobs.Player.Name, pMob[connId].Mobs.Player.Name);
+			SendNotice("O jogador %s derrotou o %s", pMob[arg2].Mobs.Player.MobName, pMob[arg1].Mobs.Player.MobName);
+			Log(SERVER_SIDE, LOG_INGAME, "%s foi derrotado por %s, SEM GUILD", pMob[arg1].Mobs.Player.MobName, pMob[connId].Mobs.Player.MobName);
 		}
 
 		boss.GenerGenerated = 0;
 		boss.LastUpdate = std::chrono::steady_clock::now();
 	}
 
-	INT32 LOCAL_193 = pMob[arg1].Mobs.Player.Gold;
+	INT32 LOCAL_193 = pMob[arg1].Mobs.Player.Coin;
 	INT32 rate = 6;
-	INT32 level = pMob[arg2].Mobs.Player.bStatus.Level;
+	INT32 level = pMob[arg2].Mobs.Player.BaseScore.Level;
 	switch (pMob[arg2].Mobs.Player.Equip[0].EFV2)
 	{
 	case 1:
@@ -4175,7 +4175,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		break;
 	}
 
-	int mobLevel = pMob[arg1].Mobs.Player.Status.Level;
+	int mobLevel = pMob[arg1].Mobs.Player.CurrentScore.Level;
 	if (mobLevel >= 250 && LOCAL_193 == 0)
 	{
 		LOCAL_193 = 500 + ((mobLevel - 250) * 5);
@@ -4199,10 +4199,10 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		if(sServer.GoldBonus != 0)
 			gold += ((gold * sServer.GoldBonus) / 100);
 
-		unsigned int xgold = pMob[arg2].Mobs.Player.Gold + gold;
+		unsigned int xgold = pMob[arg2].Mobs.Player.Coin + gold;
 		if(xgold > 2000000000)
 		{
-			int zgold = 2000000000 - pMob[arg2].Mobs.Player.Gold;
+			int zgold = 2000000000 - pMob[arg2].Mobs.Player.Coin;
 			if(zgold > 0)
 			{
 				if(gold > zgold)
@@ -4213,22 +4213,22 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		if(gold != 0)
 		{
 			// Adiciona o gold ao usuario
-			pMob[arg2].Mobs.Player.Gold += gold;
+			pMob[arg2].Mobs.Player.Coin += gold;
 
 			if(arg2 > 0 && arg2 < MAX_PLAYER)
 			{
-				pUser[arg2].Gold += gold;
+				pUser[arg2].Coin += gold;
 				pUser[arg2].GoldCount ++;
 
 				if(pUser[arg2].GoldCount >= 10)
 					LogGold(arg2);
 			}
 
-			if(pMob[arg2].Mobs.Player.Gold == 2000000000)
+			if(pMob[arg2].Mobs.Player.Coin == 2000000000)
 				SendClientMessage(arg2, "Nao possui espaao para guardar gold.");
 
 			// Envia a atualizaaao de gold
-			SendSignalParm(arg2, arg2, 0x3AF, pMob[arg2].Mobs.Player.Gold);
+			SendSignalParm(arg2, arg2, 0x3AF, pMob[arg2].Mobs.Player.Coin);
 		}
 	}
 
@@ -4238,11 +4238,11 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		sServer.LanHouseN.Count = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			if (pMob[i].Target.X >= 3600 && pMob[i].Target.X <= 3700 && pMob[i].Target.Y >= 3600 && pMob[i].Target.Y <= 3700)
-				SendClientMessage(i, "O boss da LanHouse foi morto por %s", pMob[arg2].Mobs.Player.Name);
+				SendClientMessage(i, "O boss da LanHouse foi morto por %s", pMob[arg2].Mobs.Player.MobName);
 		}
 	}
 
@@ -4276,11 +4276,11 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		sServer.LanHouseM.Count = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].Status != USER_PLAY)
+			if (pUser[i].CurrentScore != USER_PLAY)
 				continue;
 
 			if (pMob[i].Target.X >= 3732 && pMob[i].Target.X <= 3816 && pMob[i].Target.Y >= 3476 && pMob[i].Target.Y <= 3562)
-				SendClientMessage(i, "O boss da LanHouse foi morto por %s", pMob[arg2].Mobs.Player.Name);
+				SendClientMessage(i, "O boss da LanHouse foi morto por %s", pMob[arg2].Mobs.Player.MobName);
 		}
 	}
 
@@ -4308,7 +4308,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	}
 
 	// 0045D646
-	INT32 LOCAL_198 = pMob[arg1].Mobs.Player.Status.Level;
+	INT32 LOCAL_198 = pMob[arg1].Mobs.Player.CurrentScore.Level;
 	static const int FixDropTax[64] = 
 	{
 		400,  400,  400,  400, 400, 400, 400,  400,  4,  4,  4,  4, 900,  900,  900,  900,  20000, 20000, 20000, 20000, 20000, 20000, 
@@ -4320,13 +4320,13 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	for(LOCAL_132 = 0; LOCAL_132 < 64; LOCAL_132++)
 	{
 		STRUCT_ITEM *LOCAL_207 = (STRUCT_ITEM*)&pMob[arg1].Mobs.Player.Inventory[LOCAL_132];
-		if(!pMob[arg1].Mobs.Player.Inventory[LOCAL_132].Index)		
+		if(!pMob[arg1].Mobs.Player.Inventory[LOCAL_132].sIndex)
 			continue;
 		
 		INT32 t = 0;
 		for(; t < MAX_BLOCKITEM; t++)
 		{
-			if(pMob[arg1].Mobs.Player.Inventory[LOCAL_132].Index == g_pBlockedItem[t])
+			if(pMob[arg1].Mobs.Player.Inventory[LOCAL_132].sIndex == g_pBlockedItem[t])
 				break;
 		}
 
@@ -4334,7 +4334,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			continue;
 
 		// Liberado drop dos itens abaixo somente com o Kefra morto
-		if((LOCAL_207->Index >= 674 && LOCAL_207->Index <= 677) || LOCAL_207->Index == 770)
+		if((LOCAL_207->sIndex >= 674 && LOCAL_207->sIndex <= 677) || LOCAL_207->sIndex == 770)
 		{
 			if(!sServer.KefraDead)
 				continue;
@@ -4352,9 +4352,9 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		int bonusDrop = 0;
 		for (int i = 0; i < 3; i++)
 		{
-			if (LOCAL_207->Effect[i].Index == EF_DROPBONUS)
+			if (LOCAL_207->stEffect[i].cEffect == EF_DROPBONUS)
 			{
-				bonusDrop = LOCAL_207->Effect[i].Value;
+				bonusDrop = LOCAL_207->stEffect[i].cValue;
 				break;
 			}
 		}
@@ -4362,7 +4362,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		if (bonusDrop > 0 && bonusDrop < 100)
 			LOCAL_203 -= (LOCAL_203 * bonusDrop / 100);
 
-		INT32 fada = pMob[arg2].Mobs.Player.Equip[13].Index;
+		INT32 fada = pMob[arg2].Mobs.Player.Equip[13].sIndex;
 		if(fada == 3901 || fada == 3904 || fada == 3905 || fada == 3907 || fada == 3908 || fada == 3914)
 			LOCAL_203 -= (LOCAL_203 *  32 / 100);
 	
@@ -4426,10 +4426,10 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		if(LOCAL_203 != 0 && LOCAL_132 != 11)
 			continue;
 
-		if(LOCAL_207->Index <= 0 || LOCAL_207->Index > 6500)
+		if(LOCAL_207->sIndex <= 0 || LOCAL_207->sIndex > 6500)
 			continue;
 
-		if(ItemList[LOCAL_207->Index].Level > 140)
+		if(g_pItemList[LOCAL_207->sIndex].Level > 140)
 			if((LOCAL_203 & 0x80000001) == 1)
 				continue;
 
@@ -4461,8 +4461,8 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				excludedItems.push_back(541);
 			}
 
-			auto itemId = LOCAL_207->Index;
-			bool agroup = std::find(agruppedItems.begin(), agruppedItems.end(), LOCAL_207->Index) != agruppedItems.end();
+			auto itemId = LOCAL_207->sIndex;
+			bool agroup = std::find(agruppedItems.begin(), agruppedItems.end(), LOCAL_207->sIndex) != agruppedItems.end();
 			if (agroup)
 			{
 				bool bag1 = TimeRemaining(pMob[arg2].Mobs.Player.Inventory[60].EFV1, pMob[arg2].Mobs.Player.Inventory[60].EFV2, pMob[arg2].Mobs.Player.Inventory[60].EFV3 + 1900) > 0.0f;
@@ -4481,7 +4481,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 					if (i >= 45 && i <= 59 && !bag2)
 						continue;
 
-					if (pMob[arg2].Mobs.Player.Inventory[i].Index == LOCAL_207->Index)
+					if (pMob[arg2].Mobs.Player.Inventory[i].sIndex == LOCAL_207->sIndex)
 					{
 						if (GetItemAmount(&pMob[arg2].Mobs.Player.Inventory[i]) < max)
 						{
@@ -4499,7 +4499,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 					STRUCT_ITEM* dstItem = &pMob[arg2].Mobs.Player.Inventory[slotId];
 					if (AgroupItem(arg2, &temporaryItem, dstItem))
 					{
-						Log(arg2, LOG_INGAME, "Item %s foi agrupado pela %s", ItemList[LOCAL_207->Index].Name, ItemList[fada].Name);
+						Log(arg2, LOG_INGAME, "Item %s foi agrupado pela %s", g_pItemList[LOCAL_207->sIndex].ItemName, g_pItemList[fada].ItemName);
 
 						SendItem(arg2, SlotType::Inv, slotId, dstItem);
 
@@ -4524,7 +4524,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 				continue;
 			}
-			else if(std::find(excludedItems.begin(), excludedItems.end(), LOCAL_207->Index) == excludedItems.end())
+			else if(std::find(excludedItems.begin(), excludedItems.end(), LOCAL_207->sIndex) == excludedItems.end())
 			{
 				// fazemos a capia para nao apagarmos o item do inventario do mob
 				STRUCT_ITEM temporaryItem = *LOCAL_207;
@@ -4532,8 +4532,8 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				auto sellResult = SellItem(arg2, &temporaryItem);
 				if (sellResult == eSellItemResult::Success)
 				{
-					Log(arg2, LOG_INGAME, "Item %s vendido pela %s - [%d] [%d %d %d %d %d %d] em %dx %dy - %s", ItemList[LOCAL_207->Index].Name, ItemList[fada].Name, LOCAL_207->Index, LOCAL_207->EF1, LOCAL_207->EFV1, LOCAL_207->EF2,
-						LOCAL_207->EFV2, LOCAL_207->EF3, LOCAL_207->EFV3, pMob[arg2].Target.X, pMob[arg2].Target.Y, pMob[arg1].Mobs.Player.Name);
+					Log(arg2, LOG_INGAME, "Item %s vendido pela %s - [%d] [%d %d %d %d %d %d] em %dx %dy - %s", g_pItemList[LOCAL_207->sIndex].ItemName, g_pItemList[fada].ItemName, LOCAL_207->sIndex, LOCAL_207->EF1, LOCAL_207->EFV1, LOCAL_207->EF2,
+						LOCAL_207->EFV2, LOCAL_207->EF3, LOCAL_207->EFV3, pMob[arg2].Target.X, pMob[arg2].Target.Y, pMob[arg1].Mobs.Player.MobName);
 
 					// Parte nao feita - 0045DCF2
 					if (LOCAL_132 == 8 || LOCAL_132 == 9 || LOCAL_132 == 10)
@@ -4545,15 +4545,15 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			}
 		}
 
-		SetItemBonus(LOCAL_207, pMob[arg1].Mobs.Player.Status.Level, 0, LOCAL_209);
+		SetItemBonus(LOCAL_207, pMob[arg1].Mobs.Player.CurrentScore.Level, 0, LOCAL_209);
 
 		INT32 slotId = GetFirstSlot(arg2, 0);
 		if(slotId == -1)
 		{
-			Log(arg2, LOG_INGAME, "Nao dropou o item %s por falta de espaao [%d] [%d %d %d %d %d %d] em %dx %dy - %s (1/%d)", ItemList[LOCAL_207->Index].Name, LOCAL_207->Index, LOCAL_207->EF1, LOCAL_207->EFV1, LOCAL_207->EF2,
-				LOCAL_207->EFV2, LOCAL_207->EF3, LOCAL_207->EFV3, pMob[arg2].Target.X, pMob[arg2].Target.Y, pMob[arg1].Mobs.Player.Name, realRate);
+			Log(arg2, LOG_INGAME, "Nao dropou o item %s por falta de espaao [%d] [%d %d %d %d %d %d] em %dx %dy - %s (1/%d)", g_pItemList[LOCAL_207->sIndex].ItemName, LOCAL_207->sIndex, LOCAL_207->EF1, LOCAL_207->EFV1, LOCAL_207->EF2,
+				LOCAL_207->EFV2, LOCAL_207->EF3, LOCAL_207->EFV3, pMob[arg2].Target.X, pMob[arg2].Target.Y, pMob[arg1].Mobs.Player.MobName, realRate);
 
-			LogPlayer(arg2, "Nao dropou o item %s no mob %s por falta de espaao no inventario", ItemList[LOCAL_207->Index].Name, pMob[arg1].Mobs.Player.Name);
+			LogPlayer(arg2, "Nao dropou o item %s no mob %s por falta de espaao no inventario", g_pItemList[LOCAL_207->sIndex].ItemName, pMob[arg1].Mobs.Player.MobName);
 			SendClientMessage(arg2, "Seu inventario esta cheio");
 		}
 		else
@@ -4561,14 +4561,14 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			memcpy(&pMob[arg2].Mobs.Player.Inventory[slotId], LOCAL_207, 8);
 			SendItem(arg2, SlotType::Inv, slotId, LOCAL_207);
 
-			Log(arg2, LOG_INGAME, "Dropado item %s [%d] [%d %d %d %d %d %d] em %dx %dy - %s (1/%d)", ItemList[LOCAL_207->Index].Name, LOCAL_207->Index, LOCAL_207->EF1, LOCAL_207->EFV1, LOCAL_207->EF2,
-				LOCAL_207->EFV2, LOCAL_207->EF3, LOCAL_207->EFV3, pMob[arg2].Target.X, pMob[arg2].Target.Y, pMob[arg1].Mobs.Player.Name, realRate);
+			Log(arg2, LOG_INGAME, "Dropado item %s [%d] [%d %d %d %d %d %d] em %dx %dy - %s (1/%d)", g_pItemList[LOCAL_207->sIndex].ItemName, LOCAL_207->sIndex, LOCAL_207->EF1, LOCAL_207->EFV1, LOCAL_207->EF2,
+				LOCAL_207->EFV2, LOCAL_207->EF3, LOCAL_207->EFV3, pMob[arg2].Target.X, pMob[arg2].Target.Y, pMob[arg1].Mobs.Player.MobName, realRate);
 
-			LogPlayer(arg2, "Dropado o item %s no mob %s", ItemList[LOCAL_207->Index].Name, pMob[arg1].Mobs.Player.Name);
+			LogPlayer(arg2, "Dropado o item %s no mob %s", g_pItemList[LOCAL_207->sIndex].ItemName, pMob[arg1].Mobs.Player.MobName);
 
 			auto& user = pUser[arg2];
 			auto found = std::find_if(user.Dropped.Items.begin(), user.Dropped.Items.end(), [](const DroppedItem& dropped) {
-				return dropped.Item.Index <= 0 || dropped.Item.Index >= MAX_ITEMLIST;
+				return dropped.Item.sIndex <= 0 || dropped.Item.sIndex >= MAX_ITEMLIST;
 			});
 
 			if (found == user.Dropped.Items.end())
@@ -4593,7 +4593,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	// 0045DE03
 	if(arg2 < MAX_PLAYER)
 	{
-		if(pMob[arg1].Mobs.Player.Equip[0].Index == 239 || pMob[arg1].Mobs.Player.Equip[0].Index == 241)
+		if(pMob[arg1].Mobs.Player.Equip[0].sIndex == 239 || pMob[arg1].Mobs.Player.Equip[0].sIndex == 241)
 		{
 			if(!(Rand() % 20))
 			{
@@ -4616,18 +4616,18 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 	if(pMob[arg2].Mobs.Player.AffectInfo.DrainHP)
 	{
-		INT32 LOCAL_281 = pMob[arg1].Mobs.Player.Status.maxHP;
-		INT32 LOCAL_282 = pMob[arg1].Mobs.Player.Status.Mastery[3];
+		INT32 LOCAL_281 = pMob[arg1].Mobs.Player.CurrentScore.MaxHp;
+		INT32 LOCAL_282 = pMob[arg1].Mobs.Player.CurrentScore.Special[3];
 
 		LOCAL_281 = LOCAL_281 / 30 + LOCAL_282;
 
-		INT32 LOCAL_283 = pMob[arg2].Mobs.Player.Status.curHP;
+		INT32 LOCAL_283 = pMob[arg2].Mobs.Player.CurrentScore.Hp;
 
-		pMob[arg2].Mobs.Player.Status.curHP += LOCAL_283;
-		if(pMob[arg2].Mobs.Player.Status.curHP > pMob[arg2].Mobs.Player.Status.maxHP)
-			pMob[arg2].Mobs.Player.Status.curHP = pMob[arg2].Mobs.Player.Status.maxHP;
+		pMob[arg2].Mobs.Player.CurrentScore.Hp += LOCAL_283;
+		if(pMob[arg2].Mobs.Player.CurrentScore.Hp > pMob[arg2].Mobs.Player.CurrentScore.MaxHp)
+			pMob[arg2].Mobs.Player.CurrentScore.Hp = pMob[arg2].Mobs.Player.CurrentScore.MaxHp;
 
-		if(LOCAL_283 != pMob[arg2].Mobs.Player.Status.curHP)
+		if(LOCAL_283 != pMob[arg2].Mobs.Player.CurrentScore.Hp)
 		{
 			if(arg2 > 0 && arg2 < MAX_PLAYER)
 			{
@@ -4640,7 +4640,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			LOCAL_287.Header.Size = sizeof p18A;
 			LOCAL_287.Header.ClientId = arg2;
 
-			LOCAL_287.CurHP = pMob[arg2].Mobs.Player.Status.curHP;
+			LOCAL_287.CurHP = pMob[arg2].Mobs.Player.CurrentScore.Hp;
 			LOCAL_287.Incress = LOCAL_287.CurHP - LOCAL_283;
 
 			INT32 LOCAL_288 = pMob[arg2].Target.X;
@@ -4650,7 +4650,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		}
 	}
 
-	if (sServer.DropArea.Status && pUser[arg2].DropEvent.IsValid)
+	if (sServer.DropArea.CurrentScore && pUser[arg2].DropEvent.IsValid)
 	{
 		bool hasPotion = false;
 		for (int i = 0; i < 32; i++)
@@ -4695,7 +4695,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 				int rate = area.Rate;
 
-				int fada = pMob[arg2].Mobs.Player.Equip[13].Index;
+				int fada = pMob[arg2].Mobs.Player.Equip[13].sIndex;
 				if (fada == 3901 || fada == 3904 || fada == 3905 || fada == 3907 || fada == 3908 || fada == 3914)
 					rate -= (rate * 15 / 100);
 
@@ -4729,9 +4729,9 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				if (sServer.DropArea.Message)
 				{
 					if (area.Limit == 0)
-						SendNotice("%s dropou o item %s. Total dropado: %d", pMob[arg2].Mobs.Player.Name, ItemList[item.Index].Name, area.Dropped);
+						SendNotice("%s dropou o item %s. Total dropado: %d", pMob[arg2].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, area.Dropped);
 					else
-						SendNotice("%s dropou o item %s. Total dropado: %d de %d", pMob[arg2].Mobs.Player.Name, ItemList[item.Index].Name, area.Dropped, area.Limit);
+						SendNotice("%s dropou o item %s. Total dropado: %d de %d", pMob[arg2].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, area.Dropped, area.Limit);
 				}
 
 				Log(arg2, LOG_INGAME, "Foi dropado o item do evento %s. Rate: %d. Gerado: %d. Total de dropados: %d", item.toString().c_str(), area.Rate, rand, pUser[arg2].DropEvent.Dropped);
@@ -4752,7 +4752,7 @@ void ClearAreaTeleport(unsigned int x1, unsigned int y1, unsigned int x2, unsign
 
 	for(; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if(pUser[LOCAL_1].Status != USER_PLAY)
+		if(pUser[LOCAL_1].CurrentScore != USER_PLAY)
 			continue;
 
 		if(!pMob[LOCAL_1].Mode)
@@ -4761,9 +4761,9 @@ void ClearAreaTeleport(unsigned int x1, unsigned int y1, unsigned int x2, unsign
 		if(pMob[LOCAL_1].Target.X >= x1 && pMob[LOCAL_1].Target.X <= x2 &&
 			pMob[LOCAL_1].Target.Y >= y1 && pMob[LOCAL_1].Target.Y <= y2)
 		{
-			if(pMob[LOCAL_1].Mobs.Player.Status.curHP <= 0)
+			if(pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp <= 0)
 			{
-				pMob[LOCAL_1].Mobs.Player.Status.curHP = 1;
+				pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp = 1;
 				SendScore(LOCAL_1);
 			}
 		
@@ -4779,7 +4779,7 @@ void ClearArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y
 
 	for (; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if (pUser[LOCAL_1].Status != USER_PLAY)
+		if (pUser[LOCAL_1].CurrentScore != USER_PLAY)
 			continue;
 
 		if (!pMob[LOCAL_1].Mode)
@@ -4789,9 +4789,9 @@ void ClearArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y
 			pMob[LOCAL_1].Target.Y < y1 || pMob[LOCAL_1].Target.Y > y2)
 			continue;
 
-		if (pMob[LOCAL_1].Mobs.Player.Status.curHP <= 0)
+		if (pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp <= 0)
 		{
-			pMob[LOCAL_1].Mobs.Player.Status.curHP = 1;
+			pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp = 1;
 			SendScore(LOCAL_1);
 		}
 
@@ -4806,7 +4806,7 @@ void ClearArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y
 
 	for (; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if (pUser[LOCAL_1].Status != USER_PLAY)
+		if (pUser[LOCAL_1].CurrentScore != USER_PLAY)
 			continue;
 
 		if (!pMob[LOCAL_1].Mode)
@@ -4859,7 +4859,7 @@ void DoRemovePossuido(INT32 clientId)
 
 int CreateItem(int posX, int posY, STRUCT_ITEM *item, int unknow, int arg4, int status)
 {
-	if(item->Index <= 0 || item->Index >= MAX_ITEMLIST)
+	if(item->sIndex <= 0 || item->sIndex >= MAX_ITEMLIST)
 		return 0;
 
 	GetEmptyItemGrid(&posX, &posY);
@@ -4879,7 +4879,7 @@ int CreateItem(int posX, int posY, STRUCT_ITEM *item, int unknow, int arg4, int 
 	memcpy(&g_pInitItem[LOCAL_1].Item, item, sizeof STRUCT_ITEM);
 
 	g_pInitItem[LOCAL_1].Rotation		= unknow;
-	g_pInitItem[LOCAL_1].Status		= status;
+	g_pInitItem[LOCAL_1].CurrentScore		= status;
 	g_pInitItem[LOCAL_1].IsOpen		= 90;
 	g_pInitItem[LOCAL_1].Unknow_36	= 0;
 	g_pInitItem[LOCAL_1].CanRun		= GetItemAbility(item, EF_GROUND);
@@ -4894,14 +4894,14 @@ int CreateItem(int posX, int posY, STRUCT_ITEM *item, int unknow, int arg4, int 
 	return LOCAL_1;
 }
 
-void SetCurKill(int Index, int cFrag)
+void SetCurKill(int sIndex, int cFrag)
 {
 	if(cFrag < 0)
 		cFrag = 0;
 	else if(cFrag > 200) 
 		cFrag = 200;
 
-	pMob[Index].Mobs.Player.Inventory[63].EFV1 = cFrag;
+	pMob[sIndex].Mobs.Player.Inventory[63].EFV1 = cFrag;
 }
 
 void SetGuilty(int Cid, int arg_2)
@@ -4918,7 +4918,7 @@ void SetGuilty(int Cid, int arg_2)
 	pMob[Cid].Mobs.Player.Inventory[63].EF2 = LOCAL_1;
 }
 
-void SetTotKill(int Index, int tFrag)
+void SetTotKill(int sIndex, int tFrag)
 {
 	if (tFrag < 0)
 		tFrag = 0;
@@ -4926,15 +4926,15 @@ void SetTotKill(int Index, int tFrag)
 	if (tFrag > 32767)
 		tFrag = 32767;
 
-	pMob[Index].Mobs.Player.Inventory[63].EFV2 = tFrag % 256;
-	pMob[Index].Mobs.Player.Inventory[63].EFV3 = tFrag >> 8;
+	pMob[sIndex].Mobs.Player.Inventory[63].EFV2 = tFrag % 256;
+	pMob[sIndex].Mobs.Player.Inventory[63].EFV3 = tFrag >> 8;
 }
 
 void SetItemBonus(STRUCT_ITEM* item)
 {
-	int LOCAL_4 = item->Index;
-	int LOCAL_5 = ItemList[item->Index].Unique;
-	int LOCAL_7 = ItemList[item->Index].Pos;
+	int LOCAL_4 = item->sIndex;
+	int LOCAL_5 = g_pItemList[item->sIndex].Unique;
+	int LOCAL_7 = g_pItemList[item->sIndex].Pos;
 
 	int LOCAL_9 = 0;
 
@@ -5158,21 +5158,21 @@ void SetItemBonus(STRUCT_ITEM* item)
 		if (ability == 1 && LOCAL_20 >= 3)
 			LOCAL_20 = 2;
 
-		if (!item->Effect[1].Index && LOCAL_20 > 0)
+		if (!item->stEffect[1].cEffect && LOCAL_20 > 0)
 		{
 			// EBP - 28 = LOCAL_10
-			item->Effect[1].Index = LOCAL_10;
-			item->Effect[1].Value = LOCAL_20 * LOCAL_12;
+			item->stEffect[1].cEffect = LOCAL_10;
+			item->stEffect[1].cValue = LOCAL_20 * LOCAL_12;
 		}
-		else if (!item->Effect[1].Index && LOCAL_20 <= 0 && LOCAL_7 == 32)
+		else if (!item->stEffect[1].cEffect && LOCAL_20 <= 0 && LOCAL_7 == 32)
 		{
-			item->Effect[1].Index = LOCAL_10;
-			item->Effect[1].Value = 0;
+			item->stEffect[1].cEffect = LOCAL_10;
+			item->stEffect[1].cValue = 0;
 		}
-		else if (!item->Effect[1].Index)
+		else if (!item->stEffect[1].cEffect)
 		{
-			item->Effect[1].Index = EF_UNIQUE;
-			item->Effect[1].Value = Rand() % 127;
+			item->stEffect[1].cEffect = EF_UNIQUE;
+			item->stEffect[1].cValue = Rand() % 127;
 		}
 
 		int LOCAL_21 = 0;
@@ -5203,10 +5203,10 @@ void SetItemBonus(STRUCT_ITEM* item)
 		if (LOCAL_7 >= 64 && LOCAL_17 == EF_MAGIC && ((LOCAL_21 >= 4 && LOCAL_20 >= 5) || (LOCAL_21 >= 5 && LOCAL_20 >= 4)))
 			LOCAL_21 = 3;
 
-		if (LOCAL_21 > 0x00 && !item->Effect[2].Index)
+		if (LOCAL_21 > 0x00 && !item->stEffect[2].cEffect)
 		{
-			item->Effect[2].Index = LOCAL_17;
-			item->Effect[2].Value = LOCAL_21 * LOCAL_18;
+			item->stEffect[2].cEffect = LOCAL_17;
+			item->stEffect[2].cValue = LOCAL_21 * LOCAL_18;
 		}
 
 		if (!(Rand() % 80))
@@ -5241,8 +5241,8 @@ void SetItemBonus(STRUCT_ITEM* item)
 
 					int LOCAL_34 = Rand() % LOCAL_33 + LOCAL_31;
 
-					item->Effect[i].Index = LOCAL_29;
-					item->Effect[i].Value = LOCAL_34;
+					item->stEffect[i].cEffect = LOCAL_29;
+					item->stEffect[i].cValue = LOCAL_34;
 				}
 			}
 		}
@@ -5261,22 +5261,22 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 	INT32 LOCAL_2 = -1;
 	INT32 LOCAL_3 = -1;
 
-	if(item->Effect[0].Index >= 100 && item->Effect[0].Index <= 105)
+	if(item->stEffect[0].cEffect >= 100 && item->stEffect[0].cEffect <= 105)
 	{
-		LOCAL_2 = item->Effect[0].Index - 100;
-		LOCAL_3 = item->Effect[0].Value;
+		LOCAL_2 = item->stEffect[0].cEffect - 100;
+		LOCAL_3 = item->stEffect[0].cValue;
 
-		item->Effect[0].Index = 0;
-		item->Effect[0].Value = 0;
+		item->stEffect[0].cEffect = 0;
+		item->stEffect[0].cValue = 0;
 	}
 	
 	if(sanc == 0 && level >= 210)
 		level -= 47;
 
-	int LOCAL_4 = item->Index;
-	int LOCAL_5 = ItemList[item->Index].Unique;
-	int LOCAL_6 = ItemList[item->Index].Level; // LEVEL
-	int LOCAL_7 = ItemList[item->Index].Pos;
+	int LOCAL_4 = item->sIndex;
+	int LOCAL_5 = g_pItemList[item->sIndex].Unique;
+	int LOCAL_6 = g_pItemList[item->sIndex].Level; // LEVEL
+	int LOCAL_7 = g_pItemList[item->sIndex].Pos;
 
 	int LOCAL_8 = (level - LOCAL_6) / 25;
 	if(LOCAL_2 != -1)
@@ -5300,7 +5300,7 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 			LOCAL_8 = 3;
 	
 	INT32 ability = GetItemAbility(item, EF_MOBTYPE);
-	if((LOCAL_7 & 254) && !item->Effect[0].Index && LOCAL_7 != 128)
+	if((LOCAL_7 & 254) && !item->stEffect[0].cEffect && LOCAL_7 != 128)
 	{
 		int LOCAL_10 = 59;
 		int LOCAL_11 = 0;
@@ -5609,21 +5609,21 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 		if(ability == 1 && LOCAL_20 >= 3)
 			LOCAL_20 = 2;
 
-		if(!item->Effect[1].Index && LOCAL_20 > 0)
+		if(!item->stEffect[1].cEffect && LOCAL_20 > 0)
 		{
 			// EBP - 28 = LOCAL_10
-			item->Effect[1].Index = LOCAL_10;
-			item->Effect[1].Value = LOCAL_20 * LOCAL_12;
+			item->stEffect[1].cEffect = LOCAL_10;
+			item->stEffect[1].cValue = LOCAL_20 * LOCAL_12;
 		}
-		else if(!item->Effect[1].Index && LOCAL_20 <= 0 && LOCAL_7 == 32)
+		else if(!item->stEffect[1].cEffect && LOCAL_20 <= 0 && LOCAL_7 == 32)
 		{
-			item->Effect[1].Index = LOCAL_10;
-			item->Effect[1].Value = 0;
+			item->stEffect[1].cEffect = LOCAL_10;
+			item->stEffect[1].cValue = 0;
 		}
-		else if(!item->Effect[1].Index)
+		else if(!item->stEffect[1].cEffect)
 		{
-			item->Effect[1].Index = EF_UNIQUE;
-			item->Effect[1].Value = Rand() % 127;
+			item->stEffect[1].cEffect = EF_UNIQUE;
+			item->stEffect[1].cValue = Rand() % 127;
 		}
 
 		int LOCAL_21 = 0;
@@ -5717,18 +5717,18 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 		if(LOCAL_7 >= 64 && LOCAL_17 == EF_MAGIC && ((LOCAL_21 >= 4 && LOCAL_20 >= 5) || (LOCAL_21 >= 5 && LOCAL_20 >= 4)))
 			LOCAL_21 = 3;
 
-		if(LOCAL_21 > 0x00 && !item->Effect[2].Index)
+		if(LOCAL_21 > 0x00 && !item->stEffect[2].cEffect)
 		{
-			item->Effect[2].Index = LOCAL_17;
-			item->Effect[2].Value = LOCAL_21 * LOCAL_18;
+			item->stEffect[2].cEffect = LOCAL_17;
+			item->stEffect[2].cValue = LOCAL_21 * LOCAL_18;
 		}
-		else if(!item->Effect[2].Index)
+		else if(!item->stEffect[2].cEffect)
 		{
-			item->Effect[2].Index = EF_UNIQUE;
-			item->Effect[2].Value = Rand() % 0x7F;
+			item->stEffect[2].cEffect = EF_UNIQUE;
+			item->stEffect[2].cValue = Rand() % 0x7F;
 		}
 			
-		if(!item->Effect[0].Index)
+		if(!item->stEffect[0].cEffect)
 		{
 			int LOCAL_22 = Rand() % 0x064;
 
@@ -5760,8 +5760,8 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 
 			if(LOCAL_22 < LOCAL_23)
 			{
-				item->Effect[0].Index = 43;
-				item->Effect[0].Value = 2;
+				item->stEffect[0].cEffect = 43;
+				item->stEffect[0].cValue = 2;
 
 				if(LOCAL_3 > 0x02)
 				{
@@ -5770,59 +5770,59 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 					if(LOCAL_3 == 3)
 					{
 						if(LOCAL_27 < 30)
-							item->Effect[0].Value = 3;
+							item->stEffect[0].cValue = 3;
 					}
 					else if(LOCAL_3 == 4)
 					{
 						if(LOCAL_27 < 10)
-							item->Effect[0].Value = 4;
+							item->stEffect[0].cValue = 4;
 						else if(LOCAL_27 < 40)
-							item->Effect[0].Value = 3;
+							item->stEffect[0].cValue = 3;
 					}
 					else if(LOCAL_3 == 5)
 					{
 						if(LOCAL_27 < 10)
-							item->Effect[0].Value = 5;
+							item->stEffect[0].cValue = 5;
 						else if(LOCAL_27 < 30)
-							item->Effect[0].Value = 4;
+							item->stEffect[0].cValue = 4;
 						else if(LOCAL_27 < 60)
-							item->Effect[0].Value = 3;
+							item->stEffect[0].cValue = 3;
 					}
 					else if(LOCAL_3 == 6)
 					{
 						if(LOCAL_27 < 10)
-							item->Effect[0].Value  = 6;
+							item->stEffect[0].cValue  = 6;
 						else if(LOCAL_27 < 20)
-							item->Effect[0].Value = 5;
+							item->stEffect[0].cValue = 5;
 						else if(LOCAL_27 < 30)
-							item->Effect[0].Value = 4;
+							item->stEffect[0].cValue = 4;
 						else if(LOCAL_27 < 60)
-							item->Effect[0].Value = 3;
+							item->stEffect[0].cValue = 3;
 					}
 					else if(LOCAL_3 == 7)
 					{
 						if(LOCAL_27 < 4)
-							item->Effect[0].Value = 7;
+							item->stEffect[0].cValue = 7;
 						else if(LOCAL_27 < 10)
-							item->Effect[0].Value = 6;
+							item->stEffect[0].cValue = 6;
 						else if(LOCAL_27 < 20)
-							item->Effect[0].Value = 5;
+							item->stEffect[0].cValue = 5;
 						else if(LOCAL_27 < 35)
-							item->Effect[0].Value = 4;
+							item->stEffect[0].cValue = 4;
 						else if(LOCAL_27 < 60)
-							item->Effect[0].Value = 3;
+							item->stEffect[0].cValue = 3;
 					}
 				}
 			}
 			else if(LOCAL_22 < LOCAL_24)
 			{
-				item->Effect[0].Index = EF_SANC;
-				item->Effect[0].Value = 1;
+				item->stEffect[0].cEffect = EF_SANC;
+				item->stEffect[0].cValue = 1;
 			}
 			else if(LOCAL_22 < LOCAL_25)
 			{
-				item->Effect[0].Index = EF_SANC;
-				item->Effect[0].Value = 0;
+				item->stEffect[0].cEffect = EF_SANC;
+				item->stEffect[0].cValue = 0;
 			}
 			else if(LOCAL_22 < LOCAL_26)
 			{ // Aqui ele gera adicionais tipo: Inteligancia, foraa e tal ^^ 
@@ -5841,13 +5841,13 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 
 				int LOCAL_34 = Rand() % LOCAL_33 + LOCAL_31;
 
-				item->Effect[0].Index = LOCAL_29;
-				item->Effect[0].Value = LOCAL_34;
+				item->stEffect[0].cEffect = LOCAL_29;
+				item->stEffect[0].cValue = LOCAL_34;
 			}
 			else
 			{
-				item->Effect[0].Index = 0x3B;
-				item->Effect[0].Value = Rand() % 0x7F;
+				item->stEffect[0].cEffect = 0x3B;
+				item->stEffect[0].cValue = Rand() % 0x7F;
 			}
 		}
 	}
@@ -5855,66 +5855,66 @@ void SetItemBonus(STRUCT_ITEM *item, int level, int sanc, int bonus)
 	int LOCAL_35 = 0;
 	for(LOCAL_35 = 0; LOCAL_35 < 12; LOCAL_35++)
 	{
-		int LOCAL_36 = ItemList[LOCAL_4].Level;
+		int LOCAL_36 = g_pItemList[LOCAL_4].Level;
 
-		switch(ItemList[LOCAL_4].Effect[LOCAL_35].Index)
+		switch(g_pItemList[LOCAL_4].stEffect[LOCAL_35].sEffect)
 		{
 			case EF_SANC:
-				item->Effect[0].Index = EF_SANC;
-				item->Effect[0].Value = static_cast<BYTE>(ItemList[LOCAL_4].Effect[LOCAL_35].Value);
+				item->stEffect[0].cEffect = EF_SANC;
+				item->stEffect[0].cValue = static_cast<BYTE>(g_pItemList[LOCAL_4].stEffect[LOCAL_35].sValue);
 				break;
 			case EF_AMOUNT:
-				item->Effect[0].Index = EF_AMOUNT;
-				item->Effect[0].Value = static_cast<BYTE>(ItemList[LOCAL_4].Effect[LOCAL_35].Value);
+				item->stEffect[0].cEffect = EF_AMOUNT;
+				item->stEffect[0].cValue = static_cast<BYTE>(g_pItemList[LOCAL_4].stEffect[LOCAL_35].sValue);
 				break;
 			case EF_INCUBATE:
-				item->Effect[0].Index = EF_INCUBATE;
+				item->stEffect[0].cEffect = EF_INCUBATE;
 
-				BYTE LOCAL_37 = Rand() % 4 + ItemList[LOCAL_4].Effect[LOCAL_35].Value;
+				BYTE LOCAL_37 = Rand() % 4 + g_pItemList[LOCAL_4].stEffect[LOCAL_35].sValue;
 				if(LOCAL_37 > 9)
 					LOCAL_37 = 9;
 
-				item->Effect[0].Value = static_cast<BYTE>(LOCAL_37);
+				item->stEffect[0].cValue = static_cast<BYTE>(LOCAL_37);
 				break;
 		}
 	}
 
-	// item->Index == 412 || item->Index == 413 || 
-	if(item->Index == 419 || item->Index == 420 || item->Index == 753)
+	// item->sIndex == 412 || item->sIndex == 413 || 
+	if(item->sIndex == 419 || item->sIndex == 420 || item->sIndex == 753)
 	{
-		if(!item->Effect[0].Index)
+		if(!item->stEffect[0].cEffect)
 		{
-			item->Effect[0].Index = EF_UNIQUE;
-			item->Effect[0].Value = Rand() % 0x7F;
+			item->stEffect[0].cEffect = EF_UNIQUE;
+			item->stEffect[0].cValue = Rand() % 0x7F;
 		}
-		if(!item->Effect[1].Index)
+		if(!item->stEffect[1].cEffect)
 		{
-			item->Effect[1].Index = EF_UNIQUE;
-			item->Effect[1].Value = Rand() % 0x7F;
+			item->stEffect[1].cEffect = EF_UNIQUE;
+			item->stEffect[1].cValue = Rand() % 0x7F;
 		}
-		if(!item->Effect[2].Index)
+		if(!item->stEffect[2].cEffect)
 		{
-			item->Effect[2].Index = EF_UNIQUE;
-			item->Effect[2].Value = Rand() % 0x7F;
+			item->stEffect[2].cEffect = EF_UNIQUE;
+			item->stEffect[2].cValue = Rand() % 0x7F;
 		}
 	}
 
-	if((item->Index >= 447 && item->Index <= 450) || (item->Index >= 692 && item->Index <= 695))
+	if((item->sIndex >= 447 && item->sIndex <= 450) || (item->sIndex >= 692 && item->sIndex <= 695))
 	{
-		if(!item->Effect[0].Index)
+		if(!item->stEffect[0].cEffect)
 		{
-			item->Effect[0].Index = EF_UNIQUE;
-			item->Effect[0].Value = Rand() % 256;
+			item->stEffect[0].cEffect = EF_UNIQUE;
+			item->stEffect[0].cValue = Rand() % 256;
 		}
-		if(!item->Effect[1].Index)
+		if(!item->stEffect[1].cEffect)
 		{
-			item->Effect[1].Index = EF_UNIQUE;
-			item->Effect[1].Value = Rand() % 256;
+			item->stEffect[1].cEffect = EF_UNIQUE;
+			item->stEffect[1].cValue = Rand() % 256;
 		}
-		if(!item->Effect[2].Index)
+		if(!item->stEffect[2].cEffect)
 		{
-			item->Effect[2].Index = EF_UNIQUE;
-			item->Effect[2].Value = Rand() % 256;
+			item->stEffect[2].cEffect = EF_UNIQUE;
+			item->stEffect[2].cValue = Rand() % 256;
 		}
 	}
 }
@@ -5933,9 +5933,9 @@ bool SetItemSanc(STRUCT_ITEM *item, int sanc, int arg3)
 	int actualSanc = 0;
 	for (; i < 3; i++)
 	{
-		if (item->Effect[i].Index == 43 || (item->Effect[i].Index >= 116 && item->Effect[i].Index <= 125))
+		if (item->stEffect[i].cEffect == 43 || (item->stEffect[i].cEffect >= 116 && item->stEffect[i].cEffect <= 125))
 		{
-			actualSanc = item->Effect[i].Value;
+			actualSanc = item->stEffect[i].cValue;
 			break;
 		}
 	}
@@ -5959,10 +5959,10 @@ bool SetItemSanc(STRUCT_ITEM *item, int sanc, int arg3)
 	{
 		for(i = 0;i<3;i++)
 		{
-			if(item->Effect[i].Index == 0)
+			if(item->stEffect[i].cEffect == 0)
 			{
-				item->Effect[i].Index = EF_SANC;
-				item->Effect[i].Value = sc;
+				item->stEffect[i].cEffect = EF_SANC;
+				item->stEffect[i].cValue = sc;
 				return true;
 			}
 		}
@@ -5972,7 +5972,7 @@ bool SetItemSanc(STRUCT_ITEM *item, int sanc, int arg3)
 	}
 	else
 	{
-		item->Effect[i].Value = sc;
+		item->stEffect[i].cValue = sc;
 		return true;
 	}
 
@@ -5999,11 +5999,11 @@ void SetReqHp(int clientId)
     if(clientId <= 0 || clientId >= MAX_PLAYER)
 		return;
  
-    if(pMob[clientId].Mobs.Player.Status.curHP > pMob[clientId].Mobs.Player.Status.maxHP)
-		pMob[clientId].Mobs.Player.Status.curHP = pMob[clientId].Mobs.Player.Status.maxHP;
+    if(pMob[clientId].Mobs.Player.CurrentScore.Hp > pMob[clientId].Mobs.Player.CurrentScore.MaxHp)
+		pMob[clientId].Mobs.Player.CurrentScore.Hp = pMob[clientId].Mobs.Player.CurrentScore.MaxHp;
  
-    if(pUser[clientId].Potion.CountHp < pMob[clientId].Mobs.Player.Status.curHP)
-		pUser[clientId].Potion.CountHp = pMob[clientId].Mobs.Player.Status.curHP;
+    if(pUser[clientId].Potion.CountHp < pMob[clientId].Mobs.Player.CurrentScore.Hp)
+		pUser[clientId].Potion.CountHp = pMob[clientId].Mobs.Player.CurrentScore.Hp;
 }
 
 void SetReqMp(int clientId)
@@ -6011,11 +6011,11 @@ void SetReqMp(int clientId)
     if(clientId <= 0 || clientId >= MAX_PLAYER)
 		return;
 	 
-    if(pMob[clientId].Mobs.Player.Status.curMP > pMob[clientId].Mobs.Player.Status.maxMP)
-		pMob[clientId].Mobs.Player.Status.curMP = pMob[clientId].Mobs.Player.Status.maxMP;
+    if(pMob[clientId].Mobs.Player.CurrentScore.Mp > pMob[clientId].Mobs.Player.CurrentScore.MaxMp)
+		pMob[clientId].Mobs.Player.CurrentScore.Mp = pMob[clientId].Mobs.Player.CurrentScore.MaxMp;
  
-    if(pUser[clientId].Potion.CountMp < pMob[clientId].Mobs.Player.Status.curMP)
-		pUser[clientId].Potion.CountMp = pMob[clientId].Mobs.Player.Status.curMP;
+    if(pUser[clientId].Potion.CountMp < pMob[clientId].Mobs.Player.CurrentScore.Mp)
+		pUser[clientId].Potion.CountMp = pMob[clientId].Mobs.Player.CurrentScore.Mp;
 }
 
  int MountCon[30] = 
@@ -6041,7 +6041,7 @@ int GenerateSummon(int User,int SummonId, STRUCT_ITEM *Item)
 	if(SummonId < 0 || SummonId >= 50)
 		return 0;
 	
-	int summonFaceId = NPCBase[SummonId].Equip[0].Index;
+	int summonFaceId = NPCBase[SummonId].Equip[0].sIndex;
 	int LOCAL4 = 0;
 	int ptCont = 0;
 
@@ -6062,22 +6062,22 @@ int GenerateSummon(int User,int SummonId, STRUCT_ITEM *Item)
 	
 	memset(&pMob[mobId].PartyList, 0, 24);
 	memcpy(&pMob[mobId].Mobs.Player, &NPCBase[SummonId], sizeof STRUCT_MOB);
-	pMob[mobId].Mobs.Player.bStatus.Level  = pMob[User].Mobs.Player.bStatus.Level;
-	pMob[mobId].Mobs.Player.Status.Level  = pMob[User].Mobs.Player.bStatus.Level;
-	strcat_s(pMob[mobId].Mobs.Player.Name,"^");
+	pMob[mobId].Mobs.Player.BaseScore.Level  = pMob[User].Mobs.Player.BaseScore.Level;
+	pMob[mobId].Mobs.Player.CurrentScore.Level  = pMob[User].Mobs.Player.BaseScore.Level;
+	strcat_s(pMob[mobId].Mobs.Player.MobName,"^");
 
 	for(int i=0; i<16; i++)
-		if(pMob[mobId].Mobs.Player.Name[i] == 95)
-			pMob[mobId].Mobs.Player.Name[i] = 32;
+		if(pMob[mobId].Mobs.Player.MobName[i] == 95)
+			pMob[mobId].Mobs.Player.MobName[i] = 32;
 
 	memset(&pMob[mobId].Mobs.Affects, 0, sizeof(STRUCT_AFFECT) * 32);
 	
-	int sINT = pMob[User].Mobs.Player.Status.INT + (pMob[User].Mobs.Player.Status.INT * 15 / 100);
-	int sMast = pMob[User].Mobs.Player.Status.Mastery[2] + 50;
+	int sINT = pMob[User].Mobs.Player.CurrentScore.Int + (pMob[User].Mobs.Player.CurrentScore.Int * 15 / 100);
+	int sMast = pMob[User].Mobs.Player.CurrentScore.Special[2] + 50;
 
-	if (Item == nullptr && pMob[User].Mobs.Player.ClassInfo == 2)
+	if (Item == nullptr && pMob[User].Mobs.Player.Class == 2)
 	{
-		if (pMob[User].Mobs.Player.Learn[0] & (1 << 15)) // se tiver oitava skill succubus
+		if (pMob[User].Mobs.Player.LearnedSkill[0] & (1 << 15)) // se tiver oitava skill succubus
 		{
 			sINT += ceil((static_cast<double>(sINT) * 0.105));
 			sMast += 50;
@@ -6087,19 +6087,19 @@ int GenerateSummon(int User,int SummonId, STRUCT_ITEM *Item)
 	int calcInt = pSummonBonus[SummonId].MinAttack * sINT / 100;
 	int calcMast = pSummonBonus[SummonId].MaxAttack * sMast / 100;
 
-	pMob[mobId].Mobs.Player.bStatus.Attack = pMob[mobId].Mobs.Player.bStatus.Attack + calcInt + calcMast;
+	pMob[mobId].Mobs.Player.BaseScore.Damage = pMob[mobId].Mobs.Player.BaseScore.Damage + calcInt + calcMast;
 
 	calcInt = pSummonBonus[SummonId].MinDefense * sINT / 100;
 	calcMast = pSummonBonus[SummonId].MaxDefense * sMast / 100;
 
-	pMob[mobId].Mobs.Player.bStatus.Defense = pMob[mobId].Mobs.Player.bStatus.Defense + calcInt + calcMast;
+	pMob[mobId].Mobs.Player.BaseScore.Ac = pMob[mobId].Mobs.Player.BaseScore.Ac + calcInt + calcMast;
 
 	calcInt = pSummonBonus[SummonId].MinHp * sINT / 100;
 	calcMast = pSummonBonus[SummonId].MaxHp * sMast / 100;
 
-	pMob[mobId].Mobs.Player.Status.maxHP = pMob[mobId].Mobs.Player.bStatus.maxHP + calcInt + calcMast;
+	pMob[mobId].Mobs.Player.CurrentScore.MaxHp = pMob[mobId].Mobs.Player.BaseScore.MaxHp + calcInt + calcMast;
 	
-	pMob[mobId].Mobs.Player.bStatus.maxHP = pMob[mobId].Mobs.Player.Status.maxHP;
+	pMob[mobId].Mobs.Player.BaseScore.MaxHp = pMob[mobId].Mobs.Player.CurrentScore.MaxHp;
 	pMob[mobId].GenerateID = -1;
 	pMob[mobId].Formation = 5;
 	pMob[mobId].RouteType = 5;
@@ -6122,7 +6122,7 @@ int GenerateSummon(int User,int SummonId, STRUCT_ITEM *Item)
 		if(ret >= 100)
 			ret = 100; 
 
-		int faceId = pMob[mobId].Mobs.Player.Equip[0].Index;		// LOCAL_31
+		int faceId = pMob[mobId].Mobs.Player.Equip[0].sIndex;		// LOCAL_31
 		INT16 Con = 0; // LOCAL_32
 
 		if(faceId >= 315 && faceId < 345)
@@ -6134,42 +6134,42 @@ int GenerateSummon(int User,int SummonId, STRUCT_ITEM *Item)
 	
 			Con = (calc1 + ((calc2 * ret) / 100)); // LOCAL_32
 
-			pMob[mobId].Mobs.Player.bStatus.CON = Con;
-			pMob[mobId].Mobs.Player.Status.CON = Con;
+			pMob[mobId].Mobs.Player.BaseScore.Con = Con;
+			pMob[mobId].Mobs.Player.CurrentScore.Con = Con;
 
 			int retn = GetItemAbility(Item,EF_MOUNTSANC);
 
-			pMob[mobId].Mobs.Player.bStatus.Attack = pMob[mobId].Mobs.Player.bStatus.Attack + ((retn & 255) * 6);
-			pMob[mobId].Mobs.Player.Status.Attack = pMob[mobId].Mobs.Player.bStatus.Attack;
+			pMob[mobId].Mobs.Player.BaseScore.Damage = pMob[mobId].Mobs.Player.BaseScore.Damage + ((retn & 255) * 6);
+			pMob[mobId].Mobs.Player.CurrentScore.Damage = pMob[mobId].Mobs.Player.BaseScore.Damage;
 		}
 	}
 
 	if(pMob[User].GuildDisable == 0)
 	{
-		pMob[mobId].Mobs.Player.GuildIndex		= pMob[User].Mobs.Player.GuildIndex;
-		pMob[mobId].Mobs.Player.GuildMemberType  = 0;
+		pMob[mobId].Mobs.Player.Guild		= pMob[User].Mobs.Player.Guild;
+		pMob[mobId].Mobs.Player.GuildLevel  = 0;
 	}
 
-	pMob[mobId].Mobs.Player.Status.curHP = pMob[mobId].Mobs.Player.Status.maxHP;
+	pMob[mobId].Mobs.Player.CurrentScore.Hp = pMob[mobId].Mobs.Player.CurrentScore.MaxHp;
 
 	if(true) //?
 	{
-		if(pMob[User].Mobs.Player.Equip[15].Index == 543 || pMob[User].Mobs.Player.Equip[15].Index == 545)
+		if(pMob[User].Mobs.Player.Equip[15].sIndex == 543 || pMob[User].Mobs.Player.Equip[15].sIndex == 545)
 		{
 			memset(&pMob[mobId].Mobs.Player.Equip[15], 0, sizeof(STRUCT_ITEM));
-			pMob[mobId].Mobs.Player.Equip[15].Index = 734;
+			pMob[mobId].Mobs.Player.Equip[15].sIndex = 734;
 		}
 
-		if(pMob[User].Mobs.Player.Equip[15].Index == 544 || pMob[User].Mobs.Player.Equip[15].Index == 546)
+		if(pMob[User].Mobs.Player.Equip[15].sIndex == 544 || pMob[User].Mobs.Player.Equip[15].sIndex == 546)
 		{
 			memset(&pMob[mobId].Mobs.Player.Equip[15], 0, sizeof(STRUCT_ITEM));
-			pMob[mobId].Mobs.Player.Equip[15].Index = 735;
+			pMob[mobId].Mobs.Player.Equip[15].sIndex = 735;
 		}
 
-		if(pMob[User].Mobs.Player.Equip[15].Index == 548 || pMob[User].Mobs.Player.Equip[15].Index == 549)
+		if(pMob[User].Mobs.Player.Equip[15].sIndex == 548 || pMob[User].Mobs.Player.Equip[15].sIndex == 549)
 		{
 			memset(&pMob[mobId].Mobs.Player.Equip[15], 0, sizeof(STRUCT_ITEM));
-			pMob[mobId].Mobs.Player.Equip[15].Index = 550;
+			pMob[mobId].Mobs.Player.Equip[15].sIndex = 550;
 		}
 	}
 	
@@ -6208,11 +6208,11 @@ int GenerateSummon(int User,int SummonId, STRUCT_ITEM *Item)
 	
 	if(Item != NULL)
 	{
-		if(*(short*)&Item->EF1 > pMob[mobId].Mobs.Player.Status.maxHP)
-			*(short*)&Item->EF1 = pMob[mobId].Mobs.Player.Status.maxHP;
+		if(*(short*)&Item->EF1 > pMob[mobId].Mobs.Player.CurrentScore.MaxHp)
+			*(short*)&Item->EF1 = pMob[mobId].Mobs.Player.CurrentScore.MaxHp;
 	
-		pMob[mobId].Mobs.Player.bStatus.curHP = *(short*)&Item->EF1;
-		pMob[mobId].Mobs.Player.Status.curHP = pMob[mobId].Mobs.Player.bStatus.curHP;
+		pMob[mobId].Mobs.Player.BaseScore.Hp = *(short*)&Item->EF1;
+		pMob[mobId].Mobs.Player.CurrentScore.Hp = pMob[mobId].Mobs.Player.BaseScore.Hp;
 	}
 
 	g_pMobGrid[Y][X] = mobId;
@@ -6261,7 +6261,7 @@ int ProcessAffect(int clientId)
 	INT32 LOCAL_3 = 0;
 	INT32 LOCAL_4 = 0;
 	INT32 LOCAL_6 = 0;
-	INT32 LOCAL_5 = pMob[clientId].Mobs.Player.Equip[13].Index;
+	INT32 LOCAL_5 = pMob[clientId].Mobs.Player.Equip[13].sIndex;
 	if(clientId < MAX_PLAYER && (LOCAL_5 == 754 || LOCAL_5 == 769 || LOCAL_5 == 1726))
 	{
 		INT32 LOCAL_6 = pMob[clientId].CurrentTarget;
@@ -6301,11 +6301,11 @@ int ProcessAffect(int clientId)
 					if (LOCAL_9 == 0)
 						LOCAL_9 = LOCAL_6;
 
-					INT32 LOCAL_10 = pMob[clientId].Mobs.Player.GuildIndex;
+					INT32 LOCAL_10 = pMob[clientId].Mobs.Player.Guild;
 					if (pMob[clientId].GuildDisable != 0)
 						LOCAL_10 = 0;
 
-					INT32 LOCAL_11 = pMob[LOCAL_6].Mobs.Player.GuildIndex;
+					INT32 LOCAL_11 = pMob[LOCAL_6].Mobs.Player.Guild;
 					if (pMob[LOCAL_6].GuildDisable != 0)
 						LOCAL_11 = 0;
 
@@ -6376,11 +6376,11 @@ int ProcessAffect(int clientId)
 		if(LOCAL_29 <= 0)
 			continue;
 
-		INT32 LOCAL_30 = pMob[clientId].Mobs.Player.Status.maxHP;
-		INT32 LOCAL_31 = pMob[clientId].Mobs.Player.Status.curHP;
+		INT32 LOCAL_30 = pMob[clientId].Mobs.Player.CurrentScore.MaxHp;
+		INT32 LOCAL_31 = pMob[clientId].Mobs.Player.CurrentScore.Hp;
 		INT32 LOCAL_32 = pMob[clientId].Mobs.Affects[LOCAL_28].Master;
 		INT32 LOCAL_33 = pMob[clientId].Mobs.Affects[LOCAL_28].Value;
-		INT32 LOCAL_34 = pMob[clientId].Mobs.Player.Status.Level;
+		INT32 LOCAL_34 = pMob[clientId].Mobs.Player.CurrentScore.Level;
 
 		if(pMob[clientId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL)
 			LOCAL_34 += 400;
@@ -6396,12 +6396,12 @@ int ProcessAffect(int clientId)
 			if(LOCAL_31 > LOCAL_30)
 				LOCAL_31 = LOCAL_30;
 
-			if(pMob[clientId].Mobs.Player.Status.curHP != LOCAL_31)
+			if(pMob[clientId].Mobs.Player.CurrentScore.Hp != LOCAL_31)
 				LOCAL_1 = 1;
 
-			LOCAL_4 = LOCAL_31 - pMob[clientId].Mobs.Player.Status.curHP;
+			LOCAL_4 = LOCAL_31 - pMob[clientId].Mobs.Player.CurrentScore.Hp;
 
-			pMob[clientId].Mobs.Player.Status.curHP = LOCAL_31;
+			pMob[clientId].Mobs.Player.CurrentScore.Hp = LOCAL_31;
 
 			LOCAL_3 = 1;
 		}
@@ -6412,7 +6412,7 @@ int ProcessAffect(int clientId)
 			{
 				LOCAL_32 = 100;
 				if (clientId >= MAX_PLAYER)
-					LOCAL_32 = LOCAL_32 - pMob[clientId].Mobs.Player.Learn[0];
+					LOCAL_32 = LOCAL_32 - pMob[clientId].Mobs.Player.LearnedSkill[0];
 
 				LOCAL_32 = LOCAL_32 / 10;
 
@@ -6420,7 +6420,7 @@ int ProcessAffect(int clientId)
 				INT32 LOCAL_37 = 1000;
 
 				if (clientId >= MAX_PLAYER)
-					LOCAL_37 = (100 - pMob[clientId].Mobs.Player.Learn[0]) * 10;
+					LOCAL_37 = (100 - pMob[clientId].Mobs.Player.LearnedSkill[0]) * 10;
 
 				INT32 LOCAL_38 = (LOCAL_31 - LOCAL_37);
 				LOCAL_31 = static_cast<float>(LOCAL_31) * LOCAL_164;
@@ -6434,13 +6434,13 @@ int ProcessAffect(int clientId)
 				if (LOCAL_31 > LOCAL_30)
 					LOCAL_31 = LOCAL_30;
 
-				if (pMob[clientId].Mobs.Player.Status.curHP != LOCAL_31)
+				if (pMob[clientId].Mobs.Player.CurrentScore.Hp != LOCAL_31)
 					LOCAL_1 = 1;
 
-				LOCAL_4 = LOCAL_31 - pMob[clientId].Mobs.Player.Status.curHP;
+				LOCAL_4 = LOCAL_31 - pMob[clientId].Mobs.Player.CurrentScore.Hp;
 				if (clientId >= MAX_PLAYER)
 				{
-					INT32 itemId = pMob[clientId].Mobs.Player.Equip[13].Index;
+					INT32 itemId = pMob[clientId].Mobs.Player.Equip[13].sIndex;
 					if (itemId == 786 || itemId == 1936 || itemId == 1937)
 					{
 						INT32 _sanc = GetItemSanc(&pMob[clientId].Mobs.Player.Equip[13]); // local209
@@ -6462,11 +6462,11 @@ int ProcessAffect(int clientId)
 						multHP *= _sanc;
 						INT32 damage = -LOCAL_4 / multHP;
 
-						LOCAL_31 = pMob[clientId].Mobs.Player.Status.curHP - damage;
+						LOCAL_31 = pMob[clientId].Mobs.Player.CurrentScore.Hp - damage;
 					}
 				}
 
-				pMob[clientId].Mobs.Player.Status.curHP = LOCAL_31;
+				pMob[clientId].Mobs.Player.CurrentScore.Hp = LOCAL_31;
 
 				// Aqui ele adiciona a parada na struct
 				if (clientId > 0 && clientId < MAX_PLAYER)
@@ -6493,12 +6493,12 @@ int ProcessAffect(int clientId)
 			if(LOCAL_31 > LOCAL_30)
 				LOCAL_31 = LOCAL_30;
 				
-			if(pMob[clientId].Mobs.Player.Status.curHP != LOCAL_31)
+			if(pMob[clientId].Mobs.Player.CurrentScore.Hp != LOCAL_31)
 				LOCAL_1 = 1;
 
-			LOCAL_4 = pMob[clientId].Mobs.Player.Status.curHP - LOCAL_31;
+			LOCAL_4 = pMob[clientId].Mobs.Player.CurrentScore.Hp - LOCAL_31;
 				
-			pMob[clientId].Mobs.Player.Status.curHP = LOCAL_31;
+			pMob[clientId].Mobs.Player.CurrentScore.Hp = LOCAL_31;
 		}*/
 		else if(LOCAL_29 == 23) // AURA BESTIAL
 		{ // 00451A99
@@ -6541,11 +6541,11 @@ int ProcessAffect(int clientId)
 							if(LOCAL_139 == 0)
 								LOCAL_139 = LOCAL_133;
 
-							INT32 LOCAL_140 = pMob[clientId].Mobs.Player.GuildIndex;
+							INT32 LOCAL_140 = pMob[clientId].Mobs.Player.Guild;
 							if(pMob[clientId].GuildDisable != 0)
 								LOCAL_140 = 0;
 
-							INT32 LOCAL_141 = pMob[LOCAL_133].Mobs.Player.GuildIndex;
+							INT32 LOCAL_141 = pMob[LOCAL_133].Mobs.Player.Guild;
 							if(pMob[LOCAL_133].GuildDisable != 0)
 								LOCAL_141 = 0;
 
@@ -6678,11 +6678,11 @@ int ProcessAffect(int clientId)
 					if(LOCAL_154 == 0)
 						LOCAL_154 = LOCAL_150;
 
-					INT32 LOCAL_155 = pMob[clientId].Mobs.Player.GuildIndex;
+					INT32 LOCAL_155 = pMob[clientId].Mobs.Player.Guild;
 					if(pMob[clientId].GuildDisable != 0)
 						LOCAL_155 = 0;
 
-					INT32 LOCAL_156 = pMob[LOCAL_150].Mobs.Player.GuildIndex;
+					INT32 LOCAL_156 = pMob[LOCAL_150].Mobs.Player.Guild;
 					if(pMob[LOCAL_150].GuildDisable != 0)
 						LOCAL_156 = 0;
 
@@ -6795,7 +6795,7 @@ int ProcessAffect(int clientId)
 					if(pMob[LOCAL_53].Mode == 0)
 						continue;
 
-					if(pMob[LOCAL_53].Mobs.Player.Status.curHP <= 0)
+					if(pMob[LOCAL_53].Mobs.Player.CurrentScore.Hp <= 0)
 						continue;
 
 					if(LOCAL_50 == pMob[LOCAL_53].Leader)
@@ -6848,11 +6848,11 @@ int ProcessAffect(int clientId)
 					if(LOCAL_57 == 0)
 						LOCAL_57 = LOCAL_53;
 
-					INT32 LOCAL_58 = pMob[clientId].Mobs.Player.GuildIndex;
+					INT32 LOCAL_58 = pMob[clientId].Mobs.Player.Guild;
 					if(pMob[clientId].GuildDisable != 0)
 						LOCAL_58 = 0;
 
-					INT32 LOCAL_59 = pMob[LOCAL_53].Mobs.Player.GuildIndex;
+					INT32 LOCAL_59 = pMob[LOCAL_53].Mobs.Player.Guild;
 					if(pMob[LOCAL_53].GuildDisable != 0)
 						LOCAL_59 = 0;
 
@@ -6953,7 +6953,7 @@ int ProcessAffect(int clientId)
 						if(pMob[LOCAL_65].Mode == 0)
 							continue;
 
-						if(pMob[LOCAL_65].Mobs.Player.Status.curHP <= 0)
+						if(pMob[LOCAL_65].Mobs.Player.CurrentScore.Hp <= 0)
 							continue;
 
 						// 00451041
@@ -7009,11 +7009,11 @@ int ProcessAffect(int clientId)
 						if(LOCAL_69 == 0)
 							LOCAL_69 = LOCAL_65;
 
-						INT32 LOCAL_70 = pMob[clientId].Mobs.Player.GuildIndex;
+						INT32 LOCAL_70 = pMob[clientId].Mobs.Player.Guild;
 						if(pMob[clientId].GuildDisable != 0)
 							continue;
 
-						INT32 LOCAL_71 = pMob[LOCAL_65].Mobs.Player.GuildIndex;
+						INT32 LOCAL_71 = pMob[LOCAL_65].Mobs.Player.Guild;
 						if(pMob[LOCAL_65].GuildDisable != 0)
 							LOCAL_71 = 0;
 
@@ -7108,7 +7108,7 @@ int ProcessAffect(int clientId)
 
 				LOCAL_95.Motion = -2;
 
-				if(pMob[clientId].Mobs.Player.Equip[0].Index == 219)
+				if(pMob[clientId].Mobs.Player.Equip[0].sIndex == 219)
 					LOCAL_95.Motion = -4;
 
 				LOCAL_95.attackerId = clientId;
@@ -7160,9 +7160,9 @@ int ProcessAffect(int clientId)
 					for(;  LOCAL_98 < 13; LOCAL_98 ++)
 					{
 						INT32 LOCAL_99 = LOCAL_95.Target[LOCAL_98].Index;
-						INT32 LOCAL_100 = pMob[clientId].Mobs.Player.bStatus.Attack;
+						INT32 LOCAL_100 = pMob[clientId].Mobs.Player.BaseScore.Damage;
 						LOCAL_100 = (LOCAL_100 * ((Rand() & 0x80000007) + 5)) / 10;
-						LOCAL_100 = LOCAL_100 - (pMob[clientId].Mobs.Player.Status.Defense >> 1);
+						LOCAL_100 = LOCAL_100 - (pMob[clientId].Mobs.Player.CurrentScore.Ac >> 1);
 
 						if(LOCAL_100 < 0)
 							LOCAL_100 = Rand() % 100;
@@ -7187,7 +7187,7 @@ int ProcessAffect(int clientId)
 								if(LOCAL_103 < MAX_PLAYER)
 									continue;
 
-								if(pMob[LOCAL_103].Mode == 0 || !pMob[LOCAL_103].Mobs.Player.Status.curHP)
+								if(pMob[LOCAL_103].Mode == 0 || !pMob[LOCAL_103].Mobs.Player.CurrentScore.Hp)
 								{
 									if(pMob[LOCAL_103].Mode != 0)
 										DeleteMob(LOCAL_103, 1);
@@ -7205,7 +7205,7 @@ int ProcessAffect(int clientId)
 						{
 							INT32 LOCAL_104 = LOCAL_95.Target[0].Damage;
 							INT32 petDamage = 0;
-							INT32 petId = pMob[LOCAL_99].Mobs.Player.Equip[14].Index;
+							INT32 petId = pMob[LOCAL_99].Mobs.Player.Equip[14].sIndex;
 
 							if(pMob[LOCAL_99].isPetAlive())
 							{
@@ -7217,7 +7217,7 @@ int ProcessAffect(int clientId)
 								LOCAL_95.Target[0].Damage = LOCAL_104;
 							}
 							
-							INT32 itemId = pMob[LOCAL_99].Mobs.Player.Equip[13].Index;
+							INT32 itemId = pMob[LOCAL_99].Mobs.Player.Equip[13].sIndex;
 							if(itemId == 786 || itemId == 1936 || itemId == 1937)
 							{
 								INT32 LOCAL_107 = GetItemSanc(&pMob[LOCAL_99].Mobs.Player.Equip[13]);
@@ -7237,10 +7237,10 @@ int ProcessAffect(int clientId)
 								}
 
 								multHP *= LOCAL_107;
-								pMob[LOCAL_99].Mobs.Player.Status.curHP -= (LOCAL_95.Target[0].Damage / multHP);
+								pMob[LOCAL_99].Mobs.Player.CurrentScore.Hp -= (LOCAL_95.Target[0].Damage / multHP);
 							}
 							else
-								pMob[LOCAL_99].Mobs.Player.Status.curHP -= LOCAL_95.Target[0].Damage;
+								pMob[LOCAL_99].Mobs.Player.CurrentScore.Hp -= LOCAL_95.Target[0].Damage;
 
 							if(LOCAL_99 >= MAX_PLAYER && pMob[LOCAL_99].Mode == 4)
 								LinkMountHp(LOCAL_99);
@@ -7256,7 +7256,7 @@ int ProcessAffect(int clientId)
 							SetReqHp(LOCAL_99);
 						}
 
-						if(pMob[LOCAL_99].Mobs.Player.Status.curHP <= 0)
+						if(pMob[LOCAL_99].Mobs.Player.CurrentScore.Hp <= 0)
 							MobKilled(LOCAL_99, clientId, 0, 0);
 					}
 
@@ -7274,7 +7274,7 @@ check:
 			{
 				LOCAL_2 = 1;
 
-				pMob[clientId].Mobs.Player.Equip[0].Index = pMob[clientId].Mobs.Player.Equip[0].EF2;
+				pMob[clientId].Mobs.Player.Equip[0].sIndex = pMob[clientId].Mobs.Player.Equip[0].EF2;
 			}
 
 			if(pMob[clientId].Mobs.Affects[LOCAL_28].Index == 8)
@@ -7304,7 +7304,7 @@ check:
 		packet.Header.Size = 18;
 		packet.Header.ClientId = clientId;
 
-		packet.CurHP = pMob[clientId].Mobs.Player.Status.curHP;
+		packet.CurHP = pMob[clientId].Mobs.Player.CurrentScore.Hp;
 		packet.Incress = LOCAL_4;
 
 		INT32 LOCAL_162 = pMob[clientId].Target.X;
@@ -7344,24 +7344,24 @@ check:
 int ApplyHp(int clientId)
 {
 	//0x00401253
-	if(pUser[clientId].Potion.CountHp > pMob[clientId].Mobs.Player.Status.maxHP)
-		pUser[clientId].Potion.CountHp = pMob[clientId].Mobs.Player.Status.maxHP;
+	if(pUser[clientId].Potion.CountHp > pMob[clientId].Mobs.Player.CurrentScore.MaxHp)
+		pUser[clientId].Potion.CountHp = pMob[clientId].Mobs.Player.CurrentScore.MaxHp;
 	
-	int LOCAL_1 = pMob[clientId].Mobs.Player.Status.curHP,
+	int LOCAL_1 = pMob[clientId].Mobs.Player.CurrentScore.Hp,
 		LOCAL_2 = pUser[clientId].Potion.CountHp;
 
 	if(LOCAL_2 <= LOCAL_1)
 		return 0;
 
-	INT32 level =  pMob[clientId].Mobs.Player.Status.Level;
+	INT32 level =  pMob[clientId].Mobs.Player.CurrentScore.Level;
 	if(pMob[clientId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL)
 		level += 400;
 
 	int LOCAL_3 = level + 100;
-	pMob[clientId].Mobs.Player.Status.curHP += LOCAL_3;
+	pMob[clientId].Mobs.Player.CurrentScore.Hp += LOCAL_3;
 		
-	if(pMob[clientId].Mobs.Player.Status.curHP > LOCAL_2)
-		pMob[clientId].Mobs.Player.Status.curHP = LOCAL_2;
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp > LOCAL_2)
+		pMob[clientId].Mobs.Player.CurrentScore.Hp = LOCAL_2;
 		
 	return 1;
 }
@@ -7369,25 +7369,25 @@ int ApplyHp(int clientId)
 int ApplyMp(int clientId)
 {
 	//0x00401253
-	if(pUser[clientId].Potion.CountMp > pMob[clientId].Mobs.Player.Status.maxMP)
-		pUser[clientId].Potion.CountMp = pMob[clientId].Mobs.Player.Status.maxMP;
+	if(pUser[clientId].Potion.CountMp > pMob[clientId].Mobs.Player.CurrentScore.MaxMp)
+		pUser[clientId].Potion.CountMp = pMob[clientId].Mobs.Player.CurrentScore.MaxMp;
 	
-	int LOCAL_1 = pMob[clientId].Mobs.Player.Status.curMP,
+	int LOCAL_1 = pMob[clientId].Mobs.Player.CurrentScore.Mp,
 		LOCAL_2 = pUser[clientId].Potion.CountMp;
 
 	if(LOCAL_2 <= LOCAL_1)
 		return 0;
 	
-	INT32 level =  pMob[clientId].Mobs.Player.Status.Level;
+	INT32 level =  pMob[clientId].Mobs.Player.CurrentScore.Level;
 	if(pMob[clientId].Mobs.Player.Equip[0].EFV2>= CELESTIAL)
 		level += 400;
 
 	int LOCAL_3 = level + 100;
 		
-	pMob[clientId].Mobs.Player.Status.curMP += LOCAL_3;
+	pMob[clientId].Mobs.Player.CurrentScore.Mp += LOCAL_3;
 		
-	if(pMob[clientId].Mobs.Player.Status.curMP > LOCAL_2)
-		pMob[clientId].Mobs.Player.Status.curMP = LOCAL_2;
+	if(pMob[clientId].Mobs.Player.CurrentScore.Mp > LOCAL_2)
+		pMob[clientId].Mobs.Player.CurrentScore.Mp = LOCAL_2;
 		
 	return 1;
 }
@@ -7398,10 +7398,10 @@ void AmountMinus(STRUCT_ITEM *item)
 	int amount = 0;
 	for(int i = 0;i < 3;i++)
 	{
-		if(item->Effect[i].Index == EF_AMOUNT)
+		if(item->stEffect[i].cEffect == EF_AMOUNT)
 		{
 			index = i;
-			amount = item->Effect[i].Value;
+			amount = item->stEffect[i].cValue;
 
 			break;
 		}
@@ -7410,7 +7410,7 @@ void AmountMinus(STRUCT_ITEM *item)
 	if(amount <= 1)
 		memset(item, 0, sizeof STRUCT_ITEM);
 	else
-		item->Effect[index].Value --;
+		item->stEffect[index].cValue --;
 }
 
 void MountProcess(int clientId, STRUCT_ITEM *item)
@@ -7435,13 +7435,13 @@ void MountProcess(int clientId, STRUCT_ITEM *item)
 		if(LOCAL_5 <= 0 || LOCAL_5 > 30000)
 			continue;
 
-		INT32 LOCAL_6 = pMob[LOCAL_5].Mobs.Player.Equip[0].Index;
+		INT32 LOCAL_6 = pMob[LOCAL_5].Mobs.Player.Equip[0].sIndex;
 
 		if(pMob[LOCAL_5].Summoner == clientId && LOCAL_6 >= 315 && LOCAL_6 < 345)
 			DeleteMob(LOCAL_5, 3);
 	}
 
-	INT32 LOCAL_7 = LOCAL_1->Index - 2320;
+	INT32 LOCAL_7 = LOCAL_1->sIndex - 2320;
 	if(LOCAL_7 >= 10 && LOCAL_7 < 40)
 	{
 		INT32 LOCAL_8 = GetItemAbility(LOCAL_1, 80);
@@ -7461,7 +7461,7 @@ void RemoveParty(INT32 clientId)
 
 	if (leader && leader < MAX_PLAYER)
 	{
-		if (pUser[leader].Status != USER_PLAY)
+		if (pUser[leader].CurrentScore != USER_PLAY)
 		{
 			player->Leader = 0;
 			return;
@@ -7491,7 +7491,7 @@ void RemoveParty(INT32 clientId)
 
 			// Remove os nomes da janela do client que saiu do grupo
 			if (partyMob > 0 && partyMob < MAX_PLAYER)
-				if (pUser[partyMob].Status == USER_PLAY)
+				if (pUser[partyMob].CurrentScore == USER_PLAY)
 					SendRemoveParty(partyMob, clientId);
 		}
 
@@ -7501,7 +7501,7 @@ void RemoveParty(INT32 clientId)
 		int groupCount = 0;
 		// Encontra o namero total de players no grupo
 		for (INT8 i = 0; i < 12; i++)
-			if (player->PartyList[i] < MAX_PLAYER && pUser[player->PartyList[i]].Status == USER_PLAY)
+			if (player->PartyList[i] < MAX_PLAYER && pUser[player->PartyList[i]].CurrentScore == USER_PLAY)
 				groupCount++;
 
 		bool isClueLeader{ false };
@@ -7583,8 +7583,8 @@ void RemoveParty(INT32 clientId)
 					if (memberId <= 0 || memberId >= MAX_PLAYER)
 						continue;
 
-					SendClientMessage(memberId, "O lader do grupo da pista foi passado para %s", newLider->Mobs.Player.Name);
-					Log(memberId, LOG_INGAME, "Lader passado para o usuario %s (%s)", newLider->Mobs.Player.Name, pUser[newLeader].User.Username);
+					SendClientMessage(memberId, "O lader do grupo da pista foi passado para %s", newLider->Mobs.Player.MobName);
+					Log(memberId, LOG_INGAME, "Lader passado para o usuario %s (%s)", newLider->Mobs.Player.MobName, pUser[newLeader].User.Username);
 				}
 			}		
 		}
@@ -7605,7 +7605,7 @@ void RemoveParty(INT32 clientId)
 				if (partyMob <= 0 || partyMob >= MAX_PLAYER)
 					continue;
 
-				if (pUser[partyMob].Status == 22)
+				if (pUser[partyMob].CurrentScore == 22)
 					SendRemoveParty(partyMob, 0);
 			}
 
@@ -7797,7 +7797,7 @@ void RegenMob(int User)
 	if (User <= 0 || User >= MAX_PLAYER)
 		return;
 
-	int GuildID = pMob[User].Mobs.Player.GuildIndex;
+	int GuildID = pMob[User].Mobs.Player.Guild;
 
 	pUser[User].CharLoginTime++;
 
@@ -7813,7 +7813,7 @@ void RegenMob(int User)
 		}*/
 
 		STRUCT_ITEM *MountBufferItem = &pMob[User].Mobs.Player.Equip[14];
-		if (MountBufferItem->Index >= 2300 && MountBufferItem->Index < 2330)
+		if (MountBufferItem->sIndex >= 2300 && MountBufferItem->sIndex < 2330)
 		{
 			int Delay = GetItemAbility(MountBufferItem, EF_INCUDELAY);
 			if (Delay > 0)
@@ -7825,16 +7825,16 @@ void RegenMob(int User)
 
 				SendClientMessage(User, g_pLanguageString[_NN_Incu_Proceed]);
 
-				LogPlayer(User,  "Perdeu 1 incubaaao do ovo %s. Incubaaao atual: %d", ItemList[MountBufferItem->Index].Name, Delay);
-				Log(User, LOG_INGAME, "Perdeu 1 incubaaao do ovo %s [%d]. Incubaaao atual: %d", ItemList[MountBufferItem->Index].Name, MountBufferItem->Index, Delay);
+				LogPlayer(User,  "Perdeu 1 incubaaao do ovo %s. Incubaaao atual: %d", g_pItemList[MountBufferItem->sIndex].ItemName, Delay);
+				Log(User, LOG_INGAME, "Perdeu 1 incubaaao do ovo %s [%d]. Incubaaao atual: %d", g_pItemList[MountBufferItem->sIndex].ItemName, MountBufferItem->sIndex, Delay);
 			}
 		}
 
-		if (MountBufferItem->Index >= 2330 && MountBufferItem->Index < 2390 && *(short*)&MountBufferItem->EF1 > 0)
+		if (MountBufferItem->sIndex >= 2330 && MountBufferItem->sIndex < 2390 && *(short*)&MountBufferItem->EF1 > 0)
 		{
 			int v44 = MountBufferItem->EF3;
 
-			int v48 = (MountBufferItem->Index - 2330) % 30;
+			int v48 = (MountBufferItem->sIndex - 2330) % 30;
 
 			if (v48 <= 15)
 				v44 -= 2;
@@ -7860,12 +7860,12 @@ void RegenMob(int User)
 
 					SendClientMessage(User, g_pLanguageString[_NN_Mount_died]);
 
-					Log(User, LOG_INGAME, "Montaria %s %s morreu por falta de raaao", ItemList[MountBufferItem->Index].Name, MountBufferItem->toString().c_str());
-					LogPlayer(User, "Montaria %s morreu por falta de raaao. Alimite a montaria constantemente", ItemList[MountBufferItem->Index].Name);
+					Log(User, LOG_INGAME, "Montaria %s %s morreu por falta de raaao", g_pItemList[MountBufferItem->sIndex].ItemName, MountBufferItem->toString().c_str());
+					LogPlayer(User, "Montaria %s morreu por falta de raaao. Alimite a montaria constantemente", g_pItemList[MountBufferItem->sIndex].ItemName);
 
-					if (MountBufferItem->Index >= 2360 && MountBufferItem->Index < 2390)
+					if (MountBufferItem->sIndex >= 2360 && MountBufferItem->sIndex < 2390)
 						ProcessAdultMount(User, 0);
-					if (MountBufferItem->Index < 2360)
+					if (MountBufferItem->sIndex < 2360)
 						MountProcess(User, nullptr);
 					else
 						pMob[User].GetCurrentScore(User);
@@ -7927,12 +7927,12 @@ void RegenMob(int User)
 		regenBase = 1000;
 
 #pragma region 7556
-	if (pMob[User].Mode && pMob[User].Mobs.Player.Status.curHP && User < MAX_PLAYER && pUser[User].Status == USER_PLAY)
+	if (pMob[User].Mode && pMob[User].Mobs.Player.CurrentScore.Hp && User < MAX_PLAYER && pUser[User].CurrentScore == USER_PLAY)
 	{
-		int currentHp = pMob[User].Mobs.Player.Status.curHP;
-		int currentMp = pMob[User].Mobs.Player.Status.curMP;
-		int maxHp = pMob[User].Mobs.Player.Status.maxHP;
-		int maxMp = pMob[User].Mobs.Player.Status.maxMP;
+		int currentHp = pMob[User].Mobs.Player.CurrentScore.Hp;
+		int currentMp = pMob[User].Mobs.Player.CurrentScore.Mp;
+		int maxHp = pMob[User].Mobs.Player.CurrentScore.MaxHp;
+		int maxMp = pMob[User].Mobs.Player.CurrentScore.MaxMp;
 		int LOCAL74 = currentHp;
 		int regen = pMob[User].RegenHP;
 		// LOCAL68 = vCC
@@ -7943,7 +7943,7 @@ void RegenMob(int User)
 		if (currentHp > maxHp)
 			currentHp = maxHp;
 
-		pMob[User].Mobs.Player.Status.curHP = currentHp;
+		pMob[User].Mobs.Player.CurrentScore.Hp = currentHp;
 
 		regen = pMob[User].RegenMP;
 		
@@ -7953,23 +7953,23 @@ void RegenMob(int User)
 		if (currentMp > maxMp)
 			currentMp = maxMp;
 
-		pMob[User].Mobs.Player.Status.curMP = currentMp;
+		pMob[User].Mobs.Player.CurrentScore.Mp = currentMp;
 
 		p181 packet;
 		packet.Header.PacketId = 0x181;
 		packet.Header.ClientId = User;
 		packet.Header.Size = sizeof p181;
 
-		packet.curHP = currentHp;
-		packet.curMP = currentMp;
+		packet.Hp = currentHp;
+		packet.Mp = currentMp;
 
 		SetReqHp(User);
 		SetReqMp(User);
 
 		if (User > 0 && User < MAX_PLAYER)
 		{
-			packet.maxHP = pUser[User].Potion.CountHp;
-			packet.maxMP = pUser[User].Potion.CountMp;
+			packet.MaxHp = pUser[User].Potion.CountHp;
+			packet.MaxMp = pUser[User].Potion.CountMp;
 		}
 
 		int TargetX = pMob[User].Target.X;
@@ -7981,50 +7981,50 @@ void RegenMob(int User)
 	}
 #pragma endregion
 
-	/*if (pMob[User].Mode && pMob[User].Mobs.Player.Status.curHP && User >= MAX_PLAYER || Users[User].Status == USER_PLAY)
+	/*if (pMob[User].Mode && pMob[User].Mobs.Player.CurrentScore.Hp && User >= MAX_PLAYER || Users[User].CurrentScore == USER_PLAY)
 	{
-		int maxHP = pMob[User].Mobs.Player.Status.maxHP;
-		int maxMP = pMob[User].Mobs.Player.Status.maxMP;
-		int curHP = pMob[User].Mobs.Player.Status.curHP;
-		int curMP = pMob[User].Mobs.Player.Status.curMP;
+		int MaxHp = pMob[User].Mobs.Player.CurrentScore.MaxHp;
+		int MaxMp = pMob[User].Mobs.Player.CurrentScore.MaxMp;
+		int Hp = pMob[User].Mobs.Player.CurrentScore.Hp;
+		int Mp = pMob[User].Mobs.Player.CurrentScore.Mp;
 
 		int calcRegenHPMP = pMob[User].Mobs.Player.RegenHP;
 		calcRegenHPMP = calcRegenHPMP * vCC / 100;
 
-		int calcRegenHP = maxHP * calcRegenHPMP / 120 + vD0;
-		curHP = curHP + calcRegenHP;
+		int calcRegenHP = MaxHp * calcRegenHPMP / 120 + vD0;
+		Hp = Hp + calcRegenHP;
 
-		if (curHP > maxHP)
-			curHP = maxHP;
+		if (Hp > MaxHp)
+			Hp = MaxHp;
 
-		pMob[User].Mobs.Player.Status.curHP = curHP;
+		pMob[User].Mobs.Player.CurrentScore.Hp = Hp;
 
 		calcRegenHPMP = pMob[User].Mobs.Player.RegenMP;
 
 		calcRegenHPMP = calcRegenHPMP * vCC / 100;
 
-		int calcRegenMP = maxMP * calcRegenHPMP / 120 + vD0;
+		int calcRegenMP = MaxMp * calcRegenHPMP / 120 + vD0;
 
-		curMP = curMP + calcRegenMP;
+		Mp = Mp + calcRegenMP;
 
-		if (curMP > maxMP)
-			curMP = maxMP;
+		if (Mp > MaxMp)
+			Mp = MaxMp;
 
-		pMob[User].Mobs.Player.Status.curMP = curMP;
+		pMob[User].Mobs.Player.CurrentScore.Mp = Mp;
 
 		p181 packet;
 		packet.Header.PacketId = 0x181;
 		packet.Header.ClientId = User;
 		packet.Header.Size = sizeof p181;
 
-		packet.curHP = curHP;
-		packet.curMP = curMP;
+		packet.Hp = Hp;
+		packet.Mp = Mp;
 
 		SetReqHp(User);
 		SetReqMp(User);
 
-		packet.maxHP = Users[User].Potion.CountHp;
-		packet.maxMP = Users[User].Potion.CountMp;
+		packet.MaxHp = Users[User].Potion.CountHp;
+		packet.MaxMp = Users[User].Potion.CountMp;
 
 		int TargetX = pMob[User].Target.X;
 		int TargetY = pMob[User].Target.Y;
@@ -8038,14 +8038,14 @@ int UpdateItem(int arg1, int arg2, int* arg3)
 { // ADDRBASE = 0x8B9E778
 	INT32 LOCAL_1 = g_pInitItem[arg1].Rotation;
 
-	INT32 LOCAL_2 = UpdateItem2(g_pInitItem[arg1].CanRun, g_pInitItem[arg1].Status, arg2, g_pInitItem[arg1].PosX, g_pInitItem[arg1].PosY, LOCAL_1, arg3);
+	INT32 LOCAL_2 = UpdateItem2(g_pInitItem[arg1].CanRun, g_pInitItem[arg1].CurrentScore, arg2, g_pInitItem[arg1].PosX, g_pInitItem[arg1].PosY, LOCAL_1, arg3);
 	if(LOCAL_2 == 0)
 		return 0;
 
 	g_pInitItem[arg1].HeightGrid = *arg3;
 
 	INT32 LOCAL_3 = g_pInitItem[arg1].CanRun;
-	INT32 LOCAL_4 = g_pInitItem[arg1].Status;
+	INT32 LOCAL_4 = g_pInitItem[arg1].CurrentScore;
 
 	g_pInitItem[arg1].IsOpen = 0;
 
@@ -8075,7 +8075,7 @@ int UpdateItem(int arg1, int arg2, int* arg3)
 				if(LOCAL_12 == 0)
 					continue;
 
-				if(pMob[LOCAL_12].Mobs.Player.Equip[0].Index == 220)
+				if(pMob[LOCAL_12].Mobs.Player.Equip[0].sIndex == 220)
 				{
 					DeleteMob(LOCAL_12, 3);
 
@@ -8107,7 +8107,7 @@ int UpdateItem(int arg1, int arg2, int* arg3)
 	//if(LOCAL_27 == 15 && LOCAL_4 == 1 && arg2 == 3)
 	//	CreateMob("GATE", g_pInitItem[arg1].PosX, g_pInitItem[arg1].PosY, "npc");
 
-	g_pInitItem[arg1].Status = arg2;
+	g_pInitItem[arg1].CurrentScore = arg2;
 	return 1;
 }
 
@@ -8179,7 +8179,7 @@ bool ReadMob(STRUCT_MOB *mob, const char *folder)
 	FILE *pFile = NULL;
 		
 	char szTMP[1024];
-	sprintf_s(szTMP, "%s/%s", folder, mob->Name);
+	sprintf_s(szTMP, "%s/%s", folder, mob->MobName);
 
 	fopen_s(&pFile, szTMP, "rb");
 	if(pFile) 
@@ -8201,7 +8201,7 @@ INT32 CreateMob(const char *mob, int posX, int posY, const char *folder)
 	pMob[LOCAL_1] = CMob{};
 	pMob[LOCAL_1].BossInfoId = MAXUINT32;
 	pMob[LOCAL_1].clientId = LOCAL_1;
-	strncpy_s(pMob[LOCAL_1].Mobs.Player.Name, mob, 16);
+	strncpy_s(pMob[LOCAL_1].Mobs.Player.MobName, mob, 16);
 
 	memset(&pMob[LOCAL_1].PartyList, 0, sizeof INT16 * 12);
 
@@ -8209,22 +8209,22 @@ INT32 CreateMob(const char *mob, int posX, int posY, const char *folder)
 	if(LOCAL_2 == 0)
 		return false;
 
-	pMob[LOCAL_1].Mobs.Player.Name[15] = 0;
+	pMob[LOCAL_1].Mobs.Player.MobName[15] = 0;
 
 	INT32 LOCAL_3;
 	for(LOCAL_3 = 0; LOCAL_3 < 16;LOCAL_3 ++)
 	{
-		if(pMob[LOCAL_1].Mobs.Player.Name[LOCAL_3] == '_')
-			pMob[LOCAL_1].Mobs.Player.Name[LOCAL_3] = ' ';
-		if (pMob[LOCAL_1].Mobs.Player.Name[LOCAL_3] == '@')
-			pMob[LOCAL_1].Mobs.Player.Name[LOCAL_3] = ' ';
+		if(pMob[LOCAL_1].Mobs.Player.MobName[LOCAL_3] == '_')
+			pMob[LOCAL_1].Mobs.Player.MobName[LOCAL_3] = ' ';
+		if (pMob[LOCAL_1].Mobs.Player.MobName[LOCAL_3] == '@')
+			pMob[LOCAL_1].Mobs.Player.MobName[LOCAL_3] = ' ';
 	}
 
 	memset(&pMob[LOCAL_1].Mobs.Affects, 0, sizeof STRUCT_AFFECT * 32);
 
 	for(LOCAL_3 = 0; LOCAL_3 < 5; LOCAL_3 ++)
 	{
-		if(pMob[LOCAL_1].Mobs.Player.Equip[0].Index == 220 || pMob[LOCAL_1].Mobs.Player.Equip[0].Index == 219 || pMob[LOCAL_1].Mobs.Player.Equip[0].Index == 358)
+		if(pMob[LOCAL_1].Mobs.Player.Equip[0].sIndex == 220 || pMob[LOCAL_1].Mobs.Player.Equip[0].sIndex == 219 || pMob[LOCAL_1].Mobs.Player.Equip[0].sIndex == 358)
 		{
 			pMob[LOCAL_1].Segment.ListX[LOCAL_3] = posX;
 			pMob[LOCAL_1].Segment.ListY[LOCAL_3] = posY;
@@ -8248,7 +8248,7 @@ INT32 CreateMob(const char *mob, int posX, int posY, const char *folder)
 
 	pMob[LOCAL_1].GetCurrentScore(MAX_PLAYER);
 
-	pMob[LOCAL_1].Mobs.Player.Status.curHP = pMob[LOCAL_1].Mobs.Player.Status.maxHP;
+	pMob[LOCAL_1].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_1].Mobs.Player.CurrentScore.MaxHp;
 	pMob[LOCAL_1].Segment.Direction = 0;
 
 	memset(&pMob[LOCAL_1].EnemyList, 0, 8);
@@ -8260,7 +8260,7 @@ INT32 CreateMob(const char *mob, int posX, int posY, const char *folder)
 	if(LOCAL_7 == 0)
 	{
 		pMob[LOCAL_1].Mode = 0;
-		pMob[LOCAL_1].Mobs.Player.Name[0] = 0;
+		pMob[LOCAL_1].Mobs.Player.MobName[0] = 0;
 		pMob[LOCAL_1].GenerateID = -1;
 
 		return -2;
@@ -8276,7 +8276,7 @@ INT32 CreateMob(const char *mob, int posX, int posY, const char *folder)
 	pMob[LOCAL_1].Target.Y = LOCAL_6;
 	pMob[LOCAL_1].Last.Y = LOCAL_6;
 
-	INT32 LOCAL_17 = pMob[LOCAL_1].Mobs.Player.bStatus.maxMP;
+	INT32 LOCAL_17 = pMob[LOCAL_1].Mobs.Player.BaseScore.MaxMp;
 	if(LOCAL_17 != 0)
 	{
 		SetAffect(LOCAL_1, LOCAL_17, 30000, 200);
@@ -8302,7 +8302,7 @@ void DoRecall(int clientId)
 	LOCAL_1 = g_pCityZone[LOCAL_3].city_x + (Rand() % 15);
 	LOCAL_2 = g_pCityZone[LOCAL_3].city_y + (Rand() % 15);
 
-	INT32 LOCAL_4 = pMob[clientId].Mobs.Player.GuildIndex;
+	INT32 LOCAL_4 = pMob[clientId].Mobs.Player.Guild;
 	if(LOCAL_4 > 0)
 	{
 		for(INT32 LOCAL_5 = 0; LOCAL_5 < 5; LOCAL_5++)
@@ -8319,7 +8319,7 @@ void DoRecall(int clientId)
 
 	// RVR
 	if (pMob[clientId].Target.X >= 1041 && pMob[clientId].Target.X <= 1248 &&
-		pMob[clientId].Target.Y >= 1950 && pMob[clientId].Target.Y <= 2158 && sServer.RvR.Status == 1)
+		pMob[clientId].Target.Y >= 1950 && pMob[clientId].Target.Y <= 2158 && sServer.RvR.CurrentScore == 1)
 	{
 		int cape = pMob[clientId].Mobs.Player.CapeInfo;
 
@@ -8423,7 +8423,7 @@ void ProcessAdultMount(int clientId, int damage)
 {
 	STRUCT_ITEM *LOCAL_1 = &pMob[clientId].Mobs.Player.Equip[14];
 
-	if(LOCAL_1->Index < 2360 || LOCAL_1->Index >= 2390)
+	if(LOCAL_1->sIndex < 2360 || LOCAL_1->sIndex >= 2390)
 		return;
 
 	// Checa se possui a porra do Poaao Revigorante xD
@@ -8433,42 +8433,42 @@ void ProcessAdultMount(int clientId, int damage)
 			return;
 	}
 
-	INT32 LOCAL_2 = LOCAL_1->Index - 2360;
-	INT32 LOCAL_3 = NPCBase[LOCAL_2 + 10].Status.maxHP;
-	INT32 LOCAL_4 = LOCAL_1->Effect[2].Index;
+	INT32 LOCAL_2 = LOCAL_1->sIndex - 2360;
+	INT32 LOCAL_3 = NPCBase[LOCAL_2 + 10].CurrentScore.MaxHp;
+	INT32 LOCAL_4 = LOCAL_1->stEffect[2].cEffect;
 	
 	if(LOCAL_4 <= 0)
 	{
-		if(LOCAL_1->Effect[1].Index)
+		if(LOCAL_1->stEffect[1].cEffect)
 		{
-			*(short*)&LOCAL_1->Effect[0].Index = 0;
+			*(short*)&LOCAL_1->stEffect[0].cEffect = 0;
 			LOCAL_4 = 0;
 		}
 	}
 
-	INT32 LOCAL_5 = *(short*)&LOCAL_1->Effect[0].Index;
-	INT32 LOCAL_6 = *(short*)&LOCAL_1->Effect[0].Index - damage; // EBP - 18h
+	INT32 LOCAL_5 = *(short*)&LOCAL_1->stEffect[0].cEffect;
+	INT32 LOCAL_6 = *(short*)&LOCAL_1->stEffect[0].cEffect - damage; // EBP - 18h
 
 	if(LOCAL_6 >= LOCAL_3)
 		LOCAL_6 = LOCAL_3;
 
 	INT32 LOCAL_7 = LOCAL_6;
 
-	*(short*)&LOCAL_1->Effect[0].Index = LOCAL_7;
+	*(short*)&LOCAL_1->stEffect[0].cEffect = LOCAL_7;
 
 	if(LOCAL_6 <= 0)
-		LOCAL_1->Effect[2].Index = 0;
+		LOCAL_1->stEffect[2].cEffect = 0;
 
 	// Pet morreu
 	if(LOCAL_5 > 0 && LOCAL_6 <= 0)
 	{
 		SendEquip(clientId); // 401069
 
-		Log(clientId, LOG_INGAME, "Pet %s [%d] [%d %d %d %d %d %d] morreu. Hit: %d", ItemList[LOCAL_1->Index].Name,
-			LOCAL_1->Index, LOCAL_1->Effect[0].Index, LOCAL_1->Effect[0].Value, LOCAL_1->Effect[1].Index, LOCAL_1->Effect[1].Value, LOCAL_1->Effect[2].Index, LOCAL_1->Effect[2].Value,
+		Log(clientId, LOG_INGAME, "Pet %s [%d] [%d %d %d %d %d %d] morreu. Hit: %d", g_pItemList[LOCAL_1->sIndex].ItemName,
+			LOCAL_1->sIndex, LOCAL_1->stEffect[0].cEffect, LOCAL_1->stEffect[0].cValue, LOCAL_1->stEffect[1].cEffect, LOCAL_1->stEffect[1].cValue, LOCAL_1->stEffect[2].cEffect, LOCAL_1->stEffect[2].cValue,
 			damage);
 
-		LogPlayer(clientId, "Pet %s morreu levando um hit de %d. HP antes do hit: %d", ItemList[LOCAL_1->Index].Name, damage, LOCAL_5);
+		LogPlayer(clientId, "Pet %s morreu levando um hit de %d. HP antes do hit: %d", g_pItemList[LOCAL_1->sIndex].ItemName, damage, LOCAL_5);
 	}
 
 	if(LOCAL_5 != LOCAL_6 && clientId < MAX_PLAYER)
@@ -8483,25 +8483,25 @@ void LinkMountHp(int arg1)
 	if(pMob[arg1].Mobs.Player.CapeInfo != 4)
 		return;
 
-	INT32 LOCAL_1 = pMob[arg1].Mobs.Player.Equip[0].Index;
+	INT32 LOCAL_1 = pMob[arg1].Mobs.Player.Equip[0].sIndex;
 	if(LOCAL_1 < 315 || LOCAL_1 >= 345)
 		return;
 
 	INT32 LOCAL_2 = pMob[arg1].Summoner;
-	if(pMob[LOCAL_2].Mode == 0 || pUser[LOCAL_2].Status != USER_PLAY)
+	if(pMob[LOCAL_2].Mode == 0 || pUser[LOCAL_2].CurrentScore != USER_PLAY)
 		return;
 
-	INT16 LOCAL_3 = pMob[LOCAL_2].Mobs.Player.Equip[14].Index - 2330;
+	INT16 LOCAL_3 = pMob[LOCAL_2].Mobs.Player.Equip[14].sIndex - 2330;
 	INT16 LOCAL_4 = LOCAL_1 - 315;
 
 	if(LOCAL_3 != LOCAL_4)
 		return;
 
-	INT16 LOCAL_5 = *(short*)&pMob[LOCAL_2].Mobs.Player.Equip[14].Effect[0].Index;
-	INT16 LOCAL_6 = pMob[arg1].Mobs.Player.Status.curHP;
+	INT16 LOCAL_5 = *(short*)&pMob[LOCAL_2].Mobs.Player.Equip[14].stEffect[0].cEffect;
+	INT16 LOCAL_6 = pMob[arg1].Mobs.Player.CurrentScore.Hp;
 	if(LOCAL_5 != LOCAL_6)
 	{
-		*(short*)&pMob[LOCAL_2].Mobs.Player.Equip[14].Effect[0].Index = LOCAL_6;
+		*(short*)&pMob[LOCAL_2].Mobs.Player.Equip[14].stEffect[0].cEffect = LOCAL_6;
 
 		SendItem(LOCAL_2, SlotType::Equip, 14, &pMob[LOCAL_2].Mobs.Player.Equip[14]);
 	}
@@ -8549,18 +8549,18 @@ INT32 GetFirstSlot(int clientId, int itemId)
 	STRUCT_ITEM *item = pMob[clientId].Mobs.Player.Inventory;
 	for(int i = 0; i < 30; i++)
 	{
-		if(item[i].Index == itemId)
+		if(item[i].sIndex == itemId)
 			return i;
 	}
 
-	if(item[60].Index == 3467)
+	if(item[60].sIndex == 3467)
 	{
 		float remainig = TimeRemaining(item[60].EFV1, item[60].EFV2, item[60].EFV3 + 1900);
 		if(remainig > 0.0f)
 		{
 			for(int i = 30; i < 45; i++)
 			{
-				if(item[i].Index == itemId)
+				if(item[i].sIndex == itemId)
 					return i;
 			}
 		}
@@ -8576,14 +8576,14 @@ INT32 GetFirstSlot(int clientId, int itemId)
 		}
 	}
 	
-	if(item[61].Index == 3467)
+	if(item[61].sIndex == 3467)
 	{
 		float remainig = TimeRemaining(item[61].EFV1, item[61].EFV2, item[61].EFV3 + 1900);
 		if(remainig > 0.0f)
 		{
 			for(int i = 45; i < 60; i++)
 			{
-				if(item[i].Index == itemId)
+				if(item[i].sIndex == itemId)
 					return i;
 			}
 		}
@@ -8616,7 +8616,7 @@ void RemoveTrade(int clientId)
 	for(int i = 0; i < 12; i++)
 		pUser[clientId].AutoTrade.Slots[i] = -1;
 
-	if(pUser[clientId].Status != USER_PLAY)
+	if(pUser[clientId].CurrentScore != USER_PLAY)
 		return;
 
 	SendSignal(clientId, clientId, 0x384);
@@ -8644,10 +8644,10 @@ void ProcessDecayItem()
 		if(sServer.ItemCount >= 4096)
 			sServer.ItemCount = (sServer.InitCount + 1);
 
-		if(g_pInitItem[sServer.ItemCount].Item.Index == 1727 || (g_pInitItem[sServer.ItemCount].Item.Index >= 3145 && g_pInitItem[sServer.ItemCount].Item.Index <= 3149) || (g_pInitItem[sServer.ItemCount].Item.Index >= 794 && g_pInitItem[sServer.ItemCount].Item.Index <= 798))
+		if(g_pInitItem[sServer.ItemCount].Item.sIndex == 1727 || (g_pInitItem[sServer.ItemCount].Item.sIndex >= 3145 && g_pInitItem[sServer.ItemCount].Item.sIndex <= 3149) || (g_pInitItem[sServer.ItemCount].Item.sIndex >= 794 && g_pInitItem[sServer.ItemCount].Item.sIndex <= 798))
 			continue;
 
-		if(g_pInitItem[sServer.ItemCount].Item.Index == 4922 || g_pInitItem[sServer.ItemCount].Item.Index == 4923 || g_pInitItem[sServer.ItemCount].Item.Index == 4143 || g_pInitItem[sServer.ItemCount].Item.Index == 471)
+		if(g_pInitItem[sServer.ItemCount].Item.sIndex == 4922 || g_pInitItem[sServer.ItemCount].Item.sIndex == 4923 || g_pInitItem[sServer.ItemCount].Item.sIndex == 4143 || g_pInitItem[sServer.ItemCount].Item.sIndex == 471)
 			continue;
 
 		if(g_pInitItem[sServer.ItemCount].Open == 0)
@@ -8688,20 +8688,20 @@ void SummonGuild(int arg1, int arg2, int arg3, int arg4, int arg5)
 
 	for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 	{
-		if(pUser[LOCAL_2].Status != USER_PLAY)
+		if(pUser[LOCAL_2].CurrentScore != USER_PLAY)
 			continue;
 
 		if(pMob[LOCAL_2].Mode == 0)
 			continue;
 
-		if(pMob[LOCAL_2].Mobs.Player.GuildIndex != arg1)
+		if(pMob[LOCAL_2].Mobs.Player.Guild != arg1)
 			continue;
 		
 		INT32 LOCAL_3 = GetVillage(pMob[LOCAL_2].Target.X, pMob[LOCAL_2].Target.Y);
 		if(LOCAL_3 != arg5)
 			continue;
 
-		if(arg5 == 2 && pMob[LOCAL_2].Mobs.Player.bStatus.Level > 100000)
+		if(arg5 == 2 && pMob[LOCAL_2].Mobs.Player.BaseScore.Level > 100000)
 		{
 			SendClientMessage(LOCAL_2, g_pLanguageString[_NN_3rd_village_limit]);
 
@@ -8736,13 +8736,13 @@ void SummonGuild(int arg1, int arg2, int arg3, int arg4)
 
 	for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 	{
-		if(pUser[LOCAL_2].Status != USER_PLAY)
+		if(pUser[LOCAL_2].CurrentScore != USER_PLAY)
 			continue;
 
 		if(pMob[LOCAL_2].Mode == 0)
 			continue;
 
-		if(pMob[LOCAL_2].Mobs.Player.GuildIndex != arg1)
+		if(pMob[LOCAL_2].Mobs.Player.Guild != arg1)
 			continue;
 		
 		Teleportar(LOCAL_2, arg2, arg3);
@@ -8777,13 +8777,13 @@ void DoRanking(int arg1, int arg2, int arg3)
 		if(arg3 <= 0 || arg3 >= MAX_PLAYER)
 			return;
 		
-		strncpy_s(sServer.Challanger.RankingName[0], 32, pMob[arg2].Mobs.Player.Name, 16);
-		strncpy_s(sServer.Challanger.RankingName[1], 32, pMob[arg3].Mobs.Player.Name, 16);
-		strncpy_s(sServer.Challanger.RankingName[2], 32, pMob[arg2].Mobs.Player.Name, 16);
-		strncpy_s(sServer.Challanger.RankingName[3], 32, pMob[arg3].Mobs.Player.Name, 16);
+		strncpy_s(sServer.Challanger.RankingName[0], 32, pMob[arg2].Mobs.Player.MobName, 16);
+		strncpy_s(sServer.Challanger.RankingName[1], 32, pMob[arg3].Mobs.Player.MobName, 16);
+		strncpy_s(sServer.Challanger.RankingName[2], 32, pMob[arg2].Mobs.Player.MobName, 16);
+		strncpy_s(sServer.Challanger.RankingName[3], 32, pMob[arg3].Mobs.Player.MobName, 16);
 		
-		sServer.Challanger.RankingLevel[0] = pMob[arg2].Mobs.Player.Status.Level;
-		sServer.Challanger.RankingLevel[1] = pMob[arg3].Mobs.Player.Status.Level;
+		sServer.Challanger.RankingLevel[0] = pMob[arg2].Mobs.Player.CurrentScore.Level;
+		sServer.Challanger.RankingLevel[1] = pMob[arg3].Mobs.Player.CurrentScore.Level;
 
 		// 004617DA
 		Teleportar(arg2, 147, 4045);
@@ -8804,8 +8804,8 @@ void DoRanking(int arg1, int arg2, int arg3)
 	}
 
 	INT32 LOCAL_2 = 301;
-	INT32 LOCAL_3 = pMob[arg2].Mobs.Player.GuildIndex;
-	INT32 LOCAL_4 = pMob[arg3].Mobs.Player.GuildIndex;
+	INT32 LOCAL_3 = pMob[arg2].Mobs.Player.Guild;
+	INT32 LOCAL_4 = pMob[arg3].Mobs.Player.Guild;
 
 	if(LOCAL_3 <= 0 || LOCAL_4 <= 0)
 		return;
@@ -8815,13 +8815,13 @@ void DoRanking(int arg1, int arg2, int arg3)
 	sServer.Challanger.Challanger2 = LOCAL_4;
 	sServer.Challanger.Timer = LOCAL_2;
 	
-	strncpy_s(sServer.Challanger.RankingName[0], 32, pMob[arg2].Mobs.Player.Name, 16);
-	strncpy_s(sServer.Challanger.RankingName[1], 32, pMob[arg3].Mobs.Player.Name, 16);
-	strncpy_s(sServer.Challanger.RankingName[2], 32, pMob[arg2].Mobs.Player.Name, 16);
-	strncpy_s(sServer.Challanger.RankingName[3], 32, pMob[arg3].Mobs.Player.Name, 16);
+	strncpy_s(sServer.Challanger.RankingName[0], 32, pMob[arg2].Mobs.Player.MobName, 16);
+	strncpy_s(sServer.Challanger.RankingName[1], 32, pMob[arg3].Mobs.Player.MobName, 16);
+	strncpy_s(sServer.Challanger.RankingName[2], 32, pMob[arg2].Mobs.Player.MobName, 16);
+	strncpy_s(sServer.Challanger.RankingName[3], 32, pMob[arg3].Mobs.Player.MobName, 16);
 
-	sServer.Challanger.RankingLevel[0] = pMob[arg2].Mobs.Player.Status.Level;
-	sServer.Challanger.RankingLevel[1] = pMob[arg3].Mobs.Player.Status.Level;
+	sServer.Challanger.RankingLevel[0] = pMob[arg2].Mobs.Player.CurrentScore.Level;
+	sServer.Challanger.RankingLevel[1] = pMob[arg3].Mobs.Player.CurrentScore.Level;
 
 	INT32 LOCAL_5 = 5;
 	INT32 LOCAL_6 = 5;
@@ -8853,7 +8853,7 @@ void DoRanking(int arg1, int arg2, int arg3)
 			if(LOCAL_9 <= 0 || LOCAL_9 >= MAX_PLAYER)
 				continue;
 
-			if(LOCAL_5 > 0 && pMob[LOCAL_9].Mobs.Player.GuildIndex == LOCAL_3)
+			if(LOCAL_5 > 0 && pMob[LOCAL_9].Mobs.Player.Guild == LOCAL_3)
 			{
 				LOCAL_5 --;
 
@@ -8863,7 +8863,7 @@ void DoRanking(int arg1, int arg2, int arg3)
 				SendSignalParm(LOCAL_9, 0x7530, 0x3A1, (LOCAL_2 + LOCAL_2 - 2));
 			}
 
-			if(LOCAL_6 > 0 &&  pMob[LOCAL_9].Mobs.Player.GuildIndex == LOCAL_4)
+			if(LOCAL_6 > 0 &&  pMob[LOCAL_9].Mobs.Player.Guild == LOCAL_4)
 			{
 				LOCAL_6 --;
 
@@ -8892,10 +8892,10 @@ void ProcessRanking()
 
 			for(INT32 LOCAL_3 = 1; LOCAL_3 < MAX_PLAYER; LOCAL_3++)
 			{
-				if(pUser[LOCAL_3].Status != USER_PLAY)
+				if(pUser[LOCAL_3].CurrentScore != USER_PLAY)
 					continue;
 
-				if(pMob[LOCAL_3].Mobs.Player.Status.curHP <= 0)
+				if(pMob[LOCAL_3].Mobs.Player.CurrentScore.Hp <= 0)
 					continue;
 
 				INT32 LOCAL_4 = pMob[LOCAL_3].Target.X;
@@ -8914,10 +8914,10 @@ void ProcessRanking()
 				}
 				else
 				{
-					if(pMob[LOCAL_3].Mobs.Player.GuildIndex == sServer.Challanger.Challanger1)
+					if(pMob[LOCAL_3].Mobs.Player.Guild == sServer.Challanger.Challanger1)
 						LOCAL_1 ++;
 
-					if(pMob[LOCAL_3].Mobs.Player.GuildIndex == sServer.Challanger.Challanger2)
+					if(pMob[LOCAL_3].Mobs.Player.Guild == sServer.Challanger.Challanger2)
 						LOCAL_2 ++;
 				}
 			}
@@ -8976,10 +8976,10 @@ void ProcessRanking()
 
 			for(INT32 LOCAL_8 = 1; LOCAL_8 < MAX_PLAYER; LOCAL_8 ++)
 			{
-				if(pUser[LOCAL_8].Status != USER_PLAY)
+				if(pUser[LOCAL_8].CurrentScore != USER_PLAY)
 					continue;;
 
-				if(pMob[LOCAL_8].Mobs.Player.Status.curHP <= 0)
+				if(pMob[LOCAL_8].Mobs.Player.CurrentScore.Hp <= 0)
 					continue;
 				
 				INT32 LOCAL_9 = pMob[LOCAL_8].Target.X;
@@ -8998,10 +8998,10 @@ void ProcessRanking()
 				}
 				else
 				{
-					if(pMob[LOCAL_8].Mobs.Player.GuildIndex == sServer.Challanger.Challanger1)
+					if(pMob[LOCAL_8].Mobs.Player.Guild == sServer.Challanger.Challanger1)
 						LOCAL_6 ++;
 
-					if(pMob[LOCAL_8].Mobs.Player.GuildIndex == sServer.Challanger.Challanger2)
+					if(pMob[LOCAL_8].Mobs.Player.Guild == sServer.Challanger.Challanger2)
 						LOCAL_7 ++;
 				}
 			}
@@ -9051,9 +9051,9 @@ void SetItemAmount(STRUCT_ITEM *item, int amount)
 	int i = 0;
 	for(; i < 3; i++)
 	{
-		if(item->Effect[i].Index == EF_AMOUNT)
+		if(item->stEffect[i].cEffect == EF_AMOUNT)
 		{
-			item->Effect[i].Value = amount;
+			item->stEffect[i].cValue = amount;
 			break;
 		}
 	}
@@ -9062,10 +9062,10 @@ void SetItemAmount(STRUCT_ITEM *item, int amount)
 	{
 		for(i = 0; i < 3; i++)
 		{
-			if(item->Effect[i].Index == 0)
+			if(item->stEffect[i].cEffect == 0)
 			{
-				item->Effect[i].Index = EF_AMOUNT;
-				item->Effect[i].Value = amount;
+				item->stEffect[i].cEffect = EF_AMOUNT;
+				item->stEffect[i].cValue = amount;
 
 				break;
 			}
@@ -9106,11 +9106,11 @@ void Combine(int clientId, int searched, int earned)
 	INT32 LOCAL_4 = 0;
 	for(LOCAL_2 = 0; LOCAL_2 < 60; LOCAL_2 ++)
 	{
-		INT32 LOCAL_5 = pMob[clientId].Mobs.Player.Inventory[LOCAL_2].Index;
+		INT32 LOCAL_5 = pMob[clientId].Mobs.Player.Inventory[LOCAL_2].sIndex;
 		if(LOCAL_5 != searched)
 			continue;
 
-		while(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].Index == searched)
+		while(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].sIndex == searched)
 		{
 			AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_2]);
 			
@@ -9128,7 +9128,7 @@ void Combine(int clientId, int searched, int earned)
 	for(INT32 i = 0; i < 60; i++) 
 	{
 		STRUCT_ITEM *item = &pMob[clientId].Mobs.Player.Inventory[i];
-		if(item->Index == earned)
+		if(item->sIndex == earned)
 		{
 			INT32 amount = GetItemAmount(item);
 			if(amount >= 120)
@@ -9138,9 +9138,9 @@ void Combine(int clientId, int searched, int earned)
 			int i = 0;
 			for(; i < 3; i++)
 			{
-				if(item->Effect[i].Index == EF_AMOUNT)
+				if(item->stEffect[i].cEffect == EF_AMOUNT)
 				{
-					item->Effect[i].Value = amount;
+					item->stEffect[i].cValue = amount;
 					break;
 				}
 			}
@@ -9149,10 +9149,10 @@ void Combine(int clientId, int searched, int earned)
 			{
 				for(i = 0; i < 3; i++)
 				{
-					if(item->Effect[i].Index == 0)
+					if(item->stEffect[i].cEffect == 0)
 					{
-						item->Effect[i].Index = EF_AMOUNT;
-						item->Effect[i].Value = amount;
+						item->stEffect[i].cEffect = EF_AMOUNT;
+						item->stEffect[i].cValue = amount;
 
 						break;
 					}
@@ -9173,7 +9173,7 @@ void Combine(int clientId, int searched, int earned)
 	{
 		STRUCT_ITEM LOCAL_7;
 		memset(&LOCAL_7, 0, sizeof STRUCT_ITEM);
-		LOCAL_7.Index = earned;
+		LOCAL_7.sIndex = earned;
 
 		INT32 LOCAL_8 = GetFirstSlot(clientId, 0);
 
@@ -9182,7 +9182,7 @@ void Combine(int clientId, int searched, int earned)
 			INT32 LOCAL_13 = pMob[clientId].Target.X;
 			INT32 LOCAL_14 = pMob[clientId].Target.Y;
 
-			Log(clientId, LOG_COMP, "O item %s nao foi adicionado por falta de espaao [%d]", ItemList[earned].Name, earned);
+			Log(clientId, LOG_COMP, "O item %s nao foi adicionado por falta de espaao [%d]", g_pItemList[earned].ItemName, earned);
 		}
 		else
 		{
@@ -9241,14 +9241,14 @@ void DoNightmare()
 	for(INT32 i = 0 ; i < 3; i++)
 	{
 		// Checa se esta ligado - 0 = Desligado. 1 = 4 min de espera. 2 = em funcionamento
-		if(sServer.Nightmare[i].Status == 0)
+		if(sServer.Nightmare[i].CurrentScore == 0)
 			continue;
 
 		INT32 timer = sServer.Nightmare[i].TimeLeft - 2;
 
 		// Checa se o tempo ja acabou e se acabou a 1a etapa
 		// de preparaaao
-		if(timer <= 0 && sServer.Nightmare[i].Status == 1)
+		if(timer <= 0 && sServer.Nightmare[i].CurrentScore == 1)
 		{
 			for(int x = 0; x < 8; x++)
 			{
@@ -9269,7 +9269,7 @@ void DoNightmare()
 				if(memberId <= 0 || memberId >= MAX_PLAYER)
 					continue;
 
-				if (pUser[memberId].Status != USER_PLAY)
+				if (pUser[memberId].CurrentScore != USER_PLAY)
 				{
 					sServer.Nightmare[i].Members[x] = 0;
 					continue;
@@ -9280,13 +9280,13 @@ void DoNightmare()
 			} 
 
 			// Em processo normal de up
-			sServer.Nightmare[i].Status = 2; 
+			sServer.Nightmare[i].CurrentScore = 2; 
 
 			// Seta o novo tempo
 			timer = 15 * 60;
 		}
 
-		if(sServer.Nightmare[i].Status == 2)
+		if(sServer.Nightmare[i].CurrentScore == 2)
 		{
 			INT32 alive = 0;
 			for(INT32 x = 0; x < 8; x++)
@@ -9323,7 +9323,7 @@ void DoNightmare()
 				if(memberId <= 0 || memberId >= MAX_PLAYER)
 					continue;
 
-				if(pUser[memberId].Status != USER_PLAY)
+				if(pUser[memberId].CurrentScore != USER_PLAY)
 				{
 					sServer.Nightmare[i].Members[x] = 0;
 
@@ -9332,7 +9332,7 @@ void DoNightmare()
 
 				SendSignalParm(memberId, memberId, 0x3B0, alive);
 
-				if (pMob[memberId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL && pMob[memberId].Mobs.Player.bStatus.Level >= sServer.MaximumPesaLevel)
+				if (pMob[memberId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL && pMob[memberId].Mobs.Player.BaseScore.Level >= sServer.MaximumPesaLevel)
 				{
 					Log(memberId, LOG_INGAME, "Removido da area do pesadelo por atingir o limite de navel");
 
@@ -9400,14 +9400,14 @@ void DoWater()
 				
 				INT32 leader = water[x].Leader;
 				
-				if(x != 8 && leader != 0 && leader > 0 && leader < MAX_PLAYER && pUser[leader].Status == 22)
+				if(x != 8 && leader != 0 && leader > 0 && leader < MAX_PLAYER && pUser[leader].CurrentScore == 22)
 				{
 					INT32 slotId = GetFirstSlot(leader, 0);
 					if(slotId != -1)
 					{
 						memset(&pMob[leader].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-						pMob[leader].Mobs.Player.Inventory[slotId].Index = waterId[i] + x;
+						pMob[leader].Mobs.Player.Inventory[slotId].sIndex = waterId[i] + x;
 						SendItem(leader, SlotType::Inv, slotId, &pMob[leader].Mobs.Player.Inventory[slotId]);
 					}
 				}
@@ -9449,7 +9449,7 @@ void DoWater()
 				timer = 18;
 
 				INT32 leader = water[x].Leader;
-				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].Status == USER_PLAY)
+				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].CurrentScore == USER_PLAY)
 				{
 					for(INT32 p = 0; p < 12; p++)
 					{
@@ -9465,7 +9465,7 @@ void DoWater()
 					{
 						memset(&pMob[leader].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-						pMob[leader].Mobs.Player.Inventory[slotId].Index = waterId[i] + x;
+						pMob[leader].Mobs.Player.Inventory[slotId].sIndex = waterId[i] + x;
 						SendItem(leader, SlotType::Inv, slotId, &pMob[leader].Mobs.Player.Inventory[slotId]);
 					}
 				}
@@ -9475,7 +9475,7 @@ void DoWater()
 			else
 			{
 				INT32 leader = water[x].Leader;
-				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].Status == 22)
+				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].CurrentScore == 22)
 				{
 					for(INT32 p = 0; p < 12; p++)
 					{
@@ -9486,7 +9486,7 @@ void DoWater()
 						SendSignalParm(party, SERVER_SIDE, 0x3B0, mobCount);
 					}
 					
-					if(pUser[leader].Status == USER_PLAY)
+					if(pUser[leader].CurrentScore == USER_PLAY)
 						SendSignalParm(leader, SERVER_SIDE, 0x3B0, mobCount);
 					else
 						water[x].Leader = 0;
@@ -9558,7 +9558,7 @@ void GiveRuna(int sala, int party)
 				continue;
 			}
 
-			if (pMob[memberId].Mobs.Player.Status.curHP <= 0)
+			if (pMob[memberId].Mobs.Player.CurrentScore.Hp <= 0)
 			{
 				Log(memberId, LOG_INGAME, "Nao recebeu a runa pois estava morto na area");
 				LogPlayer(memberId, "Nao recebeu a Runa da sala %d pois estava fora da area", sala);
@@ -9609,12 +9609,12 @@ void GiveRuna(int sala, int party)
 
 			memset(item, 0, sizeof STRUCT_ITEM);
 
-			item->Index = itemIndex;
+			item->sIndex = itemIndex;
 
 			SendItem(memberId, SlotType::Inv, slotId, item);
 
-			Log(memberId, LOG_INGAME, "Recebeu a runa %s. Sala %d ( %hu )", ItemList[item->Index].Name, sala, item->Index);
-			LogPlayer(memberId, "Recebeu a runa %s. Sala %d.", ItemList[item->Index].Name, sala);
+			Log(memberId, LOG_INGAME, "Recebeu a runa %s. Sala %d ( %hu )", g_pItemList[item->sIndex].ItemName, sala, item->sIndex);
+			LogPlayer(memberId, "Recebeu a runa %s. Sala %d.", g_pItemList[item->sIndex].ItemName, sala);
 
 			receivedUsers.push_back(user);
 		}
@@ -9644,7 +9644,7 @@ void GiveRuna(int sala, int party)
 	{
 		memset(&pMob[leaderId].Mobs.Player.Inventory[slotId], 0, sizeof STRUCT_ITEM);
 
-		pMob[leaderId].Mobs.Player.Inventory[slotId].Index = 5134;
+		pMob[leaderId].Mobs.Player.Inventory[slotId].sIndex = 5134;
 
 		pMob[leaderId].Mobs.Player.Inventory[slotId].EF1 = EF_SANC;
 		pMob[leaderId].Mobs.Player.Inventory[slotId].EFV1 = sala + 1;
@@ -9666,7 +9666,7 @@ void DoRune()
 	for(INT32 i = 0 ; i < MAX_ROOM; i++)
 	{
 		STRUCT_PISTA_DE_RUNAS *pista = &pPista[i];
-		if(!pista->Status)
+		if(!pista->CurrentScore)
 			continue;
 
 		if(pista->Timer - 2 <= 0)
@@ -9786,7 +9786,7 @@ void DoRune()
 						for(int y = 0; y < 13; y++)
 						{
 							int cId = pista->Clients[x][y];
-							if(pUser[cId].Status != USER_PLAY)
+							if(pUser[cId].CurrentScore != USER_PLAY)
 							{
 								pista->Clients[x][y] = 0;
 
@@ -9907,7 +9907,7 @@ void DoRune()
 		for(INT32 i = 0 ; i < MAX_AVAIBLE_ROOM; i++)
 		{
 			STRUCT_PISTA_DE_RUNAS *pista = &pPista[i];
-			if(pista->Status)
+			if(pista->CurrentScore)
 				continue;
 
 			int x;
@@ -9917,7 +9917,7 @@ void DoRune()
 
 			if(x == 3)
 			{
-				pista->Status = false;
+				pista->CurrentScore = false;
 				pista->Timer = 0;
 
 				continue;
@@ -9994,7 +9994,7 @@ void DoRune()
 						else
 							Teleportar(memberId, g_pPistaCoords[i][4], g_pPistaCoords[i][5]);
 
-						partyStr << "Grupo com " << pMob[memberId].Mobs.Player.Name << "(" << pUser[memberId].User.Username << ") para a pista +" << i << std::endl;
+						partyStr << "Grupo com " << pMob[memberId].Mobs.Player.MobName << "(" << pUser[memberId].User.Username << ") para a pista +" << i << std::endl;
 
 						SendSignalParm(memberId, memberId, 0x3A1, 900);
 						Log(memberId, LOG_INGAME, "Teleportado para pista %d - %ux %ux", i, g_pPistaCoords[i][4], g_pPistaCoords[i][5]);
@@ -10014,7 +10014,7 @@ void DoRune()
 			}
 
 			pista->Timer = 900;
-			pista->Status = true;
+			pista->CurrentScore = true;
 		}
 	}
 }
@@ -10044,11 +10044,11 @@ void LogPlayer(INT32 clientId, const char *msg, ...)
 		// Inicia a lista de argumentos
 		va_list arglist;
 
-		if(pUser[clientId].Status == USER_PLAY)
+		if(pUser[clientId].CurrentScore == USER_PLAY)
 		{
 			// Insere a hora no arquivo
 			fprintf(pFile, "\n%02d:%02d:%02d %s : ",
-					now.tm_hour, now.tm_min, now.tm_sec , pMob[clientId].Mobs.Player.Name);
+					now.tm_hour, now.tm_min, now.tm_sec , pMob[clientId].Mobs.Player.MobName);
 		}
 		else
 		{
@@ -10142,8 +10142,8 @@ void Log(INT32 clientId, INT32 type, const char *msg, ...)
 
 				std::string message;
 
-				if (pUser[clientId].Status == USER_PLAY)
-					message += "["s + pMob[clientId].Mobs.Player.Name + "] - "s;
+				if (pUser[clientId].CurrentScore == USER_PLAY)
+					message += "["s + pMob[clientId].Mobs.Player.MobName + "] - "s;
 
 				message += msg;
 
@@ -10161,8 +10161,8 @@ void Log(INT32 clientId, INT32 type, const char *msg, ...)
 
 				std::string message;
 
-				if (pUser[clientId].Status == USER_PLAY)
-					message += "["s + pMob[clientId].Mobs.Player.Name + "] - "s;
+				if (pUser[clientId].CurrentScore == USER_PLAY)
+					message += "["s + pMob[clientId].Mobs.Player.MobName + "] - "s;
 
 				message += msg;
 
@@ -10174,7 +10174,7 @@ void Log(INT32 clientId, INT32 type, const char *msg, ...)
 			va_list arglist;
 			va_start(arglist, msg);
 
-			printf("\n%02d:%02d:%02d %s : ", now.tm_hour, now.tm_min, now.tm_sec, pMob[clientId].Mobs.Player.Name);
+			printf("\n%02d:%02d:%02d %s : ", now.tm_hour, now.tm_min, now.tm_sec, pMob[clientId].Mobs.Player.MobName);
 			vprintf(msg, arglist);
 			printf("\n");
 
@@ -10252,7 +10252,7 @@ bool AddCrackError(int arg1, int point, int type)
 
 		SendClientMessage(arg1, g_pLanguageString[_NN_Bad_Network_Packets]);
 
-		if(pUser[arg1].Status != USER_SELCHAR)
+		if(pUser[arg1].CurrentScore != USER_SELCHAR)
 		{
 			CharLogOut(arg1);
 
@@ -10381,26 +10381,26 @@ void DoAlly(INT32 guild, INT32 ally)
 
 		if(allyId > 0 && allyId < MAX_GUILD)
 		{
-			SendGuildNotice(guild, g_pLanguageString[_SS_Ally_Canceled], g_pGuild[guild].Name.c_str() , g_pGuild[allyId].Name.c_str());
-			SendGuildNotice(allyId, g_pLanguageString[_SS_Ally_Canceled], g_pGuild[guild].Name.c_str(), g_pGuild[allyId].Name.c_str());
+			SendGuildNotice(guild, g_pLanguageString[_SS_Ally_Canceled], g_pGuild[guild].MobName.c_str() , g_pGuild[allyId].MobName.c_str());
+			SendGuildNotice(allyId, g_pLanguageString[_SS_Ally_Canceled], g_pGuild[guild].MobName.c_str(), g_pGuild[allyId].MobName.c_str());
 			
 			g_pGuildAlly[guild] = 0;
 		}
 	}
 	else if(allyId == 0 && ally != 0)
 	{
-		SendGuildNotice(guild, g_pLanguageString[_SS_Ally_Declared], g_pGuild[guild].Name.c_str(), g_pGuild[ally].Name.c_str());
-		SendGuildNotice(ally, g_pLanguageString[_SS_Ally_Declared], g_pGuild[guild].Name.c_str(), g_pGuild[ally].Name.c_str());
+		SendGuildNotice(guild, g_pLanguageString[_SS_Ally_Declared], g_pGuild[guild].MobName.c_str(), g_pGuild[ally].MobName.c_str());
+		SendGuildNotice(ally, g_pLanguageString[_SS_Ally_Declared], g_pGuild[guild].MobName.c_str(), g_pGuild[ally].MobName.c_str());
 
 		g_pGuildAlly[guild] = ally;
 	}
 
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].Status != USER_PLAY)
+		if(pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
-		if(pMob[i].Mobs.Player.GuildIndex == guild)
+		if(pMob[i].Mobs.Player.Guild == guild)
 			SendWarInfo(i, sServer.CapeWin);
 	}
 }
@@ -10409,7 +10409,7 @@ INT32 CombineTreasureMap(INT32 clientId)
 {
 	for(INT32 LOCAL_1 = 0; LOCAL_1 < 60; LOCAL_1++)
 	{
-		if(pMob[clientId].Mobs.Player.Inventory[LOCAL_1].Index == 788)
+		if(pMob[clientId].Mobs.Player.Inventory[LOCAL_1].sIndex == 788)
 		{
 			INT32 LOCAL_2 = LOCAL_1;
 			LOCAL_2 = LOCAL_1 + 1;
@@ -10417,21 +10417,21 @@ INT32 CombineTreasureMap(INT32 clientId)
 			if(LOCAL_2 >= 60)
 				continue;
 
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].Index != 789)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].sIndex != 789)
 				continue;
 
 			LOCAL_2 = LOCAL_1 + 9;
 			if(LOCAL_2 >= 60)
 				break;
 
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].Index != 790)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].sIndex != 790)
 				continue;
 
 			LOCAL_2 = LOCAL_1 + 10;
 			if(LOCAL_2 >= 60)
 				continue;
 
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].Index != 791)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].sIndex != 791)
 				continue;
 
 			// 00462654
@@ -10439,14 +10439,14 @@ INT32 CombineTreasureMap(INT32 clientId)
 			if(LOCAL_2 >= 60)
 				break;
 
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].Index != 792)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].sIndex != 792)
 				continue;
 
 			LOCAL_2 = LOCAL_1 + 19;
 			if(LOCAL_2 >= 60)
 				break;
 
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].Index != 793)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_2].sIndex != 793)
 				continue;
 
 			// envia pacote para DB - 004626BD
@@ -10506,11 +10506,11 @@ INT32 CombineTreasureMap(INT32 clientId)
 		INT32 LOCAL_70 = 0;
 		for(LOCAL_1 = 0; LOCAL_1 < 60 ;LOCAL_1++)
 		{
-			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_1].Index >= 788 && pMob[clientId].Mobs.Player.Inventory[LOCAL_1].Index <= 793)
+			if(pMob[clientId].Mobs.Player.Inventory[LOCAL_1].sIndex >= 788 && pMob[clientId].Mobs.Player.Inventory[LOCAL_1].sIndex <= 793)
 			{
 				memset(&pMob[clientId].Mobs.Player.Inventory[LOCAL_1], 0, sizeof STRUCT_ITEM); // n tem
 
-				pMob[clientId].Mobs.Player.Inventory[LOCAL_1].Index = 485;
+				pMob[clientId].Mobs.Player.Inventory[LOCAL_1].sIndex = 485;
 				SendItem(clientId, SlotType::Inv, LOCAL_1, &pMob[clientId].Mobs.Player.Inventory[LOCAL_1]);
 
 				LOCAL_70++;
@@ -10536,7 +10536,7 @@ INT32 PutItemArea(STRUCT_ITEM *item, unsigned int x1, unsigned int y1, unsigned 
 	int count = 0;
 	for (int i = 0; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].Status != USER_PLAY)
+		if (pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		if (pMob[i].Target.X >= x1 && pMob[i].Target.Y >= y1 &&
@@ -10555,7 +10555,7 @@ INT32 PutItem(INT32 clientId, STRUCT_ITEM *item)
 	if(clientId <= 0 || clientId >= MAX_PLAYER)
 		return 0;
 
-	if(pUser[clientId].Status != USER_PLAY)
+	if(pUser[clientId].CurrentScore != USER_PLAY)
 		return 0;
 
 	INT32 slot = GetFirstSlot(clientId, 0);
@@ -10576,7 +10576,7 @@ void CloseUser(INT32 clientId)
 	INT32 LOCAL_1 = 0,
 	      LOCAL_2 = 0;
 
-	if(pUser[clientId].Status == USER_PLAY)
+	if(pUser[clientId].CurrentScore == USER_PLAY)
 	{
 		if(pMob[clientId].Target.X >= 0 && pMob[clientId].Target.X < 4096 && pMob[clientId].Target.Y >= 0 && pMob[clientId].Target.Y < 4096)
 			g_pMobGrid[pMob[clientId].Target.Y][pMob[clientId].Target.X] = 0;
@@ -10620,7 +10620,7 @@ void CloseUser(INT32 clientId)
 
  
 
-	INT32 LOCAL_3 = pUser[clientId].Status;
+	INT32 LOCAL_3 = pUser[clientId].CurrentScore;
 	if(LOCAL_3 == USER_EMPTY || LOCAL_3 == USER_ACCEPT)
 	{
 		Log(clientId, LOG_INGAME, "Usuario desconectado com status %d", LOCAL_3);
@@ -10642,7 +10642,7 @@ void CloseUser(INT32 clientId)
 		LogGold(clientId);
 
 		INT32 LOCAL_4 = pUser[clientId].Trade.ClientId;
-		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].Status == USER_PLAY && pUser[LOCAL_4].Trade.ClientId == clientId)
+		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].CurrentScore == USER_PLAY && pUser[LOCAL_4].Trade.ClientId == clientId)
 			RemoveTrade(LOCAL_4);
 
 		pUser[clientId].Trade.ClientId = 0;
@@ -10667,7 +10667,7 @@ void CloseUser(INT32 clientId)
 		
 		packet.Header.PacketId = 0x806;
 		memcpy(&packet.Storage, &pUser[clientId].User.Storage.Item, sizeof STRUCT_ITEM * 128);
-		memcpy(packet.SkillBar, pMob[clientId].Mobs.Player.SkillBar1, 4);
+		memcpy(packet.SkillBar, pMob[clientId].Mobs.Player.ShortSkill, 4);
 		memcpy(&packet.SkillBar[4], pMob[clientId].Mobs.SkillBar, 16);
 
 		strncpy_s(packet.Pass, pUser[clientId].User.Block.Pass, 16);
@@ -10701,7 +10701,7 @@ void CloseUser(INT32 clientId)
  
 
 		AddMessageDB((BYTE*)&packet, sizeof STRUCT_SAVECHARACTER);
-		pUser[clientId].Status = USER_SAVING4QUIT;
+		pUser[clientId].CurrentScore = USER_SAVING4QUIT;
 
 		DeleteMob(clientId, 2);
 		RemoveParty(clientId);
@@ -10773,7 +10773,7 @@ void CloseUser(INT32 clientId)
 	pUser[clientId].aHack.Last     = 0;
 	pUser[clientId].aHack.Error    = 0;
 
-	pUser[clientId].PremierStore.Status = 0;
+	pUser[clientId].PremierStore.CurrentScore = 0;
 	pUser[clientId].PremierStore.Time   = 0;
 	pUser[clientId].PremierStore.Wait   = 0;
 	pUser[clientId].PremierStore.Count  = 0;
@@ -10852,7 +10852,7 @@ void FinishCastleWar()
 	INT32 LOCAL_1 = 1;
 	for(; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if(pUser[LOCAL_1].Status != USER_PLAY)
+		if(pUser[LOCAL_1].CurrentScore != USER_PLAY)
 			continue;
 
 		SendSignal(LOCAL_1, 0x7530, 0x3AC);
@@ -10860,7 +10860,7 @@ void FinishCastleWar()
 
 	for(LOCAL_1 = 1; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if(pUser[LOCAL_1].Status != USER_PLAY)
+		if(pUser[LOCAL_1].CurrentScore != USER_PLAY)
 			continue;
 
 		SendSignalParm(LOCAL_1, 0x7530, 0x3AC, 0); // 0 = sServer.CastleState
@@ -10871,7 +10871,7 @@ void FinishCastleWar()
 		if(pMob[LOCAL_1].Mode == 0)
 			continue;
 
-		if(pMob[LOCAL_1].Mobs.Player.Equip[0].Index == 219)
+		if(pMob[LOCAL_1].Mobs.Player.Equip[0].sIndex == 219)
 			DeleteMob(LOCAL_1, 2);
 	}
 
@@ -10881,12 +10881,12 @@ void FinishCastleWar()
 	
 	for(INT32 i = 0; i < 4096; i++)
 	{
-		if(g_pInitItem[i].Item.Index <= 0 || g_pInitItem[i].Item.Index >= MAX_ITEMLIST)
+		if(g_pInitItem[i].Item.sIndex <= 0 || g_pInitItem[i].Item.sIndex >= MAX_ITEMLIST)
 			continue;
 
-		if(g_pInitItem[i].Item.Index >= 3145 && g_pInitItem[i].Item.Index <= 3149)
+		if(g_pInitItem[i].Item.sIndex >= 3145 && g_pInitItem[i].Item.sIndex <= 3149)
 		{
-			g_pInitItem[i + 4].Item.Index = 3145 + g_pCityZone[4].win_count;
+			g_pInitItem[i + 4].Item.sIndex = 3145 + g_pCityZone[4].win_count;
 			
 			g_pInitItem[i + 4].Item.EF1 = 56;
 			g_pInitItem[i + 4].Item.EFV1 = ChargedGuildList[sServer.Channel - 1][4] / 257;
@@ -10897,7 +10897,7 @@ void FinishCastleWar()
 			g_pInitItem[i + 4].Item.EF3 = 59;
 			g_pInitItem[i + 4].Item.EFV3 = Rand() % 255;
 
-			Log(SERVER_SIDE, LOG_INGAME, "Setado o indice da torre de Noatun para %d. Index: %hu", i + 4, g_pInitItem[i + 4].Item.Index);
+			Log(SERVER_SIDE, LOG_INGAME, "Setado o indice da torre de Noatun para %d. Index: %hu", i + 4, g_pInitItem[i + 4].Item.sIndex);
 			break;
 		}
 	}
@@ -10907,7 +10907,7 @@ void FinishCastleWar()
 
 	for(INT32 i = 0; i < MAX_GUILD; i++)
 	{
-		if(g_pGuild[i].Name.empty())
+		if(g_pGuild[i].MobName.empty())
 			continue;
 
 		SetGuildWin(i, 0);
@@ -10936,7 +10936,7 @@ void DecideChallenger()
 				const auto& guild = *maxIt;
 				g_pCityZone[cityIndex].chall_index = guild.GuildId;
 
-				Log(SERVER_SIDE, LOG_INGAME, "%s sera o desafiante da cidade %s", g_pGuild[guild.GuildId].Name.c_str(), szCitys[cityIndex]);
+				Log(SERVER_SIDE, LOG_INGAME, "%s sera o desafiante da cidade %s", g_pGuild[guild.GuildId].MobName.c_str(), szCitys[cityIndex]);
 			}
 		}
 		else
@@ -10964,7 +10964,7 @@ void DecideChallenger()
 				else
 					g_pCityZone[cityIndex].chall_index_2 = guild.GuildId;
 
-				Log(SERVER_SIDE, LOG_INGAME, "%s sera o desafiante da cidade %s (%d)", g_pGuild[guild.GuildId].Name.c_str(), szCitys[cityIndex], i);
+				Log(SERVER_SIDE, LOG_INGAME, "%s sera o desafiante da cidade %s (%d)", g_pGuild[guild.GuildId].MobName.c_str(), szCitys[cityIndex], i);
 				city.erase(maxIt);
 			}
 		}
@@ -11016,7 +11016,7 @@ void GuildProcess()
 
 			for(int i = 1; i < MAX_PLAYER; i++)
 			{
-				if(pUser[i].Status != USER_PLAY)
+				if(pUser[i].CurrentScore != USER_PLAY)
 					continue;
 
 				if (pMob[i].Target.X >= 2604 && pMob[i].Target.X <= 2650 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748)
@@ -11070,7 +11070,7 @@ void GuildProcess()
 		{
 			for (int i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].Status != USER_PLAY || pUser[i].IsAdmin)
+				if (pUser[i].CurrentScore != USER_PLAY || pUser[i].IsAdmin)
 					continue;
 
 				if (pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748)
@@ -11091,7 +11091,7 @@ void GuildProcess()
 			sServer.CastleState = 1;
 			for(INT32 LOCAL_13 = 1; LOCAL_13 < MAX_PLAYER; LOCAL_13++)
 			{
-				if(pUser[LOCAL_13].Status != USER_PLAY)
+				if(pUser[LOCAL_13].CurrentScore != USER_PLAY)
 					continue;
 
 				SendSignalParm(LOCAL_13, 0x7530, 0x3AC, sServer.CastleState);
@@ -11145,9 +11145,9 @@ void GuildProcess()
 			
 			if(User != sServer.AltarId)
 			{
-				if (User > 0 && User < MAX_PLAYER && pMob[User].Mobs.Player.GuildMemberType == 9)
+				if (User > 0 && User < MAX_PLAYER && pMob[User].Mobs.Player.GuildLevel == 9)
 				{
-					INT32 guildId = pMob[User].Mobs.Player.GuildIndex;
+					INT32 guildId = pMob[User].Mobs.Player.Guild;
 
 					bool any = false;
 					for(INT32 i = 0; i < 4; i++)
@@ -11169,7 +11169,7 @@ void GuildProcess()
 					else
 						SendClientMessage(User, "Para conquistar o Castelo voca deve possuir pelo menos uma cidade");
 				}
-				else if(pMob[User].Mobs.Player.GuildMemberType != 9 && User > 0 && User < MAX_PLAYER)
+				else if(pMob[User].Mobs.Player.GuildLevel != 9 && User > 0 && User < MAX_PLAYER)
 				{
 					SendClientMessage(User, "Somente o lader da guilda pode conquistar o Castelo");
 					sServer.AltarId = 0;
@@ -11181,7 +11181,7 @@ void GuildProcess()
 			if(sServer.AltarId != 0)
 			{
 				if(pUser[User].TimerCount == 0)
-					SendNotice(g_pLanguageString[_SN_S_is_charging_castle], pMob[User].Mobs.Player.Name);
+					SendNotice(g_pLanguageString[_SN_S_is_charging_castle], pMob[User].Mobs.Player.MobName);
 
 				p3AD LOCAL_5;
 				LOCAL_5.Header.PacketId = 0x3AD;
@@ -11193,10 +11193,10 @@ void GuildProcess()
 
 				pUser[User].TimerCount ++;
 
-				INT32 GuildID = pMob[User].Mobs.Player.GuildIndex;
+				INT32 GuildID = pMob[User].Mobs.Player.Guild;
 				if(pUser[User].TimerCount > 180)
 				{
-					SendNotice(g_pLanguageString[_SN_S_charge_castle], pMob[User].Mobs.Player.Name);
+					SendNotice(g_pLanguageString[_SN_S_charge_castle], pMob[User].Mobs.Player.MobName);
 
 					// Seta o novo lader da guild
 					ChargedGuildList[sServer.Channel - 1][4] = GuildID;
@@ -11279,13 +11279,13 @@ void GuildProcess()
 				INT32 total = 0;
 				for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 				{
-					if(pUser[LOCAL_2].Status != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
+					if(pUser[LOCAL_2].CurrentScore != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
 						continue;
 
 					if(pMob[LOCAL_2].Mode == 0)
 						continue;
 
-					if(pMob[LOCAL_2].Mobs.Player.GuildIndex != guildId)
+					if(pMob[LOCAL_2].Mobs.Player.Guild != guildId)
 						continue;
 		
 					INT32 LOCAL_3 = GetVillage(pMob[LOCAL_2].Target.X, pMob[LOCAL_2].Target.Y);
@@ -11325,7 +11325,7 @@ void GuildProcess()
 					Teleportar(LOCAL_2, g_pCityZone[LOCAL_25].guilda_war_x, g_pCityZone[LOCAL_25].guilda_war_y);
 					SendScore(LOCAL_2);
 
-					Log(SERVER_SIDE, LOG_GUILD, "Teleportado %s (%u-%hhu) para a guerra de %s - Contagem: %d - DEFENSORA", pMob[LOCAL_2].Mobs.Player.Name, pMob[LOCAL_2].Mobs.Player.bStatus.Level,
+					Log(SERVER_SIDE, LOG_GUILD, "Teleportado %s (%u-%hhu) para a guerra de %s - Contagem: %d - DEFENSORA", pMob[LOCAL_2].Mobs.Player.MobName, pMob[LOCAL_2].Mobs.Player.BaseScore.Level,
 						pMob[LOCAL_2].Mobs.Player.Equip[0].EFV2, szCitys[LOCAL_25], total);
 
 					if(total >= 26)
@@ -11345,13 +11345,13 @@ void GuildProcess()
 				INT32 total = 0;
 				for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 				{
-					if(pUser[LOCAL_2].Status != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
+					if(pUser[LOCAL_2].CurrentScore != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
 						continue;
 
 					if(pMob[LOCAL_2].Mode == 0)
 						continue;
 
-					if(pMob[LOCAL_2].Mobs.Player.GuildIndex != guildId)
+					if(pMob[LOCAL_2].Mobs.Player.Guild != guildId)
 						continue;
 		
 					INT32 LOCAL_3 = GetVillage(pMob[LOCAL_2].Target.X, pMob[LOCAL_2].Target.Y);
@@ -11391,7 +11391,7 @@ void GuildProcess()
 					total++;
 					Teleportar(LOCAL_2, g_pCityZone[LOCAL_25].guildb_war_x, g_pCityZone[LOCAL_25].guildb_war_y);
 
-					Log(SERVER_SIDE, LOG_GUILD, "Teleportado %s (%u-%hhu) para a guerra de %s - Contagem: %d - DESAFIADOR", pMob[LOCAL_2].Mobs.Player.Name, pMob[LOCAL_2].Mobs.Player.bStatus.Level,
+					Log(SERVER_SIDE, LOG_GUILD, "Teleportado %s (%u-%hhu) para a guerra de %s - Contagem: %d - DESAFIADOR", pMob[LOCAL_2].Mobs.Player.MobName, pMob[LOCAL_2].Mobs.Player.BaseScore.Level,
 						pMob[LOCAL_2].Mobs.Player.Equip[0].EFV2, szCitys[LOCAL_25], total);
 
 					if(total >= 26)
@@ -11453,13 +11453,13 @@ void ClearAreaGuild(unsigned int minPosX, unsigned int minPosY, unsigned int max
 {
 	for(size_t i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].Status != USER_PLAY)
+		if(pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		if(pMob[i].Target.X < minPosX || pMob[i].Target.X > maxPosX || pMob[i].Target.Y < minPosY || pMob[i].Target.Y > maxPosY)
 			continue;
 
-		if(pMob[i].Mobs.Player.GuildIndex == guildId && guildId == 0)
+		if(pMob[i].Mobs.Player.Guild == guildId && guildId == 0)
 			continue;
 
 		DoRecall(i);
@@ -11472,10 +11472,10 @@ void SetCastleDoor(int mode)
 	{
 		INT32 LOCAL_2 = i + 33;
 
-		if(g_pInitItem[LOCAL_2].Item.Index <= 0 || g_pInitItem[LOCAL_2].Item.Index >= MAX_ITEMLIST)
+		if(g_pInitItem[LOCAL_2].Item.sIndex <= 0 || g_pInitItem[LOCAL_2].Item.sIndex >= MAX_ITEMLIST)
 			continue;
 
-		if(g_pInitItem[LOCAL_2].Status != mode)
+		if(g_pInitItem[LOCAL_2].CurrentScore != mode)
 		{
 			INT32 LOCAL_3;
 			UpdateItem(LOCAL_2, mode, &LOCAL_3);
@@ -11485,7 +11485,7 @@ void SetCastleDoor(int mode)
 			LOCAL_150.Header.ClientId = 0x7530;
 			LOCAL_150.gateId = LOCAL_2 + 10000;
 			LOCAL_150.Header.Size = 20;
-			LOCAL_150.status = g_pInitItem[LOCAL_2].Status;
+			LOCAL_150.status = g_pInitItem[LOCAL_2].CurrentScore;
 			LOCAL_150.unknow = LOCAL_3;
 
 			GridMulticast_2(g_pInitItem[LOCAL_2].PosX, g_pInitItem[LOCAL_2].PosY, (BYTE*)&LOCAL_150, 0);
@@ -11501,10 +11501,10 @@ void SetColoseumDoor(int mode)
 	{
 		INT32 LOCAL_2 = i + 13;
 
-		if(g_pInitItem[LOCAL_2].Item.Index <= 0 || g_pInitItem[LOCAL_2].Item.Index >= MAX_ITEMLIST)
+		if(g_pInitItem[LOCAL_2].Item.sIndex <= 0 || g_pInitItem[LOCAL_2].Item.sIndex >= MAX_ITEMLIST)
 			continue;
 
-		if(g_pInitItem[LOCAL_2].Status != mode)
+		if(g_pInitItem[LOCAL_2].CurrentScore != mode)
 		{
 			INT32 LOCAL_3;
 			UpdateItem(LOCAL_2, mode, &LOCAL_3);
@@ -11514,7 +11514,7 @@ void SetColoseumDoor(int mode)
 			LOCAL_150.Header.ClientId = 0x7530;
 			LOCAL_150.gateId = LOCAL_2 + 10000;
 			LOCAL_150.Header.Size = 20;
-			LOCAL_150.status = g_pInitItem[LOCAL_2].Status;
+			LOCAL_150.status = g_pInitItem[LOCAL_2].CurrentScore;
 			LOCAL_150.unknow = (mode == 3) ? 18 : 0;
 
 			GridMulticast_2(g_pInitItem[LOCAL_2].PosX, g_pInitItem[LOCAL_2].PosY, (BYTE*)&LOCAL_150, 0);
@@ -11530,10 +11530,10 @@ void SetColoseumDoor2(int mode)
 	{
 		INT32 LOCAL_2 = i + 15;
 
-		if(g_pInitItem[LOCAL_2].Item.Index <= 0 || g_pInitItem[LOCAL_2].Item.Index >= MAX_ITEMLIST)
+		if(g_pInitItem[LOCAL_2].Item.sIndex <= 0 || g_pInitItem[LOCAL_2].Item.sIndex >= MAX_ITEMLIST)
 			continue;
 
-		if(g_pInitItem[LOCAL_2].Status != mode)
+		if(g_pInitItem[LOCAL_2].CurrentScore != mode)
 		{
 			INT32 LOCAL_3;
 			UpdateItem(LOCAL_2, mode, &LOCAL_3);
@@ -11543,7 +11543,7 @@ void SetColoseumDoor2(int mode)
 			LOCAL_150.Header.ClientId = 0x7530;
 			LOCAL_150.gateId = LOCAL_2 + 10000;
 			LOCAL_150.Header.Size = 20;
-			LOCAL_150.status = g_pInitItem[LOCAL_2].Status;
+			LOCAL_150.status = g_pInitItem[LOCAL_2].CurrentScore;
 			LOCAL_150.unknow = (mode == 3) ? 18 : 0;
 
 			GridMulticast_2(g_pInitItem[LOCAL_2].PosX, g_pInitItem[LOCAL_2].PosY, (BYTE*)&LOCAL_150, 0);
@@ -11557,7 +11557,7 @@ void ClearAreaLevel(unsigned int minPosX, unsigned int minPosY, unsigned int max
 {
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].Status != USER_PLAY)
+		if(pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		if(pMob[i].Mode == 0)
@@ -11566,10 +11566,10 @@ void ClearAreaLevel(unsigned int minPosX, unsigned int minPosY, unsigned int max
 		if(pMob[i].Target.X < minPosX || pMob[i].Target.X > maxPosX || pMob[i].Target.Y < minPosY || pMob[i].Target.Y > maxPosY)
 			continue;
 
-		if(pMob[i].Mobs.Player.bStatus.Level < min_level || pMob[i].Mobs.Player.bStatus.Level > max_level)
+		if(pMob[i].Mobs.Player.BaseScore.Level < min_level || pMob[i].Mobs.Player.BaseScore.Level > max_level)
 			continue;
 
-		if (pMob[i].Mobs.Player.bStatus.Level >= 1010 || pUser[i].AccessLevel != 0)
+		if (pMob[i].Mobs.Player.BaseScore.Level >= 1010 || pUser[i].AccessLevel != 0)
 			continue;
 
 		DoRecall(i);
@@ -11594,7 +11594,7 @@ void ClearGuildPKZone()
 
 	for(; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].Status != USER_PLAY)
+		if(pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		if(pMob[i].Mode == 0)
@@ -11618,7 +11618,7 @@ void SetArenaDoor(int mode)
 		{
 			INT32 LOCAL_3 = i * 3 + x + 1;
 
-			if(g_pInitItem[LOCAL_3].Item.Index <= 0 || g_pInitItem[LOCAL_3].Item.Index >= MAX_ITEMLIST)
+			if(g_pInitItem[LOCAL_3].Item.sIndex <= 0 || g_pInitItem[LOCAL_3].Item.sIndex >= MAX_ITEMLIST)
 				continue;
 
 			INT32 LOCAL_4;
@@ -11629,7 +11629,7 @@ void SetArenaDoor(int mode)
 			LOCAL_150.Header.ClientId = 0x7530;
 			LOCAL_150.gateId = LOCAL_3 + 10000;
 			LOCAL_150.Header.Size = 20;
-			LOCAL_150.status = g_pInitItem[LOCAL_3].Status;
+			LOCAL_150.status = g_pInitItem[LOCAL_3].CurrentScore;
 			LOCAL_150.unknow = LOCAL_4;
 
 			GridMulticast_2(g_pInitItem[LOCAL_3].PosX, g_pInitItem[LOCAL_3].PosY, (BYTE*)&LOCAL_150, 0);
@@ -11677,11 +11677,11 @@ void DecideWinner()
 				if(mobId <= 0 || mobId >= MAX_PLAYER)
 					continue;
 
-				if(pMob[mobId].Mode == 0 || pMob[mobId].Mobs.Player.Status.curHP <= 0)
+				if(pMob[mobId].Mode == 0 || pMob[mobId].Mobs.Player.CurrentScore.Hp <= 0)
 					continue;
 
-				INT32 LOCAL_137 = pMob[mobId].Mobs.Player.GuildIndex;
-				UINT32 LOCAL_138 = pMob[mobId].Mobs.Player.Status.Level + 1;
+				INT32 LOCAL_137 = pMob[mobId].Mobs.Player.Guild;
+				UINT32 LOCAL_138 = pMob[mobId].Mobs.Player.CurrentScore.Level + 1;
 
 				if (pMob[mobId].Mobs.Player.Equip[0].EFV2 >= CELESTIAL)
 					LOCAL_138 += 400;
@@ -11715,20 +11715,20 @@ void DecideWinner()
 				if (LOCAL_137 == LOCAL_4)
 				{
 					LOCAL_2 += LOCAL_138;
-					strOwner << "Player " << pMob[mobId].Mobs.Player.Name << " com " << pMob[mobId].Lifes << " totalizou " << totalPoints << " pontos. Total: " << LOCAL_2 << "\n";
+					strOwner << "Player " << pMob[mobId].Mobs.Player.MobName << " com " << pMob[mobId].Lifes << " totalizou " << totalPoints << " pontos. Total: " << LOCAL_2 << "\n";
 				}
 				else if (LOCAL_137 == LOCAL_5)
 				{
 					LOCAL_3 += LOCAL_138;
-					strChall << "Player " << pMob[mobId].Mobs.Player.Name << " com " << pMob[mobId].Lifes << " totalizou " << totalPoints << " pontos. Total: " << LOCAL_3 << "\n";
+					strChall << "Player " << pMob[mobId].Mobs.Player.MobName << " com " << pMob[mobId].Lifes << " totalizou " << totalPoints << " pontos. Total: " << LOCAL_3 << "\n";
 				}
 			}
 		}
 
 		if(LOCAL_2 >= LOCAL_3)
 		{
-			SendGuildNotice(LOCAL_4, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_4].Name.c_str(), g_pGuild[LOCAL_5].Name.c_str(), LOCAL_2, LOCAL_3);
-			SendGuildNotice(LOCAL_5, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_4].Name.c_str(), g_pGuild[LOCAL_5].Name.c_str(), LOCAL_2, LOCAL_3);
+			SendGuildNotice(LOCAL_4, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_4].MobName.c_str(), g_pGuild[LOCAL_5].MobName.c_str(), LOCAL_2, LOCAL_3);
+			SendGuildNotice(LOCAL_5, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_4].MobName.c_str(), g_pGuild[LOCAL_5].MobName.c_str(), LOCAL_2, LOCAL_3);
 			
 			if (ChargedGuildList[sServer.Channel - 1][i] == 0)
 				g_pCityZone[i].win_count = -1;
@@ -11741,8 +11741,8 @@ void DecideWinner()
 		}
 		else 
 		{
-			SendGuildNotice(LOCAL_4, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_5].Name.c_str(), g_pGuild[LOCAL_4].Name.c_str(), LOCAL_3, LOCAL_2);
-			SendGuildNotice(LOCAL_5, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_5].Name.c_str(), g_pGuild[LOCAL_4].Name.c_str(), LOCAL_3, LOCAL_2);
+			SendGuildNotice(LOCAL_4, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_5].MobName.c_str(), g_pGuild[LOCAL_4].MobName.c_str(), LOCAL_3, LOCAL_2);
+			SendGuildNotice(LOCAL_5, g_pLanguageString[_SSNN_GuildWarResult], g_pGuild[LOCAL_5].MobName.c_str(), g_pGuild[LOCAL_4].MobName.c_str(), LOCAL_3, LOCAL_2);
 			
 			ChargedGuildList[sServer.Channel - 1][i] = LOCAL_5;
 
@@ -11752,7 +11752,7 @@ void DecideWinner()
 		Log(SERVER_SIDE, LOG_INGAME, strOwner.str().c_str());
 		Log(SERVER_SIDE, LOG_INGAME, strChall.str().c_str());
 
-		Log(SERVER_SIDE, LOG_INGAME, "Guerra cidade %d terminada. %s %d %s %d", i, g_pGuild[LOCAL_4].Name.c_str(), LOCAL_2, g_pGuild[LOCAL_5].Name.c_str(), LOCAL_3);
+		Log(SERVER_SIDE, LOG_INGAME, "Guerra cidade %d terminada. %s %d %s %d", i, g_pGuild[LOCAL_4].MobName.c_str(), LOCAL_2, g_pGuild[LOCAL_5].MobName.c_str(), LOCAL_3);
 
 		g_pCityZone[i].chall_index = 0;
 		g_pCityZone[i].chall_index_2= 0;
@@ -11816,15 +11816,15 @@ void UpdateCityTowers()
 	std::stringstream str;
 	for (INT32 i = 0; i < 4096; i++)
 	{
-		if (g_pInitItem[i].Item.Index <= 0 || g_pInitItem[i].Item.Index >= MAX_ITEMLIST)
+		if (g_pInitItem[i].Item.sIndex <= 0 || g_pInitItem[i].Item.sIndex >= MAX_ITEMLIST)
 			continue;
 
-		if (g_pInitItem[i].Item.Index >= 3145 && g_pInitItem[i].Item.Index <= 3149)
+		if (g_pInitItem[i].Item.sIndex >= 3145 && g_pInitItem[i].Item.sIndex <= 3149)
 		{
 			str << "Encontrado primeira torre em " << i << "\n";
 			for (INT32 t = 0; t < 5; t++)
 			{
-				g_pInitItem[i + t].Item.Index = 3145 + g_pCityZone[t].win_count;
+				g_pInitItem[i + t].Item.sIndex = 3145 + g_pCityZone[t].win_count;
 
 				g_pInitItem[i + t].Item.EF1 = 56;
 				g_pInitItem[i + t].Item.EFV1 = ChargedGuildList[sServer.Channel - 1][t] / 257;
@@ -11835,7 +11835,7 @@ void UpdateCityTowers()
 				g_pInitItem[i + t].Item.EF3 = 59;
 				g_pInitItem[i + t].Item.EFV3 = Rand() % 255;
 
-				str << "Torre com id " << (i + t) << " alterado para index " << g_pInitItem[i + t].Item.Index << "\n";
+				str << "Torre com id " << (i + t) << " alterado para index " << g_pInitItem[i + t].Item.sIndex << "\n";
 			}
 
 			break;
@@ -11862,8 +11862,8 @@ INT32 Challange(INT32 clientId, INT32 mobId, INT32 value)
 	if(mobId < MAX_PLAYER || mobId >= MAX_MOB)
 		return 0;
 
-	INT32 cityId = pMob[mobId].Mobs.Player.bStatus.Level,
-		  guildId = pMob[clientId].Mobs.Player.GuildIndex;
+	INT32 cityId = pMob[mobId].Mobs.Player.BaseScore.Level,
+		  guildId = pMob[clientId].Mobs.Player.Guild;
 
 	if(cityId < 0 || cityId > 5)
 		return 0;
@@ -11871,7 +11871,7 @@ INT32 Challange(INT32 clientId, INT32 mobId, INT32 value)
 	if(cityId == 4)
 		return 0;
 
-	if(pMob[clientId].Mobs.Player.GuildMemberType != 9)
+	if(pMob[clientId].Mobs.Player.GuildLevel != 9)
 	{
 		SendSay(mobId, g_pLanguageString[_NN_Only_Guild_Master_can]);
 
@@ -11930,7 +11930,7 @@ INT32 Challange(INT32 clientId, INT32 mobId, INT32 value)
 
 	if(LOCAL_6 < 0 || LOCAL_4 >= 10 || LOCAL_5 < 0 || LOCAL_5 >= 16 || LOCAL_6 < 0 || LOCAL_6 > 4096)
 		success = 0;
-	else if(!g_pGuild[guildId].Name[0])
+	else if(!g_pGuild[guildId].MobName[0])
 		success = 0;
 
 	if(success == 0)
@@ -11948,7 +11948,7 @@ INT32 Challange(INT32 clientId, INT32 mobId, INT32 value)
 
 	SendClientMessage(clientId, "Aposta realizada.");
 
-	Log(SERVER_SIDE, LOG_INGAME, "Guild %s realizou aposta na cidade %d. Valor: %d", g_pGuild[guildId].Name.c_str(), cityId, value);
+	Log(SERVER_SIDE, LOG_INGAME, "Guild %s realizou aposta na cidade %d. Valor: %d", g_pGuild[guildId].MobName.c_str(), cityId, value);
 
 	SendEtc(clientId);
 
@@ -12000,10 +12000,10 @@ void DoWar(int arg1, int arg2)
 
 			for(INT32 LOCAL_10 = 1; LOCAL_10 < MAX_PLAYER; LOCAL_10++)
 			{
-				if(pUser[LOCAL_10].Status != USER_PLAY)
+				if(pUser[LOCAL_10].CurrentScore != USER_PLAY)
 					continue;
 
-				if(pMob[LOCAL_10].Mobs.Player.GuildIndex != arg1 && pMob[LOCAL_10].Mobs.Player.GuildIndex == LOCAL_8)
+				if(pMob[LOCAL_10].Mobs.Player.Guild != arg1 && pMob[LOCAL_10].Mobs.Player.Guild == LOCAL_8)
 					continue;
 
 				SendWarInfo(LOCAL_10, sServer.CapeWin);
@@ -12011,33 +12011,33 @@ void DoWar(int arg1, int arg2)
 		}
 		else
 		{
-			SendGuildNotice(arg1, g_pLanguageString[_SS_War_declare_canceled], g_pGuild[arg1].Name.c_str(), g_pGuild[arg2].Name.c_str());
+			SendGuildNotice(arg1, g_pLanguageString[_SS_War_declare_canceled], g_pGuild[arg1].MobName.c_str(), g_pGuild[arg2].MobName.c_str());
 
 			g_pGuildWar[arg1] = 0;
 		}
 
-		SendGuildNotice(arg1, g_pLanguageString[_SS_War_Canceled], g_pGuild[arg1].Name.c_str(), g_pGuild[arg2].Name.c_str());
-		SendGuildNotice(LOCAL_8, g_pLanguageString[_SS_War_Canceled], g_pGuild[arg1].Name.c_str(), g_pGuild[arg2].Name.c_str());
+		SendGuildNotice(arg1, g_pLanguageString[_SS_War_Canceled], g_pGuild[arg1].MobName.c_str(), g_pGuild[arg2].MobName.c_str());
+		SendGuildNotice(LOCAL_8, g_pLanguageString[_SS_War_Canceled], g_pGuild[arg1].MobName.c_str(), g_pGuild[arg2].MobName.c_str());
 	}
 	else if(LOCAL_8 == 0 && arg2 != 0 && LOCAL_9 != arg1)
 	{
-		SendGuildNotice(arg1, g_pLanguageString[_SS_War_Declared], g_pGuild[arg1].Name.c_str(), g_pGuild[arg2].Name.c_str());
-		SendGuildNotice(arg2, g_pLanguageString[_SS_War_Declared], g_pGuild[arg1].Name.c_str(), g_pGuild[arg2].Name.c_str());
+		SendGuildNotice(arg1, g_pLanguageString[_SS_War_Declared], g_pGuild[arg1].MobName.c_str(), g_pGuild[arg2].MobName.c_str());
+		SendGuildNotice(arg2, g_pLanguageString[_SS_War_Declared], g_pGuild[arg1].MobName.c_str(), g_pGuild[arg2].MobName.c_str());
 
 		g_pGuildWar[arg1] = arg2;
 	}
 	else if(LOCAL_8 == 0 && arg2 != 0 && LOCAL_9 == arg1)
 	{
-		SendNotice(g_pLanguageString[_SS_War_Started], g_pGuild[arg1].Name.c_str(), g_pGuild[arg2].Name.c_str());
+		SendNotice(g_pLanguageString[_SS_War_Started], g_pGuild[arg1].MobName.c_str(), g_pGuild[arg2].MobName.c_str());
 
 		g_pGuildWar[arg1] = arg2;
 
 		for(INT32 LOCAL_11 = 1; LOCAL_11 < MAX_PLAYER; LOCAL_11++)
 		{
-			if(pUser[LOCAL_11].Status != USER_PLAY)
+			if(pUser[LOCAL_11].CurrentScore != USER_PLAY)
 				continue;
 			
-			if(pMob[LOCAL_11].Mobs.Player.GuildIndex != arg1 && pMob[LOCAL_11].Mobs.Player.GuildIndex == arg2)
+			if(pMob[LOCAL_11].Mobs.Player.Guild != arg1 && pMob[LOCAL_11].Mobs.Player.Guild == arg2)
 				continue;
 
 			SendWarInfo(LOCAL_11, sServer.CapeWin);
@@ -12095,7 +12095,7 @@ void SaveUser(INT32 clientId, INT32 arg2)
 
 	packet.Blocked = pUser[clientId].User.Block.Blocked;
 
-	memcpy(packet.SkillBar, pMob[clientId].Mobs.Player.SkillBar1, 4);
+	memcpy(packet.SkillBar, pMob[clientId].Mobs.Player.ShortSkill, 4);
 	memcpy(&packet.SkillBar[4], pMob[clientId].Mobs.SkillBar, 16);
 
 	packet.Cash = pUser[clientId].User.Cash;
@@ -12128,12 +12128,12 @@ void RemoveDefaultADD(STRUCT_ITEM *item, int index)
 {
 	__try
 	{
-		if(ItemList[item->Index].Pos >= 64)
+		if(g_pItemList[item->sIndex].Pos >= 64)
 			return;
 
 		for(int i = 0; i < 3; i++)
 		{
-			switch(item->Effect[i].Index)
+			switch(item->stEffect[i].cEffect)
 			{
 				case 43:
 				case 0:
@@ -12150,10 +12150,10 @@ void RemoveDefaultADD(STRUCT_ITEM *item, int index)
 					continue;
 			}
 
-			int value = GetEffectValueByIndex(item->Index, item->Effect[i].Index); // 45
-			int originalValue = GetEffectValueByIndex(index, item->Effect[i].Index); // 35
+			int value = GetEffectValueByIndex(item->sIndex, item->stEffect[i].cEffect); // 45
+			int originalValue = GetEffectValueByIndex(index, item->stEffect[i].cEffect); // 35
 
-			item->Effect[i].Value = (item->Effect[i].Value + originalValue) - value;
+			item->stEffect[i].cValue = (item->stEffect[i].cValue + originalValue) - value;
 		}
 	}
 	__except(1)
@@ -12246,7 +12246,7 @@ INT32 ReadNPCQuest()
 					continue;
 				else if(!_strnicmp(cmd3, "EXP", 9) && sscanf_s(cmd4, "%d", &npc->Condition[condition].Exp))
 					continue;
-				else if(!_strnicmp(cmd3, "GOLD", 9) && sscanf_s(cmd4, "%d", &npc->Condition[condition].Gold))
+				else if(!_strnicmp(cmd3, "GOLD", 9) && sscanf_s(cmd4, "%d", &npc->Condition[condition].Coin))
 					continue;
 				else if(!_strnicmp(cmd3, "CLASS", 9) && sscanf_s(cmd4, "%d", &npc->Condition[condition].Class))
 					continue;
@@ -12290,7 +12290,7 @@ INT32 ReadNPCQuest()
 					continue;
 				else if(!_strnicmp(cmd3, "LEVEL", 6) && sscanf_s(cmd4, "%d", &npc->Reward[reward].Level))
 					continue;
-				else if(!_strnicmp(cmd3, "GOLD", 6) && sscanf_s(cmd4, "%d", &npc->Reward[reward].Gold))
+				else if(!_strnicmp(cmd3, "GOLD", 6) && sscanf_s(cmd4, "%d", &npc->Reward[reward].Coin))
 					continue;
 				else if(!_strnicmp(cmd3, "EQUIP", 6))
 				{
@@ -12298,7 +12298,7 @@ INT32 ReadNPCQuest()
 					STRUCT_ITEM item;
 					
 					memset(&item, 0, sizeof STRUCT_ITEM);
-					if(!sscanf_s(tmp, "%*s %*s %*s %d %hd %hhu %hhu %hhu %hhu %hhd %hhu", &pos, &item.Index, &item.EF1, &item.EFV1, &item.EF2, &item.EFV2, &item.EF3, &item.EFV3))
+					if(!sscanf_s(tmp, "%*s %*s %*s %d %hd %hhu %hhu %hhu %hhu %hhd %hhu", &pos, &item.sIndex, &item.EF1, &item.EFV1, &item.EF2, &item.EFV2, &item.EF3, &item.EFV3))
 						continue;
 					
 					npc->Reward[reward].Equip.Slot = pos;
@@ -12333,7 +12333,7 @@ INT32 ReadNPCQuest()
 					if(!sscanf_s(cmd4, "%d", &gold))
 						continue;
 
-					npc->Remove.Gold = gold;
+					npc->Remove.Coin = gold;
 				}
 				else if(!_strnicmp(cmd3, "REMOVEEXP", 10))
 				{
@@ -12379,9 +12379,9 @@ INT32 ReadNPCQuest()
 					memset(&item, 0, sizeof STRUCT_ITEM);
 
 					INT32 amount = -1;
-					sscanf_s(tmp, "%*s %*s %*s %d %hd %hhu %hhu %hhu %hhu %hhu %hhu", &amount, &item.Index, &item.EF1, &item.EFV1, &item.EF2, &item.EFV2, &item.EF3, &item.EFV3);
+					sscanf_s(tmp, "%*s %*s %*s %d %hd %hhu %hhu %hhu %hhu %hhu %hhu", &amount, &item.sIndex, &item.EF1, &item.EFV1, &item.EF2, &item.EFV2, &item.EF3, &item.EFV3);
 
-					if(amount <= 0 || amount >= 100 || item.Index <= 0 || item.Index >= 6500)
+					if(amount <= 0 || amount >= 100 || item.sIndex <= 0 || item.sIndex >= 6500)
 						continue;
 
 					memcpy(&npc->Reward[reward].Item[slot].Item, &item, sizeof STRUCT_ITEM);
@@ -12513,11 +12513,11 @@ INT32 ReadScheduled ( )
 
 void ClearCrown(int conn)
 {
-	if (pUser[conn].Status != USER_PLAY)
+	if (pUser[conn].CurrentScore != USER_PLAY)
 		return;
 
-	int guildMemberType = pMob[conn].Mobs.Player.GuildMemberType;
-	int guildId = pMob[conn].Mobs.Player.GuildIndex;
+	int guildMemberType = pMob[conn].Mobs.Player.GuildLevel;
+	int guildId = pMob[conn].Mobs.Player.Guild;
 
 	if(guildId == 0)
 		return;
@@ -12541,10 +12541,10 @@ void ClearCrown(int conn)
 
 		for (i = 0; i < MAX_EQUIP; i++)
 		{
-			if (pMob[conn].Mobs.Player.Equip[i].Index == 747)
+			if (pMob[conn].Mobs.Player.Equip[i].sIndex == 747)
 				haveCrown = 1;
 
-			if (pMob[conn].Mobs.Player.Equip[i].Index != 3993 && pMob[conn].Mobs.Player.Equip[i].Index != 3994) // 747 = Crown on itemlist
+			if (pMob[conn].Mobs.Player.Equip[i].sIndex != 3993 && pMob[conn].Mobs.Player.Equip[i].sIndex != 3994) // 747 = Crown on itemlist
 				continue;
 
 			haveDrag = 1;
@@ -12552,10 +12552,10 @@ void ClearCrown(int conn)
 
 		for (i = 0; i < 64; i++)
 		{
-			if (pMob[conn].Mobs.Player.Inventory[i].Index == 747)
+			if (pMob[conn].Mobs.Player.Inventory[i].sIndex == 747)
 				haveCrown = 1;
 
-			if (pMob[conn].Mobs.Player.Inventory[i].Index != 3993 && pMob[conn].Mobs.Player.Inventory[i].Index != 3994) // 747 = Crown on itemlist
+			if (pMob[conn].Mobs.Player.Inventory[i].sIndex != 3993 && pMob[conn].Mobs.Player.Inventory[i].sIndex != 3994) // 747 = Crown on itemlist
 				continue;
 
 			haveDrag = 1;
@@ -12563,10 +12563,10 @@ void ClearCrown(int conn)
 
 		for (i = 0; i < MAX_CARGO; i++)
 		{
-			if (pUser[conn].User.Storage.Item[i].Index == 747)
+			if (pUser[conn].User.Storage.Item[i].sIndex == 747)
 				haveCrown = 1;
 
-			if (pUser[conn].User.Storage.Item[i].Index != 3993 && pUser[conn].User.Storage.Item[i].Index != 3994) // 747 = Crown on itemlist
+			if (pUser[conn].User.Storage.Item[i].sIndex != 3993 && pUser[conn].User.Storage.Item[i].sIndex != 3994) // 747 = Crown on itemlist
 				continue;
 
 			haveDrag = 1;
@@ -12577,25 +12577,25 @@ void ClearCrown(int conn)
 			STRUCT_ITEM Item;
 			memset(&Item, 0, sizeof(STRUCT_ITEM));
 
-			Item.Index = 747;
-			Item.Effect[0].Index = 43;
-			Item.Effect[0].Value = 9;
+			Item.sIndex = 747;
+			Item.stEffect[0].cEffect = 43;
+			Item.stEffect[0].cValue = 9;
 
 			UINT32 guildFame = g_pGuild[guildId].Fame;
 			if (guildFame >= 1000)
 			{
 				if (guildFame < 1500)
-					Item.Effect[0].Value = 233;
+					Item.stEffect[0].cValue = 233;
 				else if (guildFame < 3000)
-					Item.Effect[0].Value = 237;
+					Item.stEffect[0].cValue = 237;
 				else if (guildFame < 5000) 
-					Item.Effect[0].Value = 241;
+					Item.stEffect[0].cValue = 241;
 				else if (guildFame < 8000)
-					Item.Effect[0].Value = 245;
+					Item.stEffect[0].cValue = 245;
 				else if (guildFame < 11000)
-					Item.Effect[0].Value = 249;
+					Item.stEffect[0].cValue = 249;
 				else
-					Item.Effect[0].Value = 253;
+					Item.stEffect[0].cValue = 253;
 			}
 
 			PutItem(conn, &Item);
@@ -12607,9 +12607,9 @@ void ClearCrown(int conn)
 			memset(&Item, 0, sizeof(STRUCT_ITEM));
 
 			if (pMob[conn].Mobs.Player.CapeInfo == CAPE_RED)
-				Item.Index = 3993;
+				Item.sIndex = 3993;
 			else if (pMob[conn].Mobs.Player.CapeInfo == CAPE_BLUE)
-				Item.Index = 3994;
+				Item.sIndex = 3994;
 
 
 			PutItem(conn, &Item);
@@ -12620,10 +12620,10 @@ void ClearCrown(int conn)
 
 	for (i = 0; i < MAX_EQUIP; i++)
 	{
-		if (pMob[conn].Mobs.Player.Equip[i].Index != 747 && pMob[conn].Mobs.Player.Equip[i].Index != 3993 && pMob[conn].Mobs.Player.Equip[i].Index != 3994) // 747 = Crown on itemlist
+		if (pMob[conn].Mobs.Player.Equip[i].sIndex != 747 && pMob[conn].Mobs.Player.Equip[i].sIndex != 3993 && pMob[conn].Mobs.Player.Equip[i].sIndex != 3994) // 747 = Crown on itemlist
 			continue;
 
-		//sprintf_s(temp, "etc,crown guild:%d level:%d charge:%d name:%s", Guild, GLevel, ChargedGuildList[ServerIndex][4], pMob[conn].MOB.MobName);
+		//sprintf_s(temp, "etc,crown guild:%d level:%d charge:%d name:%s", Guild, GLevel, ChargedGuildList[ServerIndex][4], pMob[conn].MOB.ItemName);
 		//Log(temp, pUser[conn].AccountName, pUser[conn].IP);
 
 		memset(&pMob[conn].Mobs.Player.Equip[i], 0, sizeof(STRUCT_ITEM));
@@ -12632,7 +12632,7 @@ void ClearCrown(int conn)
 
 	for (i = 0; i < MAX_INVEN; i++)
 	{
-		if (pMob[conn].Mobs.Player.Inventory[i].Index != 747 && pMob[conn].Mobs.Player.Inventory[i].Index != 3993 && pMob[conn].Mobs.Player.Inventory[i].Index != 3994) // 747 = Crown on itemlist
+		if (pMob[conn].Mobs.Player.Inventory[i].sIndex != 747 && pMob[conn].Mobs.Player.Inventory[i].sIndex != 3993 && pMob[conn].Mobs.Player.Inventory[i].sIndex != 3994) // 747 = Crown on itemlist
 			continue;
 
 		memset(&pMob[conn].Mobs.Player.Inventory[i], 0, sizeof(STRUCT_ITEM));
@@ -12641,10 +12641,10 @@ void ClearCrown(int conn)
 
 	for (i = 0; i < MAX_CARGO; i++)
 	{
-		if (pUser[conn].User.Storage.Item[i].Index != 747 && pUser[conn].User.Storage.Item[i].Index != 3993 && pUser[conn].User.Storage.Item[i].Index != 3994) // 747 = Crown on itemlist
+		if (pUser[conn].User.Storage.Item[i].sIndex != 747 && pUser[conn].User.Storage.Item[i].sIndex != 3993 && pUser[conn].User.Storage.Item[i].sIndex != 3994) // 747 = Crown on itemlist
 			continue;
 
-		//sprintf_s(temp, "etc,crown guild:%d level:%d charge:%d name:%s", Guild, GLevel, ChargedGuildList[ServerIndex][4], pMob[conn].MOB.MobName);
+		//sprintf_s(temp, "etc,crown guild:%d level:%d charge:%d name:%s", Guild, GLevel, ChargedGuildList[ServerIndex][4], pMob[conn].MOB.ItemName);
 		//Log(temp, pUser[conn].AccountName, pUser[conn].IP);
 
 		memset(&pUser[conn].User.Storage.Item[i], 0, sizeof(STRUCT_ITEM));
@@ -12689,7 +12689,7 @@ void ClearTowerArea(BYTE Citizenship)
 
 void InitializeTowerWar()
 {
-	sServer.TowerWar.Status = 1;
+	sServer.TowerWar.CurrentScore = 1;
 	
 	GenerateMob(TORRE_ERION, 0, 0);
 	ClearTowerArea(0);
@@ -12699,7 +12699,7 @@ void InitializeTowerWar()
 
 void FinalizeTowerWar()
 {
-	sServer.TowerWar.Status = 0;
+	sServer.TowerWar.CurrentScore = 0;
 	
 	for (int i = MAX_PLAYER; i < MAX_MOB; i++)
 	{
@@ -12719,7 +12719,7 @@ void FinalizeTowerWar()
 		INT32 win = g_pGuild[guildId].Wins + 1;
 
 		SetGuildFame(guildId, fame);
-		Log(SERVER_SIDE, LOG_INGAME, "Guild %s [%d] conquistou a Torre de Erion - Fame: %d - Wins: %d", g_pGuild[guildId].Name.c_str(), guildId, fame, win);
+		Log(SERVER_SIDE, LOG_INGAME, "Guild %s [%d] conquistou a Torre de Erion - Fame: %d - Wins: %d", g_pGuild[guildId].MobName.c_str(), guildId, fame, win);
 
 		SetGuildWin(guildId, win);
 	}
@@ -12774,7 +12774,7 @@ INT32 ReadNPCDonate()
 			g_pStore[store][index].Loop = loop;
 			g_pStore[store][index].Price = price;
 
-			g_pStore[store][index].item.Index = itemId;
+			g_pStore[store][index].item.sIndex = itemId;
 			g_pStore[store][index].item.EF1 = ef1;
 			g_pStore[store][index].item.EF2 = ef2;
 			g_pStore[store][index].item.EF3 = ef3;
@@ -12810,7 +12810,7 @@ INT32 ReadPacItens()
 		INT32 index = -1;
 		INT32 amount = 0;
 		INT32 itemId = 0;
-		INT32 ret = sscanf_s(line, "%d, %d, %d, %hd, %hhu, %hhu, %hhu, %hhu, %hhu, %hhu", &itemId, &index, &amount, &item.Index, &item.EF1, &item.EFV1, 
+		INT32 ret = sscanf_s(line, "%d, %d, %d, %hd, %hhu, %hhu, %hhu, %hhu, %hhu, %hhu", &itemId, &index, &amount, &item.sIndex, &item.EF1, &item.EFV1, 
 			&item.EF2, &item.EFV2, &item.EF3, &item.EFV3);
 
 		if(ret < 3)
@@ -12823,7 +12823,7 @@ INT32 ReadPacItens()
 
 		INT32 t = 0;
 		for(; t < 8; t++)
-			if(g_pPacItem[index].Item[t].Index == 0)
+			if(g_pPacItem[index].Item[t].sIndex == 0)
 				break;
 		
 		if(t == 8)
@@ -12866,10 +12866,10 @@ INT32 ReadBossQuest()
 			else if (e < 11)
 			{
 				int count = e - 1;
-				sscanf_s(line, "%hud,%hhu,%hhu,%hhu,%hhu,%hhu,%hhu,%hhd", &sServer.QuestsBosses[i].Boss.Gifts[count].Index,
-					&sServer.QuestsBosses[i].Boss.Gifts[count].Effect[0].Index, &sServer.QuestsBosses[i].Boss.Gifts[count].Effect[0].Value,
-					&sServer.QuestsBosses[i].Boss.Gifts[count].Effect[1].Index, &sServer.QuestsBosses[i].Boss.Gifts[count].Effect[1].Value,
-					&sServer.QuestsBosses[i].Boss.Gifts[count].Effect[2].Index, &sServer.QuestsBosses[i].Boss.Gifts[count].Effect[2].Value,
+				sscanf_s(line, "%hud,%hhu,%hhu,%hhu,%hhu,%hhu,%hhu,%hhd", &sServer.QuestsBosses[i].Boss.Gifts[count].sIndex,
+					&sServer.QuestsBosses[i].Boss.Gifts[count].stEffect[0].cEffect, &sServer.QuestsBosses[i].Boss.Gifts[count].stEffect[0].cValue,
+					&sServer.QuestsBosses[i].Boss.Gifts[count].stEffect[1].cEffect, &sServer.QuestsBosses[i].Boss.Gifts[count].stEffect[1].cValue,
+					&sServer.QuestsBosses[i].Boss.Gifts[count].stEffect[2].cEffect, &sServer.QuestsBosses[i].Boss.Gifts[count].stEffect[2].cValue,
 					&sServer.QuestsBosses[i].Boss.Chances[count]);
 			}
 			else 
@@ -12999,7 +12999,7 @@ bool LoadNPCEvento()
 				}
 
 				STRUCT_ITEM *item = &ev->itemRequired[itemR];
-				sscanf_s(val, "%hd %hhu %hhu %hhu %hhu %hhu %hhu", &item->Index, &item->EF1, &item->EFV1, &item->EF2, &item->EFV2, &item->EF3, &item->EFV3);
+				sscanf_s(val, "%hd %hhu %hhu %hhu %hhu %hhu %hhu", &item->sIndex, &item->EF1, &item->EFV1, &item->EF2, &item->EFV2, &item->EF3, &item->EFV3);
 			}
 			else if(!_strnicmp("goldEarned", cmd, 10))
 			{
@@ -13041,7 +13041,7 @@ bool LoadNPCEvento()
 				}
 
 				STRUCT_ITEM *item = &ev->itemEarned[itemR][itemR2];
-				sscanf_s(val, "%hd %hhu %hhu %hhu %hhu %hhu %hhu", &item->Index, &item->EF1, &item->EFV1, &item->EF2, &item->EFV2, &item->EF3, &item->EFV3);
+				sscanf_s(val, "%hd %hhu %hhu %hhu %hhu %hhu %hhu", &item->sIndex, &item->EF1, &item->EFV1, &item->EF2, &item->EFV2, &item->EF3, &item->EFV3);
 			}
 			else if(!_strnicmp("itemRate_", cmd, 9))
 			{
@@ -13222,7 +13222,7 @@ void DoColosseum()
 
 					for(int i = 1; i < MAX_PLAYER ; i ++)
 					{
-						if(pUser[i].Status != 22)
+						if(pUser[i].CurrentScore != 22)
 							continue;
 						
 						if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13249,7 +13249,7 @@ void DoColosseum()
 
 					for(int i = 0 ; i < MAX_PLAYER ; i ++)
 					{
-						if(pUser[i].Status != USER_PLAY)
+						if(pUser[i].CurrentScore != USER_PLAY)
 							continue;
 						
 						if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13267,7 +13267,7 @@ void DoColosseum()
 			{
 				for(int i = 0 ; i < MAX_PLAYER ; i ++)
 				{
-					if(pUser[i].Status != USER_PLAY)
+					if(pUser[i].CurrentScore != USER_PLAY)
 						continue;
 						
 					if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13307,7 +13307,7 @@ void DoColosseum()
 
 					for(int i = 1 ; i < MAX_PLAYER; i ++)
 					{
-						if(pUser[i].Status != 22)
+						if(pUser[i].CurrentScore != 22)
 							continue;
 						
 						if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13325,7 +13325,7 @@ void DoColosseum()
 
 void DropEventOnHit(INT32 clientId, INT32 targetIdx) 
 {
-	if(!sServer.BossEvent.Status)
+	if(!sServer.BossEvent.CurrentScore)
 		return;
 	
 	INT32 rate  = sServer.BossEvent.Rate,
@@ -13355,8 +13355,8 @@ void DropEventOnHit(INT32 clientId, INT32 targetIdx)
 
 	if(PutItem(clientId, &sServer.BossEvent.item))
 	{
-		Log(clientId, LOG_INGAME, "Recebeu o [%s] [%d] [%d %d %d %d %d %d] do evento. %d/%d", ItemList[sServer.BossEvent.item.Index].Name,
-			sServer.BossEvent.item.Index, sServer.BossEvent.item.EF1, sServer.BossEvent.item.EFV1, sServer.BossEvent.item.EF2, sServer.BossEvent.item.EFV2,
+		Log(clientId, LOG_INGAME, "Recebeu o [%s] [%d] [%d %d %d %d %d %d] do evento. %d/%d", g_pItemList[sServer.BossEvent.item.sIndex].ItemName,
+			sServer.BossEvent.item.sIndex, sServer.BossEvent.item.EF1, sServer.BossEvent.item.EFV1, sServer.BossEvent.item.EF2, sServer.BossEvent.item.EFV2,
 			sServer.BossEvent.item.EF3, sServer.BossEvent.item.EFV3, _rand, rate);
 	}
 	else
@@ -13386,7 +13386,7 @@ void PremiumTime()
 	INT32 count = 0;
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].Status != USER_PLAY)
+		if(pUser[i].CurrentScore != USER_PLAY)
 			continue;
 
 		players[count] = i;
@@ -13411,18 +13411,18 @@ void PremiumTime()
 			_rand = Rand() % count;
 
 		INT32 clientId = players[_rand];
-		if(pUser[clientId].Status != USER_PLAY)
+		if(pUser[clientId].CurrentScore != USER_PLAY)
 			continue;
 
 		STRUCT_MOB *player = &pMob[clientId].Mobs.Player;
-		if(sServer.PremiumTime.Gold != 0)
+		if(sServer.PremiumTime.Coin != 0)
 		{
-			if(sServer.PremiumTime.Gold + player->Gold > 2000000000)
+			if(sServer.PremiumTime.Coin + player->Coin > 2000000000)
 				continue;
 		}
 				
 		INT32 slotId = -1;
-		if(sServer.PremiumTime.Item.Index != 0)
+		if(sServer.PremiumTime.Item.sIndex != 0)
 		{
 			slotId = GetFirstSlot(clientId, 0);
 			if(slotId == -1)
@@ -13431,8 +13431,8 @@ void PremiumTime()
 
 		char szTMP[256];
 
-		player->Gold += sServer.PremiumTime.Gold;
-		SendSignalParm(clientId, clientId, 0x3AF, player->Gold);
+		player->Coin += sServer.PremiumTime.Coin;
+		SendSignalParm(clientId, clientId, 0x3AF, player->Coin);
 
 		if(slotId != -1)
 		{
@@ -13442,12 +13442,12 @@ void PremiumTime()
 			SendItem(clientId, SlotType::Inv, slotId, &sServer.PremiumTime.Item);
 		}
 
-		if(sServer.PremiumTime.Gold != 0 && sServer.PremiumTime.Item.Index != 0)
-			sprintf_s(szTMP, "O usuario %s ganhou %d de Gold e o item %s", player->Name, sServer.PremiumTime.Gold, ItemList[sServer.PremiumTime.Item.Index].Name);
-		else if(sServer.PremiumTime.Gold != 0)
-			sprintf_s(szTMP, "O usuario %s ganhou %d de Gold", player->Name, sServer.PremiumTime.Gold);
-		else if(sServer.PremiumTime.Item.Index != 0)
-			sprintf_s(szTMP, "O usuario %s ganhou o item %s", player->Name, ItemList[sServer.PremiumTime.Item.Index].Name);
+		if(sServer.PremiumTime.Coin != 0 && sServer.PremiumTime.Item.sIndex != 0)
+			sprintf_s(szTMP, "O usuario %s ganhou %d de Gold e o item %s", player->MobName, sServer.PremiumTime.Coin, g_pItemList[sServer.PremiumTime.Item.sIndex].ItemName);
+		else if(sServer.PremiumTime.Coin != 0)
+			sprintf_s(szTMP, "O usuario %s ganhou %d de Gold", player->MobName, sServer.PremiumTime.Coin);
+		else if(sServer.PremiumTime.Item.sIndex != 0)
+			sprintf_s(szTMP, "O usuario %s ganhou o item %s", player->MobName, g_pItemList[sServer.PremiumTime.Item.sIndex].ItemName);
 
 		SendNotice(szTMP);
 		Log(SERVER_SIDE, LOG_INGAME, szTMP);
@@ -13460,10 +13460,10 @@ INT32 RemoveAmount(INT32 clientId, INT32 itemId, INT32 amount)
 	INT32 retn = 0;
 	for(INT32 LOCAL_832 = 0; LOCAL_832 < 60 ; LOCAL_832++)
 	{
-		if(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].Index == itemId)
+		if(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].sIndex == itemId)
 		{
 			int totalRemoved = 0;
-			while(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].Index == itemId)
+			while(pMob[clientId].Mobs.Player.Inventory[LOCAL_832].sIndex == itemId)
 			{
 				AmountMinus(&pMob[clientId].Mobs.Player.Inventory[LOCAL_832]);
 				totalRemoved++;
@@ -13475,7 +13475,7 @@ INT32 RemoveAmount(INT32 clientId, INT32 itemId, INT32 amount)
 			}
 
 			SendItem(clientId, SlotType::Inv, LOCAL_832, &pMob[clientId].Mobs.Player.Inventory[LOCAL_832]);
-			Log(clientId, LOG_INGAME, "Removido %d unidade(s) de %s %s no slot %d", totalRemoved, ItemList[itemId].Name, pMob[clientId].Mobs.Player.Inventory[LOCAL_832].toString().c_str(), LOCAL_832);
+			Log(clientId, LOG_INGAME, "Removido %d unidade(s) de %s %s no slot %d", totalRemoved, g_pItemList[itemId].ItemName, pMob[clientId].Mobs.Player.Inventory[LOCAL_832].toString().c_str(), LOCAL_832);
 		}
 
 		if(amount <= 0)
@@ -13508,13 +13508,13 @@ BOOL ReadMerchantStore()
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
 			INT32 price = 0;
-			INT32 ret = sscanf_s(tmp, R"(%d,%hd,%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)", &price, &item.Index, &item.EF1, &item.EFV1,
+			INT32 ret = sscanf_s(tmp, R"(%d,%hd,%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)", &price, &item.sIndex, &item.EF1, &item.EFV1,
 				&item.EF2, &item.EFV2, &item.EF3, &item.EFV3);
 
 			if (price <= 0 || price >= 10000)
 				continue;
 
-			if (item.Index <= 0 || item.Index >= MAX_ITEMLIST)
+			if (item.sIndex <= 0 || item.sIndex >= MAX_ITEMLIST)
 				continue;
 
 			memcpy(&sServer.PremierStore.item[count], &item, sizeof STRUCT_ITEM);
@@ -13552,13 +13552,13 @@ BOOL ReadArenaStore()
 			memset(&item, 0, sizeof STRUCT_ITEM);
 
 			INT32 price = 0;
-			INT32 ret = sscanf_s(tmp, R"(%d,%hd,%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)", &price, &item.Index, &item.EF1, &item.EFV1,
+			INT32 ret = sscanf_s(tmp, R"(%d,%hd,%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)", &price, &item.sIndex, &item.EF1, &item.EFV1,
 				&item.EF2, &item.EFV2, &item.EF3, &item.EFV3);
 
 			if (price <= 0 || price >= 10000)
 				continue;
 
-			if (item.Index <= 0 || item.Index >= MAX_ITEMLIST)
+			if (item.sIndex <= 0 || item.sIndex >= MAX_ITEMLIST)
 				continue;
 
 			memcpy(&sServer.ArenaStore.item[count], &item, sizeof STRUCT_ITEM);
@@ -13575,13 +13575,13 @@ BOOL ReadArenaStore()
 
 void LevelItem(INT32 clientId) 
 {
-	INT32 level = pMob[clientId].Mobs.Player.Status.Level; 
+	INT32 level = pMob[clientId].Mobs.Player.CurrentScore.Level; 
 	INT32 evolution = pMob[clientId].Mobs.Player.Equip[0].EFV2;
 
 	for(auto const item : sServer.levelItem)
 	{
 		auto itemL = &item;
-		if(itemL->item.Index <= 0 || itemL->item.Index >= MAX_ITEMLIST || itemL->Level != level || evolution != itemL->Evolution)
+		if(itemL->item.sIndex <= 0 || itemL->item.sIndex >= MAX_ITEMLIST || itemL->Level != level || evolution != itemL->Evolution)
 			continue;
 
 		INT32 type   = itemL->Type,
@@ -13596,24 +13596,24 @@ void LevelItem(INT32 clientId)
 		else
 		{
 			// Se for != -1, quer dizer que ele checa a classe
-			if (type != -1 && classe != pMob[clientId].Mobs.Player.ClassInfo)
+			if (type != -1 && classe != pMob[clientId].Mobs.Player.Class)
 				continue;
 		}
 		if(type >= 1  && type <= 3)
 		{
 			if(type == 1)
 			{
-				if((pMob[clientId].Mobs.Player.Status.STR + pMob[clientId].Mobs.Player.Status.DEX) <= pMob[clientId].Mobs.Player.Status.INT)
+				if((pMob[clientId].Mobs.Player.CurrentScore.Str + pMob[clientId].Mobs.Player.CurrentScore.Dex) <= pMob[clientId].Mobs.Player.CurrentScore.Int)
 					continue;
 			}
 			else if(type == 2)
 			{
-				if(pMob[clientId].Mobs.Player.Status.INT <= pMob[clientId].Mobs.Player.Status.STR + pMob[clientId].Mobs.Player.Status.DEX)
+				if(pMob[clientId].Mobs.Player.CurrentScore.Int <= pMob[clientId].Mobs.Player.CurrentScore.Str + pMob[clientId].Mobs.Player.CurrentScore.Dex)
 					continue;
 			}
 			else if(type == 3)
 			{
-				if(pMob[clientId].Mobs.Player.Status.DEX <= pMob[clientId].Mobs.Player.Status.STR)
+				if(pMob[clientId].Mobs.Player.CurrentScore.Dex <= pMob[clientId].Mobs.Player.CurrentScore.Str)
 					continue;
 			}
 		}
@@ -13626,7 +13626,7 @@ void LevelItem(INT32 clientId)
 
 			for (int i = 0; i < 120; ++i) 
 			{
-				if (pUser[clientId].User.Storage.Item[i].Index <= 0)
+				if (pUser[clientId].User.Storage.Item[i].sIndex <= 0)
 				{
 					slotId = i;
 
@@ -13644,12 +13644,12 @@ void LevelItem(INT32 clientId)
 		}
 
 		Log(clientId, LOG_INGAME, "Recebeu o item %s %s. STR: %d. INT: %hu. DEX: %hu. CON: %hu",
-			ItemList[itemL->item.Index].Name,
+			g_pItemList[itemL->item.sIndex].ItemName,
 			itemL->item.toString().c_str(),
-			pMob[clientId].Mobs.Player.Status.STR,
-			pMob[clientId].Mobs.Player.Status.INT,
-			pMob[clientId].Mobs.Player.Status.DEX,
-			pMob[clientId].Mobs.Player.Status.CON
+			pMob[clientId].Mobs.Player.CurrentScore.Str,
+			pMob[clientId].Mobs.Player.CurrentScore.Int,
+			pMob[clientId].Mobs.Player.CurrentScore.Dex,
+			pMob[clientId].Mobs.Player.CurrentScore.Con
 		);
 
 		if (!isBank)
@@ -13657,17 +13657,17 @@ void LevelItem(INT32 clientId)
 			pMob[clientId].Mobs.Player.Inventory[slotId] = itemL->item;
 			SendItem(clientId, SlotType::Inv, slotId, &pMob[clientId].Mobs.Player.Inventory[slotId]);
 
-			LogPlayer(clientId, "Recebeu o item %s por chegar ao navel %d", ItemList[itemL->item.Index].Name, level + 1);
+			LogPlayer(clientId, "Recebeu o item %s por chegar ao navel %d", g_pItemList[itemL->item.sIndex].ItemName, level + 1);
 		}
 		else
 		{
 			pUser[clientId].User.Storage.Item[slotId] = itemL->item;
 			SendItem(clientId, SlotType::Storage, slotId, const_cast<STRUCT_ITEM*>(&itemL->item));
 
-			LogPlayer(clientId, "Recebeu o item %s por chegar ao navel %d (recompensa chegou ao baa)", ItemList[itemL->item.Index].Name, level + 1);
+			LogPlayer(clientId, "Recebeu o item %s por chegar ao navel %d (recompensa chegou ao baa)", g_pItemList[itemL->item.sIndex].ItemName, level + 1);
 		}
 
-		SendClientMessage(clientId, "Chegou um item: [ %s ]", ItemList[itemL->item.Index].Name);
+		SendClientMessage(clientId, "Chegou um item: [ %s ]", g_pItemList[itemL->item.sIndex].ItemName);
 	}
 }
 
@@ -13696,7 +13696,7 @@ BOOL ReadLevelItem()
 			STRUCT_ITEM item{};
 
 			INT32 ret = sscanf_s(tmp, "%d %d %d %d %d %d %d %d %d %d %d", &evolution, &level, &classe, &type,
-				&itemId, &ef1, &efv1, &ef2, &efv2, &ef3, &efv3);//&item.Index, &item.EF1, &item.EFV1, &item.EF2, &item.EFV2, &item.EF3, &item.EFV3);
+				&itemId, &ef1, &efv1, &ef2, &efv2, &ef3, &efv3);//&item.sIndex, &item.EF1, &item.EFV1, &item.EF2, &item.EFV2, &item.EF3, &item.EFV3);
 
 			if(ret < 5)
 				continue;
@@ -13709,7 +13709,7 @@ BOOL ReadLevelItem()
 			levelItem.Type   = type;
 			levelItem.Evolution   = evolution;
 			
-			item.Index					 = itemId;
+			item.sIndex					 = itemId;
 			item.EF1					 = ef1;
 			item.EFV1					 = efv1;
 			item.EF2					 = ef2;
@@ -13756,7 +13756,7 @@ bool ReadBoss()
 		{
 			auto& boss = sServer.Boss[count];
 
-			boss.Index = count++;
+			boss.sIndex = count++;
 			boss.Fame = std::stoi(bossNode.child_value("fame"));
 			boss.TimeToReborn = std::stoi(bossNode.child_value("timeToReborn"));
 			boss.MaxTimeIngame = std::stoi(bossNode.child_value("maxTimeIngame"));
@@ -13776,15 +13776,15 @@ void LogGold(INT32 clientId)
 {
 	if(clientId > 0 && clientId < MAX_PLAYER)
 	{
-		if(pUser[clientId].Gold == 0)
+		if(pUser[clientId].Coin == 0)
 			return;;
 
 		INT32 total = pUser[clientId].GoldCount;
 
-		Log(clientId, LOG_INGAME, "Recebeu %d de gold em %d mobs no total. Total de gold: %d", pUser[clientId].Gold, total, pMob[clientId].Mobs.Player.Gold);
-		LogPlayer(clientId, "Recebeu %d de gold matando %d mobs.", pUser[clientId].Gold, total);
+		Log(clientId, LOG_INGAME, "Recebeu %d de gold em %d mobs no total. Total de gold: %d", pUser[clientId].Coin, total, pMob[clientId].Mobs.Player.Coin);
+		LogPlayer(clientId, "Recebeu %d de gold matando %d mobs.", pUser[clientId].Coin, total);
 
-		pUser[clientId].Gold = 0;
+		pUser[clientId].Coin = 0;
 		pUser[clientId].GoldCount = 0;
 	}
 }
@@ -13840,11 +13840,11 @@ void GroupTransfer(INT32 clientId, INT32 mobId)
 			if (memberId <= 0 || memberId >= MAX_PLAYER)
 				continue;
 
-			SendClientMessage(memberId, "O lader do grupo da pista foi passado para %s", newLider->Mobs.Player.Name);
-			Log(memberId, LOG_INGAME, "Lader passado para o usuario %s (%s)", newLider->Mobs.Player.Name, pUser[mobId].User.Username);
+			SendClientMessage(memberId, "O lader do grupo da pista foi passado para %s", newLider->Mobs.Player.MobName);
+			Log(memberId, LOG_INGAME, "Lader passado para o usuario %s (%s)", newLider->Mobs.Player.MobName, pUser[mobId].User.Username);
 		}
 
-        Log(clientId, LOG_INGAME, "O lader da pista foi passado para o usuario %s (%s)", newLider->Mobs.Player.Name, pUser[mobId].User.Username);
+        Log(clientId, LOG_INGAME, "O lader da pista foi passado para o usuario %s (%s)", newLider->Mobs.Player.MobName, pUser[mobId].User.Username);
 	}
 
 	// Salva a info do grupo no novo lader
@@ -13894,7 +13894,7 @@ void GroupTransfer(INT32 clientId, INT32 mobId)
 eSellItemResult SellItem(int clientId, STRUCT_ITEM* item)
 {
 	bool canSell = true;
-	switch (item->Index)
+	switch (item->sIndex)
 	{
 	case 509:
 	case 3993:
@@ -13905,7 +13905,7 @@ eSellItemResult SellItem(int clientId, STRUCT_ITEM* item)
 	}
 
 	bool sellAmount = false;
-	switch (item->Index)
+	switch (item->sIndex)
 	{
 	case 419:
 	case 420:
@@ -13926,7 +13926,7 @@ eSellItemResult SellItem(int clientId, STRUCT_ITEM* item)
 	INT32 perc_impost = g_pCityZone[cityZone].perc_impost;
 	INT32 impost = 0;
 
-	STRUCT_ITEMLIST* rItem = &ItemList[item->Index];
+	STRUCT_ITEMLIST* rItem = &g_pItemList[item->sIndex];
 	INT32 itemPrice = (rItem->Price / 4);
 
 	if (itemPrice >= 5001 && itemPrice <= 10000)
@@ -13947,27 +13947,27 @@ eSellItemResult SellItem(int clientId, STRUCT_ITEM* item)
 	}
 
 	STRUCT_MOB* mob = &pMob[clientId].Mobs.Player;
-	INT64 totalGold = static_cast<INT64>(mob->Gold) + static_cast<INT64>(itemPrice);
+	INT64 totalGold = static_cast<INT64>(mob->Coin) + static_cast<INT64>(itemPrice);
 	if (totalGold > 2000000000 || totalGold < 0)
 		return eSellItemResult::GoldLimit;
 
 	// Arrecada o imposto da cidade
 	g_pCityZone[cityZone].impost += impost;
 
-	mob->Gold += itemPrice;
+	mob->Coin += itemPrice;
 
-	Log(clientId, LOG_INGAME, "Vendeu o item %s [%d] [%d %d %d %d %d %d] por %d. Gold atual: %d. Valor do imposto: %d", rItem->Name, item->Index, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, itemPrice, pMob[clientId].Mobs.Player.Gold, impost);
-	LogPlayer(clientId, "Vendeu o item %s na loja %s por %d", rItem->Name, mob->Name, itemPrice, impost);
+	Log(clientId, LOG_INGAME, "Vendeu o item %s [%d] [%d %d %d %d %d %d] por %d. Gold atual: %d. Valor do imposto: %d", rItem->ItemName, item->sIndex, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, itemPrice, pMob[clientId].Mobs.Player.Coin, impost);
+	LogPlayer(clientId, "Vendeu o item %s na loja %s por %d", rItem->ItemName, mob->MobName, itemPrice, impost);
 
 	memset(item, 0, sizeof STRUCT_ITEM);
 
 	if (impost >= 2000000)
 	{
 		Log(SERVER_SIDE, LOG_INGAME, "Imposto maior que 2milhaes.");
-		Log(SERVER_SIDE, LOG_INGAME, "%s - Vendeu o item %s [%d] [%d %d %d %d %d %d] por %d. Gold atual: %d",pUser[clientId].User.Username, rItem->Name, item->Index, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, itemPrice, pMob[clientId].Mobs.Player.Gold);
+		Log(SERVER_SIDE, LOG_INGAME, "%s - Vendeu o item %s [%d] [%d %d %d %d %d %d] por %d. Gold atual: %d",pUser[clientId].User.Username, rItem->ItemName, item->sIndex, item->EF1, item->EFV1, item->EF2, item->EFV2, item->EF3, item->EFV3, itemPrice, pMob[clientId].Mobs.Player.Coin);
 	}
 
-	SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Gold);
+	SendSignalParm(clientId, clientId, 0x3AF, pMob[clientId].Mobs.Player.Coin);
 	return eSellItemResult::Success;
 }
 
@@ -13976,14 +13976,14 @@ bool AgroupItem(int clientId, STRUCT_ITEM* srcItem, STRUCT_ITEM* dstItem)
 	if (srcItem == NULL || dstItem == NULL || srcItem == dstItem)
 		return false;
 
-	if (srcItem->Index != dstItem->Index)
+	if (srcItem->sIndex != dstItem->sIndex)
 		return false;
 
-	if (srcItem->Index == 4685)
+	if (srcItem->sIndex == 4685)
 	{
-		dstItem->Index = 4641;
+		dstItem->sIndex = 4641;
 
-		Log(clientId, LOG_INGAME, "Juntou 2 %s por %s", ItemList[4685].Name, ItemList[4641].Name);
+		Log(clientId, LOG_INGAME, "Juntou 2 %s por %s", g_pItemList[4685].ItemName, g_pItemList[4641].ItemName);
 		*srcItem = STRUCT_ITEM{};
 		return true;
 	}
@@ -13992,40 +13992,40 @@ bool AgroupItem(int clientId, STRUCT_ITEM* srcItem, STRUCT_ITEM* dstItem)
 	if (max <= 0)
 		return false;
 
-	if (srcItem->Index >= 2390 && srcItem->Index <= 2419)
+	if (srcItem->sIndex >= 2390 && srcItem->sIndex <= 2419)
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			if (srcItem->Effect[i].Index == 210)
+			if (srcItem->stEffect[i].cEffect == 210)
 				return false;
 
-			if (dstItem->Effect[i].Index == 210)
+			if (dstItem->stEffect[i].cEffect == 210)
 				return false;
 		}
 	}
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (srcItem->Effect[i].Index == 200)
+		if (srcItem->stEffect[i].cEffect == 200)
 			return false;
-		if (dstItem->Effect[i].Index == 200)
+		if (dstItem->stEffect[i].cEffect == 200)
 			return false;
 	}
 
 	int amountSrc = 0;
 	for (int i = 0; i < 3; i++)
-		if (srcItem->Effect[i].Index == EF_AMOUNT)
-			amountSrc += srcItem->Effect[i].Value;
+		if (srcItem->stEffect[i].cEffect == EF_AMOUNT)
+			amountSrc += srcItem->stEffect[i].cValue;
 
 	int amountDst = 0;
 	for (int i = 0; i < 3; i++)
-		if (dstItem->Effect[i].Index == EF_AMOUNT)
-			amountDst += dstItem->Effect[i].Value;
+		if (dstItem->stEffect[i].cEffect == EF_AMOUNT)
+			amountDst += dstItem->stEffect[i].cValue;
 
 	if (amountSrc >= max || amountDst >= max)
 		return false;
 
-	Log(clientId, LOG_INGAME, "Agrupando o item %s %s com o item %s %s", ItemList[srcItem->Index].Name, srcItem->toString().c_str(), ItemList[dstItem->Index].Name, dstItem->toString().c_str());
+	Log(clientId, LOG_INGAME, "Agrupando o item %s %s com o item %s %s", g_pItemList[srcItem->sIndex].ItemName, srcItem->toString().c_str(), g_pItemList[dstItem->sIndex].ItemName, dstItem->toString().c_str());
 
 	if (amountSrc == 0)
 		amountSrc = 1;
@@ -14033,7 +14033,7 @@ bool AgroupItem(int clientId, STRUCT_ITEM* srcItem, STRUCT_ITEM* dstItem)
 	if (amountDst == 0)
 		amountDst = 1;
 
-	int itemIndex = dstItem->Index;
+	int itemIndex = dstItem->sIndex;
 	if ((amountSrc + amountDst) <= max)
 	{
 		memset(srcItem, 0, sizeof STRUCT_ITEM);
@@ -14041,26 +14041,26 @@ bool AgroupItem(int clientId, STRUCT_ITEM* srcItem, STRUCT_ITEM* dstItem)
 		STRUCT_ITEM item;
 		memset(&item, 0, sizeof STRUCT_ITEM);
 
-		item.Index = itemIndex;
+		item.sIndex = itemIndex;
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (dstItem->Effect[i].Index == EF_AMOUNT)
+			if (dstItem->stEffect[i].cEffect == EF_AMOUNT)
 				continue;
-			if (dstItem->Effect[i].Index == EF_UNIQUE)
+			if (dstItem->stEffect[i].cEffect == EF_UNIQUE)
 				continue;
 
-			item.Effect[i].Index = dstItem->Effect[i].Index;
-			item.Effect[i].Value = dstItem->Effect[i].Value;
+			item.stEffect[i].cEffect = dstItem->stEffect[i].cEffect;
+			item.stEffect[i].cValue = dstItem->stEffect[i].cValue;
 		}
 		int i = 0;
 		for (; i < 3; i++)
 		{
-			if (item.Effect[i].Index != 0)
+			if (item.stEffect[i].cEffect != 0)
 				continue;
 
-			item.Effect[i].Index = EF_AMOUNT;
-			item.Effect[i].Value = (amountSrc + amountDst);
+			item.stEffect[i].cEffect = EF_AMOUNT;
+			item.stEffect[i].cValue = (amountSrc + amountDst);
 			break;
 		}
 
@@ -14076,9 +14076,9 @@ bool AgroupItem(int clientId, STRUCT_ITEM* srcItem, STRUCT_ITEM* dstItem)
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (dstItem->Effect[i].Index == EF_AMOUNT)
+			if (dstItem->stEffect[i].cEffect == EF_AMOUNT)
 			{
-				dstItem->Effect[i].Value = max;
+				dstItem->stEffect[i].cValue = max;
 				break;
 			}
 		}
@@ -14086,9 +14086,9 @@ bool AgroupItem(int clientId, STRUCT_ITEM* srcItem, STRUCT_ITEM* dstItem)
 		int i = 0;
 		for (i = 0; i < 3; i++)
 		{
-			if (srcItem->Effect[i].Index == EF_AMOUNT)
+			if (srcItem->stEffect[i].cEffect == EF_AMOUNT)
 			{
-				srcItem->Effect[i].Value = amountSrc;
+				srcItem->stEffect[i].cValue = amountSrc;
 				break;
 			}
 		}
@@ -14097,10 +14097,10 @@ bool AgroupItem(int clientId, STRUCT_ITEM* srcItem, STRUCT_ITEM* dstItem)
 		{
 			for (i = 0; i < 3; i++)
 			{
-				if (srcItem->Effect[i].Index == 59)
+				if (srcItem->stEffect[i].cEffect == 59)
 				{
-					srcItem->Effect[i].Index = EF_AMOUNT;
-					srcItem->Effect[i].Value = amountSrc;
+					srcItem->stEffect[i].cEffect = EF_AMOUNT;
+					srcItem->stEffect[i].cValue = amountSrc;
 					break;
 				}
 			}
@@ -14118,22 +14118,22 @@ int AbsorveDamageByPet(CMob* player, int damage)
 	const STRUCT_ITEM& item = player->Mobs.Player.Equip[14];
 	int absPerc = 25;
 
-	if (item.Index == 2376) // fenrir
+	if (item.sIndex == 2376) // fenrir
 		absPerc = 27;
-	else if (item.Index == 2377) // dragao feio
+	else if (item.sIndex == 2377) // dragao feio
 		absPerc = 34;
-	else if (item.Index == 2379) // tf
+	else if (item.sIndex == 2379) // tf
 		absPerc = 35;
-	else if (item.Index == 2380) // dragao verm.
+	else if (item.sIndex == 2380) // dragao verm.
 		absPerc = 35;
-	else if (item.Index == 2381 || item.Index == 2382 || item.Index == 2383) // unisus, uni, pegasus
+	else if (item.sIndex == 2381 || item.sIndex == 2382 || item.sIndex == 2383) // unisus, uni, pegasus
 		absPerc = 29;
-	else if (item.Index == 2384 || item.Index == 2385 || item.Index == 2386)
+	else if (item.sIndex == 2384 || item.sIndex == 2385 || item.sIndex == 2386)
 		absPerc = 31;
-	else if (item.Index == 2387 || item.Index == 2388)
+	else if (item.sIndex == 2387 || item.sIndex == 2388)
 		absPerc = 28;
 
-	int level = item.Effect[1].Index;
+	int level = item.stEffect[1].cEffect;
 	if (level >= 120)
 		absPerc += (level - 120);
 
@@ -14152,11 +14152,11 @@ void EnergizeEmptyRune(int clientId, const p376 *packet)
 	if (srcItem == nullptr || dstItem == nullptr)
 		return;
 
-	if (srcItem->Index < 5110 || srcItem->Index > 5133 || dstItem->Index != 4854)
+	if (srcItem->sIndex < 5110 || srcItem->sIndex > 5133 || dstItem->sIndex != 4854)
 		return;
 
-	int runeIndex = srcItem->Index - 5109;
-	int learn = *(int*)&dstItem->Effect[1].Index;
+	int runeIndex = srcItem->sIndex - 5109;
+	int learn = *(int*)&dstItem->stEffect[1].cEffect;
 	if (learn & (1 << runeIndex))
 	{
 		SendClientMessage(clientId, "Esta Runa ja foi utilizada para energizaaao");
@@ -14167,9 +14167,9 @@ void EnergizeEmptyRune(int clientId, const p376 *packet)
 	int energy = 0;
 	for (INT8 i = 0; i < 3; i++)
 	{
-		if (dstItem->Effect[i].Index == EF_AMOUNT)
+		if (dstItem->stEffect[i].cEffect == EF_AMOUNT)
 		{
-			energy = dstItem->Effect[i].Value;
+			energy = dstItem->stEffect[i].cValue;
 
 			break;
 		}
@@ -14178,9 +14178,9 @@ void EnergizeEmptyRune(int clientId, const p376 *packet)
 	energy += 5;
 	SetItemAmount(dstItem, energy);
 
-	*(int*)&dstItem->Effect[1].Index |= (1 << runeIndex);
+	*(int*)&dstItem->stEffect[1].cEffect |= (1 << runeIndex);
 
-	Log(clientId, LOG_INGAME, "Energizou a %s com a %s. Energia total: %d", ItemList[dstItem->Index].Name, ItemList[srcItem->Index].Name, energy);
+	Log(clientId, LOG_INGAME, "Energizou a %s com a %s. Energia total: %d", g_pItemList[dstItem->sIndex].ItemName, g_pItemList[srcItem->sIndex].ItemName, energy);
 	*srcItem = STRUCT_ITEM{};
 
 	SendItem(clientId, (SlotType)packet->SrcType, packet->SrcSlot, srcItem);

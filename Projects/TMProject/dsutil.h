@@ -38,7 +38,7 @@ struct stSoundData
 };
 
 //----------------------------------------------------------------------------- 
-// Name: class CSoundManager 
+// ItemName: class CSoundManager 
 // Desc:  
 //----------------------------------------------------------------------------- 
 class CSoundManager
@@ -72,7 +72,7 @@ public:
 };
 
 //----------------------------------------------------------------------------- 
-// Name: class CSound 
+// ItemName: class CSound 
 // Desc: Encapsulates functionality of a DirectSound buffer. 
 //----------------------------------------------------------------------------- 
 class CSound
@@ -104,7 +104,7 @@ public:
 };
 
 //----------------------------------------------------------------------------- 
-// Name: class CStreamingSound 
+// ItemName: class CStreamingSound 
 // Desc: Encapsulates functionality to play a wave file with DirectSound.   
 //       The Create() method loads a chunk of wave file into the buffer,  
 //       and as sound plays more is written to the buffer by calling  
@@ -128,7 +128,7 @@ public:
 };
 
 //----------------------------------------------------------------------------- 
-// Name: class CWaveFile 
+// ItemName: class CWaveFile 
 // Desc: Encapsulates reading or writing sound data to or from a wave file 
 //----------------------------------------------------------------------------- 
 class CWaveFile
