@@ -6399,7 +6399,7 @@ int TMFieldScene::OnPacketEvent(unsigned int dwCode, char* buf)
 		return OnPacketRemoveParty(reinterpret_cast<MSG_STANDARDPARM*>(pStd));
 		break;
 	case 0x292:
-		return OnPacketSetHpMode(reinterpret_cast<MSG_SetHpMode*>(pStd));
+		return OnPacketSetHpMode(reinterpret_cast<p292*>(pStd));
 		break;
 	case 0x18D:
 		return OnPacketReqChallange(pStd);
@@ -19920,14 +19920,14 @@ int TMFieldScene::OnPacketRemoveParty(MSG_STANDARDPARM* pStd)
 	return 1;
 }
 
-int TMFieldScene::OnPacketSetHpMode(MSG_SetHpMode* pStd)
+int TMFieldScene::OnPacketSetHpMode(p292* pStd)
 {
-	if (pStd->Mode / 10 == 1)
+	if (pStd->Status / 10 == 1)
 	{
 		g_pObjectManager->SetCurrentState(ObjectManager::TM_GAME_STATE::TM_SELECTCHAR_STATE);
 		return 1;
 	}
-	else if (pStd->Mode != 22)
+	else if (pStd->Status != 22)
 	{
 		if (!m_pMessagePanel->m_bVisible)
 		{
@@ -19938,7 +19938,7 @@ int TMFieldScene::OnPacketSetHpMode(MSG_SetHpMode* pStd)
 		g_pObjectManager->SetCurrentState(ObjectManager::TM_GAME_STATE::TM_SELECTSERVER_STATE);
 		return 1;
 	}
-	else if (pStd->Mode == 22)
+	else if (pStd->Status == 22)
 	{
 		if (m_pMyHuman->m_stScore.Level < 1000)
 			m_pMyHuman->Die();

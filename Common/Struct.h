@@ -428,13 +428,7 @@ typedef struct
     STRUCT_ITEM itemData;
 } p182;
 
-typedef struct 
-{
-    PacketHeader Header;
-    
-	short ItemEff[16];
-	char pAnctCode[16];
-} p36B; 
+
 
 struct p3B2
 {
@@ -442,41 +436,7 @@ struct p3B2
 	int unknown;
 	char Nickname[16];
 };
-
-typedef struct
-{
-	PacketHeader Header; // 0 - 11
-
-	STRUCT_SCORE CurrentScore; // 12 - 59
-
-	BYTE Critical; // 60
-	BYTE SaveMana; // 61
-
-	struct
-	{
-		BYTE Time;
-		BYTE sIndex;
-	} Affect[32]; //62 - 125
-
-	WORD Guild; // 126 - 127
-
-	BYTE RegenHP, // 128 
-		RegenMP; // 129
-
-	BYTE Resist1; // 130 
-	BYTE Resist2; // 131
-	BYTE Resist3; // 132
-	BYTE Resist4; // 133
-
-	WORD Unknow; // 134 - 135
-	WORD CurrHP; // 136 - 137
-	DWORD CurrMP; // 138 - 142
-	BYTE Unknow_2; // 143
-	BYTE MagicIncrement; // 144 - 147
-	DWORD Unknow_148; // 148 - 151
-
-	int Life;
-} p336;
+ 
 
 typedef struct
 {
@@ -538,23 +498,7 @@ typedef struct
    int unk; // 16 - 17
 }p277;
 
-typedef struct 
-{
-	PacketHeader Header;
 
-	DWORD Hold;
-	UINT64 Exp;
-	UINT32 LearnedSkill;
-	UINT32 SecLearn;
-
-	WORD pStatus;
-	WORD pMaster;
-	WORD pSkills;
-	BYTE Magic; // Unknow
-	BYTE Unk;
-
-	DWORD Coin;
-} p337;
 
 typedef struct
 {
@@ -669,15 +613,7 @@ typedef struct
 	INT32 NotUsed;
 } p36A;
 
-typedef struct 
-{
-	PacketHeader Header;
 
-	INT32 Hp;
-	INT32 Mp;
-	INT32 MaxHp;
-	INT32 MaxMp;
-} p181;
 
 typedef struct  {
 	PacketHeader Header; 
@@ -779,12 +715,7 @@ typedef struct
 	short unknow; // 18 - 19
 }p374;
 
-typedef struct{
-	PacketHeader Header;
 
-	INT32 CurHP;
-	INT16 CurrentScore;
-}  p292 ;
 
 typedef struct
 {

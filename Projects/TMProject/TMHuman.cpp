@@ -3455,7 +3455,7 @@ int TMHuman::OnPacketEvent(unsigned int dwCode, char* buf)
         return OnPacketUpdateScore((PacketHeader*)buf);
         break;
     case 0x181:
-        return OnPacketSetHpMp(reinterpret_cast<MSG_SetHpMp*>(buf));
+        return OnPacketSetHpMp(reinterpret_cast<p181*>(buf));
         break;
     case 0x18A:
         return OnPacketSetHpDam((PacketHeader*)buf);
@@ -4336,9 +4336,9 @@ int TMHuman::OnPacketSendItem(PacketHeader* pStd)
 
 int TMHuman::OnPacketUpdateEquip(PacketHeader* pStd)
 {
-    auto pEquip = reinterpret_cast<MSG_UpdateEquip*>(pStd);
+    auto pEquip = reinterpret_cast<p36B*>(pStd);
     STRUCT_ITEM item{};
-    item.sIndex = pEquip->sEquip[0] & 0xFFF;
+    item.sIndex = pEquip->ItemEff[0] & 0xFFF;
 
     TMEffectParticle* pParticle = nullptr;
     if (m_stLookInfo.FaceMesh != g_pItemList[item.sIndex].IndexMesh || BASE_GetItemAbility(&item, EF_CLASS) != m_nClass)
@@ -4374,7 +4374,7 @@ int TMHuman::OnPacketUpdateEquip(PacketHeader* pStd)
     if (g_pCurrentScene->m_pMyHuman == this)
     {
         auto pMobData = &g_pObjectManager->m_stMobData;
-        g_pObjectManager->m_stMobData.Equip[0].sIndex = pEquip->sEquip[0] & 0xFFF;
+        g_pObjectManager->m_stMobData.Equip[0].sIndex = pEquip->ItemEff[0] & 0xFFF;
 
         if (m_cMount == 1)
         {
@@ -4392,19 +4392,19 @@ int TMHuman::OnPacketUpdateEquip(PacketHeader* pStd)
         }
     }
 
-    SetPacketEquipItem(pEquip->sEquip);
+    SetPacketEquipItem(pEquip->ItemEff);
 
-    if (pEquip->sEquip[14] & 0xFFF && ((pEquip->sEquip[14] & 0xFFF) < 3980) || (pEquip->sEquip[14] & 0xFFF) >= 3999)
-        SetMountCostume(pEquip->Equip2[14]);
+    if (pEquip->ItemEff[14] & 0xFFF && ((pEquip->ItemEff[14] & 0xFFF) < 3980) || (pEquip->ItemEff[14] & 0xFFF) >= 3999)
+        SetMountCostume(pEquip->pAnctCode[14]);
 
-    SetColorItem(pEquip->Equip2);
+    SetColorItem(pEquip->pAnctCode);
     float fCon = static_cast<float>(m_stScore.Con);
 
     SetCharHeight(fCon);
-    SetRace(pEquip->sEquip[0] & 0xFFF);
+    SetRace(pEquip->ItemEff[0] & 0xFFF);
 
     STRUCT_ITEM itemL{};
-    itemL.sIndex = pEquip->sEquip[6] & 0xFFF;
+    itemL.sIndex = pEquip->ItemEff[6] & 0xFFF;
 
     int nWeaponTypeL = BASE_GetItemAbility(&itemL, EF_WTYPE);
     if (nWeaponTypeL == 41)
@@ -4418,7 +4418,7 @@ int TMHuman::OnPacketUpdateEquip(PacketHeader* pStd)
 
     InitObject();
 
-    CheckWeapon(pEquip->sEquip[6] & 0xFFF, pEquip->sEquip[7] & 0xFFF);
+    CheckWeapon(pEquip->ItemEff[6] & 0xFFF, pEquip->ItemEff[7] & 0xFFF);
     InitAngle(0.0f, m_fAngle, 0.0f);
 
     TMFieldScene* pScene = nullptr;
@@ -4493,7 +4493,7 @@ int TMHuman::OnPacketUpdateAffect(PacketHeader* pStd)
 
 int TMHuman::OnPacketUpdateScore(PacketHeader* pStd)
 {
-    auto pUpdateScore = reinterpret_cast<MSG_UpdateScore*>(pStd);
+    auto pUpdateScore = reinterpret_cast<p336*>(pStd);
 
     if (g_pCurrentScene->m_eSceneType == ESCENE_TYPE::ESCENE_FIELD)
         static_cast<TMFieldScene*>(g_pCurrentScene)->Bag_View();
@@ -4746,7 +4746,7 @@ int TMHuman::OnPacketUpdateScore(PacketHeader* pStd)
     return 1;
 }
 
-int TMHuman::OnPacketSetHpMp(MSG_SetHpMp* pStd)
+int TMHuman::OnPacketSetHpMp(p181* pStd)
 {
     if (g_pCurrentScene->GetSceneType() != ESCENE_TYPE::ESCENE_FIELD)
         return 1;
@@ -4766,8 +4766,8 @@ int TMHuman::OnPacketSetHpMp(MSG_SetHpMp* pStd)
 
     if (pFScene->m_pMyHuman == this && !pFScene->m_bAirMove)
     {
-        pFScene->m_nReqHP = pStd->ReqHp;
-        pFScene->m_nReqMP = pStd->ReqMp;
+        pFScene->m_nReqHP = pStd->Hp;
+        pFScene->m_nReqMP = pStd->Mp;
         memcpy(&g_pObjectManager->m_stMobData.CurrentScore, &m_stScore, sizeof(m_stScore));
         if (pFScene->m_pHPBar)
             pFScene->m_pHPBar->SetCurrentProgress(m_stScore.Hp);
@@ -5140,7 +5140,7 @@ int TMHuman::OnPacketMessageWhisper(MSG_MessageWhisper* pMsg)
 
 int TMHuman::OnPacketUpdateEtc(PacketHeader* pStd)
 {
-    auto pUpdateEtc = reinterpret_cast<MSG_UpdateEtc*>(pStd);
+    auto pUpdateEtc = reinterpret_cast<p337*>(pStd);
 
     if (g_pCurrentScene->m_pMyHuman == this)
     {
@@ -5195,11 +5195,11 @@ int TMHuman::OnPacketUpdateEtc(PacketHeader* pStd)
         g_pObjectManager->m_stMobData.LearnedSkill[0] = pUpdateEtc->LearnedSkill[0];
         g_pObjectManager->m_stMobData.LearnedSkill[1] = pUpdateEtc->LearnedSkill[1];
         g_pObjectManager->m_stMobData.Exp = pUpdateEtc->Exp;
-        g_pObjectManager->m_stMobData.ScoreBonus = pUpdateEtc->ScoreBonus;
-        g_pObjectManager->m_stMobData.SpecialBonus = pUpdateEtc->SpecialBonus;
-        g_pObjectManager->m_stMobData.SkillPoint = pUpdateEtc->SkillBonus;
+        g_pObjectManager->m_stMobData.ScoreBonus = pUpdateEtc->pStatus;
+        g_pObjectManager->m_stMobData.SpecialBonus = pUpdateEtc->pMaster;
+        g_pObjectManager->m_stMobData.SkillPoint = pUpdateEtc->pSkills;
         g_pObjectManager->m_stMobData.Coin = pUpdateEtc->Coin;
-        g_pObjectManager->m_nFakeExp = pUpdateEtc->FakeExp;
+        g_pObjectManager->m_nFakeExp = pUpdateEtc->Hold;
         g_pObjectManager->m_stSelCharData.Coin[g_pObjectManager->m_cCharacterSlot] = pUpdateEtc->Coin;
 
         if (g_pCurrentScene->GetSceneType() == ESCENE_TYPE::ESCENE_FIELD)

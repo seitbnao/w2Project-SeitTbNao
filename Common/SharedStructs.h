@@ -693,4 +693,67 @@ struct p363 : p364
 {
 	char StoreName[27];
 };
+
+
+
+
+
+
+
+#pragma pack(push, 1)
+struct p336
+{
+	PacketHeader Header;
+	STRUCT_SCORE Score;
+	char Critical;
+	char SaveMana;
+	unsigned short Affect[32];
+	unsigned short Guild;
+	unsigned short GuildLevel;
+	char Resist[4];
+	int ReqHp;
+	int ReqMp;
+	unsigned short Magic;
+	unsigned short Rsv;
+	char LearnedSkill;
+};
+#pragma pack(pop)
+
+typedef struct
+{
+	PacketHeader Header;
+	DWORD Hold;
+	UINT64 Exp;
+	UINT32 LearnedSkill[2];
+	WORD pStatus;
+	WORD pMaster;
+	WORD pSkills;
+	BYTE Magic; 
+	DWORD Coin;
+} p337;
+typedef struct
+{
+	PacketHeader Header;
+
+	unsigned short ItemEff[16];
+	char pAnctCode[16];
+} p36B;
+
+typedef struct {
+	PacketHeader Header;
+
+	INT32 CurHP;
+	INT16 Status;
+}  p292;
+
+
+typedef struct
+{
+	PacketHeader Header;
+
+	INT32 Hp;
+	INT32 Mp;
+	INT32 MaxHp;
+	INT32 MaxMp;
+} p181;
 #endif //__SHAREDSTRUCT_H__

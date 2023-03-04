@@ -490,59 +490,22 @@ void SendEquip(int clientId)
 
 }
 
-#pragma pack(push, 1)
-struct p3366
-{
-	PacketHeader Header; // 0 - 11
-	STRUCT_SCORE   CurrentScore;
 
-	unsigned char  Critical;
-	unsigned char  SaveMana;
-
-	struct
-	{
-		BYTE Time;
-		BYTE Index;
-	} Affect[32]; //62 - 125
-
-	unsigned short Guild;
-	unsigned short GuildLevel;
-
-	BYTE Resist1; // 130 
-	BYTE Resist2; // 131
-	BYTE Resist3; // 132
-	BYTE Resist4; // 133
-
-	unsigned char RegenHP;
-	unsigned char RegenMP;
-
-	int CurrHp;
-	int CurrMp;
-
-	int OldMagic;
-	unsigned char Special[4];
-
-	int Life;
-	int Magic;
-};
-#pragma pack(pop)
 
 void SendScore(int clientIndex)
 {
 	STRUCT_MOB *mob = &pMob[clientIndex].Mobs.Player;
 
-	p3366 p;
+	p336 p;
 	memset(&p, 0, sizeof p);
 	p.Header.ClientId = clientIndex;
 	p.Header.PacketId = 0x336;
-	p.Header.Size = sizeof p3366;
+	p.Header.Size = sizeof p336;
 
 	if (clientIndex < MAX_PLAYER)
 	{
-		p.Life = pMob[clientIndex].Lifes;
-
-		p.CurrHp = mob->CurrentScore.Hp;
-		p.CurrMp = mob->CurrentScore.Mp;
+		p.ReqHp = mob->CurrentScore.Hp;
+		p.ReqMp = mob->CurrentScore.Mp;
 	}
 
 	p.Guild = (mob->Guild);
@@ -553,28 +516,37 @@ void SendScore(int clientIndex)
 
 	p.Magic = pMob[clientIndex].MagicIncrement;
 
-	p.RegenHP = mob->RegenHP;
-	p.RegenHP = mob->RegenMP;
+ 
 
 	p.Critical = mob->Critical;
-	p.Resist1 = mob->Resist.Fogo;
-	p.Resist2 = mob->Resist.Gelo;
-	p.Resist3 = mob->Resist.Sagrado;
-	p.Resist4 = mob->Resist.Trovao;
+	p.Resist[0] = mob->Resist.Fogo;
+	p.Resist[1] = mob->Resist.Gelo;
+	p.Resist[2] = mob->Resist.Sagrado;
+	p.Resist[3] = mob->Resist.Trovao;
 
 	p.SaveMana = mob->SaveMana;
 
-	memcpy(&p.CurrentScore, &mob->CurrentScore, sizeof STRUCT_SCORE);
+	memcpy(&p.Score, &mob->CurrentScore, sizeof STRUCT_SCORE);
 
 	STRUCT_AFFECT *affect = pMob[clientIndex].Mobs.Affects;
+
 	for (int i = 0; i < 32; i++)
 	{
-		p.Affect[i].Index = affect[i].Index & 0xFF;
-		p.Affect[i].Time = affect[i].Time & 0xFF;
+		int type = affect[i].Index;
+		int value = affect[i].Time;
+
+		value = value;
+
+		if (value > 255)
+			value = 255;
+
+		unsigned short tout = (type << 8) + (value & 0xFF);
+
+		p.Affect[i] = tout;
 	}
 
 	if (pMob[clientIndex].Mobs.Player.Info.Merchant & 1)
-		p.CurrentScore.Merchant.Merchant = 1;
+		p.Score.Merchant.Merchant = 1;
 
 	if (clientIndex < MAX_PLAYER && pUser[clientIndex].Arena.GroupIndex != -1 && pMob[clientIndex].Target.X >= 143 && pMob[clientIndex].Target.Y >= 546 && pMob[clientIndex].Target.X <= 195 && pMob[clientIndex].Target.Y <= 625)
 	{
@@ -642,8 +614,8 @@ void SendEtc(int clientId)
 
 	p.Hold = static_cast<unsigned int>(pMob[clientId].Mobs.Hold);
 
-	p.LearnedSkill = mob->LearnedSkill[0];
-	p.SecLearn = mob->LearnedSkill[1];
+	p.LearnedSkill[0] = mob->LearnedSkill[0];
+	p.LearnedSkill[1] = mob->LearnedSkill[1];
 	p.Magic = mob->MagicIncrement;
 
 	p.pMaster = mob->SpecialBonus;
@@ -872,11 +844,11 @@ void SendHpMode(int clientId)
 
 	p292 p;
 	p.Header.PacketId = 0x292;
-	p.Header.Size = 16;
+	p.Header.Size = sizeof(p292);
 	p.Header.ClientId = clientId;
 
 	p.CurHP = pMob[clientId].Mobs.Player.CurrentScore.Hp;
-	p.CurrentScore = pUser[clientId].Status;
+	p.Status = pUser[clientId].Status;
 
 	pUser[clientId].AddMessage((BYTE*)&p, sizeof p292);
 }

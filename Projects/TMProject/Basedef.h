@@ -605,12 +605,7 @@ struct MSG_SendItem
 };
 
 constexpr auto MSG_UpdateEquip_Opcode = 0x36B;
-struct MSG_UpdateEquip
-{
-	PacketHeader Header;
-	unsigned short sEquip[16];
-	char Equip2[16];
-};
+ 
 
 constexpr auto MSG_UpdateAffect_Opcode = 0x3B9;
 struct MSG_UpdateAffect
@@ -647,35 +642,10 @@ struct MSG_MessageChat
 };
 
 constexpr auto MSG_UpdateScore_Opcode = 0x336;
-struct MSG_UpdateScore
-{
-	PacketHeader Header;
-	STRUCT_SCORE Score;
-	char Critical;
-	char SaveMana;
-	unsigned short Affect[32];
-	unsigned short Guild;
-	unsigned short GuildLevel;
-	char Resist[4];
-	int ReqHp;
-	int ReqMp;
-	unsigned short Magic;
-	unsigned short Rsv;
-	char LearnedSkill;
-};
+
 
 constexpr auto MSG_UpdateEtc_Opcode = 0x337;
-struct MSG_UpdateEtc
-{
-	PacketHeader Header;
-	int FakeExp;
-	long long Exp;
-	unsigned int LearnedSkill[2];
-	short ScoreBonus;
-	short SpecialBonus;
-	short SkillBonus;
-	int Coin;
-};
+ 
 
 constexpr auto MSG_MessagePanel_Opcode = 0x101;
 struct MSG_MessagePanel
@@ -975,21 +945,9 @@ struct MSG_RemoveMob
 	int RemoveType;
 };
 
-struct MSG_SetHpMode
-{
-	PacketHeader Header;
-	int Hp;
-	short Mode;
-};
+ 
 
-struct MSG_SetHpMp
-{
-	PacketHeader Header;
-	int Hp;
-	int Mp;
-	int ReqHp;
-	int ReqMp;
-};
+ 
 
 struct MSG_SetHpDam
 {

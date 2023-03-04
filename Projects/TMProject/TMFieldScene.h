@@ -195,7 +195,7 @@ public:
 	int OnPacketREQParty(MSG_REQParty* pStd);
 	int OnPacketAddParty(MSG_AddParty* pStd);
 	int OnPacketRemoveParty(MSG_STANDARDPARM* pStd);
-	int OnPacketSetHpMode(MSG_SetHpMode* pStd);
+	int OnPacketSetHpMode(p292* pStd);
 	int OnPacketDeposit(PacketHeader* pStd);
 	int OnPacketWithdraw(PacketHeader* pStd);
 	int OnPacketReqChallange(PacketHeader* pStd);
