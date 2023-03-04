@@ -10,7 +10,7 @@ bool CUser::RequestPickItem(PacketHeader *Header)
 	p270 *p = (p270*)Header;
 
 	constexpr std::array blockedToPick = { 1727, 4700, 4701, 794, 795, 796, 797, 798,  4703, 4705, 4704};
-	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || pUser[clientId].CurrentScore != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || pUser[clientId].Status != USER_PLAY)
 	{
 		AddCrackError(clientId, 1, CRACK_USER_STATUS);
 

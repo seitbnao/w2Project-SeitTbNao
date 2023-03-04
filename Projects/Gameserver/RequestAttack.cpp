@@ -201,7 +201,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	p367 *p = (p367*)(Header);
 
 	STRUCT_MOB *player = &pMob[clientId].Mobs.Player;
-	if (pUser[clientId].CurrentScore != USER_PLAY)
+	if (pUser[clientId].Status != USER_PLAY)
 	{
 		AddCrackError(clientId, 3, CRACK_USER_STATUS);
 
@@ -1003,7 +1003,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					return true;
 				}
 
-				if (targetIdx < MAX_PLAYER && pUser[clientId].CurrentScore == USER_PLAY)
+				if (targetIdx < MAX_PLAYER && pUser[clientId].Status == USER_PLAY)
 				{
 					p3B2 packet{};
 
@@ -1392,7 +1392,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					if (targIndex <= 0 || targIndex >= MAX_PLAYER)
 						continue;
 
-					if (pUser[targIndex].CurrentScore != USER_PLAY)
+					if (pUser[targIndex].Status != USER_PLAY)
 						continue;
 
 					if (!SetAffect(targIndex, skillNum, delay, userMastery))
@@ -1595,7 +1595,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					if (targIndex <= 0 || targIndex >= MAX_PLAYER)
 						continue;
 
-					if (pUser[targIndex].CurrentScore != USER_PLAY)
+					if (pUser[targIndex].Status != USER_PLAY)
 						continue;
 
 					INT32 aux = 0;
@@ -1797,7 +1797,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 #pragma endregion
 		// 0042753F
 		INT32 summoner = targetIdx; // local289
-		if (targetIdx >= MAX_PLAYER && mob->Mobs.Player.CapeInfo == 4 && mob->Summoner > 0 && mob->Summoner < MAX_PLAYER && pUser[mob->Summoner].CurrentScore == USER_PLAY)
+		if (targetIdx >= MAX_PLAYER && mob->Mobs.Player.CapeInfo == 4 && mob->Summoner > 0 && mob->Summoner < MAX_PLAYER && pUser[mob->Summoner].Status == USER_PLAY)
 			summoner = mob->Summoner;
 
 		//004275CF

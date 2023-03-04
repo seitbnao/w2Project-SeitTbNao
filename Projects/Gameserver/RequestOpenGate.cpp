@@ -7,7 +7,7 @@ bool CUser::RequestOpenGate(PacketHeader *Header)
 { // 00430C81
 	p374 *p = (p374*)Header; // LOCAL1154
 
-	if(!pMob[clientId].Mobs.Player.CurrentScore.Hp || pUser[clientId].CurrentScore != USER_PLAY)
+	if(!pMob[clientId].Mobs.Player.CurrentScore.Hp || pUser[clientId].Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 

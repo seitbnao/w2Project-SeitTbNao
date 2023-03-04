@@ -133,7 +133,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 {
 	p383 *msg = (p383*)(Header); // LOCAL1348
 
-	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || pUser[clientId].CurrentScore != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || pUser[clientId].Status != USER_PLAY)
 	{
 		Log(clientId, LOG_ERROR, "Tentando usar o trade sem estar no jogo ou com o HP zerado.");
 		SendHpMode(clientId);
@@ -150,7 +150,7 @@ bool CUser::RequestTrade(PacketHeader *Header)
 		return true;
 	}
 
-	if(pUser[opponentId].CurrentScore != USER_PLAY)
+	if(pUser[opponentId].Status != USER_PLAY)
 	{
 		RemoveTrade(clientId);
 

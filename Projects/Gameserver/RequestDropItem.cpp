@@ -8,7 +8,7 @@ bool CUser::RequestDropItem(PacketHeader *Header)
 	// fUNção original fica em : 42d484 : DESCOMPILAR
 	p272 *p = (p272*)Header;
 
-	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || CurrentScore != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || Status != USER_PLAY)
 	{
 		AddCrackError(clientId, 1, 14);
 		SendHpMode(clientId);

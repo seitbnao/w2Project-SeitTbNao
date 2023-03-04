@@ -8,7 +8,7 @@ bool CUser::RequestTransferGoldToInv(PacketHeader *Header)
 {
 	pMsgSignal *p = (pMsgSignal*)(Header);
 
-	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || CurrentScore != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0 || Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 
@@ -55,7 +55,7 @@ bool CUser::RequestTransferGoldToBank(PacketHeader *Header)
 {
 	pMsgSignal *p = (pMsgSignal*)(Header);
 
-	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <=0 || CurrentScore != USER_PLAY)
+	if(pMob[clientId].Mobs.Player.CurrentScore.Hp <=0 || Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 

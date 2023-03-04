@@ -36,7 +36,7 @@ void TMessageSender::MessageSender()
 		{
 			for (int i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].CurrentScore == USER_EMPTY)
+				if (pUser[i].Status == USER_EMPTY)
 					continue;
 
 				CUser& user = pUser[i];

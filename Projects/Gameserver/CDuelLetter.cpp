@@ -128,7 +128,7 @@ void CDuelLetter::CheckUsers()
 {
 	_users.erase(std::remove_if(_users.begin(), _users.end(), [](const CUser* user) 
 	{
-		if (user->CurrentScore != USER_PLAY)
+		if (user->Status != USER_PLAY)
 			return true;
 
 		CMob& mob = pMob[user->clientId];

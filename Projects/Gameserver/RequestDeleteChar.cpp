@@ -11,11 +11,11 @@ bool CUser::RequestDeleteChar(PacketHeader* header)
 	p->Pwd[11] = '\0';
 
 	STRUCT_MOB* mob = &pMob[clientId].Mobs.Player;
-	if (CurrentScore != USER_SELCHAR)
+	if (Status != USER_SELCHAR)
 	{
 		SendClientMessage(clientId, "Deleting Character, wait a moment");
 
-		Log(clientId, LOG_HACK, "Tentativa de deletar personagem enquanto nêo na CharList. Status atual: %d", CurrentScore);
+		Log(clientId, LOG_HACK, "Tentativa de deletar personagem enquanto nêo na CharList. Status atual: %d", Status);
 		return true;
 	}
 
@@ -36,7 +36,7 @@ bool CUser::RequestDeleteChar(PacketHeader* header)
 
 	Log(clientId, LOG_INGAME, "Solicitado deletar personagem %s", p->MobName);
 
-	CurrentScore = USER_DELWAIT;
+	Status = USER_DELWAIT;
 
 	header->PacketId = 0x809;
 	return AddMessageDB((BYTE*)header, sizeof p211);

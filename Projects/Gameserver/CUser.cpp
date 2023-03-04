@@ -12,7 +12,7 @@ std::array<CUser, MAX_PLAYER> pUser;
 
 CUser::CUser()
 {
-	CurrentScore = USER_EMPTY;
+	Status = USER_EMPTY;
 	Socket.Socket = 0;
 
 	hashIncrement = 0;
@@ -47,7 +47,7 @@ CUser::~CUser()
 	}
 
 	Socket.SizeOfSend = 0;
-	CurrentScore = USER_EMPTY;
+	Status = USER_EMPTY;
 }
 
 BYTE CUser::GetHashKey()
@@ -211,7 +211,7 @@ bool CUser::CloseUser_OL1()
 	CloseSocket();
 
 	Socket.Socket = 0;
-	CurrentScore = USER_EMPTY;
+	Status = USER_EMPTY;
 	User.Username[0] = 0;
 	return 1;
 }
@@ -332,9 +332,9 @@ std::string CUser::LogSameAccounts() const
 		{
 			str << "[" << user->User.Username << "]\t";
 
-			if (user->CurrentScore == USER_SELCHAR)
+			if (user->Status == USER_SELCHAR)
 				str << "SELCHAR\t";
-			else if (user->CurrentScore == USER_PLAY)
+			else if (user->Status == USER_PLAY)
 			{
 				const auto& mob = pMob[user->clientId].Mobs.Player;
 				str << "USER_PLAY\t" << "[" << pMob[user->clientId].Mobs.Player.MobName << "] (level: " << mob.CurrentScore.Level << " ev: " << (int)mob.GetEvolution() << ")\t";
@@ -356,7 +356,7 @@ void CUser::LogEquipsAndInventory(bool force) const
 		return;
 
 	std::stringstream strItems;
-	if (CurrentScore == USER_SELCHAR)
+	if (Status == USER_SELCHAR)
 	{
 		strItems << "[INFORMAçãES DA CONTA]\n";
 		strItems << "Personagem na seleção de personagem. Sem informaçães no momento\n";
@@ -366,7 +366,7 @@ void CUser::LogEquipsAndInventory(bool force) const
 			<< ":" << std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 60) % 60
 			<< ":" << std::setfill('0') << std::setw(2) << (pUser[clientId].Time % 60) << " horas\n";
 	}
-	else if(CurrentScore == USER_PLAY)
+	else if(Status == USER_PLAY)
 	{
         auto evolution = pMob[clientId].Mobs.Player.GetEvolution();
 		strItems << "[INFORMAçãES DA CONTA]\n";
@@ -431,7 +431,7 @@ void CUser::LogEquipsAndInventory(bool force) const
 	else
 	{
 		strItems << "[INFORMAçãES DA CONTA]\n";
-		strItems << "Personagem com status \"" << CurrentScore << "\". Sem informaçães no momento\n";
+		strItems << "Personagem com status \"" << Status << "\". Sem informaçães no momento\n";
 		strItems << "Tempo online atê o momento: "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 86400) << " dias e "
 			<< std::setfill('0') << std::setw(2) << (pUser[clientId].Time / 3600) % 24

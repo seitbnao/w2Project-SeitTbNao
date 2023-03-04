@@ -2435,7 +2435,7 @@ INT32 GetUserByName(char *name)
 {
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].CurrentScore != USER_PLAY)
+		if(pUser[i].Status != USER_PLAY)
 			continue;
 
 		if(!strcmp(pMob[i].Mobs.Player.MobName, name))
@@ -2808,7 +2808,7 @@ int GetUserInArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned in
 
 	for(; LOCAL_2 < MAX_PLAYER; LOCAL_2 ++)
 	{
-		if(pUser[LOCAL_2].CurrentScore != USER_PLAY)
+		if(pUser[LOCAL_2].Status != USER_PLAY)
 			continue;
 
 		if(pMob[LOCAL_2].Mode == 0)
@@ -3296,7 +3296,7 @@ std::vector<CUser*> GetSameMACUsers(const CUser& thisUser, std::function<bool(CU
 	std::vector<CUser*> users;
 	for (auto& user : pUser)
 	{
-		if (&thisUser == &user || user.CurrentScore != USER_PLAY || memcmp(user.MacAddress, thisUser.MacAddress, 8) != 0 || (function != nullptr && !function(user)))
+		if (&thisUser == &user || user.Status != USER_PLAY || memcmp(user.MacAddress, thisUser.MacAddress, 8) != 0 || (function != nullptr && !function(user)))
 			continue;
 
 		users.push_back(&user);
@@ -3311,7 +3311,7 @@ eValley GetValleyWithMinimum()
 
 	for (const auto& user : pUser)
 	{
-		if (user.CurrentScore != USER_PLAY)
+		if (user.Status != USER_PLAY)
 			continue;
 
 		auto& mob = pMob[user.clientId];

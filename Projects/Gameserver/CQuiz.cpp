@@ -120,7 +120,7 @@ void CQuiz::Work()
 		return;
 
 	_users.erase(std::remove_if(std::begin(_users), std::end(_users), [&](const SQuizUserInfo& info) {
-		if (info.User->CurrentScore != USER_PLAY)
+		if (info.User->Status != USER_PLAY)
 			return true;
 
 		CMob& mob = pMob[info.User->clientId];

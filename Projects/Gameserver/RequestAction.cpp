@@ -8,7 +8,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 { // 0042351A
 	p36C *p = (p36C*)(Header);
 	
-	if(pUser[clientId].CurrentScore != USER_PLAY)
+	if(pUser[clientId].Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 
@@ -459,7 +459,7 @@ bool RequestAction2(PacketHeader *Header)
 		return true;
 	}
 
-	if (pUser[conn].CurrentScore != 22)
+	if (pUser[conn].Status != 22)
 	{
 		SendHpMode(conn);
 

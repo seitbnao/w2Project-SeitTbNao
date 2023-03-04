@@ -61,7 +61,7 @@ bool CUser::SendCharList(PacketHeader *Header)
 	IsAdmin = false;
 
 	// Seta como se o usuari oestivesse na charList
-	CurrentScore = USER_SELCHAR;
+	Status = USER_SELCHAR;
 
 	IsAutoTrading = false;
 

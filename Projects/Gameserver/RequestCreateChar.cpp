@@ -5,8 +5,8 @@ bool CUser::RequestCreateChar(PacketHeader *Header)
 {
 	p20F *p = (p20F*)Header;
 
-	// Faz as checagens de segurança, somente após isto
-	// É feito as checagens de índice invalido
+	// Faz as checagens de seguranï¿½a, somente apï¿½s isto
+	// ï¿½ feito as checagens de ï¿½ndice invalido
 
 	if (p->ClassID < 0 || p->ClassID > 3)
 		return false;
@@ -14,10 +14,10 @@ bool CUser::RequestCreateChar(PacketHeader *Header)
 	if (p->SlotID < 0 || p->SlotID > 3)
 		return false;
 
-	// BUG Da própria TMsrv
+	// BUG Da prï¿½pria TMsrv
 	// Checagem se o usuario esta logado
-	// Caso não esteja, ele retorna falso pois não é possível criar personagem ingame.
-	if(CurrentScore != USER_SELCHAR)
+	// Caso nï¿½o esteja, ele retorna falso pois nï¿½o ï¿½ possï¿½vel criar personagem ingame.
+	if(Status != USER_SELCHAR)
 		return false;
 
 	// Null character
@@ -28,7 +28,7 @@ bool CUser::RequestCreateChar(PacketHeader *Header)
 	AddMessageDB((BYTE*)Header, sizeof p20F);
 
 	// Seta como quem esta criando um personagem
-	CurrentScore = USER_CREWAIT;
+	Status = USER_CREWAIT;
 
 	return true;
 }

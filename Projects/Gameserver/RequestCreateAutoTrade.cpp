@@ -8,7 +8,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 {
 	p397 *p = (p397*)(Header);
 	
-	if(!pMob[clientId].Mobs.Player.CurrentScore.Hp || CurrentScore != USER_PLAY)
+	if(!pMob[clientId].Mobs.Player.CurrentScore.Hp || Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 		AddCrackError(clientId, 10, 88);
@@ -108,7 +108,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
 			auto& user = pUser[i];
-			if (user.CurrentScore != USER_PLAY || i == clientId)
+			if (user.Status != USER_PLAY || i == clientId)
 				continue;
 
 			if (memcmp(MacAddress, user.MacAddress, 8) != 0)
@@ -153,7 +153,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 		bool has = false;
 		for (int j = 1; j < MAX_PLAYER; j++)
 		{
-			if (pUser[j].CurrentScore != USER_PLAY || j == clientId || !pUser[j].IsAutoTrading || !pUser[j].PremierStore.CurrentScore)
+			if (pUser[j].Status != USER_PLAY || j == clientId || !pUser[j].IsAutoTrading || !pUser[j].PremierStore.CurrentScore)
 				continue;
 
 			if (!memcmp(pUser[j].MacAddress, pUser[clientId].MacAddress, 6))

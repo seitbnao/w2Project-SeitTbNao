@@ -17,7 +17,7 @@ bool CUser::RequestDuel(PacketHeader *Header)
 	if (mobId <= 0 || mobId >= MAX_PLAYER)
 		return false;
 
-	if (pUser[mobId].CurrentScore != USER_PLAY)
+	if (pUser[mobId].Status != USER_PLAY)
 	{
 		Log(clientId, LOG_INGAME, "Enviado Duelo para jogador que nêo esta online");
 		return true;
@@ -42,7 +42,7 @@ bool CUser::RequestDuel(PacketHeader *Header)
 
 	if(typeId == 4)
 	{
-		if (pUser[mobId].CurrentScore != USER_PLAY)
+		if (pUser[mobId].Status != USER_PLAY)
 			return true;
 
 		if (clientId != pUser[mobId].Challenger.sIndex)

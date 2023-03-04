@@ -2073,7 +2073,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 			return true;
 		}
 
-		if(pUser[LOCAL_811].CurrentScore != USER_PLAY)
+		if(pUser[LOCAL_811].Status != USER_PLAY)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Need_Master]);
 
@@ -2419,7 +2419,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 				for (int i = 1; i < MAX_PLAYER; i++)
 				{
-					if (pUser[i].CurrentScore != USER_PLAY || memcmp(MacAddress, pUser[i].MacAddress, 8) != 0)
+					if (pUser[i].Status != USER_PLAY || memcmp(MacAddress, pUser[i].MacAddress, 8) != 0)
 						continue;
 
 					if (pMob[i].Target.X >= MaxMinCoordsQuest[questId][0] && pMob[i].Target.Y >= MaxMinCoordsQuest[questId][1] &&
@@ -2625,7 +2625,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 
 			for (const auto& user : pUser)
 			{
-				if (user.CurrentScore != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
+				if (user.Status != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
 					continue;
 
 				if (pMob[user.clientId].Target.X >= 793 && pMob[user.clientId].Target.X <= 828 && pMob[user.clientId].Target.Y >= 4046 && pMob[user.clientId].Target.Y <= 4080)
@@ -2753,7 +2753,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 					if (memberId <= 0 || memberId >= MAX_PLAYER)
 						continue;
 
-					if (pUser[memberId].CurrentScore != USER_PLAY)
+					if (pUser[memberId].Status != USER_PLAY)
 						continue;
 
 					pista->Clients[i][x] = memberId;
@@ -3711,7 +3711,7 @@ bool CUser::RequestMerchantNPC(PacketHeader *Header)
 		{
 			for (const auto& user : pUser)
 			{
-				if (user.CurrentScore != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
+				if (user.Status != USER_PLAY || memcmp(user.MacAddress, MacAddress, 8) != 0)
 					continue;
 
 				const CMob* mob = &pMob[user.clientId];

@@ -17,9 +17,9 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 	Log(clientId, LOG_INGAME, "Comando \"/%s %s\"", p->eCommand, p->eValue);
 
-	if (CurrentScore != USER_PLAY && clientId != SCHEDULE_ID)
+	if (Status != USER_PLAY && clientId != SCHEDULE_ID)
 	{
-		Log(clientId, LOG_INGAME, "Enviado comando estando fora da sessêo de jogo... Sessêo atual: %d", CurrentScore);
+		Log(clientId, LOG_INGAME, "Enviado comando estando fora da sessêo de jogo... Sessêo atual: %d", Status);
 
 		return true;
 	}
@@ -461,7 +461,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY || pMob[i].Mobs.Player.Guild != guildId)
+			if (pUser[i].Status != USER_PLAY || pMob[i].Mobs.Player.Guild != guildId)
 				continue;
 
 			SendChatGuild(i, guildId, "--Aviso: %s", g_pGuildNotice[guildId]);
@@ -744,7 +744,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		std::vector<CUser*> users;
 		for (auto& user : pUser)
 		{
-			if (user.CurrentScore < USER_SELCHAR || user.clientId == clientId || memcmp(&user.MacAddress, MacAddress, sizeof MacAddress) != 0)
+			if (user.Status < USER_SELCHAR || user.clientId == clientId || memcmp(&user.MacAddress, MacAddress, sizeof MacAddress) != 0)
 				continue;
 
 			users.push_back(&user);
@@ -837,7 +837,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY || i == clientId)
+			if (pUser[i].Status != USER_PLAY || i == clientId)
 				continue;
 
 			if (p->eValue[1] != '@')
@@ -871,7 +871,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		for (INT32 i = 0; i < 12; i++)
 		{
 			INT32 memberId = pMob[leader].PartyList[i];
-			if (memberId <= 0 || memberId >= MAX_PLAYER || pUser[memberId].CurrentScore != USER_PLAY || pUser[memberId].AllStatus.Chat || clientId == memberId)
+			if (memberId <= 0 || memberId >= MAX_PLAYER || pUser[memberId].Status != USER_PLAY || pUser[memberId].AllStatus.Chat || clientId == memberId)
 				continue;
 
 			pUser[memberId].AddMessage((BYTE*)p, sizeof p334);
@@ -895,7 +895,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 		strncpy_s(p->eCommand, pMob[clientId].Mobs.Player.MobName, 12);
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY || i == clientId || pUser[i].AllStatus.Guild)
+			if (pUser[i].Status != USER_PLAY || i == clientId || pUser[i].AllStatus.Guild)
 				continue;
 
 			INT32 ally = g_pGuildAlly[myGuild];
@@ -1147,7 +1147,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	else if (p->eCommand[0] == 'r' && p->eCommand[1] == 0)
 	{
 		INT32 userId = pUser[clientId].LastWhisper;
-		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].CurrentScore != USER_PLAY)
+		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].Status != USER_PLAY)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Not_Connected]);
 
@@ -1204,7 +1204,7 @@ bool CUser::RequestCommand(PacketHeader *Header)
 	{
 		INT32 userId = GetUserByName(p->eCommand);
 
-		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].CurrentScore != USER_PLAY)
+		if (userId <= 0 || userId >= MAX_PLAYER || pUser[userId].Status != USER_PLAY)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Not_Connected]);
 

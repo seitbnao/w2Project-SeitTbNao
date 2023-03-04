@@ -32,7 +32,7 @@ BOOL CUser::AcceptUser(int ListenSocket)
 
 	if (tSock < 0)
 	{
-		CurrentScore = USER_EMPTY;
+		Status = USER_EMPTY;
 		return FALSE;
 	}
 	if (WSAAsyncSelect(tSock, GUI.hGUI, WSA_READ, FD_READ | FD_CLOSE) > 0)
@@ -46,7 +46,7 @@ BOOL CUser::AcceptUser(int ListenSocket)
 	Socket.nRecvPosition = 0;
 	Socket.nProcPosition = 0;
 	Socket.nSendPosition = 0;
-	CurrentScore = USER_ACCEPT;
+	Status = USER_ACCEPT;
 
 	Socket.recvBuffer = new BYTE[MAX_BUFFER];
 	Socket.sendBuffer = new BYTE[MAX_BUFFER];
@@ -89,7 +89,7 @@ char* CUser::ReadMessage(int *ErrorCode, int* ErrorType)
 	if ((Socket.nRecvPosition - Socket.nProcPosition) < 12)
 	{
 		if (User.Username[0])
-			Log(clientId, LOG_INGAME, "Posição nRecvPosition - nProcPosition é invalida. Valor %d", (Socket.nRecvPosition - Socket.nProcPosition));
+			Log(clientId, LOG_INGAME, "Posiï¿½ï¿½o nRecvPosition - nProcPosition ï¿½ invalida. Valor %d", (Socket.nRecvPosition - Socket.nProcPosition));
 
 		return NULL;
 	}
@@ -177,7 +177,7 @@ bool CUser::ReadMessage()
 	// Pega o pacote
 	int len = recv(Socket.Socket, (char*)Socket.recvBuffer, MAX_BUFFER, 0);
 
-	// Caso seja algo não valido, simplesmente retorna
+	// Caso seja algo nï¿½o valido, simplesmente retorna
 	if (len <= 0)
 		return false;
 
@@ -196,8 +196,8 @@ bool CUser::ReadMessage()
 			Socket.Hello = HELLO;
 		else
 		{
-			// Caso não esteja e tenha recebido o hello, então
-			// fecha a conexão
+			// Caso nï¿½o esteja e tenha recebido o hello, entï¿½o
+			// fecha a conexï¿½o
 			//CloseGame();
 
 			return false;

@@ -8,7 +8,7 @@ bool CUser::RequestOpenAutoTrade(PacketHeader *Header)
 	p39A *p = (p39A*)(Header);
 
 	INT32 idx = p->sIndex;
-	if (pMob[clientId].Mobs.Player.CurrentScore.Hp == 0 || pUser[clientId].CurrentScore != USER_PLAY)
+	if (pMob[clientId].Mobs.Player.CurrentScore.Hp == 0 || pUser[clientId].Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 		AddCrackError(clientId, 10, 87);

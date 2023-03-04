@@ -90,7 +90,7 @@ public:
 	} aHack;
 
 	INT32 clientId;
-	INT32 CurrentScore;
+	INT32 Status;
 	INT32 LastWhisper;
 	INT32 hashIncrement; 
 	INT32 CharLoginTime; // regen mob

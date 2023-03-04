@@ -237,7 +237,7 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 	static const char *szSlotType[] = { "EQUIPAMENTO", "INVENTaRIO", "BANCO", "RUNA" };
 
 	p376* p = (p376*)header;
-	if (!pMob[clientId].Mobs.Player.CurrentScore.Hp || CurrentScore != USER_PLAY)
+	if (!pMob[clientId].Mobs.Player.CurrentScore.Hp || Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 

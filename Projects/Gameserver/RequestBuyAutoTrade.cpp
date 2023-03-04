@@ -9,7 +9,7 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 
 	STRUCT_MOB *player = (STRUCT_MOB*)(&pMob[clientId].Mobs.Player);
 
-	if(!player->CurrentScore.Hp || CurrentScore != USER_PLAY)
+	if(!player->CurrentScore.Hp || Status != USER_PLAY)
 		return false;
 
 	if(pUser[clientId].Trade.ClientId != 0)
@@ -37,7 +37,7 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 	
 	STRUCT_MOB *mob = (STRUCT_MOB*)(&pMob[mobId].Mobs.Player);
 
-	if(pUser[mobId].CurrentScore != USER_PLAY)
+	if(pUser[mobId].Status != USER_PLAY)
 		return false;
 
 	if (pMob[clientId].Target.X < pMob[mobId].Target.X - VIEWGRIDX || pMob[clientId].Target.X > pMob[mobId].Target.X + VIEWGRIDX || pMob[clientId].Target.Y < pMob[mobId].Target.Y - VIEWGRIDY || pMob[clientId].Target.Y > pMob[mobId].Target.Y + VIEWGRIDY)

@@ -356,7 +356,7 @@ bool CUser::SendCharToWorld(PacketHeader* Header)
 	pMob[clientId].Target.Y = LOCAL_224;
 	pMob[clientId].Last.Y = pMob[clientId].Target.Y;
 
-	this->CurrentScore = USER_PLAY;
+	this->Status = USER_PLAY;
 
 	pUser[clientId].nTargetX = 0;
 	pUser[clientId].nTargetY = 0;

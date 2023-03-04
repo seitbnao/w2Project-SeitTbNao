@@ -31,7 +31,7 @@ bool CUser::ResendCharList(PacketHeader *Header)
 	}
 
 	// Seta como se o usuari oestivesse na charList
-	CurrentScore = USER_SELCHAR;
+	Status = USER_SELCHAR;
 	
 	// ClientID do pacote
 	p->Header.PacketId = 0x110;

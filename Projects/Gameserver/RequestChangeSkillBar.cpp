@@ -7,7 +7,7 @@ bool CUser::RequestChangeSkillbar(PacketHeader *Header)
 {
 	p378 *p = (p378*)Header;
 
-	if(CurrentScore != USER_PLAY)
+	if(Status != USER_PLAY)
 		return false;
 	
 #if defined(_DEBUG)	

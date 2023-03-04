@@ -51,7 +51,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			pUser[i].AddMessage((BYTE*)header, header->Size);
@@ -61,7 +61,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		pCOE *p = (pCOE*)(header);
 
-		if (pUser[clientId].CurrentScore < USER_SELCHAR)
+		if (pUser[clientId].Status < USER_SELCHAR)
 		{
 			Log(clientId, LOG_ERROR, "Falha ao entregar cash ImportCash - Status < USER_SELCHAR - %d",
 				p->Cash);
@@ -79,12 +79,12 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 
 		pUser[clientId].User.Cash += p->Cash;
 
-		if (pUser[clientId].CurrentScore == USER_SELCHAR)
+		if (pUser[clientId].Status == USER_SELCHAR)
 			SaveUser(clientId, 0);
 
 		Log(clientId, LOG_INGAME, "Recebeu %d de Cash - Total %d - ImportCash", p->Cash, pUser[clientId].User.Cash);
 
-		if (pUser[clientId].CurrentScore == USER_PLAY)
+		if (pUser[clientId].Status == USER_PLAY)
 		{
 			SendClientMessage(clientId, "!Chegou [ %d ] Cash", p->Cash);
 			SendSignalParm(clientId, clientId, RefreshGoldPacket, pUser[clientId].User.Cash);
@@ -116,7 +116,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		pCOF *p = (pCOF*)(header);
 
-		if (pUser[clientId].CurrentScore < USER_SELCHAR)
+		if (pUser[clientId].Status < USER_SELCHAR)
 		{
 			Log(clientId, LOG_ERROR, "Falha ao receber item do ImportItem - Status < USER_SELCHAR - %d %d %d %d %d %d %d",
 				p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
@@ -145,7 +145,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 			Log(clientId, LOG_INGAME, "Recebeu o item %s [%d] [%d %d %d %d %d %d]",
 				g_pItemList[p->item.sIndex].ItemName, p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
 
-			if (pUser[clientId].CurrentScore == USER_SELCHAR)
+			if (pUser[clientId].Status == USER_SELCHAR)
 				SaveUser(clientId, 0);
 
 			return true;
@@ -164,7 +164,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 			Log(clientId, LOG_INGAME, "Recebeu o item %s [%d] [%d %d %d %d %d %d]",
 				g_pItemList[p->item.sIndex].ItemName, p->item.sIndex, p->item.stEffect[0].cEffect, p->item.stEffect[0].cValue, p->item.stEffect[1].cEffect, p->item.stEffect[1].cValue, p->item.stEffect[2].cEffect, p->item.stEffect[2].cValue);
 
-			if (pUser[clientId].CurrentScore == USER_SELCHAR)
+			if (pUser[clientId].Status == USER_SELCHAR)
 				SaveUser(clientId, 0);
 
 			return true;
@@ -246,20 +246,20 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		SendSignal(clientId, 0, 0x11A);
 
-		pUser[clientId].CurrentScore = USER_SELCHAR;
+		pUser[clientId].Status = USER_SELCHAR;
 	}
 	break;
 	case 0x41E:
 	{
 		SendSignal(clientId, 0, 0x11B);
 
-		pUser[clientId].CurrentScore = USER_SELCHAR;
+		pUser[clientId].Status = USER_SELCHAR;
 	}
 	break;
 	case 0x40A:
 	{// 0044E5DD
 		MSG_DBSavingQuit *p = (MSG_DBSavingQuit *)(header);
-		if (pUser[clientId].CurrentScore != USER_PLAY && pUser[clientId].CurrentScore != USER_SAVING4QUIT)
+		if (pUser[clientId].Status != USER_PLAY && pUser[clientId].Status != USER_SAVING4QUIT)
 		{
 			pMsgSignal packet;
 			packet.Header.PacketId = 0x805;
@@ -268,7 +268,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 			AddMessageDB((BYTE*)&packet, 12);
 		}
 
-		if (pUser[clientId].CurrentScore != USER_PLAY || pUser[clientId].CurrentScore == USER_SELCHAR)
+		if (pUser[clientId].Status != USER_PLAY || pUser[clientId].Status == USER_SELCHAR)
 		{
 			if (p->Mode == 0)
 				SendClientMessage(clientId, g_pLanguageString[_NN_Your_Account_From_Others]);
@@ -285,7 +285,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 	{
 		pMob[clientId].Mode = 0;
 
-		pUser[clientId].CurrentScore = USER_ACCEPT;
+		pUser[clientId].Status = USER_ACCEPT;
 		CloseUser(clientId);
 	}
 	break;
@@ -339,7 +339,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 		// Copia a estrutura da charlist para o User
 		memcpy(&pUser[clientId].CharList, &p->CharList, sizeof p->CharList);
 
-		pUser[clientId].CurrentScore = USER_SELCHAR;
+		pUser[clientId].Status = USER_SELCHAR;
 	}
 	break;
 	case 0x426:
@@ -363,7 +363,7 @@ bool PacketControl(BYTE* pBuffer, INT32 size)
 		//	SendSignal(clientId, 0x7532, 0x11C);
 		SendClientMessage(clientId, g_pLanguageString[_NN_Wrong_Password]);
 
-		pUser[clientId].CurrentScore = USER_SELCHAR;
+		pUser[clientId].Status = USER_SELCHAR;
 		//	Users[clientId].SendMessageA();
 		//	CloseUser(clientId);
 	}
@@ -719,7 +719,7 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 			return true;
 		}
 
-		if (mobId < MAX_PLAYER && pUser[mobId].CurrentScore != USER_PLAY)
+		if (mobId < MAX_PLAYER && pUser[mobId].Status != USER_PLAY)
 		{
 			SendRemoveMob(clientId, mobId, 0, 0);
 
@@ -790,7 +790,7 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 		}
 		return true;
 #else
-		if (CurrentScore != USER_SELCHAR)
+		if (Status != USER_SELCHAR)
 			return true;
 
 		Header->PacketId = 0x804;
@@ -881,7 +881,7 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 
 		if (Trade.ClientId)
 		{
-			if (pUser[Trade.ClientId].CurrentScore == USER_PLAY && pUser[Trade.ClientId].Trade.ClientId == clientId)
+			if (pUser[Trade.ClientId].Status == USER_PLAY && pUser[Trade.ClientId].Trade.ClientId == clientId)
 			{
 				SendClientMessage(clientId, "Nao a possavel trocar com o modo PvP ativo");
 				SendClientMessage(Trade.ClientId, "O outro jogador esta com o modo PvP ativo");

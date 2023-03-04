@@ -2286,7 +2286,7 @@ void CMob::AddEnemyList(int enemyId)
 	{
 		for (LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 		{
-			if (pUser[LOCAL_2].CurrentScore != USER_PLAY || pMob[LOCAL_2].Mode == USER_EMPTY)
+			if (pUser[LOCAL_2].Status != USER_PLAY || pMob[LOCAL_2].Mode == USER_EMPTY)
 				continue;
 
 			if (pMob[LOCAL_2].Target.X < (Target.X - 30) || pMob[LOCAL_2].Target.X >(Target.X + 30) || pMob[LOCAL_2].Target.Y < (Target.Y - 30) || pMob[LOCAL_2].Target.Y >(Target.Y + 30))
@@ -2376,7 +2376,7 @@ INT32 CMob::StandingByProcessor()
 			return LOCAL_2;
 		}
 
-		if (pUser[LOCAL_4].CurrentScore == USER_PLAY)
+		if (pUser[LOCAL_4].Status == USER_PLAY)
 		{
 			INT32 LOCAL_7 = GetDistance(Target.X, Target.Y, pMob[LOCAL_4].Target.X, pMob[LOCAL_4].Target.Y);
 

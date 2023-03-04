@@ -10,7 +10,7 @@ void ProcessSendTimer()
 {
 	for (int i = 1; i < MAX_PLAYER; ++i)
 	{
-		if (pUser[i].CurrentScore == USER_EMPTY)
+		if (pUser[i].Status == USER_EMPTY)
 			continue;
 
 		if (pUser[i].Socket.nSendPosition == 0)
@@ -50,7 +50,7 @@ void ProcessSecTimer()
 	{
 		for (auto& user : pUser)
 		{
-			if (user.CurrentScore < USER_SELCHAR)
+			if (user.Status < USER_SELCHAR)
 				continue;
 
 			user.Time++;
@@ -64,7 +64,7 @@ void ProcessSecTimer()
 		for (int clientId = 1; clientId < MAX_PLAYER; clientId++)
 		{
 			CUser& user = pUser[clientId];
-			if (user.CurrentScore != USER_PLAY)
+			if (user.Status != USER_PLAY)
 				continue;
 
 			if (!user.EventAutoTrade.IsValid || now - user.EventAutoTrade.LastTime <= user.EventAutoTrade.TimeToWin)
@@ -96,7 +96,7 @@ void ProcessSecTimer()
 	{
 		for (auto& user : pUser)
 		{
-			if (user.CurrentScore != USER_PLAY)
+			if (user.Status != USER_PLAY)
 				continue;
 
 			auto& mob = pMob[user.clientId];
@@ -206,7 +206,7 @@ void ProcessSecTimer()
 	{
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			INT32 has = -1;
@@ -295,7 +295,7 @@ void ProcessSecTimer()
 	{
 		for (INT32 LOCAL_103 = 1; LOCAL_103 < MAX_PLAYER; LOCAL_103++)
 		{
-			if (pUser[LOCAL_103].CurrentScore != USER_PLAY)
+			if (pUser[LOCAL_103].Status != USER_PLAY)
 				continue;
 
 			if (!pMob[LOCAL_103].Mobs.Player.CurrentScore.Hp)
@@ -317,7 +317,7 @@ void ProcessSecTimer()
 	{
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			if (pMob[i].IsInsideValley())
@@ -341,7 +341,7 @@ void ProcessSecTimer()
 			if (sServer.SaveCount >= MAX_PLAYER)
 				sServer.SaveCount = 1;
 
-			if (pUser[sServer.SaveCount].CurrentScore == USER_PLAY || pMob[sServer.SaveCount].Mode != 0)
+			if (pUser[sServer.SaveCount].Status == USER_PLAY || pMob[sServer.SaveCount].Mode != 0)
 			{
 				SaveUser(sServer.SaveCount, 0);
 
@@ -529,7 +529,7 @@ void ProcessSecTimer()
 			{
 				for (int i = 1; i < MAX_PLAYER; i++)
 				{
-					if (pUser[i].CurrentScore != USER_PLAY)
+					if (pUser[i].Status != USER_PLAY)
 						continue;
 
 					if (pMob[i].Mobs.Player.CapeInfo == winner)
@@ -600,7 +600,7 @@ void ProcessSecTimer()
 	{
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			int fadaId = pMob[i].Mobs.Player.Equip[13].sIndex;
@@ -670,10 +670,10 @@ void ProcessSecTimer()
 
 	for (; LOCAL_110 < MAX_PLAYER; LOCAL_110++)
 	{
-		if ((LOCAL_110 & 0x8000001F) == LOCAL_109 && pUser[LOCAL_110].CurrentScore != USER_EMPTY && pUser[LOCAL_110].CurrentScore != USER_SAVING4QUIT)
+		if ((LOCAL_110 & 0x8000001F) == LOCAL_109 && pUser[LOCAL_110].Status != USER_EMPTY && pUser[LOCAL_110].Status != USER_SAVING4QUIT)
 			CheckIdle(LOCAL_110);
 
-		if ((LOCAL_110 & 0x8000000F) == LOCAL_108 && pMob[LOCAL_110].Mobs.Player.CurrentScore.Hp && pUser[LOCAL_110].CurrentScore == USER_PLAY)
+		if ((LOCAL_110 & 0x8000000F) == LOCAL_108 && pMob[LOCAL_110].Mobs.Player.CurrentScore.Hp && pUser[LOCAL_110].Status == USER_PLAY)
 		{
 			RegenMob(LOCAL_110);
 
@@ -686,7 +686,7 @@ void ProcessSecTimer()
 	{
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY || pUser[i].AccessLevel != 0)
+			if (pUser[i].Status != USER_PLAY || pUser[i].AccessLevel != 0)
 				continue;
 
 			INT32 level = pMob[i].Mobs.Player.CurrentScore.Level,
@@ -771,7 +771,7 @@ void ProcessSecTimer()
 
 		for (auto& user : pUser)
 		{
-			if (user.CurrentScore != USER_PLAY)
+			if (user.Status != USER_PLAY)
 				continue;
 
 			CMob& mob = pMob[user.clientId];
@@ -1430,7 +1430,7 @@ void ProcessSecTimer()
 			}
 
 			INT32 summonerId = pMob[LOCAL_110].Summoner;
-			if (pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && summonerId > 0 && summonerId < MAX_PLAYER && pUser[summonerId].CurrentScore == USER_PLAY)
+			if (pMob[LOCAL_110].Mobs.Player.CapeInfo == 4 && summonerId > 0 && summonerId < MAX_PLAYER && pUser[summonerId].Status == USER_PLAY)
 			{
 				if (pMob[LOCAL_164].GenerateID == TORRE_ERION)
 				{
@@ -1721,7 +1721,7 @@ void ProcessSecTimer()
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
 			CUser *user = &pUser[i];
-			if (user->CurrentScore != USER_PLAY)
+			if (user->Status != USER_PLAY)
 				continue;
 
 			// Checa se esta em autovenda
@@ -1850,7 +1850,7 @@ void ProcessMinTimer()
 		{
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].CurrentScore != USER_PLAY)
+				if (pUser[i].Status != USER_PLAY)
 					continue;
 
 				if (pUser[i].IsAutoTrading)
@@ -2027,7 +2027,7 @@ void ProcessMinTimer()
 	time_point_t nowChrono = std::chrono::steady_clock::now();
 	for (const auto& user : pUser)
 	{
-		if (user.CurrentScore != USER_PLAY)
+		if (user.Status != USER_PLAY)
 			continue;
 
 		if (nowChrono - user.MacIntegrity.loginTime > 5s && !user.MacIntegrity.IsChecked && !user.MacIntegrity.WasWarned)
@@ -2054,7 +2054,7 @@ void ProcessHourTimer()
 
 		for (INT32 x = 1; x < MAX_PLAYER; x++)
 		{
-			if (pUser[x].CurrentScore < USER_SELCHAR)
+			if (pUser[x].Status < USER_SELCHAR)
 				continue;
 
 			totalOn++;
@@ -2062,7 +2062,7 @@ void ProcessHourTimer()
 			INT32 t = x;
 			for (; t < MAX_PLAYER; t++)
 			{
-				if (pUser[t].CurrentScore < 11)
+				if (pUser[t].Status < 11)
 					continue;
 
 				if (t == x)

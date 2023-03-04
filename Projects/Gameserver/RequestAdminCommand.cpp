@@ -195,7 +195,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		int count = 0;
 		for (INT32 t = 1; t < MAX_PLAYER; t++)
 		{
-			if (pUser[t].CurrentScore < USER_SELCHAR || pUser[t].AccessLevel != 0)
+			if (pUser[t].Status < USER_SELCHAR || pUser[t].AccessLevel != 0)
 				continue;
 
 			SendClientMessage(t, "Servidor entrando em manutenaao...");
@@ -211,7 +211,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		for (INT32 x = 1; x < MAX_PLAYER; x++)
 		{
-			if (pUser[x].CurrentScore < USER_SELCHAR)
+			if (pUser[x].Status < USER_SELCHAR)
 				continue;
 
 			totalOn++;
@@ -219,7 +219,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			INT32 t = x;
 			for (; t < MAX_PLAYER; t++)
 			{
-				if (pUser[t].CurrentScore < 11)
+				if (pUser[t].Status < 11)
 					continue;
 
 				if (t == x)
@@ -470,7 +470,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		{
 			for (int i = 0; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].CurrentScore != USER_PLAY)
+				if (pUser[i].Status != USER_PLAY)
 					continue;
 
 				if (pMob[i].Mobs.Player.CapeInfo == winner)
@@ -544,7 +544,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		int correct = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY || pUser[i].IsAdmin)
+			if (pUser[i].Status != USER_PLAY || pUser[i].IsAdmin)
 				continue;
 
 			CMob* mob = &pMob[i];
@@ -1017,7 +1017,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		int x = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != 22)
+			if (pUser[i].Status != 22)
 				continue;
 
 			slot = GetFirstSlot(i, 0);
@@ -1050,7 +1050,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		INT32 total = 0;
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			if (i == clientId)

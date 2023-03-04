@@ -11,7 +11,7 @@ bool CUser::RequestDeleteItem(PacketHeader *Header)
 {
 	p2E4 *p = (p2E4*)Header;
 
-	// Checagens de segurança padrão
+	// Checagens de seguranï¿½a padrï¿½o
 	if(p->ItemID <= 0 || p->ItemID > MAX_ITEMLIST)
 	{
 		AddCrackError(clientId, 4, CRACK_USER_PKTHACK);
@@ -26,7 +26,7 @@ bool CUser::RequestDeleteItem(PacketHeader *Header)
 		return false;
 	} 
 
-	if(CurrentScore != USER_PLAY)
+	if(Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 

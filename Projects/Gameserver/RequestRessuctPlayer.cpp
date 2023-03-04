@@ -5,7 +5,7 @@
 
 bool CUser::RequestRessuctPlayer(PacketHeader *Header)
 {// 00423207
-	if(pUser[clientId].CurrentScore != USER_PLAY || pMob[clientId].Mobs.Player.CurrentScore.Hp > 0)
+	if(pUser[clientId].Status != USER_PLAY || pMob[clientId].Mobs.Player.CurrentScore.Hp > 0)
 	{
 		SendHpMode(clientId);
 

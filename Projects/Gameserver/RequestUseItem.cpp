@@ -30,9 +30,9 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 	if (srcItem == NULL)
 		return false;
 
-	if (CurrentScore != USER_PLAY)
+	if (Status != USER_PLAY)
 	{
-		Log(clientId, LOG_INGAME, "Enviado pacote 0x373 (RequestUseItem) nao estando dentro do jogo. Status: %d", CurrentScore);
+		Log(clientId, LOG_INGAME, "Enviado pacote 0x373 (RequestUseItem) nao estando dentro do jogo. Status: %d", Status);
 		return false;
 	}
 	if (pMob[clientId].Mobs.Player.CurrentScore.Hp <= 0)
@@ -1324,7 +1324,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 				if (mobId <= 0 || mobId >= MAX_PLAYER)
 					continue;
 
-				if (pUser[mobId].CurrentScore != USER_PLAY)
+				if (pUser[mobId].Status != USER_PLAY)
 					continue;
 
 				if (pUser[mobId].User.Water.Total >= sServer.MaxWaterEntrance)
@@ -3746,7 +3746,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 total = 0;
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].CurrentScore != USER_PLAY)
+				if (pUser[i].Status != USER_PLAY)
 					continue;
 
 				if ((pMob[i].Target.X >= 3732 && pMob[i].Target.X <= 3816 && pMob[i].Target.Y >= 3476 && pMob[i].Target.Y <= 3562) ||
@@ -3805,7 +3805,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 total = 0;
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].CurrentScore != USER_PLAY)
+				if (pUser[i].Status != USER_PLAY)
 					continue;
 
 				if ((pMob[i].Target.X >= 3732 && pMob[i].Target.X <= 3816 && pMob[i].Target.Y >= 3476 && pMob[i].Target.Y <= 3562) ||
@@ -3864,7 +3864,7 @@ bool CUser::RequestUseItem(PacketHeader* Header)
 			INT32 total = 0;
 			for (INT32 i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].CurrentScore != USER_PLAY)
+				if (pUser[i].Status != USER_PLAY)
 					continue;
 
 				if ((pMob[i].Target.X >= 3713 && pMob[i].Target.X <= 3838 && pMob[i].Target.Y >= 3459 && pMob[i].Target.Y <= 3582) ||

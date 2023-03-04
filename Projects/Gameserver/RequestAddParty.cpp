@@ -14,7 +14,7 @@ bool CUser::RequestAddParty(PacketHeader *Header)
 	if(p->leaderId <= 0 || p->leaderId >= MAX_PLAYER)
 		return false;
 
-	if(pUser[p->leaderId].CurrentScore != USER_PLAY || pUser[p->targetId].CurrentScore != USER_PLAY)
+	if(pUser[p->leaderId].Status != USER_PLAY || pUser[p->targetId].Status != USER_PLAY)
 		return true;
 
 	CMob *liderSpw = &pMob[p->leaderId];

@@ -21,7 +21,7 @@ bool CUser::RequestAddPoint(PacketHeader *header)
 
 	int clientId = p->Header.ClientId;
 
-	if (pMob[clientId].Mobs.Player.CurrentScore.Hp == 0 || pUser[clientId].CurrentScore != USER_PLAY)
+	if (pMob[clientId].Mobs.Player.CurrentScore.Hp == 0 || pUser[clientId].Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 		AddCrackError(clientId, 10, 20);

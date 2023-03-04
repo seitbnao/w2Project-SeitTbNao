@@ -7,7 +7,7 @@ bool CUser::RequestPutOutSeal(PacketHeader* header)
 {
 	MSG_PUTOUTSEAL* p = reinterpret_cast<MSG_PUTOUTSEAL*>(header);
 
-	if (!pMob[clientId].Mobs.Player.CurrentScore.Hp || CurrentScore != USER_PLAY)
+	if (!pMob[clientId].Mobs.Player.CurrentScore.Hp || Status != USER_PLAY)
 	{
 		SendHpMode(clientId);
 

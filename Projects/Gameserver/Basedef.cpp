@@ -935,7 +935,7 @@ int GetEmptyUser()
 {
 	for (int i = 1; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].CurrentScore == USER_EMPTY)
+		if (pUser[i].Status == USER_EMPTY)
 			return i;
 	}
 
@@ -2187,7 +2187,7 @@ bool CanCargo(STRUCT_ITEM *destItem, STRUCT_ITEM *Inventory, int pDestX, int pDe
 
 void CharLogOut(int clientId)
 {
-	if(pUser[clientId].CurrentScore != USER_PLAY)
+	if(pUser[clientId].Status != USER_PLAY)
 	{
 		SendSignal(clientId, clientId, 0x116);
 
@@ -2210,7 +2210,7 @@ void CharLogOut(int clientId)
 	RemoveParty(clientId);
 
 	// Seta como o usuario esta na charList
-	pUser[clientId].CurrentScore = USER_SELCHAR;
+	pUser[clientId].Status = USER_SELCHAR;
 
 	// Remove o registro da quest atual
 	pUser[clientId].QuestAccess = 0;
@@ -2252,7 +2252,7 @@ void CheckIdle(int clientId)
 
 	if(LOCAL_2 < (LOCAL_1 - 720))
 	{
-		Log(clientId, LOG_INGAME, "Desconectado por inatividade... Last: %d. Counter: %d. Status: %d", pUser[clientId].TimeStamp.LastReceiveTime, sServer.SecCounter, pUser[clientId].CurrentScore);
+		Log(clientId, LOG_INGAME, "Desconectado por inatividade... Last: %d. Counter: %d. Status: %d", pUser[clientId].TimeStamp.LastReceiveTime, sServer.SecCounter, pUser[clientId].Status);
 		LogPlayer(clientId, "Desconectado por inatividade");
 
 		CloseUser(clientId);
@@ -2275,7 +2275,7 @@ void SetBattle(int arg1, int arg2)
 
 	if(arg1 < MAX_PLAYER)
 	{
-		if(pUser[arg1].CurrentScore != USER_PLAY)
+		if(pUser[arg1].Status != USER_PLAY)
 			return;
 	}
 	
@@ -2503,7 +2503,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				connId = 0;
 		}
 
-		if (connId <= MAX_PLAYER && pUser[connId].CurrentScore != USER_PLAY)
+		if (connId <= MAX_PLAYER && pUser[connId].Status != USER_PLAY)
 			connId = 0;
 
 		// Ressuscita a torre
@@ -2526,7 +2526,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 		for(INT32 i = 1; i < MAX_PLAYER; i++)
 		{
-			if(pUser[i].CurrentScore != USER_PLAY)
+			if(pUser[i].Status != USER_PLAY)
 				continue;
 
 			if(pMob[i].Target.X >= 1041 && pMob[i].Target.X <= 1248 && pMob[i].Target.Y >= 1950 && pMob[i].Target.Y <= 2158)
@@ -2577,7 +2577,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 			if (pMob[i].Target.X >= 1041 && pMob[i].Target.X <= 1248 &&
 				pMob[i].Target.Y >= 1950 && pMob[i].Target.Y <= 2158)
 			{
-				if (pUser[i].CurrentScore != USER_PLAY)
+				if (pUser[i].Status != USER_PLAY)
 					continue;
 
 				// Atualiza o placar de kill
@@ -2608,7 +2608,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 				cId = 0;
 		}
 
-		if (cId < MAX_PLAYER && pUser[cId].CurrentScore != USER_PLAY)
+		if (cId < MAX_PLAYER && pUser[cId].Status != USER_PLAY)
 			cId = 0;
 
 		INT32 guildId = pMob[cId].Mobs.Player.Guild;
@@ -2796,7 +2796,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	{
 		INT32 LOCAL_4 = pMob[arg2].Summoner;
 
-		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].CurrentScore != 0 && pMob[LOCAL_4].Mode != 0)
+		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].Status != 0 && pMob[LOCAL_4].Mode != 0)
 		{
 			STRUCT_ITEM *LOCAL_5 = &pMob[LOCAL_4].Mobs.Player.Equip[14];
 
@@ -2877,7 +2877,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 	{
 		INT32 LOCAL_15 = pMob[arg2].Summoner;
 
-		if(LOCAL_15 <= 0 || LOCAL_15 >= MAX_PLAYER || pUser[LOCAL_15].CurrentScore != 22)
+		if(LOCAL_15 <= 0 || LOCAL_15 >= MAX_PLAYER || pUser[LOCAL_15].Status != 22)
 		{
 			GridMulticast_2(pMob[arg1].Target.X, pMob[arg1].Target.Y, (BYTE*)&LOCAL_13, 0);
 
@@ -2910,7 +2910,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 					for(INT32 i = 1; i < MAX_PLAYER; i++)
 					{
-						if(pUser[i].CurrentScore != USER_PLAY)
+						if(pUser[i].Status != USER_PLAY)
 							continue;
 
 						if (pMob[i].Target.X >= 1041 && pMob[i].Target.X <= 1248 &&
@@ -3677,7 +3677,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			pMob[i].GetCurrentScore(i);
@@ -4025,7 +4025,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		{
 			killerId = pMob[arg2].Summoner;
 
-			if (killerId > 0 && killerId < MAX_PLAYER && pUser[killerId].CurrentScore != USER_PLAY)
+			if (killerId > 0 && killerId < MAX_PLAYER && pUser[killerId].Status != USER_PLAY)
 				killerId = 0;
 		}
 		
@@ -4083,7 +4083,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		int totalPO = 0;
 		for(INT32 i = 1;i < MAX_PLAYER; i++)
 		{
-			if(pUser[i].CurrentScore != USER_PLAY || pMob[i].Mobs.Player.CurrentScore.Hp <= 0)
+			if(pUser[i].Status != USER_PLAY || pMob[i].Mobs.Player.CurrentScore.Hp <= 0)
 				continue;
 				
 			if(pMob[i].Target.X >= 2604 && pMob[i].Target.Y >= 1708 && pMob[i].Target.X <= 2648 && pMob[i].Target.Y <= 1744)
@@ -4238,7 +4238,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		sServer.LanHouseN.Count = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			if (pMob[i].Target.X >= 3600 && pMob[i].Target.X <= 3700 && pMob[i].Target.Y >= 3600 && pMob[i].Target.Y <= 3700)
@@ -4276,7 +4276,7 @@ void MobKilled(int arg1, int arg2, int arg3, int arg4)
 		sServer.LanHouseM.Count = 0;
 		for (int i = 1; i < MAX_PLAYER; i++)
 		{
-			if (pUser[i].CurrentScore != USER_PLAY)
+			if (pUser[i].Status != USER_PLAY)
 				continue;
 
 			if (pMob[i].Target.X >= 3732 && pMob[i].Target.X <= 3816 && pMob[i].Target.Y >= 3476 && pMob[i].Target.Y <= 3562)
@@ -4752,7 +4752,7 @@ void ClearAreaTeleport(unsigned int x1, unsigned int y1, unsigned int x2, unsign
 
 	for(; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if(pUser[LOCAL_1].CurrentScore != USER_PLAY)
+		if(pUser[LOCAL_1].Status != USER_PLAY)
 			continue;
 
 		if(!pMob[LOCAL_1].Mode)
@@ -4779,7 +4779,7 @@ void ClearArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y
 
 	for (; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if (pUser[LOCAL_1].CurrentScore != USER_PLAY)
+		if (pUser[LOCAL_1].Status != USER_PLAY)
 			continue;
 
 		if (!pMob[LOCAL_1].Mode)
@@ -4806,7 +4806,7 @@ void ClearArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y
 
 	for (; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if (pUser[LOCAL_1].CurrentScore != USER_PLAY)
+		if (pUser[LOCAL_1].Status != USER_PLAY)
 			continue;
 
 		if (!pMob[LOCAL_1].Mode)
@@ -7461,7 +7461,7 @@ void RemoveParty(INT32 clientId)
 
 	if (leader && leader < MAX_PLAYER)
 	{
-		if (pUser[leader].CurrentScore != USER_PLAY)
+		if (pUser[leader].Status != USER_PLAY)
 		{
 			player->Leader = 0;
 			return;
@@ -7491,7 +7491,7 @@ void RemoveParty(INT32 clientId)
 
 			// Remove os nomes da janela do client que saiu do grupo
 			if (partyMob > 0 && partyMob < MAX_PLAYER)
-				if (pUser[partyMob].CurrentScore == USER_PLAY)
+				if (pUser[partyMob].Status == USER_PLAY)
 					SendRemoveParty(partyMob, clientId);
 		}
 
@@ -7501,7 +7501,7 @@ void RemoveParty(INT32 clientId)
 		int groupCount = 0;
 		// Encontra o namero total de players no grupo
 		for (INT8 i = 0; i < 12; i++)
-			if (player->PartyList[i] < MAX_PLAYER && pUser[player->PartyList[i]].CurrentScore == USER_PLAY)
+			if (player->PartyList[i] < MAX_PLAYER && pUser[player->PartyList[i]].Status == USER_PLAY)
 				groupCount++;
 
 		bool isClueLeader{ false };
@@ -7605,7 +7605,7 @@ void RemoveParty(INT32 clientId)
 				if (partyMob <= 0 || partyMob >= MAX_PLAYER)
 					continue;
 
-				if (pUser[partyMob].CurrentScore == 22)
+				if (pUser[partyMob].Status == 22)
 					SendRemoveParty(partyMob, 0);
 			}
 
@@ -7927,7 +7927,7 @@ void RegenMob(int User)
 		regenBase = 1000;
 
 #pragma region 7556
-	if (pMob[User].Mode && pMob[User].Mobs.Player.CurrentScore.Hp && User < MAX_PLAYER && pUser[User].CurrentScore == USER_PLAY)
+	if (pMob[User].Mode && pMob[User].Mobs.Player.CurrentScore.Hp && User < MAX_PLAYER && pUser[User].Status == USER_PLAY)
 	{
 		int currentHp = pMob[User].Mobs.Player.CurrentScore.Hp;
 		int currentMp = pMob[User].Mobs.Player.CurrentScore.Mp;
@@ -8488,7 +8488,7 @@ void LinkMountHp(int arg1)
 		return;
 
 	INT32 LOCAL_2 = pMob[arg1].Summoner;
-	if(pMob[LOCAL_2].Mode == 0 || pUser[LOCAL_2].CurrentScore != USER_PLAY)
+	if(pMob[LOCAL_2].Mode == 0 || pUser[LOCAL_2].Status != USER_PLAY)
 		return;
 
 	INT16 LOCAL_3 = pMob[LOCAL_2].Mobs.Player.Equip[14].sIndex - 2330;
@@ -8616,7 +8616,7 @@ void RemoveTrade(int clientId)
 	for(int i = 0; i < 12; i++)
 		pUser[clientId].AutoTrade.Slots[i] = -1;
 
-	if(pUser[clientId].CurrentScore != USER_PLAY)
+	if(pUser[clientId].Status != USER_PLAY)
 		return;
 
 	SendSignal(clientId, clientId, 0x384);
@@ -8688,7 +8688,7 @@ void SummonGuild(int arg1, int arg2, int arg3, int arg4, int arg5)
 
 	for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 	{
-		if(pUser[LOCAL_2].CurrentScore != USER_PLAY)
+		if(pUser[LOCAL_2].Status != USER_PLAY)
 			continue;
 
 		if(pMob[LOCAL_2].Mode == 0)
@@ -8736,7 +8736,7 @@ void SummonGuild(int arg1, int arg2, int arg3, int arg4)
 
 	for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 	{
-		if(pUser[LOCAL_2].CurrentScore != USER_PLAY)
+		if(pUser[LOCAL_2].Status != USER_PLAY)
 			continue;
 
 		if(pMob[LOCAL_2].Mode == 0)
@@ -8892,7 +8892,7 @@ void ProcessRanking()
 
 			for(INT32 LOCAL_3 = 1; LOCAL_3 < MAX_PLAYER; LOCAL_3++)
 			{
-				if(pUser[LOCAL_3].CurrentScore != USER_PLAY)
+				if(pUser[LOCAL_3].Status != USER_PLAY)
 					continue;
 
 				if(pMob[LOCAL_3].Mobs.Player.CurrentScore.Hp <= 0)
@@ -8976,7 +8976,7 @@ void ProcessRanking()
 
 			for(INT32 LOCAL_8 = 1; LOCAL_8 < MAX_PLAYER; LOCAL_8 ++)
 			{
-				if(pUser[LOCAL_8].CurrentScore != USER_PLAY)
+				if(pUser[LOCAL_8].Status != USER_PLAY)
 					continue;;
 
 				if(pMob[LOCAL_8].Mobs.Player.CurrentScore.Hp <= 0)
@@ -9269,7 +9269,7 @@ void DoNightmare()
 				if(memberId <= 0 || memberId >= MAX_PLAYER)
 					continue;
 
-				if (pUser[memberId].CurrentScore != USER_PLAY)
+				if (pUser[memberId].Status != USER_PLAY)
 				{
 					sServer.Nightmare[i].Members[x] = 0;
 					continue;
@@ -9323,7 +9323,7 @@ void DoNightmare()
 				if(memberId <= 0 || memberId >= MAX_PLAYER)
 					continue;
 
-				if(pUser[memberId].CurrentScore != USER_PLAY)
+				if(pUser[memberId].Status != USER_PLAY)
 				{
 					sServer.Nightmare[i].Members[x] = 0;
 
@@ -9400,7 +9400,7 @@ void DoWater()
 				
 				INT32 leader = water[x].Leader;
 				
-				if(x != 8 && leader != 0 && leader > 0 && leader < MAX_PLAYER && pUser[leader].CurrentScore == 22)
+				if(x != 8 && leader != 0 && leader > 0 && leader < MAX_PLAYER && pUser[leader].Status == 22)
 				{
 					INT32 slotId = GetFirstSlot(leader, 0);
 					if(slotId != -1)
@@ -9449,7 +9449,7 @@ void DoWater()
 				timer = 18;
 
 				INT32 leader = water[x].Leader;
-				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].CurrentScore == USER_PLAY)
+				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].Status == USER_PLAY)
 				{
 					for(INT32 p = 0; p < 12; p++)
 					{
@@ -9475,7 +9475,7 @@ void DoWater()
 			else
 			{
 				INT32 leader = water[x].Leader;
-				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].CurrentScore == 22)
+				if(leader > 0 && leader < MAX_PLAYER && pUser[leader].Status == 22)
 				{
 					for(INT32 p = 0; p < 12; p++)
 					{
@@ -9486,7 +9486,7 @@ void DoWater()
 						SendSignalParm(party, SERVER_SIDE, 0x3B0, mobCount);
 					}
 					
-					if(pUser[leader].CurrentScore == USER_PLAY)
+					if(pUser[leader].Status == USER_PLAY)
 						SendSignalParm(leader, SERVER_SIDE, 0x3B0, mobCount);
 					else
 						water[x].Leader = 0;
@@ -9786,7 +9786,7 @@ void DoRune()
 						for(int y = 0; y < 13; y++)
 						{
 							int cId = pista->Clients[x][y];
-							if(pUser[cId].CurrentScore != USER_PLAY)
+							if(pUser[cId].Status != USER_PLAY)
 							{
 								pista->Clients[x][y] = 0;
 
@@ -10044,7 +10044,7 @@ void LogPlayer(INT32 clientId, const char *msg, ...)
 		// Inicia a lista de argumentos
 		va_list arglist;
 
-		if(pUser[clientId].CurrentScore == USER_PLAY)
+		if(pUser[clientId].Status == USER_PLAY)
 		{
 			// Insere a hora no arquivo
 			fprintf(pFile, "\n%02d:%02d:%02d %s : ",
@@ -10142,7 +10142,7 @@ void Log(INT32 clientId, INT32 type, const char *msg, ...)
 
 				std::string message;
 
-				if (pUser[clientId].CurrentScore == USER_PLAY)
+				if (pUser[clientId].Status == USER_PLAY)
 					message += "["s + pMob[clientId].Mobs.Player.MobName + "] - "s;
 
 				message += msg;
@@ -10161,7 +10161,7 @@ void Log(INT32 clientId, INT32 type, const char *msg, ...)
 
 				std::string message;
 
-				if (pUser[clientId].CurrentScore == USER_PLAY)
+				if (pUser[clientId].Status == USER_PLAY)
 					message += "["s + pMob[clientId].Mobs.Player.MobName + "] - "s;
 
 				message += msg;
@@ -10252,7 +10252,7 @@ bool AddCrackError(int arg1, int point, int type)
 
 		SendClientMessage(arg1, g_pLanguageString[_NN_Bad_Network_Packets]);
 
-		if(pUser[arg1].CurrentScore != USER_SELCHAR)
+		if(pUser[arg1].Status != USER_SELCHAR)
 		{
 			CharLogOut(arg1);
 
@@ -10397,7 +10397,7 @@ void DoAlly(INT32 guild, INT32 ally)
 
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].CurrentScore != USER_PLAY)
+		if(pUser[i].Status != USER_PLAY)
 			continue;
 
 		if(pMob[i].Mobs.Player.Guild == guild)
@@ -10536,7 +10536,7 @@ INT32 PutItemArea(STRUCT_ITEM *item, unsigned int x1, unsigned int y1, unsigned 
 	int count = 0;
 	for (int i = 0; i < MAX_PLAYER; i++)
 	{
-		if (pUser[i].CurrentScore != USER_PLAY)
+		if (pUser[i].Status != USER_PLAY)
 			continue;
 
 		if (pMob[i].Target.X >= x1 && pMob[i].Target.Y >= y1 &&
@@ -10555,7 +10555,7 @@ INT32 PutItem(INT32 clientId, STRUCT_ITEM *item)
 	if(clientId <= 0 || clientId >= MAX_PLAYER)
 		return 0;
 
-	if(pUser[clientId].CurrentScore != USER_PLAY)
+	if(pUser[clientId].Status != USER_PLAY)
 		return 0;
 
 	INT32 slot = GetFirstSlot(clientId, 0);
@@ -10576,7 +10576,7 @@ void CloseUser(INT32 clientId)
 	INT32 LOCAL_1 = 0,
 	      LOCAL_2 = 0;
 
-	if(pUser[clientId].CurrentScore == USER_PLAY)
+	if(pUser[clientId].Status == USER_PLAY)
 	{
 		if(pMob[clientId].Target.X >= 0 && pMob[clientId].Target.X < 4096 && pMob[clientId].Target.Y >= 0 && pMob[clientId].Target.Y < 4096)
 			g_pMobGrid[pMob[clientId].Target.Y][pMob[clientId].Target.X] = 0;
@@ -10620,7 +10620,7 @@ void CloseUser(INT32 clientId)
 
  
 
-	INT32 LOCAL_3 = pUser[clientId].CurrentScore;
+	INT32 LOCAL_3 = pUser[clientId].Status;
 	if(LOCAL_3 == USER_EMPTY || LOCAL_3 == USER_ACCEPT)
 	{
 		Log(clientId, LOG_INGAME, "Usuario desconectado com status %d", LOCAL_3);
@@ -10642,7 +10642,7 @@ void CloseUser(INT32 clientId)
 		LogGold(clientId);
 
 		INT32 LOCAL_4 = pUser[clientId].Trade.ClientId;
-		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].CurrentScore == USER_PLAY && pUser[LOCAL_4].Trade.ClientId == clientId)
+		if(LOCAL_4 > 0 && LOCAL_4 < MAX_PLAYER && pUser[LOCAL_4].Status == USER_PLAY && pUser[LOCAL_4].Trade.ClientId == clientId)
 			RemoveTrade(LOCAL_4);
 
 		pUser[clientId].Trade.ClientId = 0;
@@ -10701,7 +10701,7 @@ void CloseUser(INT32 clientId)
  
 
 		AddMessageDB((BYTE*)&packet, sizeof STRUCT_SAVECHARACTER);
-		pUser[clientId].CurrentScore = USER_SAVING4QUIT;
+		pUser[clientId].Status = USER_SAVING4QUIT;
 
 		DeleteMob(clientId, 2);
 		RemoveParty(clientId);
@@ -10852,7 +10852,7 @@ void FinishCastleWar()
 	INT32 LOCAL_1 = 1;
 	for(; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if(pUser[LOCAL_1].CurrentScore != USER_PLAY)
+		if(pUser[LOCAL_1].Status != USER_PLAY)
 			continue;
 
 		SendSignal(LOCAL_1, 0x7530, 0x3AC);
@@ -10860,7 +10860,7 @@ void FinishCastleWar()
 
 	for(LOCAL_1 = 1; LOCAL_1 < MAX_PLAYER; LOCAL_1++)
 	{
-		if(pUser[LOCAL_1].CurrentScore != USER_PLAY)
+		if(pUser[LOCAL_1].Status != USER_PLAY)
 			continue;
 
 		SendSignalParm(LOCAL_1, 0x7530, 0x3AC, 0); // 0 = sServer.CastleState
@@ -11016,7 +11016,7 @@ void GuildProcess()
 
 			for(int i = 1; i < MAX_PLAYER; i++)
 			{
-				if(pUser[i].CurrentScore != USER_PLAY)
+				if(pUser[i].Status != USER_PLAY)
 					continue;
 
 				if (pMob[i].Target.X >= 2604 && pMob[i].Target.X <= 2650 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748)
@@ -11070,7 +11070,7 @@ void GuildProcess()
 		{
 			for (int i = 1; i < MAX_PLAYER; i++)
 			{
-				if (pUser[i].CurrentScore != USER_PLAY || pUser[i].IsAdmin)
+				if (pUser[i].Status != USER_PLAY || pUser[i].IsAdmin)
 					continue;
 
 				if (pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748)
@@ -11091,7 +11091,7 @@ void GuildProcess()
 			sServer.CastleState = 1;
 			for(INT32 LOCAL_13 = 1; LOCAL_13 < MAX_PLAYER; LOCAL_13++)
 			{
-				if(pUser[LOCAL_13].CurrentScore != USER_PLAY)
+				if(pUser[LOCAL_13].Status != USER_PLAY)
 					continue;
 
 				SendSignalParm(LOCAL_13, 0x7530, 0x3AC, sServer.CastleState);
@@ -11279,7 +11279,7 @@ void GuildProcess()
 				INT32 total = 0;
 				for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 				{
-					if(pUser[LOCAL_2].CurrentScore != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
+					if(pUser[LOCAL_2].Status != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
 						continue;
 
 					if(pMob[LOCAL_2].Mode == 0)
@@ -11345,7 +11345,7 @@ void GuildProcess()
 				INT32 total = 0;
 				for(INT32 LOCAL_2 = 1; LOCAL_2 < MAX_PLAYER; LOCAL_2++)
 				{
-					if(pUser[LOCAL_2].CurrentScore != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
+					if(pUser[LOCAL_2].Status != USER_PLAY || pUser[LOCAL_2].IsAutoTrading)
 						continue;
 
 					if(pMob[LOCAL_2].Mode == 0)
@@ -11453,7 +11453,7 @@ void ClearAreaGuild(unsigned int minPosX, unsigned int minPosY, unsigned int max
 {
 	for(size_t i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].CurrentScore != USER_PLAY)
+		if(pUser[i].Status != USER_PLAY)
 			continue;
 
 		if(pMob[i].Target.X < minPosX || pMob[i].Target.X > maxPosX || pMob[i].Target.Y < minPosY || pMob[i].Target.Y > maxPosY)
@@ -11557,7 +11557,7 @@ void ClearAreaLevel(unsigned int minPosX, unsigned int minPosY, unsigned int max
 {
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].CurrentScore != USER_PLAY)
+		if(pUser[i].Status != USER_PLAY)
 			continue;
 
 		if(pMob[i].Mode == 0)
@@ -11594,7 +11594,7 @@ void ClearGuildPKZone()
 
 	for(; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].CurrentScore != USER_PLAY)
+		if(pUser[i].Status != USER_PLAY)
 			continue;
 
 		if(pMob[i].Mode == 0)
@@ -12000,7 +12000,7 @@ void DoWar(int arg1, int arg2)
 
 			for(INT32 LOCAL_10 = 1; LOCAL_10 < MAX_PLAYER; LOCAL_10++)
 			{
-				if(pUser[LOCAL_10].CurrentScore != USER_PLAY)
+				if(pUser[LOCAL_10].Status != USER_PLAY)
 					continue;
 
 				if(pMob[LOCAL_10].Mobs.Player.Guild != arg1 && pMob[LOCAL_10].Mobs.Player.Guild == LOCAL_8)
@@ -12034,7 +12034,7 @@ void DoWar(int arg1, int arg2)
 
 		for(INT32 LOCAL_11 = 1; LOCAL_11 < MAX_PLAYER; LOCAL_11++)
 		{
-			if(pUser[LOCAL_11].CurrentScore != USER_PLAY)
+			if(pUser[LOCAL_11].Status != USER_PLAY)
 				continue;
 			
 			if(pMob[LOCAL_11].Mobs.Player.Guild != arg1 && pMob[LOCAL_11].Mobs.Player.Guild == arg2)
@@ -12513,7 +12513,7 @@ INT32 ReadScheduled ( )
 
 void ClearCrown(int conn)
 {
-	if (pUser[conn].CurrentScore != USER_PLAY)
+	if (pUser[conn].Status != USER_PLAY)
 		return;
 
 	int guildMemberType = pMob[conn].Mobs.Player.GuildLevel;
@@ -13222,7 +13222,7 @@ void DoColosseum()
 
 					for(int i = 1; i < MAX_PLAYER ; i ++)
 					{
-						if(pUser[i].CurrentScore != 22)
+						if(pUser[i].Status != 22)
 							continue;
 						
 						if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13249,7 +13249,7 @@ void DoColosseum()
 
 					for(int i = 0 ; i < MAX_PLAYER ; i ++)
 					{
-						if(pUser[i].CurrentScore != USER_PLAY)
+						if(pUser[i].Status != USER_PLAY)
 							continue;
 						
 						if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13267,7 +13267,7 @@ void DoColosseum()
 			{
 				for(int i = 0 ; i < MAX_PLAYER ; i ++)
 				{
-					if(pUser[i].CurrentScore != USER_PLAY)
+					if(pUser[i].Status != USER_PLAY)
 						continue;
 						
 					if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13307,7 +13307,7 @@ void DoColosseum()
 
 					for(int i = 1 ; i < MAX_PLAYER; i ++)
 					{
-						if(pUser[i].CurrentScore != 22)
+						if(pUser[i].Status != 22)
 							continue;
 						
 						if(pMob[i].Target.X >= 2608 && pMob[i].Target.X <= 2647 && pMob[i].Target.Y >= 1708 && pMob[i].Target.Y <= 1748) 
@@ -13386,7 +13386,7 @@ void PremiumTime()
 	INT32 count = 0;
 	for(INT32 i = 1; i < MAX_PLAYER; i++)
 	{
-		if(pUser[i].CurrentScore != USER_PLAY)
+		if(pUser[i].Status != USER_PLAY)
 			continue;
 
 		players[count] = i;
@@ -13411,7 +13411,7 @@ void PremiumTime()
 			_rand = Rand() % count;
 
 		INT32 clientId = players[_rand];
-		if(pUser[clientId].CurrentScore != USER_PLAY)
+		if(pUser[clientId].Status != USER_PLAY)
 			continue;
 
 		STRUCT_MOB *player = &pMob[clientId].Mobs.Player;
