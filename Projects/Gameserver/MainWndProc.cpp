@@ -100,7 +100,7 @@ LONG APIENTRY WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 
 			if (WSAGETSELECTEVENT(lParam) != FD_READ)
 			{
-				Log(user->clientId, LOG_INGAME, "Recebeu lParam (WndProc) como %hu. Erro possêvel: %hu. Desconectando o usuario.", WSAGETSELECTEVENT(lParam), WSAGETSELECTERROR(lParam));
+				Log(user->clientId, LOG_INGAME, "Recebeu lParam (WndProc) como %hu. Erro possível: %hu. Desconectando o usuario.", WSAGETSELECTEVENT(lParam), WSAGETSELECTERROR(lParam));
 
 				CloseUser(user->clientId);
 				break;
