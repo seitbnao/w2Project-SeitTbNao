@@ -5158,7 +5158,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		if (pMobData->ScoreBonus <= 0)
 			return 0;
 
-		MSG_ApplyBonus stApplyBonus{};
+		p277 stApplyBonus{};
 		stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 		stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 		stApplyBonus.BonusType = 0;
@@ -5173,12 +5173,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		if (pMobData->ScoreBonus <= 0)
 			return 0;
 
-		MSG_ApplyBonus stApplyBonus{};
+		p277 stApplyBonus{};
 		stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 		stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 		stApplyBonus.BonusType = 0;
 		stApplyBonus.Detail = 1;
-		SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+		SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 		return 1;
 	}
 	if (idwControlID == 65722)
@@ -5188,12 +5188,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		if (pMobData->ScoreBonus <= 0)
 			return 0;
 
-		MSG_ApplyBonus stApplyBonus{};
+		p277 stApplyBonus{};
 		stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 		stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 		stApplyBonus.BonusType = 0;
 		stApplyBonus.Detail = 2;
-		SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+		SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 		return 1;
 	}
 	if (idwControlID == 65725)
@@ -5203,12 +5203,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		if (pMobData->ScoreBonus <= 0)
 			return 0;
 
-		MSG_ApplyBonus stApplyBonus{};
+		p277 stApplyBonus{};
 		stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 		stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 		stApplyBonus.BonusType = 0;
 		stApplyBonus.Detail = 3;
-		SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+		SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 		return 1;
 	}
 	if (idwControlID == 65754)
@@ -5238,12 +5238,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		if (pMobData->CurrentScore.Special[0] < totalSpecial)
 		{
-			MSG_ApplyBonus stApplyBonus{};
+			p277 stApplyBonus{};
 			stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 			stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 			stApplyBonus.BonusType = 1;
 			stApplyBonus.Detail = 0;
-			SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+			SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 		}
 		else
 		{
@@ -5283,12 +5283,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		if (pMobData->CurrentScore.Special[1] < totalSpecial)
 		{
-			MSG_ApplyBonus stApplyBonus{};
+			p277 stApplyBonus{};
 			stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 			stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 			stApplyBonus.BonusType = 1;
 			stApplyBonus.Detail = 1;
-			SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+			SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 		}
 		else
 		{
@@ -5324,12 +5324,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		if (pMobData->CurrentScore.Special[2] < totalSpecial)
 		{
-			MSG_ApplyBonus stApplyBonus{};
+			p277 stApplyBonus{};
 			stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 			stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 			stApplyBonus.BonusType = 1;
 			stApplyBonus.Detail = 2;
-			SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+			SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 		}
 		else
 		{
@@ -5363,12 +5363,12 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		if (pMobData->CurrentScore.Special[3] < totalSpecial)
 		{
-			MSG_ApplyBonus stApplyBonus{};
+			p277 stApplyBonus{};
 			stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 			stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 			stApplyBonus.BonusType = 1;
 			stApplyBonus.Detail = 3;
-			SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+			SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 		}
 		else
 		{
@@ -16570,14 +16570,14 @@ int TMFieldScene::OnMsgBoxEvent(unsigned int idwControlID, unsigned int idwEvent
 	break;
 	case 4:
 	{
-		MSG_ApplyBonus stApplyBonus{};
+		p277 stApplyBonus{};
 
 		stApplyBonus.Header.ClientId = m_pMyHuman->m_dwID;
 		stApplyBonus.Header.PacketId = MSG_ApplyBonus_Opcode;
 		stApplyBonus.BonusType = 2;
 		stApplyBonus.Detail = m_pMessageBox->m_dwArg >> 16;
 		stApplyBonus.TargetID = m_pMessageBox->m_dwArg;
-		SendOneMessage((char*)&stApplyBonus, sizeof(stApplyBonus));
+		SendOneMessage((char*)&stApplyBonus, sizeof(p277));
 	}
 	break;
 	case 6193:
