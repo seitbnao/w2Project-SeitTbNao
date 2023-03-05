@@ -2023,23 +2023,6 @@ void ProcessMinTimer()
 			SendWeather();
 		}
 	}
-
-	time_point_t nowChrono = std::chrono::steady_clock::now();
-	for (const auto& user : pUser)
-	{
-		if (user.Status != USER_PLAY)
-			continue;
-
-		if (nowChrono - user.MacIntegrity.loginTime > 5s && !user.MacIntegrity.IsChecked && !user.MacIntegrity.WasWarned)
-		{
-			Log(user.clientId, LOG_HACK, "O usuario nao enviou o pacote de integridade de macaddress");
-			Log(SERVER_SIDE, LOG_HACK, "O usuario %s nao enviou o pacote de integridade de macaddress", user.User.Username);
-
-			user.MacIntegrity.WasWarned = true;
-		}
-	}
-
-	//NaO REMOVER
 	sServer.MinCounter = counter;
 }
 
