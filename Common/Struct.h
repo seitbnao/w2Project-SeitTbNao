@@ -490,16 +490,9 @@ typedef struct
 	UINT32 sIndex;
 } p384;
 
-typedef struct 
-{
-   PacketHeader Header; // 0 - 11
-   short Mode; // 12 - 13
-   short Info; // 14 - 15
-   int unk; // 16 - 17
-}p277;
 
 
-
+ 
 typedef struct
 {
 	PacketHeader Header;
