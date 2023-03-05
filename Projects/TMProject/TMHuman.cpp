@@ -3431,7 +3431,7 @@ int TMHuman::OnPacketEvent(unsigned int dwCode, char* buf)
             return 1;
     }
 
-    switch (pStandard->TimeStamp)
+    switch (pStandard->PacketId)
     {
     case 0x3CA:
         return OnPacketPremiumFireWork((PacketHeader*)buf);
