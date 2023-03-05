@@ -8,6 +8,7 @@
 #include "CUser.h"
  
 #include "Keytable.h"
+#include "EncDec.h"
 #include "pugixml.hpp"
  
 // Adiciona a library da winsock
