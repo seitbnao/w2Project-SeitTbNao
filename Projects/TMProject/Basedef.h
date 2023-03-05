@@ -911,13 +911,7 @@ struct MSG_CNFParty2
 };
 
 constexpr auto MSG_ApplyBonus_Opcode = 0x277;
-struct MSG_ApplyBonus
-{
-	PacketHeader Header;
-	short BonusType;
-	short Detail;
-	unsigned short TargetID;
-};
+
 
 constexpr auto MSG_ReqBuy_Opcode = 0x398;
 struct MSG_ReqBuy
