@@ -756,4 +756,12 @@ typedef struct
 	INT32 MaxHp;
 	INT32 MaxMp;
 } p181;
+
+typedef struct
+{
+	PacketHeader Header;
+	short BonusType;
+	short Detail;
+	unsigned short TargetID;
+}p277;
 #endif //__SHAREDSTRUCT_H__
