@@ -57,6 +57,9 @@
     <ClInclude Include="CUser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EncDec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="GetFunc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -108,9 +111,6 @@
     <ClInclude Include="..\..\Common\SharedStructs.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="EncDec.h">
-      <Filter>Header Files\Common</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddMessage DB.cpp">
@@ -141,6 +141,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CUser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Decrypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GetCharInfo.cpp">
@@ -415,12 +421,6 @@
     </ClCompile>
     <ClCompile Include="RequestRedeemGriffin.cpp">
       <Filter>Source Files\Packets</Filter>
-    </ClCompile>
-    <ClCompile Include="Decrypt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Encrypt.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
