@@ -108,12 +108,32 @@ BOOL CPSock::AddMessage(char *packet, INT32 size)
 	sServer.LastSendTime = sServer.CurrentTime;
 
 	char *packetBuffer = packet;
+	//if(!CheckPacket(LOCAL_70))
+	// blabla
 
 	INT32 sum1 = 0; // 11C
 	INT32 sum2 = 0; // 120;
 	INT32 pos = KeyTable[(rnd & 255) * 2];
 
-	PacketEncrypt((BYTE*)&sendBuffer[size], (BYTE*)packet, size, NULL);
+	for (INT32 i = 4; i < size; i++, pos++)
+	{
+		sum1 += packet[i];
+
+		INT32 rst = pos & 0x800000FF;
+		INT32 trans = KeyTable[(rst & 255) * 2 + 1]; // - 130
+		INT32 mod = i & 3;
+
+		if (mod == 0)
+			sendBuffer[nSendPosition + i] = packet[i] + ((trans & 0xFF) << 1);
+		else if (mod == 1)
+			sendBuffer[nSendPosition + i] = packet[i] - ((trans & 0xFF) >> 3);
+		else if (mod == 2)
+			sendBuffer[nSendPosition + i] = packet[i] + ((trans & 0xFF) << 2);
+		else if (mod == 3)
+			sendBuffer[nSendPosition + i] = packet[i] - ((trans & 0xFF) >> 5);
+
+		sum2 += sendBuffer[nSendPosition + i];
+	}
 
 	header->CheckSum = ((sum2 & 0xFF) - (sum1 & 0xFF) & 255);
 
@@ -227,7 +247,40 @@ BOOL CPSock::CloseSocket()
 	Sock = 0;
 	return TRUE;
 }
- 
+
+bool PacketDecrypt(BYTE* PacketBuffer)
+{
+	PacketHeader* Header = (PacketHeader*)PacketBuffer;
+
+	INT32 KeyResult = NULL;
+	INT32 KeyIncrement = KeyTable[Header->Key * 2];
+
+	for (INT32 i = 4; i < Header->Size; i++, KeyIncrement++)
+	{
+		KeyResult = KeyTable[((KeyIncrement & 0x800000FF) * 2) + 1];
+
+		switch (i & 3)
+		{
+		case 00:
+			*(INT8*)((UINT32)PacketBuffer + i) -= ((KeyResult & 255) << 1);
+			break;
+		case 01:
+			*(INT8*)((UINT32)PacketBuffer + i) += ((KeyResult & 255) >> 3);
+			break;
+		case 02:
+			*(INT8*)((UINT32)PacketBuffer + i) -= ((KeyResult & 255) << 2);
+			break;
+		case 03:
+			*(INT8*)((UINT32)PacketBuffer + i) += ((KeyResult & 255) >> 5);
+			break;
+		}
+
+	}
+
+
+	// TODO :Falta fazer a checagem do checksum
+	return true;
+}
 
 char* CPSock::ReadMessage(int *ErrorCode, int* ErrorType)
 {
