@@ -153,7 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Common\EncDec.h" />
     <ClInclude Include="..\..\Common\ItemEffect.h" />
     <ClInclude Include="..\..\Common\KeyTable.h" />
     <ClInclude Include="..\..\Common\SharedStructs.h" />
@@ -175,8 +174,6 @@
     <ClCompile Include="CFileDB.cpp" />
     <ClCompile Include="CPSock.cpp" />
     <ClCompile Include="CUser.cpp" />
-    <ClCompile Include="Decrypt.cpp" />
-    <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="CResetAccount.cpp" />
     <ClCompile Include="CSealSoul.cpp" />
