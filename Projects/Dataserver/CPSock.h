@@ -37,6 +37,7 @@ public:
 	BOOL CloseSocket();
 
 	char * ReadMessage(int *ErrorCode, int* ErrorType);
+	bool PacketDecrypt(BYTE* PacketBuffer);
 };
 
 #endif

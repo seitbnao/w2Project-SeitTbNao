@@ -215,11 +215,13 @@
     <OutDir>$(SolutionDir)Release\TMSRV\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)Common\;$(IncludePath)</IncludePath>
+    <TargetName>TMsrv_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Release\TMSRV\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)Common\;$(IncludePath)</IncludePath>
+    <TargetName>TMsrv</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
