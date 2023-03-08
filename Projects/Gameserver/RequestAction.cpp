@@ -110,24 +110,24 @@ bool CUser::RequestAction(PacketHeader *Header)
 		}
 	}
 
-	if(p->MoveSpeed > pMob[clientId].Mobs.Player.CurrentScore.Move.Speed)
+	if(p->Speed > pMob[clientId].Mobs.Player.CurrentScore.Move.Speed)
 	{
-		// Retira o CrackError ja que o MoveSpeed correto ê setado novamente abaixo.
+		// Retira o CrackError ja que o Speed correto ê setado novamente abaixo.
 		//AddCrackError(clientId, 5, 4);
 
 		std::stringstream str;
 		str << "Informaçães do pacote:\n";
-		str << "MoveType: " << p->MoveType << "\n";
-		str << "MoveSpeed: " << p->MoveSpeed << "\n";
-		str << "DestinyX: " << p->Destiny.X << "\n";
-		str << "DestinyY: " << p->Destiny.Y << "\n";
-		str << "DestinyX: " << p->LastPos.X << "\n";
-		str << "DestinyY: " << p->LastPos.Y << "\n";
+		str << "MoveType: " << p->stEffect << "\n";
+		str << "MoveSpeed: " << p->Speed << "\n";
+		str << "DestinyX: " << p->TargetX << "\n";
+		str << "DestinyY: " << p->TargetY << "\n";
+		str << "DestinyX: " << p->PosX << "\n";
+		str << "DestinyY: " << p->PosY << "\n";
 
 		str << "etc,diffrent movement. Speed que era para ser: " << (pMob[clientId].Mobs.Player.CurrentScore.Move.Value & 15);
 
 		Log(clientId, LOG_ERROR, str.str().c_str());
-		p->MoveSpeed = pMob[clientId].Mobs.Player.CurrentScore.Move.Speed; 
+		p->Speed = pMob[clientId].Mobs.Player.CurrentScore.Move.Speed; 
 	}
 
 	//00423AB3
@@ -136,16 +136,16 @@ bool CUser::RequestAction(PacketHeader *Header)
 
 	// Aqui ha uma checagem do tipo de movimento
 	// Quando ê 1 ou 2, naturalmente a TMsrv nêo faz a checagem de distência. Ridêculo, nêo? :)
-	if (p->Destiny.X < tgtX - VIEWGRIDX || p->Destiny.X > tgtX + VIEWGRIDX || p->Destiny.Y < tgtY - VIEWGRIDY || p->Destiny.Y > tgtY + VIEWGRIDY)
+	if (p->TargetX < tgtX - VIEWGRIDX || p->TargetX > tgtX + VIEWGRIDX || p->TargetY < tgtY - VIEWGRIDY || p->TargetY > tgtY + VIEWGRIDY)
 	{
-		if (p->Destiny.X < tgtX - (VIEWGRIDX * 2) || p->Destiny.X > tgtX + VIEWGRIDX * 2 || p->Destiny.Y < tgtY - VIEWGRIDY * 2 || p->Destiny.Y > tgtY + VIEWGRIDY * 2)
+		if (p->TargetX < tgtX - (VIEWGRIDX * 2) || p->TargetX > tgtX + VIEWGRIDX * 2 || p->TargetY < tgtY - VIEWGRIDY * 2 || p->TargetY > tgtY + VIEWGRIDY * 2)
 		{
 			p36C sm; // local55
 			memset(&sm, 0, sizeof p36C);
 			
 			GetAction(clientId, tgtX, tgtY, &sm);
 			sm.Header.PacketId = 0x368;
-			sm.MoveSpeed = 6;
+			sm.Speed = 6;
 
 			pUser[clientId].SendOneMessage((BYTE*)&sm, sizeof p36C);
 		}
@@ -207,7 +207,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 	int cape = pMob[clientId].Mobs.Player.CapeInfo;
 	/*
 	// RvR
-	if (p->Destiny.X >= 1710 && p->Destiny.X <= 1715 && p->Destiny.Y >= 1969 && tgtY <= p->Destiny.Y && sServer.RvR.CurrentScore == 1)
+	if (p->TargetX >= 1710 && p->TargetX <= 1715 && p->TargetY >= 1969 && tgtY <= p->TargetY && sServer.RvR.CurrentScore == 1)
 	{
 		if (cape != CAPE_RED)
 		{
@@ -216,13 +216,13 @@ bool CUser::RequestAction(PacketHeader *Header)
 			
 			GetAction(clientId, tgtX, tgtY, &sm);
 			sm.Header.PacketId = 0x368;
-			sm.MoveSpeed = p->MoveSpeed;
+			sm.Speed = p->Speed;
 
 			Users[clientId].SendOneMessage((BYTE*)&sm, sizeof p36C);
 			return true;
 		}
 	}
-	else if (p->Destiny.X >= 1748 && p->Destiny.X <= 1754 && p->Destiny.Y >= 1969 && p->Destiny.Y <= 1994 && sServer.RvR.CurrentScore == 1)
+	else if (p->TargetX >= 1748 && p->TargetX <= 1754 && p->TargetY >= 1969 && p->TargetY <= 1994 && sServer.RvR.CurrentScore == 1)
 	{
 		if (cape != CAPE_BLUE)
 		{
@@ -231,24 +231,24 @@ bool CUser::RequestAction(PacketHeader *Header)
 			
 			GetAction(clientId, tgtX, tgtY, &sm);
 			sm.Header.PacketId = 0x368;
-			sm.MoveSpeed = p->MoveSpeed;
+			sm.Speed = p->Speed;
 
 			Users[clientId].SendOneMessage((BYTE*)&sm, sizeof p36C);
 			return true;
 		}
 	}*/
 
-	if(p->Destiny.X <= 0 || p->Destiny.X >= 4096 || p->Destiny.Y <= 0 || p->Destiny.Y >= 4096)
+	if(p->TargetX <= 0 || p->TargetX >= 4096 || p->TargetY <= 0 || p->TargetY >= 4096)
 	{
 		Log(clientId, LOG_ERROR, "err,action - viewgrid %s", pMob[clientId].Mobs.Player.MobName);
 
 		return true;
 	}
 
-	if (p->Destiny.X != pMob[clientId].Target.X || p->Destiny.Y != pMob[clientId].Target.Y)
+	if (p->TargetX != pMob[clientId].Target.X || p->TargetY != pMob[clientId].Target.Y)
 	{
 		// 00423CEC
-		eMapAttribute attribute = GetAttribute(p->Destiny.X, p->Destiny.Y); // local56
+		eMapAttribute attribute = GetAttribute(p->TargetX, p->TargetY); // local56
 		if ((attribute.Newbie && pMob[clientId].Mobs.Player.CurrentScore.Level > sServer.NewbieZone && pMob[clientId].Mobs.Player.CurrentScore.Level < 1000) && !pUser[clientId].IsAdmin)
 		{
 			SendClientMessage(clientId, g_pLanguageString[_NN_Newbie_zone]);
@@ -267,7 +267,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 
 		if (attribute.Guild && pMob[clientId].Mobs.Player.CurrentScore.Level < 400 && !pUser[clientId].IsAdmin)
 		{
-			INT32 village = GetVillage(p->Destiny.X, p->Destiny.Y); // local57
+			INT32 village = GetVillage(p->TargetX, p->TargetY); // local57
 
 			if (village >= 0 && village < 5)
 			{
@@ -283,24 +283,24 @@ bool CUser::RequestAction(PacketHeader *Header)
 
 		pUser[clientId].Movement.PacketId = p->Header.PacketId;
 		INT32 LOCAL_58 = 0, // ?
-			posX = p->Destiny.X,
-			posY = p->Destiny.Y;
+			posX = p->TargetX,
+			posY = p->TargetY;
 
 		char pCmd[256];
-		strncpy_s(pCmd, p->Command, 24);
+		strncpy_s(pCmd, p->Route, 24);
 
 		if (g_pMobGrid[posY][posX] != 0 && g_pMobGrid[posY][posX] != clientId)
 		{
-			unsigned int tmpPosX = p->Destiny.X;
-			unsigned int tmpPosY = p->Destiny.Y;
-			size_t strsize = strlen(p->Command);
+			unsigned int tmpPosX = p->TargetX;
+			unsigned int tmpPosY = p->TargetY;
+			size_t strsize = strlen(p->Route);
 
 			int j;
 			
 			for (j = strsize; j >= 0; j--)
 			{
-				GetRoute(p->LastPos.X, p->LastPos.Y, &tmpPosX, &tmpPosY, p->Command, j); // (char*)g_pHeightGrid);
-				if (g_pMobGrid[p->Destiny.Y][p->Destiny.X] != 0 && g_pMobGrid[p->Destiny.Y][p->Destiny.X] != clientId)
+				GetRoute(p->PosX, p->PosY, &tmpPosX, &tmpPosY, p->Route, j); // (char*)g_pHeightGrid);
+				if (g_pMobGrid[p->TargetY][p->TargetX] != 0 && g_pMobGrid[p->TargetY][p->TargetX] != clientId)
 					continue;
 
 				break;
@@ -308,22 +308,22 @@ bool CUser::RequestAction(PacketHeader *Header)
 
 			if (j == -1)
 			{
-				p->Destiny.X = pMob[clientId].Target.X;
-				p->Destiny.Y = pMob[clientId].Target.Y;
+				p->TargetX = pMob[clientId].Target.X;
+				p->TargetY = pMob[clientId].Target.Y;
 
-				p->Command[0] = 0;
+				p->Route[0] = 0;
 
 				AddMessage((BYTE*)p, sizeof p);
 				return true;
 			}
 
-			p->Destiny.X = tmpPosX;
-			p->Destiny.Y = tmpPosY;
+			p->TargetX = tmpPosX;
+			p->TargetY = tmpPosY;
 
 			AddMessage((BYTE*)p, sizeof p);
 		}
 
-		memcpy(pMob[clientId].Route, p->Command, 24);
+		memcpy(pMob[clientId].Route, p->Route, 24);
 
 		GridMulticast(clientId, posX, posY, (BYTE*)p);
 
@@ -381,7 +381,7 @@ bool CUser::RequestAction(PacketHeader *Header)
 	}
 
 #if defined(_DEBUG)
-	printf("Pacote recebido. Posicao: %hux %huy\n", p->Destiny.X, p->Destiny.Y);
+	printf("Pacote recebido. Posicao: %hux %huy\n", p->TargetX, p->TargetY);
 #endif
 
 	return true;
@@ -403,11 +403,11 @@ bool RequestAction2(PacketHeader *Header)
 	int LOCAL199 = pMob[conn].Last.X; // local199
 	int posY = pMob[conn].Last.Y; // local200
 
-	int destX = p->Destiny.X; // local201
-	int destY = p->Destiny.Y; // local202
+	int destX = p->TargetX; // local201
+	int destY = p->TargetY; // local202
 
-	int lastX = p->LastPos.X; // local203
-	int lastY = p->LastPos.Y; // local204
+	int lastX = p->PosX; // local203
+	int lastY = p->PosY; // local204
 
 	if (destX <= 0 || destX >= 4096 || destY <= 0 || destY >= 4096)
 	{
@@ -608,25 +608,25 @@ bool RequestAction2(PacketHeader *Header)
 
 	unsigned int LOCAL_256 = GetSpeed(&pMob[conn].Mobs.Player.CurrentScore);
 
-	if (p->MoveSpeed > LOCAL_256)
+	if (p->Speed > LOCAL_256)
 	{
 		// log different moviemtn
 
-		p->MoveSpeed = pMob[conn].Mobs.Player.CurrentScore.Move.Value & 15;
+		p->Speed = pMob[conn].Mobs.Player.CurrentScore.Move.Value & 15;
 	}
 
-	/* if (p->MoveType != 1 && p->MoveType != 2)
+	/* if (p->stEffect != 1 && p->stEffect != 2)
 	{
-		if (p->Destiny.X < LOCAL199 - VIEWGRIDX || p->Destiny.X > LOCAL199 + VIEWGRIDX || p->Destiny.Y < posY - VIEWGRIDY || p->Destiny.Y > posY + VIEWGRIDY)
+		if (p->TargetX < LOCAL199 - VIEWGRIDX || p->TargetX > LOCAL199 + VIEWGRIDX || p->TargetY < posY - VIEWGRIDY || p->TargetY > posY + VIEWGRIDY)
 		{
-			if (p->Destiny.X < LOCAL199 - (VIEWGRIDX * 2) || p->Destiny.X > LOCAL199 + VIEWGRIDX * 2 || p->Destiny.Y < posY - VIEWGRIDY * 2 || p->Destiny.Y > posY + VIEWGRIDY * 2)
+			if (p->TargetX < LOCAL199 - (VIEWGRIDX * 2) || p->TargetX > LOCAL199 + VIEWGRIDX * 2 || p->TargetY < posY - VIEWGRIDY * 2 || p->TargetY > posY + VIEWGRIDY * 2)
 			{
 				p36C sm; // local55
 				memset(&sm, 0, sizeof p36C);
 
 				GetAction(conn, LOCAL199, posY, &sm);
 				sm.Header.PacketId = 0x368;
-				sm.MoveSpeed = 6;
+				sm.Speed = 6;
 
 				Users[conn].SendOneMessage((BYTE*)&sm, sizeof p36C);
 				return true;

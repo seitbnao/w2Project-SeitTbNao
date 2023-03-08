@@ -3414,7 +3414,7 @@ int TMHuman::OnPacketEvent(unsigned int dwCode, char* buf)
 
     if (pStandard->PacketId == MSG_Action_Opcode || pStandard->PacketId == MSG_Action_Stop_Opcode || pStandard->PacketId == MSG_Action2_Opcode)
     {
-        MSG_Action* pAction = (MSG_Action*)buf;
+        p36C* pAction = (p36C*)buf;
         if (pAction->TargetX < 0 || pAction->TargetX > 5000 ||
             pAction->TargetY < 0 || pAction->TargetY > 5000)
         {
@@ -3509,7 +3509,7 @@ int TMHuman::OnPacketEvent(unsigned int dwCode, char* buf)
     return 0;
 }
 
-int TMHuman::OnPacketMove(MSG_Action* pAction)
+int TMHuman::OnPacketMove(p36C* pAction)
 {
     if (pAction == nullptr)
         return 0;
@@ -3628,7 +3628,7 @@ int TMHuman::OnPacketMove(MSG_Action* pAction)
     return 1;
 }
 
-int TMHuman::OnPacketChaosCube(MSG_Action* pAction)
+int TMHuman::OnPacketChaosCube(p36C* pAction)
 {
     m_cSameHeight = 1;
     m_vecStartPos.x = (int)m_vecPosition.x;
@@ -3664,7 +3664,7 @@ int TMHuman::OnPacketChaosCube(MSG_Action* pAction)
 
 int TMHuman::OnPacketIllusion(PacketHeader* pStd)
 {
-    auto pAction = (MSG_Action*)pStd;
+    auto pAction = (p36C*)pStd;
     auto pScene = static_cast<TMFieldScene*>(g_pCurrentScene);
     if (!m_cHide && pStd->PacketId == MSG_Action2_Opcode)
     {
@@ -11639,7 +11639,7 @@ void TMHuman::OnlyMove(int nX, int nY, int nLocal)
     if (m_vecTargetPos.x == nX && m_vecTargetPos.y == nY)
         return;
 
-    MSG_Action stAction{};
+    p36C stAction{};
     stAction.Header.ClientId = m_dwID;
     stAction.PosX = nX;
     stAction.PosY = nY;
@@ -12650,7 +12650,7 @@ void TMHuman::GetRoute(IVector2 vecTarget, int nCount, int bStop)
                                 m_LastSendTargetPos.x = vecTarget.x;
                                 m_LastSendTargetPos.y = vecTarget.y;
 
-                                MSG_Action dst{};
+                                p36C dst{};
 
                                 dst.Header.ClientId = m_dwID;
                                 dst.PosX = nSX;
@@ -12730,7 +12730,7 @@ void TMHuman::GetRoute(IVector2 vecTarget, int nCount, int bStop)
                             memset(m_cRouteBuffer, 0, sizeof(m_cRouteBuffer));
                             memcpy(m_cRouteBuffer, cRouteBuffer, nRouteIndex);
                             
-                            MSG_Action stAction{};
+                            p36C stAction{};
                             stAction.Header.ClientId = m_dwID;
                             stAction.PosX = nSX;
                             stAction.PosY = nSY;

@@ -1633,8 +1633,8 @@ void ProcessSecTimer()
 			p36C LOCAL_208;
 			GetAction(LOCAL_110, pMob[LOCAL_110].Next.X, pMob[LOCAL_110].Next.Y, &LOCAL_208);
 
-			LOCAL_208.Command[0] = 0;
-			LOCAL_208.MoveType = 0;
+			LOCAL_208.Route[0] = 0;
+			LOCAL_208.stEffect = 0;
 
 			GridMulticast(LOCAL_110, pMob[LOCAL_110].Next.X, pMob[LOCAL_110].Next.Y, (BYTE*)&LOCAL_208);
 		}
@@ -1652,8 +1652,8 @@ void ProcessSecTimer()
 			p36C LOCAL_222;
 			GetAction(LOCAL_110, pMob[LOCAL_110].Next.X, pMob[LOCAL_110].Next.Y, &LOCAL_222);
 
-			//	LOCAL_222.Command[0] = 0;
-			LOCAL_222.MoveType = 0;
+			//	LOCAL_222.Route[0] = 0;
+			LOCAL_222.stEffect = 0;
 
 			GridMulticast(LOCAL_110, pMob[LOCAL_110].Next.X, pMob[LOCAL_110].Next.Y, (BYTE*)&LOCAL_222);
 		}
@@ -1666,7 +1666,7 @@ void ProcessSecTimer()
 			p36C LOCAL_235;
 			GetAction(LOCAL_110, pMob[LOCAL_110].Next.X, pMob[LOCAL_110].Next.Y, &LOCAL_235);
 
-			LOCAL_235.MoveType = 0;
+			LOCAL_235.stEffect = 0;
 
 			GridMulticast(LOCAL_110, pMob[LOCAL_110].Next.X, pMob[LOCAL_110].Next.Y, (BYTE*)&LOCAL_235);
 		}

@@ -7256,7 +7256,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 				{
 					m_pMyHuman->m_LastSendTargetPos = m_vecMyNext;
 
-					MSG_Action Msg{};
+					p36C Msg{};
 					Msg.Header.ClientId = m_pMyHuman->m_dwID;
 					Msg.PosX = m_stMoveStop.NextX;
 					Msg.PosY = m_stMoveStop.NextY;
@@ -7292,7 +7292,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 			{
 				m_pMyHuman->m_LastSendTargetPos = m_vecMyNext;
 
-				MSG_Action stAction{};
+				p36C stAction{};
 				stAction.Header.ClientId = m_pMyHuman->m_dwID;
 				stAction.PosX = m_pMyHuman->m_LastSendTargetPos.x;
 				stAction.PosY = m_pMyHuman->m_LastSendTargetPos.y;
@@ -9168,7 +9168,7 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 					if (!strlen(cRouteBuffer))
 						return 1;
 
-					MSG_Action stAction{};
+					p36C stAction{};
 					stAction.Header.ClientId = m_pMyHuman->m_dwID;
 					stAction.PosX = x;
 					stAction.PosY = y;
@@ -16180,7 +16180,7 @@ void TMFieldScene::MobStop(D3DXVECTOR3 vec)
 		
 		m_pMyHuman->m_LastSendTargetPos = m_vecMyNext;
 
-		MSG_Action stAction{};
+		p36C stAction{};
 
 		stAction.Header.ClientId = m_pMyHuman->m_dwID;
 		stAction.PosX = nSX;
@@ -21010,7 +21010,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 							if (!strlen(Route))
 								return 1;
 
-							MSG_Action Msg{};
+							p36C Msg{};
 							Msg.Header.ClientId = m_pMyHuman->m_dwID;
 							Msg.Header.PacketId = MSG_Action_Opcode;
 							Msg.PosX = targetx;
@@ -23921,7 +23921,7 @@ void TMFieldScene::GameAuto()
 			{
 				m_pMyHuman->m_LastSendTargetPos = m_vecMyNext;
 
-				MSG_Action stAction{};
+				p36C stAction{};
 				stAction.Header.ClientId = m_pMyHuman->m_dwID;
 				stAction.PosX = m_pMyHuman->m_LastSendTargetPos.x;
 				stAction.PosY = m_pMyHuman->m_LastSendTargetPos.y;

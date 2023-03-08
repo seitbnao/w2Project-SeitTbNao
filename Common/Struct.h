@@ -366,20 +366,6 @@ typedef struct
  
 
 
-
-typedef struct
-{
-	PacketHeader Header; // 0 - 11
-	STRUCT_POSITION LastPos;  // 12 - 15
-
-	UINT32 MoveType; // 16 - 19
-	UINT32 MoveSpeed;  // 20 - 23
-
-	char Command[24];  // 23 - 47
-
-	STRUCT_POSITION Destiny; // 48 - 50
-} p36C;
-
 typedef struct 
 {
     PacketHeader Header;

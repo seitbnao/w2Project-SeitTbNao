@@ -1249,8 +1249,8 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 								GetAction(targetIdx, posX, posY, &LOCAL_256);
 
-								LOCAL_256.MoveType = 2;
-								LOCAL_256.MoveSpeed = 6;
+								LOCAL_256.stEffect = 2;
+								LOCAL_256.Speed = 6;
 
 								GridMulticast(targetIdx, posX, posY, (BYTE*)&LOCAL_256);
 
@@ -1317,8 +1317,8 @@ bool CUser::RequestAttack(PacketHeader *Header)
 						p36C sm; // local276
 
 						GetAction(targetIdx, _mobPosX, _mobPosY, &sm);
-						sm.MoveSpeed = 2;
-						sm.MoveType = 2;
+						sm.Speed = 2;
+						sm.stEffect = 2;
 
 						GridMulticast(targetIdx, _mobPosX, _mobPosY, (BYTE*)&sm);
 
@@ -1327,8 +1327,8 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 						GetAction(clientId, mobPosX, mobPosY, &sm);
 
-						sm.MoveSpeed = 2;
-						sm.MoveType = 2;
+						sm.Speed = 2;
+						sm.stEffect = 2;
 
 						GridMulticast(targetIdx, _mobPosX, _mobPosY, (BYTE*)&sm);
 

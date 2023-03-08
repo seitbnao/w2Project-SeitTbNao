@@ -764,4 +764,17 @@ typedef struct
 	short Detail;
 	unsigned short TargetID;
 }p277;
+
+
+typedef struct
+{
+	PacketHeader Header; // 0 - 11
+	short PosX;
+	short PosY;
+	UINT32 stEffect; // 16 - 19
+	UINT32 Speed;  // 20 - 23
+	char Route[24];  // 23 - 47
+	unsigned short TargetX;
+	unsigned short TargetY;
+} p36C;
 #endif //__SHAREDSTRUCT_H__

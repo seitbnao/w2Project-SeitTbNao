@@ -431,17 +431,7 @@ constexpr auto MSG_Action_Opcode = 0x36C;
 constexpr auto MSG_Action2_Opcode = 0x368;
 constexpr auto MSG_Action_Stop_Opcode = 0x366;
 
-struct MSG_Action
-{
-	PacketHeader Header;
-	short PosX;
-	short PosY;
-	int stEffect;
-	int Speed;
-	char Route[24];
-	unsigned short TargetX;
-	unsigned short TargetY;
-};
+ 
 
 constexpr auto MSG_Motion_Opcode = 0x36A;
 struct MSG_Motion

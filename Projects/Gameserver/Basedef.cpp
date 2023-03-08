@@ -1187,9 +1187,9 @@ void GridMulticast(int sIndex, unsigned int posX, unsigned int posY, BYTE *buf)
 //	memset(LOCAL_85, 0, sizeof p36C);
 	
 	mob->Last.Time = LOCAL_85->Header.TimeStamp;
-	mob->Last.Speed = LOCAL_85->MoveSpeed;
-	mob->Last.X = LOCAL_85->LastPos.X;
-	mob->Last.Y = LOCAL_85->LastPos.Y;
+	mob->Last.Speed = LOCAL_85->Speed;
+	mob->Last.X = LOCAL_85->PosX;
+	mob->Last.Y = LOCAL_85->PosY;
 
     mob->Target.X = posX;
     mob->Target.Y = posY;
@@ -1209,7 +1209,7 @@ void Teleportar(int clientId, unsigned int posX, unsigned int posY)
 	p36C packet{};
 	GetAction(clientId, posX, posY, &packet);
 
-	packet.MoveType = 1;
+	packet.stEffect = 1;
 
 	if (clientId < MAX_PLAYER)
 	{
@@ -8090,8 +8090,8 @@ int UpdateItem(int arg1, int arg2, int* arg3)
 					p36C LOCAL_26;
 					GetAction(LOCAL_12, LOCAL_10, LOCAL_11, &LOCAL_26);
 
-					LOCAL_26.MoveSpeed = 20;
-					LOCAL_26.MoveType = 0;
+					LOCAL_26.Speed = 20;
+					LOCAL_26.stEffect = 0;
 
 					GridMulticast_2(LOCAL_10, LOCAL_11, (BYTE*)&LOCAL_26, 0);
 
@@ -8365,7 +8365,7 @@ void DoRecall(int clientId)
 
 	GetAction(clientId, LOCAL_1, LOCAL_2, &LOCAL_19);
 
-	LOCAL_19.MoveType = 1;
+	LOCAL_19.stEffect = 1;
 	if (clientId < MAX_PLAYER)
 		pUser[clientId].AddMessage((BYTE*)&LOCAL_19, sizeof p36C);
 
@@ -10229,7 +10229,7 @@ void DoSummon(int arg1, unsigned int arg2, unsigned int arg3)
 	p36C LOCAL_14;
 	GetAction(arg1, arg2, arg3, &LOCAL_14);
 
-	LOCAL_14.MoveType = 1;
+	LOCAL_14.stEffect = 1;
 
 	if(arg1 < MAX_PLAYER)
 		pUser[arg1].AddMessage((BYTE*)&LOCAL_14, sizeof p36C);

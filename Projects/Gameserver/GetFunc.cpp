@@ -607,16 +607,16 @@ void GetAction(int clientId, short posX, short posY, void *buf)
 	p->Header.PacketId = 0x36C;
 	p->Header.Size = sizeof p36C;
 
-	p->LastPos.X = mob->Target.X;
-	p->LastPos.Y = mob->Target.Y;
+	p->PosX = mob->Target.X;
+	p->PosY = mob->Target.Y;
 
-	p->Destiny.X = posX;
-	p->Destiny.Y = posY;
+	p->TargetX = posX;
+	p->TargetY = posY;
 
-	p->MoveSpeed = GetSpeed(&mob->Mobs.Player.CurrentScore);
-	p->MoveType = 0;
+	p->Speed = GetSpeed(&mob->Mobs.Player.CurrentScore);
+	p->stEffect = 0;
 	
-	memcpy(&p->Command[0], &pMob[clientId].Route, 24);
+	memcpy(&p->Route[0], &pMob[clientId].Route, 24);
 }
 
 

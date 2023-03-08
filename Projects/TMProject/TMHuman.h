@@ -70,8 +70,8 @@ public:
     int IsMouseOver() final;
     int OnCharEvent(char iCharCode, int lParam) final;
     int OnPacketEvent(unsigned int dwCode, char* buf) final;
-    int OnPacketMove(MSG_Action* pAction);
-    int OnPacketChaosCube(MSG_Action* pAction);
+    int OnPacketMove(p36C* pAction);
+    int OnPacketChaosCube(p36C* pAction);
     int OnPacketIllusion(PacketHeader* pStd);
     int OnPacketFireWork(MSG_Motion* pStd);
     int OnPacketPremiumFireWork(PacketHeader* pStd);
