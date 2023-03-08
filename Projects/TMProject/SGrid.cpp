@@ -1252,7 +1252,7 @@ void SGridControl::BuyItem(int nCellX, int nCellY)
 				}
 				else
 				{
-					MSG_REQShopList stReqShopList{};
+					p27B stReqShopList{};
 					stReqShopList.Header.PacketId = MSG_REQShopList_Opcode;
 					stReqShopList.Header.ClientId = pScene->m_pMyHuman->m_dwID;
 					stReqShopList.TargetID = pScene->m_sShopTarget;

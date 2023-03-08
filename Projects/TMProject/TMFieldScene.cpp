@@ -10917,7 +10917,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 			else
 				m_bEventCouponClick = 1;
 
-			MSG_REQShopList stReqShopList{};
+			p27B stReqShopList{};
 
 			stReqShopList.Header.PacketId = MSG_REQShopList_Opcode;
 			stReqShopList.Header.ClientId = m_pMyHuman->m_dwID;
@@ -10948,7 +10948,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 			else
 				m_bEventCouponClick = 1;
 
-			MSG_REQShopList stReqShopList{};
+			p27B stReqShopList{};
 
 			stReqShopList.Header.PacketId = MSG_REQShopList_Opcode;
 			stReqShopList.Header.ClientId = m_pMyHuman->m_dwID;
@@ -19327,7 +19327,7 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 
 int TMFieldScene::OnPacketShopList(PacketHeader* pStd)
 {
-	auto pShopList = reinterpret_cast<MSG_ShopList*>(pStd);
+	auto pShopList = reinterpret_cast<p17C*>(pStd);
 
 	if (pShopList->ShopType == 1)
 	{
@@ -19342,9 +19342,9 @@ int TMFieldScene::OnPacketShopList(PacketHeader* pStd)
 		for (int i = 0; i < 27; ++i)
 		{
 			auto pItemList = new STRUCT_ITEM;
-			memcpy(pItemList, &pShopList->List[i], sizeof(STRUCT_ITEM));
+			memcpy(pItemList, &pShopList->Item[i], sizeof(STRUCT_ITEM));
 
-			if (pShopList->List[i].sIndex <= 0)
+			if (pShopList->Item[i].sIndex <= 0)
 			{
 				delete pItemList;
 				continue;
@@ -19376,14 +19376,14 @@ int TMFieldScene::OnPacketShopList(PacketHeader* pStd)
 			if (pItem)
 				m_pGridShop->AddItem(pItem, 4, 7);
 		}
-		g_pObjectManager->m_nTax = pShopList->Tax;
+		g_pObjectManager->m_nTax = pShopList->Taxes;
 		SetVisibleShop(1);
 	}
 	else if (pShopList->ShopType == 3)
 	{
 		m_pGridSkillMaster->Empty();
 
-		switch ((pShopList->List[0].sIndex - 5000) / 24)
+		switch ((pShopList->Item[0].sIndex - 5000) / 24)
 		{
 		case 0:
 			m_pSkillMSec1->SetText(g_pMessageStringTable[107], 0);
@@ -19409,10 +19409,10 @@ int TMFieldScene::OnPacketShopList(PacketHeader* pStd)
 
 		for (int j = 0; j < 27; ++j)
 		{
-			if (pShopList->List[j].sIndex == 5027)
+			if (pShopList->Item[j].sIndex == 5027)
 			{
-				std::swap(pShopList->List[j], pShopList->List[j + 1]);
-				std::swap(pShopList->List[j + 1], pShopList->List[j + 2]);
+				std::swap(pShopList->Item[j], pShopList->Item[j + 1]);
+				std::swap(pShopList->Item[j + 1], pShopList->Item[j + 2]);
 				break;
 			}
 		}
@@ -19420,9 +19420,9 @@ int TMFieldScene::OnPacketShopList(PacketHeader* pStd)
 		for (int k = 0; k < 27; ++k)
 		{
 			auto dst = new STRUCT_ITEM;
-			memcpy(dst, &pShopList->List[k], sizeof(STRUCT_ITEM));
+			memcpy(dst, &pShopList->Item[k], sizeof(STRUCT_ITEM));
 
-			if (pShopList->List[k].sIndex <= 0)
+			if (pShopList->Item[k].sIndex <= 0)
 			{
 				delete dst;
 				continue;
@@ -24216,7 +24216,7 @@ int TMFieldScene::MouseClick_SkillMasterNPC(unsigned int dwServerTime, TMHuman* 
 
 	if (!m_pShopPanel->IsVisible())
 	{
-		MSG_REQShopList stReqShopList{};
+		p27B stReqShopList{};
 
 		stReqShopList.Header.PacketId = MSG_REQShopList_Opcode;
 		stReqShopList.Header.ClientId = m_pMyHuman->m_dwID;

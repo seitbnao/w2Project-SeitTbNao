@@ -479,20 +479,8 @@ typedef struct
 
 
  
-typedef struct
-{
-	PacketHeader Header;
-    short npcID;
-    short Warp;
-} p27B;
 
-typedef struct 
-{
-	PacketHeader Header;
-	int Unknow;
-	STRUCT_ITEM Item[27];
-	int Taxes;
-}p17C;
+
 
 typedef struct
 {

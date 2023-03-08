@@ -742,13 +742,7 @@ struct MSG_SetShortSkill
 };
 
 constexpr auto MSG_ShopList_Opcode = 0x17C;
-struct MSG_ShopList
-{
-	PacketHeader Header;
-	int ShopType;
-	STRUCT_ITEM List[27];
-	int Tax;
-};
+
 
 constexpr auto MSG_CloseShop_Opcode = 0x196;
 
@@ -772,11 +766,7 @@ struct MSG_RepurchaseItems
 };
 
 constexpr auto MSG_REQShopList_Opcode = 0x27B;
-struct MSG_REQShopList
-{
-	PacketHeader Header;
-	unsigned short TargetID;
-};
+
 
 constexpr auto MSG_Buy_Opcode = 0x379;
 struct MSG_Buy

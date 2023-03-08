@@ -777,4 +777,20 @@ typedef struct
 	unsigned short TargetX;
 	unsigned short TargetY;
 } p36C;
+
+
+typedef struct
+{
+	PacketHeader Header;
+	int ShopType;
+	STRUCT_ITEM Item[27];
+	int Taxes;
+}p17C;
+
+
+typedef struct
+{
+	PacketHeader Header;
+	unsigned short TargetID;
+} p27B;
 #endif //__SHAREDSTRUCT_H__
