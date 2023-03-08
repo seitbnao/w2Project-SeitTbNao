@@ -394,16 +394,7 @@ typedef struct
 	STRUCT_AFFECT Affect[32];
 } p3B9;
 
-struct  p376
-{
-    PacketHeader Header;
-    BYTE DstType;
-	BYTE DstSlot;
-	BYTE SrcType;
-	BYTE SrcSlot;
-	WORD PosX;
-	WORD PosY;
-} ;
+
 
 
 typedef struct
@@ -438,15 +429,7 @@ typedef struct
     short sIndex; // 194 - 195
 } p397;
 
-typedef struct
-{
-	PacketHeader Header;
-	int slot;
-	int mobid;
-	int price;
-	int unk;
-	STRUCT_ITEM Item;	
-} p398;
+
 
 // Request Open Trade
 typedef struct 

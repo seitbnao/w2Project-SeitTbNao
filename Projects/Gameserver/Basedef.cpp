@@ -14146,8 +14146,8 @@ int AbsorveDamageByPet(CMob* player, int damage)
 
 void EnergizeEmptyRune(int clientId, const p376 *packet)
 {
-	STRUCT_ITEM* srcItem = GetItemPointer(clientId, packet->SrcType, packet->SrcSlot);
-	STRUCT_ITEM* dstItem = GetItemPointer(clientId, packet->DstType, packet->DstSlot);
+	STRUCT_ITEM* srcItem = GetItemPointer(clientId, packet->SourType, packet->SourSlot);
+	STRUCT_ITEM* dstItem = GetItemPointer(clientId, packet->DestType, packet->DestSlot);
 
 	if (srcItem == nullptr || dstItem == nullptr)
 		return;
@@ -14183,6 +14183,6 @@ void EnergizeEmptyRune(int clientId, const p376 *packet)
 	Log(clientId, LOG_INGAME, "Energizou a %s com a %s. Energia total: %d", g_pItemList[dstItem->sIndex].ItemName, g_pItemList[srcItem->sIndex].ItemName, energy);
 	*srcItem = STRUCT_ITEM{};
 
-	SendItem(clientId, (SlotType)packet->SrcType, packet->SrcSlot, srcItem);
-	SendItem(clientId, (SlotType)packet->DstType, packet->DstSlot, dstItem);
+	SendItem(clientId, (SlotType)packet->SourType, packet->SourSlot, srcItem);
+	SendItem(clientId, (SlotType)packet->DestType, packet->DestSlot, dstItem);
 }

@@ -130,10 +130,10 @@ bool CUser::RequestDropItem(PacketHeader *Header)
 
 		if (itemAbility != 128)
 		{
-			packet.DstType = 0;
-			packet.DstSlot = 6;
-			packet.SrcType = 0;
-			packet.SrcSlot = 7;
+			packet.DestType = 0;
+			packet.DestSlot = 6;
+			packet.SourType = 0;
+			packet.SourSlot = 7;
 
 			AddMessage((BYTE*)p, sizeof p376);
 

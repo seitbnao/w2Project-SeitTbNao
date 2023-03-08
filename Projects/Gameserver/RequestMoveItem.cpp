@@ -9,23 +9,23 @@ void GiveTime(p376 *p)
 	// Serve para quando equipar a Esfera dê a validade ao item
 	int days = 0;
 
-	if (p->SrcType != (unsigned char)SlotType::Equip && p->DstType != (unsigned char)SlotType::Equip)
+	if (p->SourType != (unsigned char)SlotType::Equip && p->DestType != (unsigned char)SlotType::Equip)
 		return;
 
 	STRUCT_ITEM* item = nullptr;
 	SlotType type;
 	int slot;
-	if (p->DstType == (unsigned char)SlotType::Equip)
+	if (p->DestType == (unsigned char)SlotType::Equip)
 	{
-		item = GetItemPointer(clientId, p->DstType, p->DstSlot);
-		type = (SlotType)p->SrcType;
-		slot = p->SrcSlot;
+		item = GetItemPointer(clientId, p->DestType, p->DestSlot);
+		type = (SlotType)p->SourType;
+		slot = p->SourSlot;
 	}
-	else if (p->SrcType == (unsigned char)SlotType::Equip)
+	else if (p->SourType == (unsigned char)SlotType::Equip)
 	{
-		item = GetItemPointer(clientId, p->SrcType, p->SrcSlot);
-		type = (SlotType)p->DstType;
-		slot = p->DstSlot;
+		item = GetItemPointer(clientId, p->SourType, p->SourSlot);
+		type = (SlotType)p->DestType;
+		slot = p->DestSlot;
 	}
 
 	if (item == nullptr)
@@ -270,21 +270,21 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 	p->Header.ClientId = clientId;
 	STRUCT_ITEM *mountSlot = &pMob[clientId].Mobs.Player.Equip[14]; // LOCAL1684
 
-	STRUCT_ITEM *equipDstSlot; // LOCAL1649
-	STRUCT_ITEM *equipSrcSlot; // LOCAL1650
+	STRUCT_ITEM *equipDestSlot; // LOCAL1649
+	STRUCT_ITEM *equipSourSlot; // LOCAL1650
 	INT32 needSendEquip = 0; // LOCAL1651
 	INT32 needSendScore = 0; // LOCAL1652
 
-	if (p->DstType == (unsigned char)SlotType::Equip)
+	if (p->DestType == (unsigned char)SlotType::Equip)
 	{
-		if (p->DstSlot <= 0 || p->DstSlot > 15)
+		if (p->DestSlot <= 0 || p->DestSlot > 15)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
 			return false;
 		}
 
-		if (p->DstSlot == 15)
+		if (p->DestSlot == 15)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
@@ -292,43 +292,43 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 			return false;
 		}
 
-		equipDstSlot = &pMob[clientId].Mobs.Player.Equip[p->DstSlot];
+		equipDestSlot = &pMob[clientId].Mobs.Player.Equip[p->DestSlot];
 
 		needSendEquip = 1;
 		needSendScore = 1;
 	}
-	else if (p->DstType == (unsigned char)SlotType::Inv)
+	else if (p->DestType == (unsigned char)SlotType::Inv)
 	{
-		if (p->DstSlot < 0 || p->DstSlot >= 60)
+		if (p->DestSlot < 0 || p->DestSlot >= 60)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
 			return false;
 		}
 
-		if (p->DstSlot >= 30 && p->DstSlot < 45)
+		if (p->DestSlot >= 30 && p->DestSlot < 45)
 		{
 			if (TimeRemaining(pMob[clientId].Mobs.Player.Inventory[60].EFV1, pMob[clientId].Mobs.Player.Inventory[60].EFV2, pMob[clientId].Mobs.Player.Inventory[60].EFV3 + 1900) <= 0)
 				return false;
 		}
-		else if (p->DstSlot >= 45 && p->DstSlot < 60)
+		else if (p->DestSlot >= 45 && p->DestSlot < 60)
 		{
 			if (TimeRemaining(pMob[clientId].Mobs.Player.Inventory[61].EFV1, pMob[clientId].Mobs.Player.Inventory[61].EFV2, pMob[clientId].Mobs.Player.Inventory[61].EFV3 + 1900) <= 0)
 				return false;
 		}
 
-		equipDstSlot = &pMob[clientId].Mobs.Player.Inventory[p->DstSlot];
+		equipDestSlot = &pMob[clientId].Mobs.Player.Inventory[p->DestSlot];
 	}
-	else if (p->DstType == (unsigned char)SlotType::Storage)
+	else if (p->DestType == (unsigned char)SlotType::Storage)
 	{
-		if (p->DstSlot < 0 || p->DstSlot >= 120)
+		if (p->DestSlot < 0 || p->DestSlot >= 120)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
 			return false;
 		}
 
-		equipDstSlot = &pUser[clientId].User.Storage.Item[p->DstSlot];
+		equipDestSlot = &pUser[clientId].User.Storage.Item[p->DestSlot];
 	}
 	else
 	{
@@ -337,16 +337,16 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 		return false;
 	}
 
-	if (p->SrcType == (unsigned char)SlotType::Equip)
+	if (p->SourType == (unsigned char)SlotType::Equip)
 	{
-		if (p->SrcSlot <= 0 || p->SrcSlot > 15)
+		if (p->SourSlot <= 0 || p->SourSlot > 15)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
 			return false;
 		}
 
-		if (p->SrcSlot == 15)
+		if (p->SourSlot == 15)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
@@ -354,43 +354,43 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 			return false;
 		}
 
-		equipSrcSlot = &pMob[clientId].Mobs.Player.Equip[p->SrcSlot];
+		equipSourSlot = &pMob[clientId].Mobs.Player.Equip[p->SourSlot];
 
 		needSendEquip = 1;
 		needSendScore = 1;
 	}
-	else if (p->SrcType == (unsigned char)SlotType::Inv)
+	else if (p->SourType == (unsigned char)SlotType::Inv)
 	{
-		if (p->SrcSlot < 0 || p->SrcSlot >= 60)
+		if (p->SourSlot < 0 || p->SourSlot >= 60)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
 			return false;
 		}
 		/*
-		if (p->SrcSlot >= 30 && p->SrcSlot < 45)
+		if (p->SourSlot >= 30 && p->SourSlot < 45)
 		{
 			if (TimeRemaining(pMob[clientId].Mobs.Player.Inventory[60].EFV1, pMob[clientId].Mobs.Player.Inventory[60].EFV2, pMob[clientId].Mobs.Player.Inventory[60].EFV3 + 1900) <= 0)
 				return false;
 		}
-		else if (p->SrcSlot >= 45 && p->SrcSlot < 60)
+		else if (p->SourSlot >= 45 && p->SourSlot < 60)
 		{
 			if (TimeRemaining(pMob[clientId].Mobs.Player.Inventory[61].EFV1, pMob[clientId].Mobs.Player.Inventory[61].EFV2, pMob[clientId].Mobs.Player.Inventory[61].EFV3 + 1900) <= 0)
 				return false;
 		}
 		*/
-		equipSrcSlot = &pMob[clientId].Mobs.Player.Inventory[p->SrcSlot];
+		equipSourSlot = &pMob[clientId].Mobs.Player.Inventory[p->SourSlot];
 	}
-	else if (p->SrcType == (unsigned char)SlotType::Storage)
+	else if (p->SourType == (unsigned char)SlotType::Storage)
 	{
-		if (p->SrcSlot < 0 || p->SrcSlot >= 120)
+		if (p->SourSlot < 0 || p->SourSlot >= 120)
 		{
 			AddCrackError(clientId, 2, CRACK_USER_PKTHACK);
 
 			return false;
 		}
 
-		equipSrcSlot = &pUser[clientId].User.Storage.Item[p->SrcSlot];
+		equipSourSlot = &pUser[clientId].User.Storage.Item[p->SourSlot];
 	}
 	else
 	{
@@ -400,34 +400,34 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 	}
 
 	// Testa se sêo os mesmos itens
-	if (equipSrcSlot->sIndex == equipDstSlot->sIndex)
+	if (equipSourSlot->sIndex == equipDestSlot->sIndex)
 	{
-		STRUCT_ITEM* srcItem = GetItemPointer(p->Header.ClientId, p->SrcType, p->SrcSlot);
-		STRUCT_ITEM* dstItem = GetItemPointer(p->Header.ClientId, p->DstType, p->DstSlot);
+		STRUCT_ITEM* srcItem = GetItemPointer(p->Header.ClientId, p->SourType, p->SourSlot);
+		STRUCT_ITEM* dstItem = GetItemPointer(p->Header.ClientId, p->DestType, p->DestSlot);
 
 		if (AgroupItem(clientId, srcItem, dstItem))
 		{
-			Log(clientId, LOG_INGAME, "O agrupamento foi efetuado de slot %d tipo %s para slot %d tipo %s", p->SrcSlot, szSlotType[p->SrcType], p->DstSlot, szSlotType[p->DstType]);
+			Log(clientId, LOG_INGAME, "O agrupamento foi efetuado de slot %d tipo %s para slot %d tipo %s", p->SourSlot, szSlotType[p->SourType], p->DestSlot, szSlotType[p->DestType]);
 
-			SendItem(p->Header.ClientId, (SlotType)p->SrcType, p->SrcSlot, srcItem);
-			SendItem(p->Header.ClientId, (SlotType)p->DstType, p->DstSlot, dstItem);
+			SendItem(p->Header.ClientId, (SlotType)p->SourType, p->SourSlot, srcItem);
+			SendItem(p->Header.ClientId, (SlotType)p->DestType, p->DestSlot, dstItem);
 
 			return true;
 		}
 	}
 
-	if ((equipSrcSlot->sIndex >= 5110 && equipSrcSlot->sIndex <= 5133) && equipDstSlot->sIndex == 4854)
+	if ((equipSourSlot->sIndex >= 5110 && equipSourSlot->sIndex <= 5133) && equipDestSlot->sIndex == 4854)
 	{
 		EnergizeEmptyRune(clientId, p);
 
 		return true;
 	}
 
-	if (equipDstSlot->sIndex == 747 || equipSrcSlot->sIndex == 747 ||
-		equipDstSlot->sIndex == 3993 || equipSrcSlot->sIndex == 3993 ||
-		equipDstSlot->sIndex == 3994 || equipSrcSlot->sIndex == 3994)
+	if (equipDestSlot->sIndex == 747 || equipSourSlot->sIndex == 747 ||
+		equipDestSlot->sIndex == 3993 || equipSourSlot->sIndex == 3993 ||
+		equipDestSlot->sIndex == 3994 || equipSourSlot->sIndex == 3994)
 	{
-		if (p->DstType == 2 || p->SrcType == 2)
+		if (p->DestType == 2 || p->SourType == 2)
 		{
 			INT32 guildId = pMob[clientId].Mobs.Player.Guild;
 			if (guildId <= 0)
@@ -446,30 +446,30 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 		}
 	}
 
-	if (equipDstSlot->sIndex == 877 || equipSrcSlot->sIndex == 877)
+	if (equipDestSlot->sIndex == 877 || equipSourSlot->sIndex == 877)
 		return true;
 
-	STRUCT_ITEM newEquipSrcSlot; // LOCAL1655
-	STRUCT_ITEM newEquipDstSlot; // LOCAL1657
-	memcpy(&newEquipSrcSlot, equipSrcSlot, sizeof STRUCT_ITEM);
-	memcpy(&newEquipDstSlot, equipDstSlot, sizeof STRUCT_ITEM);
+	STRUCT_ITEM newEquipSourSlot; // LOCAL1655
+	STRUCT_ITEM newEquipDestSlot; // LOCAL1657
+	memcpy(&newEquipSourSlot, equipSourSlot, sizeof STRUCT_ITEM);
+	memcpy(&newEquipDestSlot, equipDestSlot, sizeof STRUCT_ITEM);
 
-	memset(equipSrcSlot, 0, sizeof STRUCT_ITEM);
-	memset(equipDstSlot, 0, sizeof STRUCT_ITEM);
+	memset(equipSourSlot, 0, sizeof STRUCT_ITEM);
+	memset(equipDestSlot, 0, sizeof STRUCT_ITEM);
 
 	// 00433D7B
 	INT32 canMove1 = 1; // LOCAL1659
 	INT32 canMove2 = 1; // LOCAL1660
 
-	if (newEquipDstSlot.sIndex != 0)
+	if (newEquipDestSlot.sIndex != 0)
 	{
 		INT32 error = -2; // LOCAL1661
-		if (p->SrcType == (unsigned char)SlotType::Equip)
-			canMove1 = CanEquip(&newEquipDstSlot, &pMob[clientId].Mobs.Player, p->SrcSlot, pMob[clientId].Mobs.Player.Class, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
+		if (p->SourType == (unsigned char)SlotType::Equip)
+			canMove1 = CanEquip(&newEquipDestSlot, &pMob[clientId].Mobs.Player, p->SourSlot, pMob[clientId].Mobs.Player.Class, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
 
-		else if (p->SrcType == (unsigned char)SlotType::Inv)
+		else if (p->SourType == (unsigned char)SlotType::Inv)
 		{
-			canMove1 = CanCarry(&newEquipDstSlot, pMob[clientId].Mobs.Player.Inventory, p->SrcSlot % 9, p->SrcSlot / 9, &error);
+			canMove1 = CanCarry(&newEquipDestSlot, pMob[clientId].Mobs.Player.Inventory, p->SourSlot % 9, p->SourSlot / 9, &error);
 
 			if (canMove1 == 0 && error > 0 && error <= 64)
 			{
@@ -479,19 +479,19 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 			}
 		}
 
-		else if (p->SrcType == (unsigned char)SlotType::Storage)
-			canMove1 = CanCargo(&newEquipDstSlot, pUser[clientId].User.Storage.Item, (p->SrcSlot % 9), (p->SrcSlot / 9));
+		else if (p->SourType == (unsigned char)SlotType::Storage)
+			canMove1 = CanCargo(&newEquipDestSlot, pUser[clientId].User.Storage.Item, (p->SourSlot % 9), (p->SourSlot / 9));
 	}
 
-	if (newEquipSrcSlot.sIndex != 0)
+	if (newEquipSourSlot.sIndex != 0)
 	{
 		INT32 error = -2; // LOCAL1662
-		if (p->DstType == (unsigned char)SlotType::Equip)
-			canMove2 = CanEquip(&newEquipSrcSlot, &pMob[clientId].Mobs.Player, p->DstSlot, pMob[clientId].Mobs.Player.Class, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
+		if (p->DestType == (unsigned char)SlotType::Equip)
+			canMove2 = CanEquip(&newEquipSourSlot, &pMob[clientId].Mobs.Player, p->DestSlot, pMob[clientId].Mobs.Player.Class, p, pMob[clientId].Mobs.Player.Equip[0].EFV2);
 
-		else if (p->DstType == (unsigned char)SlotType::Inv)
+		else if (p->DestType == (unsigned char)SlotType::Inv)
 		{
-			canMove2 = CanCarry(&newEquipSrcSlot, pMob[clientId].Mobs.Player.Inventory, p->DstSlot % 9, p->DstSlot / 9, &error);
+			canMove2 = CanCarry(&newEquipSourSlot, pMob[clientId].Mobs.Player.Inventory, p->DestSlot % 9, p->DestSlot / 9, &error);
 
 			if (canMove2 == 0 && error > 0 && error < 60)
 			{
@@ -501,21 +501,21 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 			}
 		}
 
-		else if (p->DstType == (unsigned char)SlotType::Storage)
-			canMove2 = CanCargo(&newEquipSrcSlot, pUser[clientId].User.Storage.Item, (p->DstSlot % 9), (p->DstSlot / 9));
+		else if (p->DestType == (unsigned char)SlotType::Storage)
+			canMove2 = CanCargo(&newEquipSourSlot, pUser[clientId].User.Storage.Item, (p->DestSlot % 9), (p->DestSlot / 9));
 	}
 
 	if (canMove1 == 0 || canMove2 == 0)
 	{
-		memcpy(equipSrcSlot, &newEquipSrcSlot, 8);
-		memcpy(equipDstSlot, &newEquipDstSlot, 8);
+		memcpy(equipSourSlot, &newEquipSourSlot, 8);
+		memcpy(equipDestSlot, &newEquipDestSlot, 8);
 
 		return true;
 	}
 	else
 	{
 		// Checa se esta movendo fora de uma cidade
-		if ((p->DstType == (unsigned char)SlotType::Storage || p->SrcType == (unsigned char)SlotType::Storage) && GetVillage(pMob[clientId].Target.X, pMob[clientId].Target.Y) == 5)
+		if ((p->DestType == (unsigned char)SlotType::Storage || p->SourType == (unsigned char)SlotType::Storage) && GetVillage(pMob[clientId].Target.X, pMob[clientId].Target.Y) == 5)
 		{
 			auto posX = pMob[clientId].Target.X;
 			auto posY = pMob[clientId].Target.Y;
@@ -527,28 +527,28 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 
 			if (!canMove)
 			{
-				memcpy(equipSrcSlot, &newEquipSrcSlot, 8);
-				memcpy(equipDstSlot, &newEquipDstSlot, 8);
+				memcpy(equipSourSlot, &newEquipSourSlot, 8);
+				memcpy(equipDestSlot, &newEquipDestSlot, 8);
 
-				Log(SERVER_SIDE, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posição: %ux %uy", User.Username, equipSrcSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
-				Log(clientId, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posição: %ux %uy", User.Username, equipSrcSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
+				Log(SERVER_SIDE, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posição: %ux %uy", User.Username, equipSourSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
+				Log(clientId, LOG_HACK, "[%s] - O usuario moveu o item %s fora da cidade. Posição: %ux %uy", User.Username, equipSourSlot->toString().c_str(), pMob[clientId].Target.X, pMob[clientId].Target.Y);
 				return true;
 			}
 		}
 
-		memcpy(equipSrcSlot, &newEquipDstSlot, 8);
-		memcpy(equipDstSlot, &newEquipSrcSlot, 8);
+		memcpy(equipSourSlot, &newEquipDestSlot, 8);
+		memcpy(equipDestSlot, &newEquipSourSlot, 8);
 
-		Log(p->Header.ClientId, LOG_INGAME, "Moveu item %s [%d] [%d %d %d %d %d %d] do tipo %s do slot %d para tipo %s slot %d", g_pItemList[equipDstSlot->sIndex].ItemName, equipDstSlot->sIndex, equipDstSlot->EF1,
-			equipDstSlot->EFV1, equipDstSlot->EF2, equipDstSlot->EFV2, equipDstSlot->EF3, equipDstSlot->EFV3, szSlotType[p->SrcType], p->SrcSlot, szSlotType[p->DstType], p->DstSlot);
+		Log(p->Header.ClientId, LOG_INGAME, "Moveu item %s [%d] [%d %d %d %d %d %d] do tipo %s do slot %d para tipo %s slot %d", g_pItemList[equipDestSlot->sIndex].ItemName, equipDestSlot->sIndex, equipDestSlot->EF1,
+			equipDestSlot->EFV1, equipDestSlot->EF2, equipDestSlot->EFV2, equipDestSlot->EF3, equipDestSlot->EFV3, szSlotType[p->SourType], p->SourSlot, szSlotType[p->DestType], p->DestSlot);
 
 		GiveTime(p);
 	}
 
-	if (equipSrcSlot->sIndex <= 40)
-		memset(equipSrcSlot, 0, 8);
-	if (equipDstSlot->sIndex <= 40)
-		memset(equipDstSlot, 0, 8);
+	if (equipSourSlot->sIndex <= 40)
+		memset(equipSourSlot, 0, 8);
+	if (equipDestSlot->sIndex <= 40)
+		memset(equipDestSlot, 0, 8);
 
 	pMob[clientId].GetCurrentScore(clientId);
 
@@ -561,10 +561,10 @@ bool CUser::RequestMoveItem(PacketHeader *header)
 
 		if (itemAbility != 128)
 		{
-			p->DstType = 0;
-			p->DstSlot = 6;
-			p->SrcType = 0;
-			p->SrcSlot = 7;
+			p->DestType = 0;
+			p->DestSlot = 6;
+			p->SourType = 0;
+			p->SourSlot = 7;
 
 			AddMessage((BYTE*)p, sizeof p376);
 

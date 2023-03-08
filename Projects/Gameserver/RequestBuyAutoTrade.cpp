@@ -27,10 +27,10 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 		return true;
 	}
 
-	INT32 mobId = p->mobid;
-	INT32 itemPrice = p->price;
-	INT32 itemTaxe = p->unk;
-	INT32 slotId = p->slot;
+	INT32 mobId = p->TargetID;
+	INT32 itemPrice = p->Price;
+	INT32 itemTaxe = p->Tax;
+	INT32 slotId = p->Pos;
 
 	if(mobId <= 0 || mobId >= MAX_PLAYER)
 		return false;
@@ -70,7 +70,7 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 		return true;
 	}
 
-	INT32 itemCheck = memcmp(&p->Item, &pUser[mobId].AutoTrade.Item[slotId], 8);
+	INT32 itemCheck = memcmp(&p->item, &pUser[mobId].AutoTrade.Item[slotId], 8);
 	if(itemCheck != 0)
 	{
 		RemoveTrade(clientId);
@@ -100,7 +100,7 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 		return true;
 	}
 
-	STRUCT_ITEM *item = (STRUCT_ITEM*)&p->Item;
+	STRUCT_ITEM *item = (STRUCT_ITEM*)&p->item;
 	
 	INT32 nullSlot = GetFirstSlot(clientId, 0);
 	if(nullSlot < 0 || nullSlot >= MAX_INVEN)
@@ -172,35 +172,35 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 
 	GridMulticast_2(mobTargetX, mobTargetY, (BYTE*)&sm, 0);
 
-	SendClientMessage(p->mobid, "!O personagem [%s] comprou o item %s por %d", player->MobName, g_pItemList[p->Item.sIndex].ItemName, p->price);
+	SendClientMessage(p->TargetID, "!O personagem [%s] comprou o item %s por %d", player->MobName, g_pItemList[p->item.sIndex].ItemName, p->Price);
 	
 	Log(clientId, LOG_INGAME, "Comprou o item %s [%d] [%d %d %d %d %d %d] de %s (%s) por %d. Gold sobrando: %d - Impostos pago: %d", g_pItemList[item->sIndex].ItemName, item->sIndex, item->stEffect[0].cEffect,
-		item->stEffect[0].cValue, item->stEffect[1].cEffect, item->stEffect[1].cValue, item->stEffect[2].cEffect, item->stEffect[2].cValue, mob->MobName, pUser[p->mobid].User.Username, p->price,
+		item->stEffect[0].cValue, item->stEffect[1].cEffect, item->stEffect[1].cValue, item->stEffect[2].cEffect, item->stEffect[2].cValue, mob->MobName, pUser[p->TargetID].User.Username, p->Price,
 		player->Coin, impost);
 
-	Log(p->mobid, LOG_INGAME, "Vendeu o item %s [%d] [%d %d %d %d %d %d] para %s (%s) por %d. Gold banco: %d - Impostos: %d", g_pItemList[item->sIndex].ItemName, item->sIndex, item->stEffect[0].cEffect,
-		item->stEffect[0].cValue, item->stEffect[1].cEffect, item->stEffect[1].cValue, item->stEffect[2].cEffect, item->stEffect[2].cValue, player->MobName, pUser[clientId].User.Username,  p->price, pUser[p->mobid].User.Storage.Coin,
+	Log(p->TargetID, LOG_INGAME, "Vendeu o item %s [%d] [%d %d %d %d %d %d] para %s (%s) por %d. Gold banco: %d - Impostos: %d", g_pItemList[item->sIndex].ItemName, item->sIndex, item->stEffect[0].cEffect,
+		item->stEffect[0].cValue, item->stEffect[1].cEffect, item->stEffect[1].cValue, item->stEffect[2].cEffect, item->stEffect[2].cValue, player->MobName, pUser[clientId].User.Username,  p->Price, pUser[p->TargetID].User.Storage.Coin,
 		impost);
 
-	LogPlayer(clientId, "Comprou o item %s da loja de %s por %d", g_pItemList[item->sIndex].ItemName, pMob[p->mobid].Mobs.Player.MobName, p->price);
-	LogPlayer(p->mobid, "Vendeu o item %s de sua loja para %s por %d. %d foram pagos de impostos", g_pItemList[item->sIndex].ItemName, pMob[clientId].Mobs.Player.MobName, p->price, impost);
+	LogPlayer(clientId, "Comprou o item %s da loja de %s por %d", g_pItemList[item->sIndex].ItemName, pMob[p->TargetID].Mobs.Player.MobName, p->Price);
+	LogPlayer(p->TargetID, "Vendeu o item %s de sua loja para %s por %d. %d foram pagos de impostos", g_pItemList[item->sIndex].ItemName, pMob[clientId].Mobs.Player.MobName, p->Price, impost);
 
 	if(impost > 50000000)
 	{
 		Log(SERVER_SIDE, LOG_INGAME, "Pagos um total de %d de impostos... Valor maior que 50milhêes.", impost);
 		Log(SERVER_SIDE, LOG_INGAME, "[%s] Vendeu o item %s [%d] [%d %d %d %d %d %d] para %s (%s) por %d. Gold banco: %d - Impostos: %d", User.Username, g_pItemList[item->sIndex].ItemName, item->sIndex, item->stEffect[0].cEffect,
-			item->stEffect[0].cValue, item->stEffect[1].cEffect, item->stEffect[1].cValue, item->stEffect[2].cEffect, item->stEffect[2].cValue, player->MobName, pUser[clientId].User.Username,  p->price, pUser[p->mobid].User.Storage.Coin,
+			item->stEffect[0].cValue, item->stEffect[1].cEffect, item->stEffect[1].cValue, item->stEffect[2].cEffect, item->stEffect[2].cValue, player->MobName, pUser[clientId].User.Username,  p->Price, pUser[p->TargetID].User.Storage.Coin,
 			impost);
 	}
 
-	if (pUser[p->mobid].PremierStore.CurrentScore && itemPrice >= 10000000)
+	if (pUser[p->TargetID].PremierStore.CurrentScore && itemPrice >= 10000000)
 	{
-		pUser[p->mobid].PremierStore.Time += (5 * 60);
+		pUser[p->TargetID].PremierStore.Time += (5 * 60);
 
 		Log(clientId, LOG_INGAME, "Recebeu 5 minutos extras por vender item com preêo acima de 10 milhêes na loja!");
 	}
 
 	SaveUser(clientId, 0);
-	SaveUser(p->mobid, 0);
+	SaveUser(p->TargetID, 0);
 	return true;
 }

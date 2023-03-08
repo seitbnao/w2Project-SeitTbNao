@@ -435,11 +435,11 @@ int SGridControl::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, int nX
 						}
 					}
 
-					MSG_SwapItem stSwapItem{};
+					p376 stSwapItem{};
 					stSwapItem.Header.ClientId = g_pObjectManager->m_dwCharID;
 					stSwapItem.Header.PacketId = MSG_SwapItem_Opcode;
 					stSwapItem.SourType = 0;
-					stSwapItem.SourPos = NewItemPosConv;
+					stSwapItem.SourSlot = NewItemPosConv;
 					stSwapItem.DestType = sDestType;
 					stSwapItem.TargetID = TMFieldScene::m_dwCargoID;
 
@@ -450,14 +450,14 @@ int SGridControl::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, int nX
 							return 0;
 						if (page == 3 && g_pObjectManager->m_stMobData.Inventory[61].sIndex != 3467)
 							return 0;
-						stSwapItem.DestPos = 15 * page + nAX + 5 * nAY;
+						stSwapItem.DestSlot = 15 * page + nAX + 5 * nAY;
 					}
 					else
 					{
-						stSwapItem.DestPos = sDestPos;
+						stSwapItem.DestSlot = sDestPos;
 					}
 
-					if (stSwapItem.DestPos != stSwapItem.SourPos || stSwapItem.SourType != stSwapItem.DestType)
+					if (stSwapItem.DestSlot != stSwapItem.SourSlot || stSwapItem.SourType != stSwapItem.DestType)
 					{
 						SendOneMessage((char*)&stSwapItem, 20);
 						pFScene->m_pMouseOverHuman = 0;
@@ -505,18 +505,18 @@ int SGridControl::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, int nX
 				if (SourPage / 15 == 3 && g_pObjectManager->m_stMobData.Inventory[61].sIndex != 3467)
 					return 0;
 
-				MSG_SwapItem Msg{};
+				p376 Msg{};
 				Msg.Header.ClientId = g_pObjectManager->m_dwCharID;
 				Msg.Header.PacketId = MSG_SwapItem_Opcode;
 				Msg.SourType = 1;
-				Msg.SourPos = SourPage + vecGrid.x + 5 * vecGrid.y;
+				Msg.SourSlot = SourPage + vecGrid.x + 5 * vecGrid.y;
 				Msg.DestType = sDestType;
-				Msg.DestPos = sDestPos;
+				Msg.DestSlot = sDestPos;
 				Msg.TargetID = TMFieldScene::m_dwCargoID; 
 				
-				if ((unsigned char)sDestPos != (unsigned char)Msg.SourPos || Msg.SourType != Msg.DestType)
+				if ((unsigned char)sDestPos != (unsigned char)Msg.SourSlot || Msg.SourType != Msg.DestType)
 				{
-					SendOneMessage((char*)&Msg, 20);
+					SendOneMessage((char*)&Msg, sizeof(p376));
 					pFScene->m_pMouseOverHuman = nullptr;
 				}
 			}
@@ -844,15 +844,15 @@ int SGridControl::CanChangeItem(SGridControlItem* ipNewItem, int inCellIndexX, i
 						if (sDestPos == -1)
 							sDestPos = ipNewItem->m_nCellIndexX + 5 * ipNewItem->m_nCellIndexY;
 
-						MSG_SwapItem stSwapItem{};
+						p376 stSwapItem{};
 						stSwapItem.Header.ClientId = g_pObjectManager->m_dwCharID;
 						stSwapItem.Header.PacketId = MSG_SwapItem_Opcode;
 						stSwapItem.SourType = 0;
-						stSwapItem.SourPos = 6;
+						stSwapItem.SourSlot = 6;
 						stSwapItem.DestType = static_cast<char>(sDestType);
-						stSwapItem.DestPos = static_cast<char>(sDestPos);
+						stSwapItem.DestSlot = static_cast<char>(sDestPos);
 						stSwapItem.TargetID = TMFieldScene::m_dwCargoID;
-						SendOneMessage((char*)&stSwapItem, 20);
+						SendOneMessage((char*)&stSwapItem, sizeof(p376));
 					}
 
 					return 0;
@@ -2400,16 +2400,16 @@ void SGridControl::SwapItem(int nCellX, int nCellY, int nCellVWidth, int nCellVH
 					Destpage = 0;
 			}
 
-			MSG_SwapItem stSwapItem{};
+			p376 stSwapItem{};
 			stSwapItem.Header.ClientId = g_pObjectManager->m_dwCharID;
 			stSwapItem.Header.PacketId = MSG_SwapItem_Opcode;
 			stSwapItem.SourType = static_cast<char>(CheckType(m_eItemType, m_eGridType));
-			stSwapItem.SourPos = Sourpage + nCellX + 5 * nCellY;
+			stSwapItem.SourSlot = Sourpage + nCellX + 5 * nCellY;
 			stSwapItem.DestType = static_cast<char>(sDestType);
-			stSwapItem.DestPos = Destpage + sDestPos;
+			stSwapItem.DestSlot = Destpage + sDestPos;
 			stSwapItem.TargetID = TMFieldScene::m_dwCargoID;
 
-			if (Destpage + sDestPos != stSwapItem.SourPos || 
+			if (Destpage + sDestPos != stSwapItem.SourSlot || 
 				stSwapItem.SourType != stSwapItem.DestType)
 			{
 				SendOneMessage((char*)&stSwapItem, sizeof(stSwapItem));
@@ -2457,20 +2457,20 @@ void SGridControl::SwapItem(int nCellX, int nCellY, int nCellVWidth, int nCellVH
 						Destpage = 0;
 				}
 
-				MSG_SwapItem stSwapItem{};
+				p376 stSwapItem{};
 				stSwapItem.Header.ClientId = g_pObjectManager->m_dwCharID;
 				stSwapItem.Header.PacketId = MSG_SwapItem_Opcode;
 				stSwapItem.SourType = static_cast<char>(sSrcType);
-				stSwapItem.SourPos = Sourpage + sSrcPos;
+				stSwapItem.SourSlot = Sourpage + sSrcPos;
 				stSwapItem.DestType = static_cast<char>(sDestType);
 				stSwapItem.TargetID = TMFieldScene::m_dwCargoID;
 
 				if (sDestType)
-					stSwapItem.DestPos = Destpage + nAX + 5 * nAY;
+					stSwapItem.DestSlot = Destpage + nAX + 5 * nAY;
 				else
-					stSwapItem.DestPos = static_cast<char>(sDestPos);
+					stSwapItem.DestSlot = static_cast<char>(sDestPos);
 
-				if (stSwapItem.DestPos != stSwapItem.SourPos ||
+				if (stSwapItem.DestSlot != stSwapItem.SourSlot ||
 					stSwapItem.SourType != stSwapItem.DestType)
 				{
 					SendOneMessage((char*)&stSwapItem, sizeof(stSwapItem));
@@ -4913,18 +4913,18 @@ char SGridControl::automove(int nCellX, int nCellY)
 		if (vecGrid.x == -1)
 			return 0;
 
-		MSG_SwapItem stSwapItem{};
+		p376 stSwapItem{};
 		stSwapItem.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stSwapItem.Header.PacketId = MSG_SwapItem_Opcode;
 		stSwapItem.SourType = Type;
-		stSwapItem.SourPos = page + vecGrid.x + 5 * vecGrid.y;
+		stSwapItem.SourSlot = page + vecGrid.x + 5 * vecGrid.y;
 		stSwapItem.DestType = static_cast<char>(sDestType);
-		stSwapItem.DestPos = static_cast<char>(sDestPos);
+		stSwapItem.DestSlot = static_cast<char>(sDestPos);
 		stSwapItem.TargetID = TMFieldScene::m_dwCargoID;
-		if ((unsigned char)sDestPos != (unsigned char)stSwapItem.SourPos 
+		if ((unsigned char)sDestPos != (unsigned char)stSwapItem.SourSlot 
 			|| stSwapItem.SourType != stSwapItem.DestType)
 		{
-			SendOneMessage((char*)&stSwapItem, 20);
+			SendOneMessage((char*)&stSwapItem, sizeof(p376));
 			pScene->m_pMouseOverHuman = 0;
 		}
 	}

@@ -838,5 +838,26 @@ struct MSG_AttackOne : MSG_AttackHeader
 	STRUCT_DAM Target[1];
 };
 
+struct  p376
+{
+	PacketHeader Header;
+	char SourType;
+	char SourSlot;
+	char DestType;
+	char DestSlot;
+	unsigned short TargetID;
+};
+
+
+typedef struct
+{
+	PacketHeader Header;
+	int Pos;
+	int TargetID;
+	int Price;
+	int Tax;
+	STRUCT_ITEM item;
+} p398;
+
 
 #endif //__SHAREDSTRUCT_H__

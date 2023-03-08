@@ -14887,7 +14887,7 @@ void TMFieldScene::SetKingDomChat(char cOn)
 
 void TMFieldScene::SendReqBuy(unsigned int dwControlID)
 {
-	MSG_ReqBuy stReqBuy{};
+	p398 stReqBuy{};
 	stReqBuy.Header.ClientId = m_pMyHuman->m_dwID;
 	stReqBuy.Header.PacketId = MSG_ReqBuy_Opcode;
 	stReqBuy.TargetID = m_stAutoTrade.TargetID;
@@ -14896,7 +14896,7 @@ void TMFieldScene::SendReqBuy(unsigned int dwControlID)
 	stReqBuy.Tax = m_stAutoTrade.Tax;
 	stReqBuy.item = m_stAutoTrade.Item[dwControlID - 653];
 
-	SendOneMessage((char*)&stReqBuy, sizeof(stReqBuy));
+	SendOneMessage((char*)&stReqBuy, sizeof(p398));
 }
 
 void TMFieldScene::SetSanc()
@@ -19097,7 +19097,7 @@ int TMFieldScene::OnPacketAutoTrade(PacketHeader* pStd)
 
 int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 {
-	MSG_SwapItem* pSwapItem = reinterpret_cast<MSG_SwapItem*>(pStd);
+	p376* pSwapItem = reinterpret_cast<p376*>(pStd);
 
 	SGridControl* pSrcGrid = nullptr;
 	SGridControl* pDestGrid = nullptr;
@@ -19124,22 +19124,22 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 		pGridSrc[13] = m_pGridEvent;
 		pGridSrc[14] = m_pGridDRing;
 		pGridSrc[15] = m_pGridMantua;
-		pSrcGrid = pGridSrc[pSwapItem->SourPos];
+		pSrcGrid = pGridSrc[pSwapItem->SourSlot];
 		pSrcItem = pSrcGrid->PickupItem(0, 0);
 
-		memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->SourSlot], 0, sizeof(STRUCT_ITEM));
 	}
 	else if (pSwapItem->SourType == 1)
 	{
-		pSrcGrid = m_pGridInvList[pSwapItem->SourPos / 15];
-		pSrcItem = pSrcGrid->PickupAtItem(pSwapItem->SourPos % 15 % 5, pSwapItem->SourPos % 15 / 5);
-		memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+		pSrcGrid = m_pGridInvList[pSwapItem->SourSlot / 15];
+		pSrcItem = pSrcGrid->PickupAtItem(pSwapItem->SourSlot % 15 % 5, pSwapItem->SourSlot % 15 / 5);
+		memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourSlot], 0, sizeof(STRUCT_ITEM));
 	}
 	else if (pSwapItem->SourType == 2)
 	{
-		pSrcGrid = m_pCargoGridList[pSwapItem->SourPos / 40];
-		pSrcItem = pSrcGrid->PickupAtItem(pSwapItem->SourPos % 40 % 5, pSwapItem->SourPos % 40 / 5);
-		memset(&g_pObjectManager->m_stItemCargo[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+		pSrcGrid = m_pCargoGridList[pSwapItem->SourSlot / 40];
+		pSrcItem = pSrcGrid->PickupAtItem(pSwapItem->SourSlot % 40 % 5, pSwapItem->SourSlot % 40 / 5);
+		memset(&g_pObjectManager->m_stItemCargo[pSwapItem->SourSlot], 0, sizeof(STRUCT_ITEM));
 	}
 
 	SGridControl* pGridDest[16]{};
@@ -19162,23 +19162,23 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 		pGridDest[14] = m_pGridDRing;
 		pGridDest[15] = m_pGridMantua;
 
-		pDestGrid = pGridDest[pSwapItem->DestPos];
+		pDestGrid = pGridDest[pSwapItem->DestSlot];
 		pDestItem = pDestGrid->PickupItem(0, 0);
 
-		memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+		memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->DestSlot], 0, sizeof(STRUCT_ITEM));
 	}
 	else if (pSwapItem->DestType == 1)
 	{
-		pDestGrid = m_pGridInvList[pSwapItem->DestPos / 15];
-		pDestItem = pDestGrid->PickupAtItem(pSwapItem->DestPos % 15 % 5, pSwapItem->DestPos % 15 / 5);
-		memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+		pDestGrid = m_pGridInvList[pSwapItem->DestSlot / 15];
+		pDestItem = pDestGrid->PickupAtItem(pSwapItem->DestSlot % 15 % 5, pSwapItem->DestSlot % 15 / 5);
+		memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestSlot], 0, sizeof(STRUCT_ITEM));
 	}
 	else if (pSwapItem->DestType == 2)
 	{
-		pDestGrid = m_pCargoGridList[pSwapItem->DestPos / 40];
-		pDestItem = pDestGrid->PickupAtItem(pSwapItem->DestPos % 40 % 5,
-			 pSwapItem->DestPos % 40 / 5);
-		memset(&g_pObjectManager->m_stItemCargo[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+		pDestGrid = m_pCargoGridList[pSwapItem->DestSlot / 40];
+		pDestItem = pDestGrid->PickupAtItem(pSwapItem->DestSlot % 40 % 5,
+			 pSwapItem->DestSlot % 40 / 5);
+		memset(&g_pObjectManager->m_stItemCargo[pSwapItem->DestSlot], 0, sizeof(STRUCT_ITEM));
 	}
 
 	if (pDestItem)
@@ -19190,9 +19190,9 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 			{
 				pSrcGrid->AddItem(pDestItem, 0, 0);
 				if (pDestItem)
-					memcpy(&g_pObjectManager->m_stMobData.Equip[pSwapItem->SourPos], pDestItem->m_pItem, sizeof(STRUCT_ITEM));				
+					memcpy(&g_pObjectManager->m_stMobData.Equip[pSwapItem->SourSlot], pDestItem->m_pItem, sizeof(STRUCT_ITEM));				
 				else
-					memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->SourSlot], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19206,11 +19206,11 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 		{
 			if (pDestItem->m_pItem->sIndex > 40)
 			{				
-				pSrcGrid->AddItem(pDestItem, pSwapItem->SourPos % 15 % 5, pSwapItem->SourPos % 15 / 5);
+				pSrcGrid->AddItem(pDestItem, pSwapItem->SourSlot % 15 % 5, pSwapItem->SourSlot % 15 / 5);
 				if (pDestItem)
-					memcpy(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourPos], pDestItem->m_pItem, sizeof(STRUCT_ITEM));
+					memcpy(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourSlot], pDestItem->m_pItem, sizeof(STRUCT_ITEM));
 				else
-					memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->SourSlot], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19224,11 +19224,11 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 		{
 			if (pDestItem->m_pItem->sIndex > 40)
 			{				
-				pSrcGrid->AddItem(pDestItem, pSwapItem->SourPos % 40 % 5, pSwapItem->SourPos % 40 / 5);
+				pSrcGrid->AddItem(pDestItem, pSwapItem->SourSlot % 40 % 5, pSwapItem->SourSlot % 40 / 5);
 				if (pDestItem)
-					memcpy(&g_pObjectManager->m_stItemCargo[pSwapItem->SourPos], pDestItem->m_pItem, sizeof(STRUCT_ITEM));
+					memcpy(&g_pObjectManager->m_stItemCargo[pSwapItem->SourSlot], pDestItem->m_pItem, sizeof(STRUCT_ITEM));
 				else
-					memset(&g_pObjectManager->m_stItemCargo[pSwapItem->SourPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stItemCargo[pSwapItem->SourSlot], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19247,9 +19247,9 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 			{
 				pDestGrid->AddItem(pSrcItem, 0, 0);
 				if (pSrcItem)
-					memcpy(&g_pObjectManager->m_stMobData.Equip[pSwapItem->DestPos], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
+					memcpy(&g_pObjectManager->m_stMobData.Equip[pSwapItem->DestSlot], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
 				else
-					memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stMobData.Equip[pSwapItem->DestSlot], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19263,11 +19263,11 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 		{
 			if (pSrcItem->m_pItem->sIndex > 40)
 			{
-				pDestGrid->AddItem(pSrcItem, pSwapItem->DestPos % 15 % 5, pSwapItem->DestPos % 15 / 5);
+				pDestGrid->AddItem(pSrcItem, pSwapItem->DestSlot % 15 % 5, pSwapItem->DestSlot % 15 / 5);
 				if (pSrcItem)
-					memcpy(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestPos], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
+					memcpy(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestSlot], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
 				else
-					memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stMobData.Inventory[pSwapItem->DestSlot], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19281,11 +19281,11 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 		{
 			if (pSrcItem->m_pItem->sIndex > 40)
 			{
-				pDestGrid->AddItem(pSrcItem, pSwapItem->DestPos % 40 % 5, pSwapItem->DestPos % 40 / 5);
+				pDestGrid->AddItem(pSrcItem, pSwapItem->DestSlot % 40 % 5, pSwapItem->DestSlot % 40 / 5);
 				if (pSrcItem)
-					memcpy(&g_pObjectManager->m_stItemCargo[pSwapItem->DestPos], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
+					memcpy(&g_pObjectManager->m_stItemCargo[pSwapItem->DestSlot], pSrcItem->m_pItem, sizeof(STRUCT_ITEM));
 				else
-					memset(&g_pObjectManager->m_stItemCargo[pSwapItem->DestPos], 0, sizeof(STRUCT_ITEM));
+					memset(&g_pObjectManager->m_stItemCargo[pSwapItem->DestSlot], 0, sizeof(STRUCT_ITEM));
 			}
 			else
 			{
@@ -19307,7 +19307,7 @@ int TMFieldScene::OnPacketSwapItem(PacketHeader* pStd)
 	m_pMyHuman->m_sFamiliar = pMobData->Equip[13].sIndex;
 	if (!pMobData->Guild)
 		g_pObjectManager->m_usWarGuild = -1;
-	if (pSwapItem->SourPos == 15 && pSwapItem->DestPos != 15 && m_pMyHuman)
+	if (pSwapItem->SourSlot == 15 && pSwapItem->DestSlot != 15 && m_pMyHuman)
 		m_pMyHuman->m_sMountIndex = 0;
 
 	auto pSoundManager = g_pSoundManager;

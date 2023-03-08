@@ -742,15 +742,7 @@ constexpr auto MSG_ShopList_Opcode = 0x17C;
 constexpr auto MSG_CloseShop_Opcode = 0x196;
 
 constexpr auto MSG_SwapItem_Opcode = 0x376;
-struct MSG_SwapItem
-{
-	PacketHeader Header;
-	char SourType;
-	char SourPos;
-	char DestType;
-	char DestPos;
-	unsigned short TargetID;
-};
+
 
 constexpr auto MSG_RepurchaseItems_Opcode = 0x3E8;
 struct MSG_RepurchaseItems
@@ -825,15 +817,7 @@ constexpr auto MSG_ApplyBonus_Opcode = 0x277;
 
 
 constexpr auto MSG_ReqBuy_Opcode = 0x398;
-struct MSG_ReqBuy
-{
-	PacketHeader Header;
-	int Pos;
-	unsigned short TargetID;
-	int Price;
-	int Tax;
-	STRUCT_ITEM item;
-};
+
 
 struct MSG_CNFMobKill
 {
