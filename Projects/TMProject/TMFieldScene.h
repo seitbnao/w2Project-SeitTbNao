@@ -355,7 +355,7 @@ public:
 	int m_nPlayTime;
 	int m_bWarning;
 	int m_bQuater;
-	MSG_AutoTrade m_stAutoTrade;
+	p397 m_stAutoTrade;
 	IVector2 m_vecMyNext;
 	int m_nVillage;
 	char m_cLastFlagLButtonUp;
@@ -508,7 +508,7 @@ public:
 	SPanel* m_pInputBG2;
 	SPanel* m_pInvenPanel;
 	SPanel* m_pAutoTrade;
-	SGridControl* m_pGridAutoTrade[12];
+	SGridControl* m_pGridAutoTrade[10];
 	CItemMix m_ItemMixClass;
 	CMission m_MissionClass;
 	SPanel* m_pItemMixPanel;

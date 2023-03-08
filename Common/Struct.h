@@ -415,21 +415,9 @@ struct p3B2
 };
  
 
-typedef struct
-{
-    PacketHeader Header; // 0 - 11
-
-    char MobName[24]; // 12 - 35
-    STRUCT_ITEM Item[12]; // 36 - 131
-
-    BYTE Slot[12]; // 132 - 143
-
-    int Coin[12]; // 144 - 191
-    short Unknown; // 192 - 193
-    short sIndex; // 194 - 195
-} p397;
 
 
+ 
 
 // Request Open Trade
 typedef struct 

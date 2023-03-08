@@ -570,13 +570,13 @@ void SendAutoTrade(int sendClientId, int tradeClientId)
 	pTrade.Header.PacketId = 0x397;
 	pTrade.Header.ClientId = tradeClientId;
 
-	pTrade.sIndex = tradeClientId;
+	pTrade.TargetID = tradeClientId;
 
-	memcpy(pTrade.Coin, pUser[tradeClientId].AutoTrade.Price, sizeof(int) * 12);
-	memcpy(pTrade.Item, pUser[tradeClientId].AutoTrade.Item, 12 * sizeof(STRUCT_ITEM));
-	memcpy(pTrade.Slot, pUser[tradeClientId].AutoTrade.Slots, 8);
-	strncpy_s(pTrade.MobName, pUser[tradeClientId].AutoTrade.MobName, 24);
-	pTrade.Unknown = pUser[tradeClientId].AutoTrade.Unknown_1784;
+	memcpy(pTrade.TradeMoney, pUser[tradeClientId].AutoTrade.TradeMoney, sizeof(INT32) * 10);
+	memcpy(pTrade.Item, pUser[tradeClientId].AutoTrade.Item, 10 * sizeof(STRUCT_ITEM));
+	memcpy(pTrade.CarryPos, pUser[tradeClientId].AutoTrade.CarryPos, 10);
+	strncpy_s(pTrade.Desc, pUser[tradeClientId].AutoTrade.Desc, 24);
+	pTrade.Tax = pUser[tradeClientId].AutoTrade.Tax;
 
 	pUser[sendClientId].AddMessage((BYTE*)&pTrade, sizeof p397);
 }

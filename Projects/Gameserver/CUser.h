@@ -145,16 +145,7 @@ public:
 		INT32 PK; // 2676
 	} AllStatus; 
 
-	struct
-	{
-		PacketHeader Header; // 1592
-		char MobName[24]; // 1604
-		STRUCT_ITEM Item[12]; // 1628
-		INT8 Slots[12]; // 1724
-		INT32 Price[12]; // 1736
-		INT16 Unknown_1784; // 1784
-		INT16 sIndex; // 1786
-	} AutoTrade; 
+	p397 AutoTrade;
 
 	struct
 	{

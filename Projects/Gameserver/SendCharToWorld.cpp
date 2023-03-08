@@ -287,8 +287,8 @@ bool CUser::SendCharToWorld(PacketHeader* Header)
 	for (; LOCAL_222 < 15; LOCAL_222++)
 		pUser[clientId].Trade.Slot[LOCAL_222] = -1;
 
-	for (LOCAL_222 = 0; LOCAL_222 < 12; LOCAL_222++)
-		pUser[clientId].AutoTrade.Slots[LOCAL_222] = -1;
+	for (LOCAL_222 = 0; LOCAL_222 < 10; LOCAL_222++)
+		pUser[clientId].AutoTrade.CarryPos[LOCAL_222] = -1;
 
 	IsAutoTrading = 0;
 

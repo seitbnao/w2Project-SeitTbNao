@@ -848,6 +848,16 @@ struct  p376
 	unsigned short TargetID;
 };
 
+typedef struct
+{
+	PacketHeader Header;
+	char Desc[24];
+	STRUCT_ITEM Item[10];
+	char CarryPos[10];
+	int TradeMoney[10];
+	unsigned short Tax;
+	unsigned short TargetID;
+} p397;
 
 typedef struct
 {

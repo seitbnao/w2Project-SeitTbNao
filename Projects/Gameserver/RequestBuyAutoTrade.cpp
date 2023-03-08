@@ -47,20 +47,18 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 		return true;
 	}
 
-	// q?
-	mobId = mobId;
 
-	if(slotId < 0 || slotId >= 12)
+	if(slotId < 0 || slotId >= 10)
 		return false;
 
-	INT32 slotBank = pUser[mobId].AutoTrade.Slots[slotId];
+	INT32 slotBank = pUser[mobId].AutoTrade.CarryPos[slotId];
 	if(slotBank < 0 || slotBank >= 128)
 		return false;
 
-	if(itemTaxe != pUser[mobId].AutoTrade.Unknown_1784)
+	if(itemTaxe != pUser[mobId].AutoTrade.Tax)
 		return false;
 
-	if(itemPrice != pUser[mobId].AutoTrade.Price[slotId])
+	if(itemPrice != pUser[mobId].AutoTrade.TradeMoney[slotId])
 		return false;
 
 	if(pUser[mobId].AutoTrade.Item[slotId].sIndex == 0)
@@ -145,9 +143,9 @@ bool CUser::RequestBuyAutoTrade(PacketHeader *Header)
 
 	SendItem(clientId, SlotType::Inv, nullSlot, &player->Inventory[nullSlot]);
 
-	pUser[mobId].AutoTrade.Slots[slotId] = -1; // -1;
+	pUser[mobId].AutoTrade.CarryPos[slotId] = -1; // -1;
 	memset(&pUser[mobId].AutoTrade.Item[slotId], 0, 8);
-	pUser[mobId].AutoTrade.Price[slotId] = 0;
+	pUser[mobId].AutoTrade.TradeMoney[slotId] = 0;
 	memset(&pUser[mobId].User.Storage.Item[slotBank], 0, 8);
 
 

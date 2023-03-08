@@ -539,16 +539,7 @@ struct MSG_CAPSULEUSEITEM
 };
 
 constexpr auto MSG_AutoTrade_Opcode = 0x397;
-struct MSG_AutoTrade
-{
-	PacketHeader Header;
-	char Desc[24];
-	STRUCT_ITEM Item[12];
-	char CarryPos[12];
-	int TradeMoney[12];
-	unsigned short Tax;
-	unsigned short TargetID;
-};
+
 
 struct MSG_MOVESTOP
 {

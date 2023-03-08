@@ -54,15 +54,15 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 	if (clientId <= 0 || clientId >= MAX_PLAYER)
 		return true;
 
-	INT32 itemId = p->sIndex; // LOCAL_1204
+	INT32 itemId = p->TargetID; // LOCAL_1204
 	INT32 i = 0;
 	int total = 0;
 	for( ; i < 12; i ++)
 	{
-		if(p->Coin[i] < 0 || p->Coin[i] > 1999999999) 
+		if(p->TradeMoney[i] < 0 || p->TradeMoney[i] > 1999999999) 
 			return false;
 
-		if(p->Item[i].sIndex == 0 && p->Coin[i] != 0)
+		if(p->Item[i].sIndex == 0 && p->TradeMoney[i] != 0)
 			return false;
 
 		if(p->Item[i].sIndex == 0)
@@ -79,7 +79,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 			return false;
 		}
 
-		INT32 itemSlot = p->Slot[i]; // LOCAL1206
+		INT32 itemSlot = p->CarryPos[i]; // LOCAL1206
 		if(itemSlot < 0 || itemSlot >= 120)
 			return false;
 
@@ -91,15 +91,15 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 			return true;
 		}
 
-		if (p->Coin[i] >= 10000000)
+		if (p->TradeMoney[i] >= 10000000)
 			total++;
 	}
 
-	p->Unknown = g_pCityZone[villageId].perc_impost;
-	p->MobName[23] = '\0';
-	p->MobName[22] = '\0';
+	p->Tax = g_pCityZone[villageId].perc_impost;
+	p->Desc[23] = '\0';
+	p->Desc[22] = '\0';
 
-	strncpy_s((char*)AutoTradeName, 24, p->MobName, 24);
+	strncpy_s((char*)AutoTradeName, 24, p->Desc, 24);
 
 	if (sServer.AutoTradeEvent.CurrentScore && strstr(AutoTradeName, "#EventoLoja") != nullptr)
 	{
@@ -188,20 +188,20 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 	GridMulticast_2(posX, posY, (BYTE*)&sm, 0);
 	std::stringstream str;
 	str << "Informações dos itens da loja\n";
-	str << "Nome da loja: " << p->MobName << "\n";
+	str << "Nome da loja: " << p->Desc << "\n";
 	str << "Posição criada: " << pMob[clientId].Target.X << "x " << pMob[clientId].Target.Y << "\n";
 	str << "Total de itens com valor superior a 10 milhões: " << total << "\n";
 	str << "[ITENS]" << "\n";
 
 	for (int i = 0; i < 12; i++)
 	{
-		if (p->Item[i].sIndex == 0 && p->Coin[i] != 0)
+		if (p->Item[i].sIndex == 0 && p->TradeMoney[i] != 0)
 			return false;
 
 		if (p->Item[i].sIndex == 0)
 			continue;
 
-		str << "Slot [" << std::to_string(p->Slot[i]) << "] - " << g_pItemList[p->Item[i].sIndex].ItemName << " " << p->Item[i].toString().c_str() << ". Preço de " << p->Coin[i] << "\n";
+		str << "Slot [" << std::to_string(p->CarryPos[i]) << "] - " << g_pItemList[p->Item[i].sIndex].ItemName << " " << p->Item[i].toString().c_str() << ". Preço de " << p->TradeMoney[i] << "\n";
 	}
 
 	Log(clientId, LOG_INGAME, str.str().c_str());

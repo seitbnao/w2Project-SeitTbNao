@@ -19028,7 +19028,7 @@ int TMFieldScene::OnPacketRemoveItem(MSG_STANDARDPARM* pStd)
 
 int TMFieldScene::OnPacketAutoTrade(PacketHeader* pStd)
 {
-	auto pAutoTrade = reinterpret_cast<MSG_AutoTrade*>(pStd);
+	auto pAutoTrade = reinterpret_cast<p397*>(pStd);
 
 	auto pTitle = static_cast<SText*>(m_pControlContainer->FindControl(TMT_ATRADE_TITLE));
 	auto pName = static_cast<SText*>(m_pControlContainer->FindControl(TMT_ATRADE_ID));

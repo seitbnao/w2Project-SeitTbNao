@@ -8613,8 +8613,8 @@ void RemoveTrade(int clientId)
 
 	memset(&pUser[clientId].AutoTrade, 0, sizeof (pUser[0].AutoTrade));
 
-	for(int i = 0; i < 12; i++)
-		pUser[clientId].AutoTrade.Slots[i] = -1;
+	for(int i = 0; i < 10; i++)
+		pUser[clientId].AutoTrade.CarryPos[i] = -1;
 
 	if(pUser[clientId].Status != USER_PLAY)
 		return;
