@@ -10845,13 +10845,13 @@ void TMHuman::MoveAttack(TMHuman* pTarget)
                 stAttack.SkillParm = 1;
         }
 
-        stAttack.Dam[0].TargetID = pTarget->m_dwID;
+        stAttack.Target[0].TargetID = pTarget->m_dwID;
 
-        auto pHumanTarget = g_pObjectManager->GetHumanByID(stAttack.Dam[0].TargetID);
+        auto pHumanTarget = g_pObjectManager->GetHumanByID(stAttack.Target[0].TargetID);
         if (pHumanTarget)
         {
             int nCritical = (unsigned char)g_pObjectManager->m_stMobData.Critical;
-            stAttack.Dam[0].Damage = -2;
+            stAttack.Target[0].Damage = -2;
             stAttack.Progress = TMFieldScene::m_usProgress;
 
             BASE_GetDoubleCritical(&g_pObjectManager->m_stMobData, 0, &TMFieldScene::m_usProgress, &stAttack.DoubleCritical);
@@ -10930,12 +10930,12 @@ void TMHuman::MoveAttack(TMHuman* pTarget)
                         }
                     }
 
-                    stAttack.Dam[1].TargetID = pNode->m_dwID;
-                    stAttack.Dam[1].Damage = -2;
+                    stAttack.Target[1].TargetID = pNode->m_dwID;
+                    stAttack.Target[1].Damage = -2;
                     break;
                 }
 
-                if (pMobData->LearnedSkill[0] & 0x200000 || stAttack.Dam[1].Damage == -2)
+                if (pMobData->LearnedSkill[0] & 0x200000 || stAttack.Target[1].Damage == -2)
                 {
                     stAttack.Header.PacketId = MSG_Attack_Two_Opcode;
                     nSize = sizeof(MSG_AttackTwo);
@@ -15281,14 +15281,14 @@ int TMHuman::MAutoAttack(TMHuman* pTarget, int mode)
             else if (g_pItemList[pMobData->Equip[6].sIndex].IndexMesh == 879)
                 stAttack.SkillParm = 1;
         }
-        stAttack.Dam[0].TargetID = pTarget->m_dwID;
+        stAttack.Target[0].TargetID = pTarget->m_dwID;
 
-        auto pTargetHuman = (TMHuman*)g_pObjectManager->GetHumanByID(stAttack.Dam[0].TargetID);
+        auto pTargetHuman = (TMHuman*)g_pObjectManager->GetHumanByID(stAttack.Target[0].TargetID);
         if (!pTargetHuman)
             return 0;
 
         int nCritical = (unsigned char)g_pObjectManager->m_stMobData.Critical;
-        stAttack.Dam[0].Damage = -2;
+        stAttack.Target[0].Damage = -2;
         stAttack.Progress = TMFieldScene::m_usProgress;
         BASE_GetDoubleCritical(&g_pObjectManager->m_stMobData, 0, &TMFieldScene::m_usProgress, &stAttack.DoubleCritical);
         stAttack.TargetX = (int)pTargetHuman->m_vecPosition.x;
@@ -15374,12 +15374,12 @@ int TMHuman::MAutoAttack(TMHuman* pTarget, int mode)
                     }
                 } 
                 
-                stAttack.Dam[1].TargetID = pNode->m_dwID;
-                stAttack.Dam[1].Damage = -2;
+                stAttack.Target[1].TargetID = pNode->m_dwID;
+                stAttack.Target[1].Damage = -2;
                 break;
             }    
 
-            if (!(pMobData->LearnedSkill[0] & 0x200000) && stAttack.Dam[1].Damage != -2)
+            if (!(pMobData->LearnedSkill[0] & 0x200000) && stAttack.Target[1].Damage != -2)
             {
                 stAttack.Header.PacketId = MSG_Attack_One_Opcode;
                 nSize = sizeof(MSG_AttackOne);

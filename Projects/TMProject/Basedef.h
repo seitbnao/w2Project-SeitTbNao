@@ -190,11 +190,6 @@ struct STRUCT_EXT2
 	char Dummy[126];
 };
 
-struct STRUCT_DAM
-{
-	unsigned short TargetID;
-	int Damage;
-};
 
 struct STRUCT_SPELL
 {
@@ -791,71 +786,7 @@ constexpr auto MSG_Attack_Multi_Opcode = 0x367;
 constexpr auto MSG_Attack_One_Opcode = 0x39D;
 constexpr auto MSG_Attack_Two_Opcode = 0x39E;
 
-struct MSG_Attack
-{
-	PacketHeader Header;
-	int FakeExp;
-	int ReqMp;
-	long long CurrentExp;
-	short Rsv;
-	unsigned short PosX;
-	unsigned short PosY;
-	unsigned short TargetX;
-	unsigned short TargetY;
-	unsigned short AttackerID;
-	unsigned short Progress;
-	char Motion;
-	char FlagLocal;
-	char DoubleCritical;
-	char SkillParm;
-	int CurrentMp;
-	short SkillIndex;
-	STRUCT_DAM Dam[13];
-};
 
-struct MSG_AttackTwo
-{
-	PacketHeader Header;
-	int FakeExp;
-	int ReqMp;
-	long long CurrentExp;
-	short Rsv;
-	unsigned short PosX;
-	unsigned short PosY;
-	unsigned short TargetX;
-	unsigned short TargetY;
-	unsigned short AttackerID;
-	unsigned short Progress;
-	char Motion;
-	char FlagLocal;
-	char DoubleCritical;
-	char SkillParm;
-	int CurrentMp;
-	short SkillIndex;
-	STRUCT_DAM Dam[2];
-};
-
-struct MSG_AttackOne
-{
-	PacketHeader Header;
-	int FakeExp;
-	int ReqMp;
-	long long CurrentExp;
-	short Rsv;
-	unsigned short PosX;
-	unsigned short PosY;
-	unsigned short TargetX;
-	unsigned short TargetY;
-	unsigned short AttackerID;
-	unsigned short Progress;
-	char Motion;
-	char FlagLocal;
-	char DoubleCritical;
-	char SkillParm;
-	int CurrentMp;
-	short SkillIndex;
-	STRUCT_DAM Dam[1];
-};
 
 struct PARTY
 {

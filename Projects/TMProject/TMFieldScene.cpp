@@ -5516,8 +5516,8 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 				stAttack.SkillIndex = skillId;
 				stAttack.SkillParm = 0;
 				stAttack.Motion = -1;
-				stAttack.Dam[0].TargetID = pPartyItem->m_dwCharID;
-				stAttack.Dam[0].Damage = -1;
+				stAttack.Target[0].TargetID = pPartyItem->m_dwCharID;
+				stAttack.Target[0].Damage = -1;
 				stAttack.TargetX = (int)m_pMyHuman->m_vecPosition.x;
 				stAttack.TargetY = (int)m_pMyHuman->m_vecPosition.y;
 				if (m_stMoveStop.NextX)
@@ -8595,8 +8595,8 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 							continue;
 						}
 
-						stAttack.Dam[nTargetIndex].TargetID = pNode->m_dwID;
-						stAttack.Dam[nTargetIndex++].Damage = -1;
+						stAttack.Target[nTargetIndex].TargetID = pNode->m_dwID;
+						stAttack.Target[nTargetIndex++].Damage = -1;
 						stAttack.TargetX = nDX;
 						stAttack.TargetY = nDY;
 					}
@@ -9025,14 +9025,14 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 					{
 						if (g_pSpell[(unsigned char)cSkillIndex].Range == -1 && !nTargetIndex)
 						{
-							stAttack.Dam[0].TargetID = pNode->m_dwID;
-							stAttack.Dam[0].Damage = -2;
+							stAttack.Target[0].TargetID = pNode->m_dwID;
+							stAttack.Target[0].Damage = -2;
 							stAttack.Progress = TMFieldScene::m_usProgress;
 							nTargetIndex = 1;
 						}
 
-						stAttack.Dam[nTargetIndex].TargetID = pNode->m_dwID;
-						stAttack.Dam[nTargetIndex].Damage = -1;
+						stAttack.Target[nTargetIndex].TargetID = pNode->m_dwID;
+						stAttack.Target[nTargetIndex].Damage = -1;
 						if (pOver
 							&& pOver == pNode
 							&& nTargetIndex
@@ -9040,12 +9040,12 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 								|| g_pSpell[(unsigned char)cSkillIndex].TargetType == 4
 								|| g_pSpell[(unsigned char)cSkillIndex].TargetType == 6))
 						{
-							unsigned int dwID = stAttack.Dam[0].TargetID;
-							int nDamage = stAttack.Dam[0].Damage;
-							stAttack.Dam[0].TargetID = stAttack.Dam[nTargetIndex].TargetID;
-							stAttack.Dam[0].Damage = stAttack.Dam[nTargetIndex].Damage;
-							stAttack.Dam[nTargetIndex].TargetID = dwID;
-							stAttack.Dam[nTargetIndex].Damage = nDamage;
+							unsigned int dwID = stAttack.Target[0].TargetID;
+							int nDamage = stAttack.Target[0].Damage;
+							stAttack.Target[0].TargetID = stAttack.Target[nTargetIndex].TargetID;
+							stAttack.Target[0].Damage = stAttack.Target[nTargetIndex].Damage;
+							stAttack.Target[nTargetIndex].TargetID = dwID;
+							stAttack.Target[nTargetIndex].Damage = nDamage;
 						}
 
 						++nTargetIndex;
@@ -9128,15 +9128,15 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 					int nTargetI = 0;
 					for (nIndex = 0; nIndex < nIndexCount && g_pSpell[(unsigned char)cSkillIndex].MaxTarget > nTargetI && nTargetI < 13; ++nIndex)
 					{
-						stAttack.Dam[nTargetI].TargetID = stPartys[nIndex].dwID;
-						stAttack.Dam[nTargetI++].Damage = -1;
+						stAttack.Target[nTargetI].TargetID = stPartys[nIndex].dwID;
+						stAttack.Target[nTargetI++].Damage = -1;
 					}
 				}
 			}
 			else
 			{
-				stAttack.Dam[0].TargetID = m_pMyHuman->m_dwID;
-				stAttack.Dam[0].Damage = -1;
+				stAttack.Target[0].TargetID = m_pMyHuman->m_dwID;
+				stAttack.Target[0].Damage = -1;
 			}
 		}
 		else
@@ -9189,8 +9189,8 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 				return 1;
 			}
 
-			stAttack.Dam[0].TargetID = m_pMyHuman->m_dwID;
-			stAttack.Dam[0].Damage = -1;
+			stAttack.Target[0].TargetID = m_pMyHuman->m_dwID;
+			stAttack.Target[0].Damage = -1;
 			stAttack.TargetX = (int)m_pMyHuman->m_vecPosition.x;
 			stAttack.TargetY = (int)m_pMyHuman->m_vecPosition.y;
 
@@ -9247,8 +9247,8 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 
 			if (BASE_GetDistance(nMX, nMY, (int)vec.x, (int)vec.z) > nSpecForce + g_pSpell[(unsigned char)cSkillIndex].Range)
 				return 1;
-			stAttack.Dam[0].TargetID = m_pMyHuman->m_dwID;
-			stAttack.Dam[0].Damage = -1;
+			stAttack.Target[0].TargetID = m_pMyHuman->m_dwID;
+			stAttack.Target[0].Damage = -1;
 			stAttack.TargetX = (int)vec.x;
 			stAttack.TargetY = (int)vec.z;
 			int bValue = g_pAttribute[(int)stAttack.TargetY >> 2][(int)stAttack.TargetX >> 2];
@@ -9265,12 +9265,12 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 				return 1;
 			}
 		}
-		if ((int)stAttack.Dam[0].TargetID > 0 || cSkillIndex == 97 || cSkillIndex == 35 || cSkillIndex == 51)
+		if ((int)stAttack.Target[0].TargetID > 0 || cSkillIndex == 97 || cSkillIndex == 35 || cSkillIndex == 51)
 		{
 			for (int l = g_pSpell[(unsigned char)cSkillIndex].MaxTarget; l < 13; ++l)
 			{
-				stAttack.Dam[l].TargetID = 0;
-				stAttack.Dam[l].Damage = 0;
+				stAttack.Target[l].TargetID = 0;
+				stAttack.Target[l].Damage = 0;
 			}
 
 			int nSize = sizeof(MSG_Attack);
@@ -9617,22 +9617,22 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 	stAttack.SkillParm = 0;
 	stAttack.Motion = -1;
 	stAttack.FlagLocal = 0;
-	stAttack.Dam[0].TargetID = pOver->m_dwID;
+	stAttack.Target[0].TargetID = pOver->m_dwID;
 
-	pTarget = (TMHuman*)g_pObjectManager->GetHumanByID(stAttack.Dam[0].TargetID);
+	pTarget = (TMHuman*)g_pObjectManager->GetHumanByID(stAttack.Target[0].TargetID);
 	if (!pTarget)
 		return 1;
 
 	int nTargetIndex = 0;
 	if (g_pSpell[(unsigned char)cSkillIndex].Range == -1)
 	{
-		stAttack.Dam[nTargetIndex].TargetID = pTarget->m_dwID;
-		stAttack.Dam[nTargetIndex].Damage = -2;
+		stAttack.Target[nTargetIndex].TargetID = pTarget->m_dwID;
+		stAttack.Target[nTargetIndex].Damage = -2;
 		stAttack.Progress = TMFieldScene::m_usProgress;
 		++nTargetIndex;
 	}
-	stAttack.Dam[nTargetIndex].TargetID = pTarget->m_dwID;
-	stAttack.Dam[nTargetIndex++].Damage = -1;
+	stAttack.Target[nTargetIndex].TargetID = pTarget->m_dwID;
+	stAttack.Target[nTargetIndex++].Damage = -1;
 	if (cSkillIndex == 16 || cSkillIndex == 12 || cSkillIndex == 28)
 	{
 		nDX = (int)pTarget->m_vecPosition.x - (int)m_pMyHuman->m_vecPosition.x;
@@ -9713,8 +9713,8 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 				}
 			}
 
-			stAttack.Dam[nTargetIndex].TargetID = pNode->m_dwID;
-			stAttack.Dam[nTargetIndex++].Damage = -1;
+			stAttack.Target[nTargetIndex].TargetID = pNode->m_dwID;
+			stAttack.Target[nTargetIndex++].Damage = -1;
 			break;
 		}
 	}
@@ -9965,8 +9965,8 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 							continue;
 						}
 
-						stAttack.Dam[nTargetIndex].TargetID = pNode->m_dwID;
-						stAttack.Dam[nTargetIndex++].Damage = -1;
+						stAttack.Target[nTargetIndex].TargetID = pNode->m_dwID;
+						stAttack.Target[nTargetIndex++].Damage = -1;
 						stAttack.TargetX = nDX;
 						stAttack.TargetY = nDY;
 					}
@@ -10247,14 +10247,14 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 					{
 						if (g_pSpell[(unsigned char)cSkillIndex].Range == -1 && !nTargetIndex)
 						{
-							stAttack.Dam[0].TargetID = pNode->m_dwID;
-							stAttack.Dam[0].Damage = -2;
+							stAttack.Target[0].TargetID = pNode->m_dwID;
+							stAttack.Target[0].Damage = -2;
 							stAttack.Progress = TMFieldScene::m_usProgress;
 							nTargetIndex = 1;
 						}
 
-						stAttack.Dam[nTargetIndex].TargetID = pNode->m_dwID;
-						stAttack.Dam[nTargetIndex].Damage = -1;
+						stAttack.Target[nTargetIndex].TargetID = pNode->m_dwID;
+						stAttack.Target[nTargetIndex].Damage = -1;
 						if (pOver
 							&& pOver == pNode
 							&& nTargetIndex
@@ -10262,12 +10262,12 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 								|| g_pSpell[(unsigned char)cSkillIndex].TargetType == 4
 								|| g_pSpell[(unsigned char)cSkillIndex].TargetType == 6))
 						{
-							unsigned int dwID = stAttack.Dam[0].TargetID;
-							int nDamage = stAttack.Dam[0].Damage;
-							stAttack.Dam[0].TargetID = stAttack.Dam[nTargetIndex].TargetID;
-							stAttack.Dam[0].Damage = stAttack.Dam[nTargetIndex].Damage;
-							stAttack.Dam[nTargetIndex].TargetID = dwID;
-							stAttack.Dam[nTargetIndex].Damage = nDamage;
+							unsigned int dwID = stAttack.Target[0].TargetID;
+							int nDamage = stAttack.Target[0].Damage;
+							stAttack.Target[0].TargetID = stAttack.Target[nTargetIndex].TargetID;
+							stAttack.Target[0].Damage = stAttack.Target[nTargetIndex].Damage;
+							stAttack.Target[nTargetIndex].TargetID = dwID;
+							stAttack.Target[nTargetIndex].Damage = nDamage;
 						}
 
 						++nTargetIndex;
@@ -10287,12 +10287,12 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 			stAttack.TargetY = nSY;
 		}
 
-		if ((int)stAttack.Dam[0].TargetID > 0 || cSkillIndex == 97 || cSkillIndex == 35 || cSkillIndex == 51)
+		if ((int)stAttack.Target[0].TargetID > 0 || cSkillIndex == 97 || cSkillIndex == 35 || cSkillIndex == 51)
 		{
 			for (int i = g_pSpell[(unsigned char)cSkillIndex].MaxTarget; i < 13; ++i)
 			{
-				stAttack.Dam[i].TargetID = 0;
-				stAttack.Dam[i].Damage = 0;
+				stAttack.Target[i].TargetID = 0;
+				stAttack.Target[i].Damage = 0;
 			}
 
 			int nSize = sizeof(MSG_Attack);
@@ -10386,15 +10386,15 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 					int nTargetI = 0;
 					for (nIndex = 0; nIndex < nIndexCount && g_pSpell[(unsigned char)cSkillIndex].MaxTarget > nTargetI && nTargetI < 13; ++nIndex)
 					{
-						stAttack.Dam[nTargetI].TargetID = stPartys[nIndex].dwID;
-						stAttack.Dam[nTargetI++].Damage = -1;
+						stAttack.Target[nTargetI].TargetID = stPartys[nIndex].dwID;
+						stAttack.Target[nTargetI++].Damage = -1;
 					}
 				}
 			}
 			else
 			{
-				stAttack.Dam[0].TargetID = m_pMyHuman->m_dwID;
-				stAttack.Dam[0].Damage = -1;
+				stAttack.Target[0].TargetID = m_pMyHuman->m_dwID;
+				stAttack.Target[0].Damage = -1;
 			}
 
 			SendOneMessage((char*)&stAttack, sizeof(stAttack));
@@ -10447,8 +10447,8 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 			Msg.SkillIndex = (unsigned char)cSkillIndex;
 			Msg.SkillParm = 0;
 			Msg.Motion = -1;
-			Msg.Dam[0].TargetID = pOver->m_dwID;
-			Msg.Dam[0].Damage = -1;
+			Msg.Target[0].TargetID = pOver->m_dwID;
+			Msg.Target[0].Damage = -1;
 			Msg.TargetX = (int)m_pMyHuman->m_vecPosition.x;
 			Msg.TargetY = (int)m_pMyHuman->m_vecPosition.y;
 			if (m_stMoveStop.NextX)
@@ -10716,22 +10716,22 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 	stAttack.SkillParm = 0;
 	stAttack.Motion = -1;
 	stAttack.FlagLocal = 0;
-	stAttack.Dam[0].TargetID = pOver->m_dwID;
+	stAttack.Target[0].TargetID = pOver->m_dwID;
 
-	pTarget = (TMHuman*)g_pObjectManager->GetHumanByID(stAttack.Dam[0].TargetID);
+	pTarget = (TMHuman*)g_pObjectManager->GetHumanByID(stAttack.Target[0].TargetID);
 	if (!pTarget)
 		return 0;
 
 	int nTargetIndex = 0;
 	if (g_pSpell[(unsigned char)cSkillIndex].Range == -1)
 	{
-		stAttack.Dam[nTargetIndex].TargetID = pTarget->m_dwID;
-		stAttack.Dam[nTargetIndex].Damage = -2;
+		stAttack.Target[nTargetIndex].TargetID = pTarget->m_dwID;
+		stAttack.Target[nTargetIndex].Damage = -2;
 		stAttack.Progress = TMFieldScene::m_usProgress;
 		++nTargetIndex;
 	}
-	stAttack.Dam[nTargetIndex].TargetID = pTarget->m_dwID;
-	stAttack.Dam[nTargetIndex++].Damage = -1;
+	stAttack.Target[nTargetIndex].TargetID = pTarget->m_dwID;
+	stAttack.Target[nTargetIndex++].Damage = -1;
 	if (cSkillIndex == 16 || cSkillIndex == 12 || cSkillIndex == 28)
 	{
 		nDX = (int)pTarget->m_vecPosition.x - (int)m_pMyHuman->m_vecPosition.x;
@@ -10812,8 +10812,8 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 				}
 			}
 
-			stAttack.Dam[nTargetIndex].TargetID = pNode->m_dwID;
-			stAttack.Dam[nTargetIndex++].Damage = -1;
+			stAttack.Target[nTargetIndex].TargetID = pNode->m_dwID;
+			stAttack.Target[nTargetIndex++].Damage = -1;
 			break;
 		}
 	}
@@ -11387,10 +11387,10 @@ int TMFieldScene::MobAttack(unsigned int wParam, D3DXVECTOR3 vec, unsigned int d
 
 				if (m_cAutoAttack == 1)
 					m_pTargetHuman = pOver;
-				stAttack.Dam[0].TargetID = pOver->m_dwID;
-				auto pTarget = g_pObjectManager->GetHumanByID(stAttack.Dam[0].TargetID);
+				stAttack.Target[0].TargetID = pOver->m_dwID;
+				auto pTarget = g_pObjectManager->GetHumanByID(stAttack.Target[0].TargetID);
 				int nCritical = (unsigned char)pMobData->Critical;
-				stAttack.Dam[0].Damage = -2;
+				stAttack.Target[0].Damage = -2;
 				stAttack.Progress = TMFieldScene::m_usProgress;
 
 				BASE_GetDoubleCritical(pMobData, 0, &TMFieldScene::m_usProgress, &stAttack.DoubleCritical);
@@ -11470,12 +11470,12 @@ int TMFieldScene::MobAttack(unsigned int wParam, D3DXVECTOR3 vec, unsigned int d
 							}
 						}
 
-						stAttack.Dam[1].TargetID = pNode->m_dwID;
-						stAttack.Dam[1].Damage = -2;
+						stAttack.Target[1].TargetID = pNode->m_dwID;
+						stAttack.Target[1].Damage = -2;
 						break;
 					}
 
-					if (pMobData->LearnedSkill[0] & 0x200000 || stAttack.Dam[1].Damage == -2)
+					if (pMobData->LearnedSkill[0] & 0x200000 || stAttack.Target[1].Damage == -2)
 					{
 						stAttack.Header.PacketId = MSG_Attack_Two_Opcode;
 						nSize = sizeof(MSG_AttackTwo);
@@ -11859,8 +11859,8 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 		stAttack.Header.PacketId = MSG_Attack_One_Opcode;
 		stAttack.Header.ClientId = m_pMyHuman->m_dwID;
 		stAttack.AttackerID = m_pMyHuman->m_dwID;
-		stAttack.Dam[0].TargetID = m_pMyHuman->m_dwID;
-		stAttack.Dam[0].Damage = -1;
+		stAttack.Target[0].TargetID = m_pMyHuman->m_dwID;
+		stAttack.Target[0].Damage = -1;
 		stAttack.PosX = (int)m_pMyHuman->m_vecPosition.x;
 		stAttack.PosY = (int)m_pMyHuman->m_vecPosition.y;
 		stAttack.TargetX = (int)m_pMyHuman->m_vecPosition.x;
@@ -20143,7 +20143,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 	auto pAttack = reinterpret_cast<MSG_Attack*>(pStd);
 
 	auto pAttacker = (TMHuman*)g_pObjectManager->GetHumanByID(pAttack->AttackerID);
-	auto pTarget = (TMHuman*)g_pObjectManager->GetHumanByID(pAttack->Dam[0].TargetID);
+	auto pTarget = (TMHuman*)g_pObjectManager->GetHumanByID(pAttack->Target[0].TargetID);
 
 	bool bomb = false;
 	if (pAttack->SkillIndex == 104)
@@ -20203,7 +20203,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 			if (pAttack->Header.PacketId == MSG_Attack_Two_Opcode && i >= 2)
 				break;
 
-			pAttacker->m_usTargetID[i] = pAttack->Dam[i].TargetID;
+			pAttacker->m_usTargetID[i] = pAttack->Target[i].TargetID;
 		}
 
 		SetSkillColor(pAttacker, static_cast<char>(pAttack->SkillIndex));
@@ -20443,7 +20443,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					else if (g_pSpell[pAttack->SkillIndex].MaxTarget <= i)
 						break;
 
-					auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pTargetHuman && pTargetHuman != pAttacker)
 					{
 						if (pAttack->SkillIndex == 33)
@@ -20597,7 +20597,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					if (pAttack->Header.PacketId == MSG_Attack_Two_Opcode && i >= 2)
 						break;
 
-					auto pOwner = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pOwner = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pOwner)
 					{
 						auto pEffect = new TMEffectStart(TMVector3(pOwner->m_vecPosition.x, pOwner->m_fHeight + 0.5f, pOwner->m_vecPosition.y), 5, pOwner);
@@ -20670,7 +20670,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 						if (pAttack->Header.PacketId == MSG_Attack_Two_Opcode && i >= 2)
 							break;
 
-						auto pOwner = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+						auto pOwner = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 						if (pOwner)
 						{
 							TMVector3 vecDest{ pOwner->m_vecPosition.x, pAttacker->m_fHeight + 0.5f, pOwner->m_vecPosition.y };
@@ -20893,7 +20893,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					int rndx = rand() % 18;
 					int rndy = rand() % 18;
 
-					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 
 					if (pMultiTarget)
 					{
@@ -21062,7 +21062,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 
 					int rndx = rand() % 18;
 					int rndy = rand() % 18;
-					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pMultiTarget)
 					{
 						vecTarget = TMVector3(pMultiTarget->m_vecPosition.x, pMultiTarget->m_fHeight, pMultiTarget->m_vecPosition.y);
@@ -21101,7 +21101,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					int rndx = rand() % 18;
 					int rndy = rand() % 18;
 
-					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pMultiTarget)
 					{
 						TMVector3 vecStart = pAttacker->m_vecTempPos[i % 2 + 1];
@@ -21164,7 +21164,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 
 				for (int i = 0; i < 13; i++)
 				{
-					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pMultiTarget)
 					{
 						vecTarget = TMVector3(pMultiTarget->m_vecPosition.x,
@@ -21189,7 +21189,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 
 				for (int i = 0; i < 13; i++)
 				{
-					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pMultiTarget)
 					{
 						vecTarget = TMVector3(pMultiTarget->m_vecPosition.x,
@@ -21238,7 +21238,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 
 				for (int i = 0; i < 13; i++)
 				{
-					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pMultiTarget)
 					{
 						vecTarget = TMVector3(pMultiTarget->m_vecPosition.x,
@@ -21310,7 +21310,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 				
 				for (int i = 0; i < 13; i++)
 				{
-					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pMultiTarget = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pMultiTarget)
 					{
 						vecTarget = TMVector3(pMultiTarget->m_vecPosition.x,
@@ -21365,7 +21365,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 			if (pAttack->Header.PacketId == MSG_Attack_Two_Opcode && i >= 2)
 				break;
 
-			if (pAttack->Dam[i].TargetID = m_pMyHuman->m_dwID)
+			if (pAttack->Target[i].TargetID = m_pMyHuman->m_dwID)
 			{
 				bFind = true;
 				break;
@@ -21407,7 +21407,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 			if (pAttack->Header.PacketId == MSG_Attack_Two_Opcode && i >= 2)
 				break;
 
-			auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+			auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 			if (pTargetHuman)
 			{
 				int nDamageRate = pTargetHuman->m_cDamageRate;
@@ -21427,7 +21427,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 				}
 				if (pAttacker != m_pMyHuman || pAttack->FlagLocal == 0 && pAttacker == m_pMyHuman)
 				{
-					if (pAttack->Dam[i].Damage == -3 || pAttack->Dam[i].Damage == -4)
+					if (pAttack->Target[i].Damage == -3 || pAttack->Target[i].Damage == -4)
 					{
 						int nTX = 0;
 						int nTY = 0;
@@ -21458,13 +21458,13 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					}
 					else if (pAttack->SkillIndex >= 0 && pAttack->SkillIndex < 104 && 
 						g_pSpell[pAttack->SkillIndex].InstanceType == 6 && 
-						(pAttack->Dam[i].Damage >= 0 || pAttack->Dam[i].Damage <= -6))
+						(pAttack->Target[i].Damage >= 0 || pAttack->Target[i].Damage <= -6))
 					{
 						if (!pAttack->FlagLocal)
 						{
 							if (!pTargetHuman->m_MaxBigHp)
 							{
-								int HealDam = pAttack->Dam[i].Damage / nDamageRate;
+								int HealDam = pAttack->Target[i].Damage / nDamageRate;
 								int Dam = pTargetHuman->m_stScore.Hp - HealDam;
 
 								if (Dam > pTargetHuman->m_stScore.MaxHp)
@@ -21476,7 +21476,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 							}
 							else
 							{
-								int Dam = pAttack->Dam[i].Damage;
+								int Dam = pAttack->Target[i].Damage;
 								if (pTargetHuman->m_BigHp == Dam)
 									pTargetHuman->m_BigHp = 0;
 								else
@@ -21489,7 +21489,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 
 							if (pTargetHuman == m_pMyHuman)
 							{
-								int HealDam = pAttack->Dam[i].Damage / nDamageRate;
+								int HealDam = pAttack->Target[i].Damage / nDamageRate;
 								int Dam = HealDam + m_nReqHP;
 								// TODO: change to define
 								if (Dam > 100000)
@@ -21514,7 +21514,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 								sprintf(szStr, "?");
 							}
 							else
-								sprintf(szStr, "+ %d", -pAttack->Dam[i].Damage / ((pAttack->DoubleCritical & 1) + 1));
+								sprintf(szStr, "+ %d", -pAttack->Target[i].Damage / ((pAttack->DoubleCritical & 1) + 1));
 
 							bool bDrawFront = false;
 							if (g_bHideEffect)
@@ -21542,7 +21542,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					{
 						if (!pAttack->FlagLocal)
 						{
-							int nValue = pAttack->Dam[i].Damage;
+							int nValue = pAttack->Target[i].Damage;
 							if (nValue > 1000000)
 								nValue = 0;
 							if (nValue >= 0)
@@ -21565,7 +21565,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 								pTargetHuman->m_stScore.Hp = 0;
 							if (pTargetHuman == m_pMyHuman)
 							{
-								if (m_nReqHP - pAttack->Dam[i].Damage > 0)
+								if (m_nReqHP - pAttack->Target[i].Damage > 0)
 									m_nReqHP -= nValue;
 								else
 									m_nReqHP = 0;
@@ -21606,9 +21606,9 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 							{
 								int nFlank = 0;
 								if (pAttack->DoubleCritical & 4)
-									nFlank = pAttack->Dam[1].Damage;
+									nFlank = pAttack->Target[1].Damage;
 
-								int nValue = (pAttack->Dam[i].Damage - nFlank) / ((pAttack->DoubleCritical & 1) + 1);
+								int nValue = (pAttack->Target[i].Damage - nFlank) / ((pAttack->DoubleCritical & 1) + 1);
 								if (nValue > 1000000)
 									nValue = 0;
 
@@ -21626,7 +21626,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 									{
 										sprintf(szStr, "%d", nValue);
 									}
-									else if (pAttack->Dam[1].Damage > 0)
+									else if (pAttack->Target[1].Damage > 0)
 									{
 										sprintf(szStr, "%d + %d", nValue, nFlank);
 									}
@@ -21656,7 +21656,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 										TMFont3* pFont = nullptr;
 										unsigned int dwColor = 0xFFFFFFFF;
 										float fSize = 1.0f;
-										if (i > 0 && pAttack->Dam[i].TargetID == pAttack->Dam[i - 1].TargetID)
+										if (i > 0 && pAttack->Target[i].TargetID == pAttack->Target[i - 1].TargetID)
 										{
 											m_pMyHuman->m_bCritical = 0;
 											if (!(pAttack->DoubleCritical & 2))
@@ -21873,7 +21873,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					nClass = 5;
 				if (pAttacker != m_pMyHuman || !pAttack->FlagLocal && pAttacker == m_pMyHuman)
 				{
-					pTargetHuman->m_stPunchEvent.nDamage = pAttack->Dam[i].Damage / nDamageRate;
+					pTargetHuman->m_stPunchEvent.nDamage = pAttack->Target[i].Damage / nDamageRate;
 					pTargetHuman->m_stPunchEvent.vecFrom = vecAttackerPos;
 					pTargetHuman->m_stPunchEvent.dwTime = 0 + dwDelayTable[6 * nClass + nMotion] + g_pTimerManager->GetServerTime();
 				}
@@ -21895,14 +21895,14 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 				if (pAttack->Header.PacketId == MSG_Attack_Two_Opcode && i >= 2)
 					break;
 
-				auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+				auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 				if (pTargetHuman)
 				{
 					int nDamageRate = pTargetHuman->m_cDamageRate;
 					if (nDamageRate == 0)
 						nDamageRate = 1;
 
-					if (pAttack->Dam[i].Damage == -3 || pAttack->Dam[i].Damage == -4)
+					if (pAttack->Target[i].Damage == -3 || pAttack->Target[i].Damage == -4)
 					{
 						int pX = 0;
 						int pY = 0;
@@ -21932,20 +21932,20 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					}
 					else if (pAttack->SkillIndex >= 0 && pAttack->SkillIndex < 104
 						&& g_pSpell[pAttack->SkillIndex].InstanceType == 6
-						&& (pAttack->Dam[i].Damage >= 0 || pAttack->Dam[i].Damage <= -6))
+						&& (pAttack->Target[i].Damage >= 0 || pAttack->Target[i].Damage <= -6))
 					{
 						if (!pAttack->FlagLocal)
 						{
-							if (pTargetHuman->m_stScore.Hp - pAttack->Dam[i].Damage / nDamageRate <= 0)
+							if (pTargetHuman->m_stScore.Hp - pAttack->Target[i].Damage / nDamageRate <= 0)
 								pTargetHuman->m_stScore.Hp = 0;
 							else
-								pTargetHuman->m_stScore.Hp -= pAttack->Dam[i].Damage / nDamageRate;
+								pTargetHuman->m_stScore.Hp -= pAttack->Target[i].Damage / nDamageRate;
 							if (pTargetHuman == m_pMyHuman)
 							{
-								if (m_nReqHP - pAttack->Dam[i].Damage <= 0)
+								if (m_nReqHP - pAttack->Target[i].Damage <= 0)
 									m_nReqHP = 0;
 								else
-									m_nReqHP -= pAttack->Dam[i].Damage / nDamageRate;
+									m_nReqHP -= pAttack->Target[i].Damage / nDamageRate;
 
 								memcpy(&g_pObjectManager->m_stMobData.CurrentScore, &pTargetHuman->m_stScore, sizeof(pTargetHuman->m_stScore));
 							}
@@ -21963,7 +21963,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 								sprintf(szStr, "?");
 							}
 							else
-								sprintf(szStr, "+ %d", -pAttack->Dam[i].Damage / ((pAttack->DoubleCritical & 1) + 1));
+								sprintf(szStr, "+ %d", -pAttack->Target[i].Damage / ((pAttack->DoubleCritical & 1) + 1));
 
 							bool bDrawFront = false;
 							if (g_bHideEffect)
@@ -21993,25 +21993,25 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 						{
 							if (!pTargetHuman->m_MaxBigHp)
 							{
-								if (pTargetHuman->m_stScore.Hp - pAttack->Dam[i].Damage / nDamageRate <= 0)
+								if (pTargetHuman->m_stScore.Hp - pAttack->Target[i].Damage / nDamageRate <= 0)
 									pTargetHuman->m_stScore.Hp = 0;
 								else
-									pTargetHuman->m_stScore.Hp -= pAttack->Dam[i].Damage / nDamageRate;
+									pTargetHuman->m_stScore.Hp -= pAttack->Target[i].Damage / nDamageRate;
 							}
 							else
 							{
-								if (pTargetHuman->m_BigHp == pAttack->Dam[i].Damage)
+								if (pTargetHuman->m_BigHp == pAttack->Target[i].Damage)
 									pTargetHuman->m_BigHp = 0;
 								else
-									pTargetHuman->m_BigHp -= pAttack->Dam[i].Damage;
+									pTargetHuman->m_BigHp -= pAttack->Target[i].Damage;
 								pTargetHuman->m_stScore.Hp = (short)pTargetHuman->m_BigHp;
 							}
 							if (pTargetHuman == m_pMyHuman)
 							{
-								if (m_nReqHP - pAttack->Dam[i].Damage <= 0)
+								if (m_nReqHP - pAttack->Target[i].Damage <= 0)
 									m_nReqHP = 0;
 								else
-									m_nReqHP -= pAttack->Dam[i].Damage / nDamageRate;
+									m_nReqHP -= pAttack->Target[i].Damage / nDamageRate;
 
 								memcpy(&g_pObjectManager->m_stMobData.CurrentScore, &pTargetHuman->m_stScore, sizeof(pTargetHuman->m_stScore));
 							}
@@ -22039,7 +22039,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 
 							for (int bViewHalf = 0; bViewHalf < (pAttack->DoubleCritical & 1) + 1; bViewHalf++)
 							{
-								int nValue = pAttack->Dam[i].Damage / ((pAttack->DoubleCritical & 1) + 1);
+								int nValue = pAttack->Target[i].Damage / ((pAttack->DoubleCritical & 1) + 1);
 								
 								if (nValue > 0)
 								{
@@ -22238,7 +22238,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 				bool bFound = false;
 				for (int i = 0; i < 13; i++)
 				{
-					if (pAttack->Dam[i].TargetID == m_pMyHuman->m_dwID)
+					if (pAttack->Target[i].TargetID == m_pMyHuman->m_dwID)
 					{
 						bFound = true;
 						break;
@@ -22276,7 +22276,7 @@ int TMFieldScene::OnPacketAttack(PacketHeader* pStd)
 					if (pAttack->Header.PacketId == MSG_Attack_Two_Opcode && i >= 2)
 						break;
 
-					auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Dam[i].TargetID);
+					auto pTargetHuman = g_pObjectManager->GetHumanByID(pAttack->Target[i].TargetID);
 					if (pTargetHuman)
 					{
 						float fTarget = 0.0f;

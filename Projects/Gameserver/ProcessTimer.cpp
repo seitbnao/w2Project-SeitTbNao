@@ -1092,8 +1092,8 @@ void ProcessSecTimer()
 			if (vision > 20)
 				vision = 20;
 
-			p367 packet{};
-			packet.Header.Size = sizeof p367;
+			MSG_Attack packet{};
+			packet.Header.Size = sizeof MSG_Attack;
 
 			int target[13];
 			for (INT32 i = 0; i < 13; i++)
@@ -1139,7 +1139,7 @@ void ProcessSecTimer()
 
 			for (INT32 i = 0; i < 13; i++)
 			{
-				INT32 mobId = packet.Target[i].Index;
+				INT32 mobId = packet.Target[i].TargetID;
 				if (mobId <= 0 || mobId >= MAX_MOB)
 					continue;
 
@@ -1325,7 +1325,7 @@ void ProcessSecTimer()
 
 			for (INT32 i = 0; i < 13; i++)
 			{
-				INT32 mobId = packet.Target[i].Index;
+				INT32 mobId = packet.Target[i].TargetID;
 				if (mobId <= 0 || mobId >= MAX_MOB)
 					continue;
 
@@ -1340,14 +1340,14 @@ void ProcessSecTimer()
 			if (LOCAL_164 <= 0 || LOCAL_164 >= MAX_MOB)
 				continue;
 
-			p39D LOCAL_175;
+			MSG_Attack LOCAL_175;
 			GetAttack(LOCAL_110, LOCAL_164, &LOCAL_175);
 
 			//LOCAL_175.flagLocal = 0;
-			LOCAL_164 = LOCAL_175.Target.Index & 0xFFFF;
+			LOCAL_164 = LOCAL_175.Target[0].TargetID & 0xFFFF;
 
-			INT32 LOCAL_176 = LOCAL_175.skillId;
-			if (LOCAL_176 >= 0 && LOCAL_176 < 96 && !(LOCAL_175.skillParm & 0xFF))
+			INT32 LOCAL_176 = LOCAL_175.SkillIndex;
+			if (LOCAL_176 >= 0 && LOCAL_176 < 96 && !(LOCAL_175.SkillParm & 0xFF))
 			{
 				if (LOCAL_176 == 33)
 					LOCAL_175.Motion = 0xFD;
@@ -1380,23 +1380,23 @@ void ProcessSecTimer()
 				}
 			}
 
-			if (LOCAL_164 < MAX_PLAYER && LOCAL_175.Target.Damage > 0) // MAX_PLAYER
+			if (LOCAL_164 < MAX_PLAYER && LOCAL_175.Target[0].Damage > 0) // MAX_PLAYER
 			{
 				UINT32 LOCAL_180 = GetParryRate(LOCAL_110, LOCAL_164, -2);
 
 				UINT32 LOCAL_181 = Rand() % 1000;
 				if (LOCAL_181 < LOCAL_180)
 				{
-					LOCAL_175.Target.Damage = -3;
+					LOCAL_175.Target[0].Damage = -3;
 
 					if (pMob[LOCAL_164].Mobs.Player.AffectInfo.Resist && LOCAL_164 < MAX_PLAYER)
-						LOCAL_175.Target.Damage = -4;
+						LOCAL_175.Target[0].Damage = -4;
 				}
 
 				if (pMob[LOCAL_110].Mobs.Player.CapeInfo == 4)
-					LOCAL_175.Target.Damage = (LOCAL_175.Target.Damage << 1) / 5;
+					LOCAL_175.Target[0].Damage = (LOCAL_175.Target[0].Damage << 1) / 5;
 
-				INT32 auxDam = LOCAL_175.Target.Damage;
+				INT32 auxDam = LOCAL_175.Target[0].Damage;
 				if (auxDam > 0)
 				{
 					for (int i = 0; i < 32; i++)
@@ -1426,7 +1426,7 @@ void ProcessSecTimer()
 					}
 				}
 
-				LOCAL_175.Target.Damage = auxDam;
+				LOCAL_175.Target[0].Damage = auxDam;
 			}
 
 			INT32 summonerId = pMob[LOCAL_110].Summoner;
@@ -1487,7 +1487,7 @@ void ProcessSecTimer()
 			}
 
 			UINT32 LOCAL_182 = pMob[LOCAL_164].Leader;
-			if (LOCAL_175.Target.Damage > 0)
+			if (LOCAL_175.Target[0].Damage > 0)
 			{
 				if (LOCAL_182 <= 0)
 					LOCAL_182 = LOCAL_164;
@@ -1552,9 +1552,9 @@ void ProcessSecTimer()
 				}*/
 			}
 
-			if (LOCAL_175.Target.Damage > 0 || LOCAL_175.Target.Damage <= -5)
+			if (LOCAL_175.Target[0].Damage > 0 || LOCAL_175.Target[0].Damage <= -5)
 			{
-				INT32 LOCAL_191 = LOCAL_175.Target.Damage;
+				INT32 LOCAL_191 = LOCAL_175.Target[0].Damage;
 				INT32 LOCAL_192 = 0;
 
 				INT32 LOCAL_193 = pMob[LOCAL_164].Mobs.Player.Equip[14].sIndex;
@@ -1563,11 +1563,11 @@ void ProcessSecTimer()
 				{
 					if (pMob[LOCAL_164].isNormalPet())
 					{
-						LOCAL_191 = AbsorveDamageByPet(&pMob[LOCAL_164], LOCAL_175.Target.Damage);
-						LOCAL_192 = LOCAL_175.Target.Damage - LOCAL_191;
+						LOCAL_191 = AbsorveDamageByPet(&pMob[LOCAL_164], LOCAL_175.Target[0].Damage);
+						LOCAL_192 = LOCAL_175.Target[0].Damage - LOCAL_191;
 					}
 
-					LOCAL_175.Target.Damage = LOCAL_191;
+					LOCAL_175.Target[0].Damage = LOCAL_191;
 				}
 
 				INT32 itemId = pMob[LOCAL_164].Mobs.Player.Equip[13].sIndex;
@@ -1591,14 +1591,14 @@ void ProcessSecTimer()
 					}
 
 					multHP *= LOCAL_194;
-					pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp - (LOCAL_175.Target.Damage / multHP);
+					pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp - (LOCAL_175.Target[0].Damage / multHP);
 				}
 				else
 				{
-					if (LOCAL_175.Target.Damage > pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp)
-						LOCAL_175.Target.Damage = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp;
+					if (LOCAL_175.Target[0].Damage > pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp)
+						LOCAL_175.Target[0].Damage = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp;
 
-					pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp - LOCAL_175.Target.Damage;
+					pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp = pMob[LOCAL_164].Mobs.Player.CurrentScore.Hp - LOCAL_175.Target[0].Damage;
 				}
 
 				if (LOCAL_164 >= MAX_PLAYER && pMob[LOCAL_164].Mobs.Player.CapeInfo == 4)
@@ -1613,7 +1613,7 @@ void ProcessSecTimer()
 			// 00454ED2
 			if (LOCAL_164 > 0 && LOCAL_164 < MAX_PLAYER)
 			{
-				pUser[LOCAL_164].Potion.CountHp = pUser[LOCAL_164].Potion.CountHp - LOCAL_175.Target.Damage;
+				pUser[LOCAL_164].Potion.CountHp = pUser[LOCAL_164].Potion.CountHp - LOCAL_175.Target[0].Damage;
 				SetReqHp(LOCAL_164);
 			}
 

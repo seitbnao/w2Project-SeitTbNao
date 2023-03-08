@@ -793,4 +793,50 @@ typedef struct
 	PacketHeader Header;
 	unsigned short TargetID;
 } p27B;
+
+
+typedef struct
+{
+	unsigned short TargetID;
+	int Damage;
+}STRUCT_DAM;
+
+struct MSG_AttackHeader
+{
+	PacketHeader Header;
+	int FakeExp;
+	int ReqMp;
+	long long CurrentExp;
+	short Rsv;
+	unsigned short PosX;
+	unsigned short PosY;
+	unsigned short TargetX;
+	unsigned short TargetY;
+	unsigned short AttackerID;
+	unsigned short Progress;
+	char Motion;
+	char FlagLocal;
+	char DoubleCritical;
+	char SkillParm;
+	int CurrentMp;
+	short SkillIndex;
+	 
+};
+
+struct MSG_Attack : MSG_AttackHeader
+{
+	STRUCT_DAM Target[13];
+};
+
+struct MSG_AttackTwo : MSG_AttackHeader
+{
+	STRUCT_DAM Target[2];
+};
+
+struct MSG_AttackOne : MSG_AttackHeader
+{
+	STRUCT_DAM Target[1];
+};
+
+
 #endif //__SHAREDSTRUCT_H__

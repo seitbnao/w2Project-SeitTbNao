@@ -6331,7 +6331,7 @@ int ProcessAffect(int clientId)
 						if (pMob[LOCAL_6].Target.X >= (LOCAL_15 - VIEWGRIDX) && pMob[LOCAL_6].Target.X <= (LOCAL_15 + VIEWGRIDX) &&
 							pMob[LOCAL_6].Target.Y >= (LOCAL_16 - VIEWGRIDY) && pMob[LOCAL_6].Target.Y <= (LOCAL_16 + VIEWGRIDY))
 						{
-							p39D packet;
+							MSG_AttackOne packet;
 							memset(&packet, 0, sizeof packet);
 
 							packet.Header.PacketId = 0x39D;
@@ -6339,25 +6339,25 @@ int ProcessAffect(int clientId)
 							packet.Header.Size = sizeof packet;
 							packet.Header.TimeStamp = 0x0E0A1ACA;
 
-							packet.attackerPos.X = pMob[clientId].Target.X;
-							packet.attackerPos.Y = pMob[clientId].Target.Y;
+							packet.PosX = pMob[clientId].Target.X;
+							packet.PosY = pMob[clientId].Target.Y;
 
-							packet.attackerId = clientId;
+							packet.AttackerID = clientId;
 							packet.Motion = 0xFE;
 
-							packet.skillId = 32;
+							packet.SkillIndex = 32;
 							if (LOCAL_5 == 769)
-								packet.skillId = 34;
+								packet.SkillIndex = 34;
 							else if (LOCAL_5 == 1726)
-								packet.skillId = 36;
+								packet.SkillIndex = 36;
 
-							packet.Target.Index = LOCAL_6;
-							packet.Target.Damage = -1;
+							packet.Target[0].TargetID = LOCAL_6;
+							packet.Target[0].Damage = -1;
 
 							// 004505C9
 
 							pUser[clientId].TimeStamp.TimeStamp = 0x0E0A1ACA;
-							pUser[clientId].PacketControl((BYTE*)& packet, sizeof p39D);
+							pUser[clientId].PacketControl((BYTE*)& packet, sizeof MSG_AttackOne);
 							pUser[clientId].TimeStamp.TimeStamp = 0;
 						}
 						else
@@ -6510,8 +6510,8 @@ int ProcessAffect(int clientId)
 			if(LOCAL_108.Village)
 				goto check;
 
-			p367 LOCAL_132;
-			memset(&LOCAL_132, 0, sizeof p367);
+			MSG_AttackOne LOCAL_132;
+			memset(&LOCAL_132, 0, sizeof MSG_AttackOne);
 
 			INT32 LOCAL_133 = pMob[clientId].CurrentTarget;
 			if(LOCAL_133 != 0)
@@ -6628,7 +6628,7 @@ int ProcessAffect(int clientId)
 								goto label;
 							}
 
-							LOCAL_132.Target[0].Index = LOCAL_133;
+							LOCAL_132.Target[0].TargetID = LOCAL_133;
 							LOCAL_132.Target[0].Damage = -1;
 						}
 					}
@@ -6728,31 +6728,31 @@ int ProcessAffect(int clientId)
 							continue;
 					}
 
-					LOCAL_132.Target[LOCAL_145].Index = LOCAL_150;
+					LOCAL_132.Target[LOCAL_145].TargetID = LOCAL_150;
 					LOCAL_132.Target[LOCAL_145].Damage = -1;
 
 					LOCAL_145++;
 				}
 			}
 
-			if(!LOCAL_132.Target[0].Index)
+			if(!LOCAL_132.Target[0].TargetID)
 				continue;
 
 			LOCAL_132.Header.PacketId = 0x367;
 			LOCAL_132.Header.ClientId = clientId;
-			LOCAL_132.Header.Size = sizeof p367;
+			LOCAL_132.Header.Size = sizeof MSG_AttackOne;
 			LOCAL_132.Header.TimeStamp = 0xE0A1ACA;
 				
-			LOCAL_132.attackerPos.X = pMob[clientId].Target.X;
-			LOCAL_132.attackerPos.Y = pMob[clientId].Target.Y;
+			LOCAL_132.PosX = pMob[clientId].Target.X;
+			LOCAL_132.PosY = pMob[clientId].Target.Y;
 
 			LOCAL_132.Motion = -2;
-			LOCAL_132.attackerId = clientId;
+			LOCAL_132.AttackerID = clientId;
 
-			LOCAL_132.skillId = 52;
+			LOCAL_132.SkillIndex = 52;
 
 			pUser[clientId].TimeStamp.TimeStamp = 0xE0A1ACA;
-			pUser[clientId].PacketControl((BYTE*)&LOCAL_132, sizeof p367);
+			pUser[clientId].PacketControl((BYTE*)&LOCAL_132, sizeof MSG_AttackOne);
 			pUser[clientId].TimeStamp.TimeStamp = 0;
 
 		}
@@ -7095,62 +7095,62 @@ int ProcessAffect(int clientId)
 
 			if(LOCAL_40 != 0)
 			{
-				p367 LOCAL_95;
-				memset(&LOCAL_95, 0, sizeof p367);
+				MSG_AttackOne LOCAL_95;
+				memset(&LOCAL_95, 0, sizeof MSG_AttackOne);
 
 				LOCAL_95.Header.PacketId = 0x367;
 				LOCAL_95.Header.ClientId = clientId;
-				LOCAL_95.Header.Size = sizeof p367;
+				LOCAL_95.Header.Size = sizeof MSG_AttackOne;
 
 				LOCAL_95.Header.TimeStamp = 0x0E0A1ACA;
-				LOCAL_95.attackerPos.X = pMob[clientId].Target.X;
-				LOCAL_95.attackerPos.Y = pMob[clientId].Target.Y;
+				LOCAL_95.PosX = pMob[clientId].Target.X;
+				LOCAL_95.PosY = pMob[clientId].Target.Y;
 
 				LOCAL_95.Motion = -2;
 
 				if(pMob[clientId].Mobs.Player.Equip[0].sIndex == 219)
 					LOCAL_95.Motion = -4;
 
-				LOCAL_95.attackerId = clientId;
-				LOCAL_95.skillId = 33;
+				LOCAL_95.AttackerID = clientId;
+				LOCAL_95.SkillIndex = 33;
 
 				INT32 LOCAL_96 = Rand() % 100;
 
 				INT32 LOCAL_97 = LOCAL_33 + LOCAL_34  + LOCAL_96;
 
-				LOCAL_95.Target[0].Index = LOCAL_40;
+				LOCAL_95.Target[0].TargetID = LOCAL_40;
 				LOCAL_95.Target[0].Damage = -1;
 
 				if(LOCAL_97 > 300)
 				{
-					LOCAL_95.Target[1].Index = LOCAL_41;
+					LOCAL_95.Target[1].TargetID = LOCAL_41;
 					LOCAL_95.Target[1].Damage = -1;
 				}
 				if(LOCAL_97 > 350)
 				{
-					LOCAL_95.Target[2].Index = LOCAL_42;
+					LOCAL_95.Target[2].TargetID = LOCAL_42;
 					LOCAL_95.Target[2].Damage = -1;
 				}
 				if(LOCAL_97 > 400)
 				{
-					LOCAL_95.Target[3].Index = LOCAL_43;
+					LOCAL_95.Target[3].TargetID = LOCAL_43;
 					LOCAL_95.Target[3].Damage = -1;
 				}
 				if(LOCAL_97 > 450)
 				{
-					LOCAL_95.Target[4].Index = LOCAL_44;
+					LOCAL_95.Target[4].TargetID = LOCAL_44;
 					LOCAL_95.Target[4].Damage = -1;
 				}
 				if(LOCAL_97 > 500)
 				{
-					LOCAL_95.Target[5].Index = LOCAL_45;
+					LOCAL_95.Target[5].TargetID = LOCAL_45;
 					LOCAL_95.Target[5].Damage = -1;
 				}
 
 				if(clientId < MAX_PLAYER)
 				{
 					pUser[clientId].TimeStamp.TimeStamp = 0x00E0A1ACA;
-					pUser[clientId].PacketControl((BYTE*)&LOCAL_95, sizeof p367);
+					pUser[clientId].PacketControl((BYTE*)&LOCAL_95, sizeof MSG_AttackOne);
 				}
 				else
 				{
@@ -7159,7 +7159,7 @@ int ProcessAffect(int clientId)
 
 					for(;  LOCAL_98 < 13; LOCAL_98 ++)
 					{
-						INT32 LOCAL_99 = LOCAL_95.Target[LOCAL_98].Index;
+						INT32 LOCAL_99 = LOCAL_95.Target[LOCAL_98].TargetID;
 						INT32 LOCAL_100 = pMob[clientId].Mobs.Player.BaseScore.Damage;
 						LOCAL_100 = (LOCAL_100 * ((Rand() & 0x80000007) + 5)) / 10;
 						LOCAL_100 = LOCAL_100 - (pMob[clientId].Mobs.Player.CurrentScore.Ac >> 1);
@@ -10288,12 +10288,12 @@ BOOL CheckPacket(PacketHeader *Header)
 		code = FALSE;
 	else if(packetId == 0x37A && size != sizeof p37A)
 		code = FALSE;
-	else if(packetId == 0x39E && (size != sizeof p39D && size != sizeof p367 && size != sizeof p39D + sizeof st_Target))
-		code = FALSE;
-	else if(packetId == 0x39D && (size != sizeof p39D && size != sizeof p367 && size != sizeof p39D + sizeof st_Target))
-		code = FALSE;
-	else if(packetId == 0x367 && (size != sizeof p39D && size != sizeof p367 && size != sizeof p39D + sizeof st_Target))
-		code = FALSE;
+	//else if(packetId == 0x39E && (size != sizeof MSG_Attack && size != sizeof p367 && size != sizeof p39D + sizeof STRUCT_DAM))
+	//	code = FALSE;
+	//else if(packetId == 0x39D && (size != sizeof p39D && size != sizeof p367 && size != sizeof p39D + sizeof STRUCT_DAM))
+	//	code = FALSE;
+	//else if(packetId == 0x367 && (size != sizeof p39D && size != sizeof p367 && size != sizeof p39D + sizeof STRUCT_DAM))
+		//code = FALSE;
 	else if(packetId == 0x215 && size != sizeof PacketHeader)
 		code = FALSE;
 	else if(packetId == 0x333 && size != sizeof p333)

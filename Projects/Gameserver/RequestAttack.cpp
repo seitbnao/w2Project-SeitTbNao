@@ -198,7 +198,7 @@ INT32 func_40195B(INT32 clientId, INT32 arg2, INT32 arg3, INT32 arg4)
 
 bool CUser::RequestAttack(PacketHeader *Header)
 {
-	p367 *p = (p367*)(Header);
+	MSG_Attack *p = (MSG_Attack*)(Header);
 
 	STRUCT_MOB *player = &pMob[clientId].Mobs.Player;
 	if (pUser[clientId].Status != USER_PLAY)
@@ -209,11 +209,11 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	}
 
 	//  Player morto usando outra skill sem ser a ressureiaao.
-	if (player->CurrentScore.Hp == 0 && p->skillId != 99)
+	if (player->CurrentScore.Hp == 0 && p->SkillIndex != 99)
 	{
 		SendHpMode(clientId);
 
-		Log(clientId, LOG_HACK, "Usou uma skill estando com 0 de HP. SkillID: %d", p->skillId);
+		Log(clientId, LOG_HACK, "Usou uma skill estando com 0 de HP. SkillID: %d", p->SkillIndex);
 		return false;
 	}
 
@@ -236,7 +236,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 		pUser[clientId].TimeStamp.LastAttack = clientTimeStamp;
 	}
 
-	int skillNum = p->skillId; // local151
+	int skillNum = p->SkillIndex; // local151
 	if (skillNum >= 0 && skillNum < 110 && SkillData[skillNum].Passive_Check == 1)
 		return true;
 
@@ -247,7 +247,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 		if ((skillNum / 24) != pMob[clientId].Mobs.Player.Class) //local157
 		{
-			Log(clientId, LOG_HACK, "MSG_Attack, Request other class %d", p->skillId);
+			Log(clientId, LOG_HACK, "MSG_Attack, Request other class %d", p->SkillIndex);
 
 			AddCrackError(clientId, 10, CRACK_USER_PKTHACK);
 			return true;
@@ -264,7 +264,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 		if (now - TimeStamp.Skills[skillNum] < std::chrono::seconds(delay) - 500ms)
 		{
-			Log(clientId, LOG_HACK, "MSG_Attack, Skill Delay. SkillId: %d. Delay original: %d. Delay com reduaaes: %d. Tempo: %lld", p->skillId, SkillData[skillNum].Delay, delay, std::chrono::duration_cast<std::chrono::milliseconds>((now - TimeStamp.Skills[skillNum])).count());
+			Log(clientId, LOG_HACK, "MSG_Attack, Skill Delay. SkillId: %d. Delay original: %d. Delay com reduaaes: %d. Tempo: %lld", p->SkillIndex, SkillData[skillNum].Delay, delay, std::chrono::duration_cast<std::chrono::milliseconds>((now - TimeStamp.Skills[skillNum])).count());
 
 			return true;
 		}
@@ -379,11 +379,11 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	INT32 iterator = 0; // local178
 
 	int maxTarget = 0;
-	if (p->Header.Size == sizeof p367)
+	if (p->Header.Size == sizeof MSG_Attack)
 		maxTarget = 13;
-	else if (p->Header.Size == sizeof p39D)
+	else if (p->Header.Size == sizeof MSG_AttackOne)
 		maxTarget = 1;
-	else if (p->Header.Size == sizeof p39D + sizeof st_Target)
+	else if (p->Header.Size == sizeof MSG_AttackTwo)
 		maxTarget = 2;
 	else
 	{
@@ -396,16 +396,16 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	bool tryToSendSamePlayer = false;
 	for (INT32 i = 0; i < maxTarget; i++)
 	{
-		if (p->Target[i].Index == 0)
+		if (p->Target[i].TargetID == 0)
 			continue;
 
 		for (INT32 t = (i + 1); t < maxTarget; t++)
 		{
-			if (p->Target[i].Index == p->Target[t].Index)
+			if (p->Target[i].TargetID == p->Target[t].TargetID)
 			{
 				tryToSendSamePlayer = true;
 
-				p->Target[t].Index = 0;
+				p->Target[t].TargetID = 0;
 			}
 		}
 	}
@@ -429,7 +429,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	{
 		for (INT32 i = 1; i < 6; i++)
 		{
-			p->Target[i].Index = p->Target[0].Index;
+			p->Target[i].TargetID = p->Target[0].TargetID;
 			p->Target[i].Damage = p->Target[0].Damage;
 		}
 	}
@@ -437,7 +437,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	for (iterator = 0; iterator < maxTarget; iterator++)
 	{
 		// 425044 ata 42506D nao feito
-		INT32 targetIdx = p->Target[iterator].Index; // local179
+		INT32 targetIdx = p->Target[iterator].TargetID; // local179
 		if (targetIdx <= 0 || targetIdx > MAX_MOB)
 			continue;
 
@@ -452,7 +452,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 		{
 			if (skillNum != 99 && skillNum != 31 && skillNum != 29 && skillNum != 27)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -461,7 +461,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 			// Se for as skills de cura da FM e tal, sa continua pois eles estarao mortos
 			if (skillNum == 29 || skillNum == 27)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -477,7 +477,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 			if (!pista.CurrentScore)
 			{
 				Log(SERVER_SIDE, LOG_HACK, "Atacando mob da Pista (Torre) sem a pista estar ativa");
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -496,7 +496,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 			if (!canAttack)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -508,7 +508,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 			INT32 guildId = pMob[clientId].Mobs.Player.Guild;
 			if (guildId == 0)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -516,7 +516,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 			if (pMob[targetIdx].Mobs.Player.Guild == guildId)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -525,7 +525,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 			INT32 ally = g_pGuildAlly[guildId];
 			if (ally != 0 && ally == pMob[targetIdx].Mobs.Player.Guild)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -536,14 +536,14 @@ bool CUser::RequestAttack(PacketHeader *Header)
 		{
 			if (targetIdx >= MAX_PLAYER && pMob[targetIdx].GenerateID == TORRE_RVR_BLUE && pMob[clientId].Mobs.Player.CapeInfo == CAPE_BLUE)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
 			}
 			else if (targetIdx >= MAX_PLAYER && pMob[targetIdx].GenerateID == TORRE_RVR_RED && pMob[clientId].Mobs.Player.CapeInfo == CAPE_RED)
 			{
-				p->Target[iterator].Index = 0;
+				p->Target[iterator].TargetID = 0;
 				p->Target[iterator].Damage = 0;
 
 				continue;
@@ -554,7 +554,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 				INT32 summoner = pMob[targetIdx].Summoner;
 				if (summoner != 0 && pMob[summoner].Mobs.Player.CapeInfo == pMob[clientId].Mobs.Player.CapeInfo)
 				{
-					p->Target[iterator].Index = 0;
+					p->Target[iterator].TargetID = 0;
 					p->Target[iterator].Damage = 0;
 
 					continue;
@@ -626,7 +626,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 			dam = 0;
 			INT32 criticalDouble = 0; // local191
 			if (iterator == 0)
-				criticalDouble = GetDoubleCritical(&pMob[clientId], (short*)&pUser[clientId].AttackCount, &p->attackCount, &doubleCritical);
+				criticalDouble = GetDoubleCritical(&pMob[clientId], (short*)&pUser[clientId].AttackCount, &p->Progress, &doubleCritical);
 
 			dam = player->CurrentScore.Damage;
 			if ((doubleCritical & 2))
@@ -642,7 +642,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 				defense = defense * 3;
 
 			dam = GetDamage(dam, defense, master);
-			if (iterator == 0 && p->Header.Size >= sizeof p39D && player->Class == 3 && (player->LearnedSkill[0] & 0x200000) && (Rand() % 4) == 0)
+			if (iterator == 0 && p->Header.Size >= sizeof MSG_Attack && player->Class == 3 && (player->LearnedSkill[0] & 0x200000) && (Rand() % 4) == 0)
 			{
 				INT32 skillDam = (player->CurrentScore.Dex + player->CurrentScore.Special[3]) >> 2; // local193
 				skillDam /= 2;
@@ -660,7 +660,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					}
 				}
 
-				p->Target[1].Index = 0;
+				p->Target[1].TargetID = 0;
 				p->Target[1].Damage = skillDam;
 
 				doubleCritical |= 4;
@@ -670,7 +670,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 			if ((doubleCritical & 1))
 				dam *= 2;
 
-			p->doubleCritical = doubleCritical;
+			p->DoubleCritical = doubleCritical;
 		}
 		else if (dam == -1 && skillNum >= 0 && skillNum <= 256)
 		{ // 00425782
@@ -694,14 +694,14 @@ bool CUser::RequestAttack(PacketHeader *Header)
 				if (pMob[clientId].Mobs.Player.LearnedSkill[0] & 0x20000000)
 					range++;
 
-				if (distance > range && p->skillId != 42)
+				if (distance > range && p->SkillIndex != 42)
 				{
 					auto distance2 = GetDistance(pMob[clientId].Target.X, pMob[clientId].Target.Y, mob->Last.X, mob->Last.Y);
 					if (distance2 > range)
 					{
 						Log(clientId, LOG_HACK, "Enviando skill com o distancia maior que o range da skill. Distancia: %d. Distancia 2: %d. Range: %d. SkillId: %d", distance, distance2, range, skillNum);
 
-						if (p->skillId == 31)
+						if (p->SkillIndex == 31)
 							return true;
 
 						continue;
@@ -724,16 +724,16 @@ bool CUser::RequestAttack(PacketHeader *Header)
 				if (applyWeather != 0)
 					weather = 0;
 
-				if (pUser[clientId].TimeStamp.TimeStamp == 0xE0A1ACA && p->Motion == 254 && (p->skillId == 32 || p->skillId == 34 || p->skillId == 36))
+				if (pUser[clientId].TimeStamp.TimeStamp == 0xE0A1ACA && p->Motion == 254 && (p->SkillIndex == 32 || p->SkillIndex == 34 || p->SkillIndex == 36))
 				{
 					INT32 _level = player->CurrentScore.Level; // local199
 
 					INT32 familiarSanc = GetItemSanc(&player->Equip[13]); // local200
-					if (p->skillId == 32)
+					if (p->SkillIndex == 32)
 						dam = familiarSanc * 200 + (_level * 8);
-					else if (p->skillId == 34)
+					else if (p->SkillIndex == 34)
 						dam = familiarSanc * 250 + (_level * 8);
-					else if (p->skillId == 36)
+					else if (p->SkillIndex == 36)
 						dam = familiarSanc * 300 + (_level * 8);
 				}
 				else
@@ -814,7 +814,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					{
 						LOCAL_205 = 0;
 
-						p->Target[iterator].Index = 0;
+						p->Target[iterator].TargetID = 0;
 					}
 
 					dam = dam * LOCAL_205 / 10;
@@ -827,7 +827,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					{
 						LOCAL_206 = 0;
 
-						p->Target[iterator].Index = 0;
+						p->Target[iterator].TargetID = 0;
 					}
 
 					dam = dam * LOCAL_206 / 10;
@@ -1015,7 +1015,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					for (int i = 0; i < len; i++)
 						packet.Nickname[i] = pMob[clientId].Mobs.Player.MobName[i];
 
-					pUser[p->Target[iterator].Index].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof p3B2);
+					pUser[p->Target[iterator].TargetID].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof p3B2);
 
 					SummonedUser = targetIdx;
 
@@ -1049,7 +1049,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 				if (leaderId == 0)
 					leaderId = clientId;
 
-				int generateIndex = p->skillId - 56;
+				int generateIndex = p->SkillIndex - 56;
 
 				int _numberGenerated = 1;
 				switch (generateIndex)
@@ -1297,7 +1297,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 				player->CurrentScore.Mp = 0;
 				pUser[clientId].Potion.CountMp = 0;
-				p->currentMp = 0;
+				p->CurrentMp = 0;
 
 				INT32 mastery4 = player->CurrentScore.Special[3]; // local258
 				INT32 userInt = player->CurrentScore.Int; // local259
@@ -1387,7 +1387,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 				for (INT32 l = 0; l < skillTarg; l++) // local278
 				{
 					//TODO : CHECAGENS NaO FEITAS, POIS NaO SEI O QUE a LOCAL_141 AINDA - 00426FAB
-					INT32 targIndex = p->Target[l].Index; // local279
+					INT32 targIndex = p->Target[l].TargetID; // local279
 
 					if (targIndex <= 0 || targIndex >= MAX_PLAYER)
 						continue;
@@ -1403,11 +1403,11 @@ bool CUser::RequestAttack(PacketHeader *Header)
 			}
 			else if (skillNum == 98) // Muro de Espinhos
 			{
-				eMapAttribute aux = GetAttribute(p->targetPos.X, p->targetPos.Y);
+				eMapAttribute aux = GetAttribute(p->TargetX, p->TargetY);
 				if (aux.Village)
 					continue;
 
-				INT32 mobId = CreateMob("Vinha", p->targetPos.X, p->targetPos.Y, "npc");
+				INT32 mobId = CreateMob("Vinha", p->TargetX, p->TargetY, "npc");
 				if (mobId <= 0 || mobId >= MAX_MOB)
 					continue;
 
@@ -1460,9 +1460,9 @@ bool CUser::RequestAttack(PacketHeader *Header)
 
 					GridMulticast_2(pMob[targetIdx].Target.X, pMob[targetIdx].Target.Y, (BYTE*)&packet, 0);
 
-					p->currentExp = player->Exp;
-					p->currentMp = player->CurrentScore.Mp;
-					p->Hold = static_cast<int>(pMob[clientId].Mobs.Hold);
+					p->CurrentExp = player->Exp;
+					p->CurrentMp = player->CurrentScore.Mp;
+					p->FakeExp = static_cast<int>(pMob[clientId].Mobs.Hold);
 
 					GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)p, 0);
 					return true;
@@ -1514,9 +1514,9 @@ bool CUser::RequestAttack(PacketHeader *Header)
 					return true;
 				}
 
-				p->currentExp = player->Exp;
-				p->currentMp = player->CurrentScore.Mp;
-				p->Hold = static_cast<int>(pMob[clientId].Mobs.Hold);
+				p->CurrentExp = player->Exp;
+				p->CurrentMp = player->CurrentScore.Mp;
+				p->FakeExp = static_cast<int>(pMob[clientId].Mobs.Hold);
 
 				int rate = 50;
 				int runeSanc = 0;
@@ -1590,7 +1590,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 				{
 					//TODO : CHECAGENS NaO FEITAS, POIS NaO SEI O QUE a LOCAL_141 AINDA - 00004270CE
 
-					INT32 targIndex = p->Target[l].Index; // local282
+					INT32 targIndex = p->Target[l].TargetID; // local282
 
 					if (targIndex <= 0 || targIndex >= MAX_PLAYER)
 						continue;
@@ -1729,7 +1729,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 		// 004273F6
 		if (targetIdx < MAX_PLAYER || mob->Mobs.Player.CapeInfo == 4)
 		{
-			if (p->doubleCritical & 4)
+			if (p->DoubleCritical & 4)
 			{
 				INT32 newDamage = dam - p->Target[1].Damage; // local288
 				newDamage >>= 2;
@@ -2304,7 +2304,7 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	}
 
 	if ((pMob[clientId].Mobs.Player.LearnedSkill[0] & 0x20000000))
-		p->doubleCritical = p->doubleCritical | 8;
+		p->DoubleCritical = p->DoubleCritical | 8;
 
 	// 0042826B
 	if (LOCAL_176 > 0)
@@ -2320,9 +2320,9 @@ bool CUser::RequestAttack(PacketHeader *Header)
 		userNewExp = 200;
 
 	//004282D5
-	p->currentExp = player->Exp;
-	p->currentMp = player->CurrentScore.Mp;
-	p->Hold = static_cast<unsigned int>(pMob[clientId].Mobs.Hold);
+	p->CurrentExp = player->Exp;
+	p->CurrentMp = player->CurrentScore.Mp;
+	p->FakeExp = static_cast<unsigned int>(pMob[clientId].Mobs.Hold);
 
 	GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)p, 0);
 
@@ -2330,20 +2330,20 @@ bool CUser::RequestAttack(PacketHeader *Header)
 	{
 		for (INT32 t = (i + 1); t < maxTarget; t++)
 		{
-			if (p->Target[i].Index == p->Target[t].Index)
-				p->Target[t].Index = 0;
+			if (p->Target[i].TargetID == p->Target[t].TargetID)
+				p->Target[t].TargetID = 0;
 		}
 	}
 
 	for (INT32 LOCAL_347 = 0; LOCAL_347 < maxTarget; LOCAL_347++)
 	{
-		if (p->Target[LOCAL_347].Index <= 0 || p->Target[LOCAL_347].Index >= 30000 || pMob[p->Target[LOCAL_347].Index].Mode == 0)
+		if (p->Target[LOCAL_347].TargetID <= 0 || p->Target[LOCAL_347].TargetID >= 30000 || pMob[p->Target[LOCAL_347].TargetID].Mode == 0)
 			continue;
 
-		if (!pMob[p->Target[LOCAL_347].Index].Mobs.Player.CurrentScore.Hp)
-			MobKilled(p->Target[LOCAL_347].Index, clientId, 0, 0);
+		if (!pMob[p->Target[LOCAL_347].TargetID].Mobs.Player.CurrentScore.Hp)
+			MobKilled(p->Target[LOCAL_347].TargetID, clientId, 0, 0);
 		else
-			pMob[p->Target[LOCAL_347].Index].GetCurrentScore(p->Target[LOCAL_347].Index);
+			pMob[p->Target[LOCAL_347].TargetID].GetCurrentScore(p->Target[LOCAL_347].TargetID);
 	}
 
 	pMob[clientId].CheckGetLevel();

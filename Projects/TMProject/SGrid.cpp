@@ -4203,8 +4203,8 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 				stAttack.SkillParm = 0;
 				stAttack.Motion = -1;
 				stAttack.FlagLocal = 0;
-				stAttack.Dam[0].Damage = -1;
-				stAttack.Dam[0].TargetID = pMyHuman->m_dwID;
+				stAttack.Target[0].Damage = -1;
+				stAttack.Target[0].TargetID = pMyHuman->m_dwID;
 
 				int nSize = sizeof(MSG_Attack);
 

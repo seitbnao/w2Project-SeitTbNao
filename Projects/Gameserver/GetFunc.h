@@ -70,8 +70,8 @@ int GetCurKill(int sIndex);
 
 void GetHitPosition(int arg1,int arg2,int *arg3,int *arg4);
 
-void GetAttack(int clientId, int mobId, p39D* p);
-void GetMultiAttack(int attackerId, int *target, p367 *p);
+void GetAttack(int clientId, int mobId, MSG_Attack* p);
+void GetMultiAttack(int attackerId, int *target, MSG_Attack*p);
 
 STRUCT_ITEM *GetItemPointer(int clientIndex, int invType, int invSlot);
 
@@ -97,7 +97,7 @@ std::tuple<int, int> GetPriceAndImpost(STRUCT_ITEMLIST* item, int city);
 int GetStaticItemAbility(STRUCT_ITEM *item, unsigned char Type);
 int GetDamageByJewel(int clientId, int damage);
 
-INT32 GetDoubleCritical(CMob *arg1, short *arg2, short *arg3, unsigned char *arg4);
+INT32 GetDoubleCritical(CMob *arg1, short *arg2, unsigned short *arg3, unsigned char *arg4);
 INT32 GetItemAmount(STRUCT_ITEM *item);
 
 int GetUserInArea(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, char* first);

@@ -227,7 +227,7 @@ void GetCreateMobTrade(int clientId, BYTE *bufPak)
 		}
 		
 		p->Affect[i].Index = mob->Mobs.Affects[i].Index;
-		p->Affect[i].Time = mob->Mobs.Affects[i].Index & 255;
+		p->Affect[i].Time = mob->Mobs.Affects[i].Time & 255;
 	}
 
 	p->ChaosPoints = GetPKPoint(clientId);
@@ -1947,7 +1947,7 @@ void GetHitPosition(int arg1,int arg2,int *arg3,int *arg4)
 	}
 }
 
-void GetMultiAttack(int attackerId, int *target, p367 *p)
+void GetMultiAttack(int attackerId, int *target, MSG_Attack*p)
 {
 	INT32 first = 0;
 	for(INT32 i = 0; i < 13 ;i++)
@@ -1963,43 +1963,43 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 		return;
 
 	p->Header.ClientId = 0x7530;
-	p->attackerId = attackerId;
+	p->AttackerID = attackerId;
 	p->Header.TimeStamp = clock();
 
-	p->attackerPos.X = pMob[attackerId].Target.X;
-	p->attackerPos.Y = pMob[attackerId].Target.Y;
+	p->PosX = pMob[attackerId].Target.X;
+	p->PosY = pMob[attackerId].Target.Y;
 	
-	p->targetPos.X = pMob[first].Target.X;
-	p->targetPos.Y = pMob[first].Target.Y;
+	p->TargetX = pMob[first].Target.X;
+	p->TargetY = pMob[first].Target.Y;
 
-	p->Header.Size = sizeof p367;
+	p->Header.Size = sizeof MSG_Attack;
 	p->Header.PacketId = 0x367;
 
-	p->doubleCritical = 0;
-	p->currentMp = 0;
-	p->currentExp = -1;
+	p->DoubleCritical = 0;
+	p->CurrentMp = 0;
+	p->CurrentExp = -1;
 
-	p->skillParm = 0;
-	p->skillId = -1;
-	p->reqMP = 0;
+	p->FlagLocal = 0;
+	p->SkillIndex = -1;
+	p->ReqMp = 0;
 	p->Motion = -1;
 
 	if(attackerId >= MAX_PLAYER)
 	{
 		INT32 _rand = Rand() % 100;
 		if(pMob[attackerId].Mobs.Player.ShortSkill[0] != -1 && _rand >= 25 && _rand <= 40)
-			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[0];
+			p->SkillIndex = pMob[attackerId].Mobs.Player.ShortSkill[0];
 		else if(pMob[attackerId].Mobs.Player.ShortSkill[1] != -1 && _rand >= 0 && _rand <= 49)
-			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[1];
+			p->SkillIndex = pMob[attackerId].Mobs.Player.ShortSkill[1];
 		else if(pMob[attackerId].Mobs.Player.ShortSkill[2] != -1 && _rand >= 50 && _rand <= 84)
-			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[2];
+			p->SkillIndex = pMob[attackerId].Mobs.Player.ShortSkill[2];
 		else if(pMob[attackerId].Mobs.Player.ShortSkill[3] != -1 && _rand >= 85 && _rand <= 99)
-			p->skillId = pMob[attackerId].Mobs.Player.ShortSkill[3];
+			p->SkillIndex = pMob[attackerId].Mobs.Player.ShortSkill[3];
 
-		if(p->skillId != -1)
+		if(p->SkillIndex != -1)
 		{
 			//Skill recuperar
-			if(p->skillId == 29) 
+			if(p->SkillIndex == 29) 
 			{
 				INT32 leader = pMob[attackerId].Leader;
 				if(leader <= 0)
@@ -2008,7 +2008,7 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 				// Pega 5% do HP do leader
 				INT32 heal = pMob[leader].Mobs.Player.CurrentScore.MaxHp  * 5 / 100;
 				
-				p->Target[0].Index = leader;
+				p->Target[0].TargetID = leader;
 				p->Target[0].Damage = -heal;
 				return;
 			}
@@ -2018,7 +2018,7 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 	INT32 total = 0;
 	for(INT32 i = 0 ; i < 13; i++)
 	{
-		if(p->skillId == -1 && total == 1)
+		if(p->SkillIndex == -1 && total == 1)
 			break;
 		
 		INT32 mobId = target[i];
@@ -2026,9 +2026,9 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 			continue;
 
 		INT32 damage = 0;
-		if(p->skillId != -1)
+		if(p->SkillIndex != -1)
 		{
-			damage = GetSkillDamage_PvM(p->skillId, &pMob[attackerId], sServer.Weather, pMob[attackerId].WeaponDamage);
+			damage = GetSkillDamage_PvM(p->SkillIndex, &pMob[attackerId], sServer.Weather, pMob[attackerId].WeaponDamage);
 
 			damage = GetSkillDamage_2(damage, pMob[attackerId].Mobs.Player.CurrentScore.Ac, 15);
 		}
@@ -2043,43 +2043,43 @@ void GetMultiAttack(int attackerId, int *target, p367 *p)
 				damage = 0;
 		}
 
-		p->Target[total].Index = mobId;
+		p->Target[total].TargetID = mobId;
 		p->Target[total].Damage = damage;
 
 		total ++;
 	}
 }
 
-void GetAttack(int clientId, int mobId, p39D* p)
+void GetAttack(int clientId, int mobId, MSG_Attack* p)
 {
-	memset(p, 0, sizeof p39D);
+	memset(p, 0, sizeof MSG_Attack);
 
 	p->Header.ClientId = 0x7531;
-	p->attackerId = clientId;
+	p->AttackerID = clientId;
 	p->Header.TimeStamp = clock();
 
-	p->attackerPos.X = pMob[clientId].Target.X;
-	p->attackerPos.Y = pMob[clientId].Target.Y;
+	p->PosX = pMob[clientId].Target.X;
+	p->PosY = pMob[clientId].Target.Y;
 	
-	p->targetPos.X = pMob[mobId].Target.X;
-	p->targetPos.Y = pMob[mobId].Target.Y;
+	p->TargetX = pMob[mobId].Target.X;
+	p->TargetY = pMob[mobId].Target.Y;
 
 	//0041D27A
-	p->Header.Size = sizeof p39D;
+	p->Header.Size = sizeof MSG_Attack;
 	p->Header.PacketId = 0x39D;
 
-	p->doubleCritical = 0;
-	p->currentMp = -1;
-	p->currentExp = -1;
+	p->DoubleCritical = 0;
+	p->CurrentMp = -1;
+	p->CurrentExp = -1;
 
-	p->Target.Damage = 0;
+	p->Target[0].Damage = 0;
 
 	//p->unknow_2 = -2;
-	p->Target.Index = mobId;
+	p->Target[0].TargetID = mobId;
 
 	INT32 LOCAL_1 = -1;
-	p->skillParm = 0;
-	p->skillId = -1;
+	p->SkillParm = 0;
+	p->SkillIndex = -1;
 
 	p->Motion = Rand() % 3 + 4;
 
@@ -2110,48 +2110,48 @@ void GetAttack(int clientId, int mobId, p39D* p)
 
 		if(LOCAL_3 == 0x79)
 		{
-			p->skillId = 103;
-			p->skillParm = 5;
+			p->SkillIndex = 103;
+			p->SkillParm = 5;
 		}
 		else if(LOCAL_3 == 0x7A)
 		{
-			p->skillId = 0x69;
-			p->skillParm = 1;
+			p->SkillIndex = 0x69;
+			p->SkillParm = 1;
 		}
 		else if(LOCAL_3 == 0x7B)
 		{
-			p->skillId = 0x65;
-			p->skillParm = 1;
+			p->SkillIndex = 0x65;
+			p->SkillParm = 1;
 		}
 		else if(LOCAL_3 == 0x7C)
 		{
-			p->skillId = 0x65;
-			p->skillParm = 2;
+			p->SkillIndex = 0x65;
+			p->SkillParm = 2;
 		}
 		else if(LOCAL_3 == 0x7D)
 		{
-			p->skillId = 0x28;
-			p->skillParm = 1;
+			p->SkillIndex = 0x28;
+			p->SkillParm = 1;
 		}
 		else if(LOCAL_3 == 0x7E)
 		{
-			p->skillId = 0x28;
-			p->skillParm = 2;
+			p->SkillIndex = 0x28;
+			p->SkillParm = 2;
 		}
 		
 		else if(LOCAL_3 == 0x7F)
 		{
-			p->skillId = 0x28;
-			p->skillParm = 3;
+			p->SkillIndex = 0x28;
+			p->SkillParm = 3;
 		}
 		else if(LOCAL_3 == 0x80)
 		{
-			p->skillId = 0x21;
-			p->skillParm = 0xFC;
+			p->SkillIndex = 0x21;
+			p->SkillParm = 0xFC;
 			p->Motion = 0xFC;
 		}
 		else
-			p->skillId = LOCAL_3;
+			p->SkillIndex = LOCAL_3;
 
 		if(LOCAL_4 != 0)
 		{
@@ -2232,7 +2232,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 
 			if(LOCAL_8 == 6 && LOCAL_10 <= 8 && LOCAL_11 <= 8)
 			{
-				p->skillId = LOCAL_7;
+				p->SkillIndex = LOCAL_7;
 
 				INT32 LOCAL_12 = clientId;
 				if(LOCAL_10 > LOCAL_11)
@@ -2240,8 +2240,8 @@ void GetAttack(int clientId, int mobId, p39D* p)
 
 				INT32 LOCAL_13 = pMob[LOCAL_12].Mobs.Player.CurrentScore.Hp / 10;
 
-				p->Target.Index = LOCAL_12;
-				p->Target.Damage = -LOCAL_13;
+				p->Target[0].TargetID = LOCAL_12;
+				p->Target[0].Damage = -LOCAL_13;
 
 				return;
 			}
@@ -2254,7 +2254,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 
 			LOCAL_1 = LOCAL_15 - 2;
 
-			p->skillId = LOCAL_14;
+			p->SkillIndex = LOCAL_14;
 		}
 		else if(pMob[clientId].Mobs.Player.ShortSkill[1] != -1 && LOCAL_6 >= 26 && LOCAL_6 <= 50)
 		{
@@ -2263,7 +2263,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 
 			LOCAL_1 = LOCAL_17 - 2;
 
-			p->skillId = LOCAL_16;
+			p->SkillIndex = LOCAL_16;
 		}
 		else if(pMob[clientId].Mobs.Player.ShortSkill[2] != -1 && LOCAL_6 >= 51 && LOCAL_6 <= 75)
 		{
@@ -2272,7 +2272,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 
 			LOCAL_1 = LOCAL_17 - 2;
 
-			p->skillId = LOCAL_16;
+			p->SkillIndex = LOCAL_16;
 		}
 		else if(pMob[clientId].Mobs.Player.ShortSkill[3] != -1 && LOCAL_6 >= 51 && LOCAL_6 <= 75)
 		{
@@ -2281,7 +2281,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 
 			LOCAL_1 = LOCAL_17 - 2;
 
-			p->skillId = LOCAL_16;
+			p->SkillIndex = LOCAL_16;
 		}
 	}
 
@@ -2356,7 +2356,7 @@ void GetAttack(int clientId, int mobId, p39D* p)
 		}
 	}
 
-	p->Target.Damage = LOCAL_20;
+	p->Target[0].Damage = LOCAL_20;
 }
 
 STRUCT_ITEM *GetItemPointer(int clientIndex, int invType, int invSlot)
@@ -2731,7 +2731,7 @@ INT32 GetManaSpent(INT32 skillId, INT32 saveMana, INT32 mastery)
 	return manaSpent;
 }
 
-INT32 GetDoubleCritical(CMob *arg1, short *arg2, short *arg3, unsigned char *arg4)
+INT32 GetDoubleCritical(CMob *arg1, short *arg2, unsigned short *arg3, unsigned char *arg4)
 {
 	*arg4 = 0;
 

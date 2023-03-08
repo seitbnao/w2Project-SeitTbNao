@@ -493,65 +493,8 @@ typedef struct
     int Unknown2;
 } p379;
 
-typedef struct 
-{
-	INT32 Index;
-	INT32 Damage;
-}st_Target;
 
-
-
-typedef struct 
-{
-	PacketHeader Header; // 0 - 11
-	INT32 Hold; // 12 - 15
-	INT32 reqMP;  // 16 - 19
-	INT32 Unk; // 20 - 23
-	INT64 currentExp;  // 24 - 27
-	short unknow;  // 28 - 31
-	STRUCT_POSITION attackerPos;  // 32 - 35
-	STRUCT_POSITION targetPos;  // 36 - 39
-	short attackerId;  // 40 - 41
-	short attackCount;  // 42 - 43
-	unsigned char Motion; // 44
-	unsigned char skillParm;  // 45
-	unsigned char doubleCritical; // 46
-	unsigned char FlagLocal;
-	//char flagLocal;  // 47
-	short Rsv;
-
-	int currentMp;
-	short skillId;  // 48 - 51
-	short reqMp;
-	st_Target Target[13];  // 56 - 
-	//int padding;
-} p367;
-
-typedef struct 
-{
-	PacketHeader Header; // 0 - 11
-	INT32 Hold; // 12 - 15
-	INT32 reqMP;  // 16 - 19
-	INT32 Unk; // 20 - 23
-	INT64 currentExp;  // 24 - 27
-	short unknow;  // 28 - 31
-	STRUCT_POSITION attackerPos;  // 32 - 35
-	STRUCT_POSITION targetPos;  // 36 - 39
-	short attackerId;  // 40 - 41
-	short attackCount;  // 42 - 43
-	unsigned char Motion; // 44
-	unsigned char skillParm;  // 45
-	unsigned char doubleCritical; // 46
-	unsigned char FlagLocal;
-	//char flagLocal;  // 47
-	short Rsv;
-
-	int currentMp;
-	short skillId;  // 48 - 51
-	short reqMp;
-	st_Target Target; //44 - 47
-	//int   Padding;
-} p39D;
+ 
 
 typedef struct 
 {       
