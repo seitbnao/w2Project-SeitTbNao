@@ -13352,6 +13352,7 @@ void TMHuman::SetPacketMOBItem(STRUCT_MOB* pMobData)
         m_stLookInfo.RightMesh = g_pItemList[pMobData->Equip[7].sIndex].IndexMesh;
         m_stLookInfo.RightSkin = g_pItemList[pMobData->Equip[7].sIndex].nIndexTexture;
 
+
         if (pMobData->Equip[15].sIndex > 0)
         {
             m_sMantuaIndex = pMobData->Equip[15].sIndex;
@@ -13758,29 +13759,29 @@ void TMHuman::SetPacketEquipItem(unsigned short* sEquip)
         m_sHeadIndex = sEquip[0] & 0xFFF;
         m_sHelmIndex = sEquip[1] & 0xFFF;
         m_cLegend = static_cast<char>(g_pItemList[sEquip[0] & 0xFFF].nGrade);
-        m_stLookInfo.FaceMesh = g_pItemList[sEquip[0] & 0xFFF].nIndexTexture;
-        m_stLookInfo.FaceSkin = g_pItemList[sEquip[0] & 0xFFF].IndexMesh;
+        m_stLookInfo.FaceMesh = g_pItemList[sEquip[0] & 0xFFF].IndexMesh;
+        m_stLookInfo.FaceSkin = g_pItemList[sEquip[0] & 0xFFF].nIndexTexture;
         if ((sEquip[1] & 0xFFF) < 3500 || (sEquip[1] & 0xFFF) > 3502 && (sEquip[1] & 0xFFF) != 3507)
         {
-            m_stLookInfo.HelmMesh = g_pItemList[sEquip[1] & 0xFFF].nIndexTexture;
-            m_stLookInfo.HelmSkin = g_pItemList[sEquip[1] & 0xFFF].IndexMesh;
+            m_stLookInfo.HelmMesh = g_pItemList[sEquip[1] & 0xFFF].IndexMesh;
+            m_stLookInfo.HelmSkin = g_pItemList[sEquip[1] & 0xFFF].nIndexTexture;
         }
-        m_stLookInfo.CoatMesh = g_pItemList[sEquip[2] & 0xFFF].nIndexTexture;
-        m_stLookInfo.CoatSkin = g_pItemList[sEquip[2] & 0xFFF].IndexMesh;
-        m_stLookInfo.PantsMesh = g_pItemList[sEquip[3] & 0xFFF].nIndexTexture;
-        m_stLookInfo.PantsSkin = g_pItemList[sEquip[3] & 0xFFF].IndexMesh;
-        m_stLookInfo.GlovesMesh = g_pItemList[sEquip[4] & 0xFFF].nIndexTexture;
-        m_stLookInfo.GlovesSkin = g_pItemList[sEquip[4] & 0xFFF].IndexMesh;
-        m_stLookInfo.BootsMesh = g_pItemList[sEquip[5] & 0xFFF].nIndexTexture;
-        m_stLookInfo.BootsSkin = g_pItemList[sEquip[5] & 0xFFF].IndexMesh;
-        m_stLookInfo.LeftMesh = g_pItemList[sEquip[6] & 0xFFF].nIndexTexture;
-        m_stLookInfo.LeftSkin = g_pItemList[sEquip[6] & 0xFFF].IndexMesh;
-        m_stLookInfo.RightMesh = g_pItemList[sEquip[7] & 0xFFF].nIndexTexture;
-        m_stLookInfo.RightSkin = g_pItemList[sEquip[7] & 0xFFF].IndexMesh;
+        m_stLookInfo.CoatMesh = g_pItemList[sEquip[2] & 0xFFF].IndexMesh;
+        m_stLookInfo.CoatSkin = g_pItemList[sEquip[2] & 0xFFF].nIndexTexture;
+        m_stLookInfo.PantsMesh = g_pItemList[sEquip[3] & 0xFFF].IndexMesh;
+        m_stLookInfo.PantsSkin = g_pItemList[sEquip[3] & 0xFFF].nIndexTexture;
+        m_stLookInfo.GlovesMesh = g_pItemList[sEquip[4] & 0xFFF].IndexMesh;
+        m_stLookInfo.GlovesSkin = g_pItemList[sEquip[4] & 0xFFF].nIndexTexture;
+        m_stLookInfo.BootsMesh = g_pItemList[sEquip[5] & 0xFFF].IndexMesh;
+        m_stLookInfo.BootsSkin = g_pItemList[sEquip[5] & 0xFFF].nIndexTexture;
+        m_stLookInfo.LeftMesh = g_pItemList[sEquip[6] & 0xFFF].IndexMesh;
+        m_stLookInfo.LeftSkin = g_pItemList[sEquip[6] & 0xFFF].nIndexTexture;
+        m_stLookInfo.RightMesh = g_pItemList[sEquip[7] & 0xFFF].IndexMesh;
+        m_stLookInfo.RightSkin = g_pItemList[sEquip[7] & 0xFFF].nIndexTexture;
         if ((sEquip[15] & 0xFFF) > 0)
         {
             m_sMantuaIndex = sEquip[15] & 0xFFF;
-            m_wMantuaSkin = g_pItemList[sEquip[15] & 0xFFF].IndexMesh;
+            m_wMantuaSkin = g_pItemList[sEquip[15] & 0xFFF].nIndexTexture;
             SetMantua(m_wMantuaSkin);
             m_ucMantuaLegend = static_cast<char>(g_pItemList[sEquip[15] & 0xFFF].nGrade);
             m_ucMantuaSanc = m_nTotalKill / 1000;
