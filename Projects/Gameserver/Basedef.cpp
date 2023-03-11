@@ -8611,7 +8611,7 @@ void RemoveTrade(int clientId)
 	for(int i = 0; i < 15; i++)
 		pUser[clientId].Trade.Slot[i] = -1;
 
-	memset(&pUser[clientId].AutoTrade, 0, sizeof (pUser[0].AutoTrade));
+	memset(&pUser[clientId].AutoTrade, 0, sizeof(p397));
 
 	for(int i = 0; i < 10; i++)
 		pUser[clientId].AutoTrade.CarryPos[i] = -1;

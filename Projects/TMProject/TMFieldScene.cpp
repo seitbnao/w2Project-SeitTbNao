@@ -17980,7 +17980,7 @@ int TMFieldScene::OnPacketCreateMob(PacketHeader* pStd)
 			m_stMoveStop.NextY = pCreateMob->Current.Y;
 		}
 	}
-	if (pStd->PacketId == MSG_CreateMobTrade_Opcode && pCreateMobTrade->StoreName[0])
+	if (pStd->PacketId == MSG_CreateMobTrade_Opcode && pStd->Size == sizeof(p363))
 	{
 		int len = strlen(pCreateMobTrade->StoreName);
 		if (len > 0)

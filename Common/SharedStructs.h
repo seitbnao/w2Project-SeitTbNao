@@ -689,7 +689,7 @@ struct p364
 	short Life;
 	short Server;
 };
-struct p363 : p364
+struct p363 : public p364
 {
 	char StoreName[27];
 };

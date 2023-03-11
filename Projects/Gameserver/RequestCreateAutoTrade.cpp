@@ -57,7 +57,7 @@ bool CUser::RequestCreateAutoTrade(PacketHeader *Header)
 	INT32 itemId = p->TargetID; // LOCAL_1204
 	INT32 i = 0;
 	int total = 0;
-	for( ; i < 12; i ++)
+	for( ; i < 10; i ++)
 	{
 		if(p->TradeMoney[i] < 0 || p->TradeMoney[i] > 1999999999) 
 			return false;
