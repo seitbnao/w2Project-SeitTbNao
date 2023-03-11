@@ -5175,21 +5175,21 @@ int TMHuman::OnPacketUpdateEtc(PacketHeader* pStd)
 
             if (bChange)
             {
-                MSG_SetShortSkill stSetShortSkill{};
+                p378 stSetShortSkill{};
                 stSetShortSkill.Header.ClientId = g_pCurrentScene->m_pMyHuman->m_dwID;
                 stSetShortSkill.Header.PacketId = MSG_SetShortSkill_Opcode;
                 
-                memcpy(stSetShortSkill.Skill, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.Skill));
+                memcpy(stSetShortSkill.SkillBar, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.SkillBar));
                 
                 for (int j = 0; j < 20; ++j)
                 {
-                    if (stSetShortSkill.Skill[j] >= 0 && stSetShortSkill.Skill[j] < 96)
-                        stSetShortSkill.Skill[j] -= 24 * g_pObjectManager->m_stMobData.Class;
+                    if (stSetShortSkill.SkillBar[j] >= 0 && stSetShortSkill.SkillBar[j] < 96)
+                        stSetShortSkill.SkillBar[j] -= 24 * g_pObjectManager->m_stMobData.Class;
 
-                    else if (stSetShortSkill.Skill[j] >= 105 && stSetShortSkill.Skill[j] < 153)
-                        stSetShortSkill.Skill[j] -= 12 * g_pObjectManager->m_stMobData.Class;
+                    else if (stSetShortSkill.SkillBar[j] >= 105 && stSetShortSkill.SkillBar[j] < 153)
+                        stSetShortSkill.SkillBar[j] -= 12 * g_pObjectManager->m_stMobData.Class;
                 }
-                SendOneMessage((char*)&stSetShortSkill, sizeof(stSetShortSkill));
+                SendOneMessage((char*)&stSetShortSkill, sizeof(p378));
             }
         }
         g_pObjectManager->m_stMobData.LearnedSkill[0] = pUpdateEtc->LearnedSkill[0];

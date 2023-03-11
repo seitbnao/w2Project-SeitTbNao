@@ -721,11 +721,7 @@ struct MSG_REQMobByID
 };
 
 constexpr auto MSG_SetShortSkill_Opcode = 0x378;
-struct MSG_SetShortSkill
-{
-	PacketHeader Header;
-	char Skill[20];
-};
+
 
 constexpr auto MSG_ShopList_Opcode = 0x17C;
 

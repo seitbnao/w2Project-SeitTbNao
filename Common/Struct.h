@@ -598,12 +598,7 @@ typedef struct
 
 
 
-typedef struct
-{
-	PacketHeader Header;
-	unsigned char ShortSkill[4];
-    unsigned char SkillBar2[16];
-} p378;
+
 
 typedef struct { 
 	PacketHeader Header; 

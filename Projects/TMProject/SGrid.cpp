@@ -1140,24 +1140,24 @@ int SGridControl::OnKeyDownEvent(unsigned int iKeyCode)
 		if (nDelIndex >= 0)
 			g_pObjectManager->m_cShortSkill[nDelIndex] = -1;
 
-		MSG_SetShortSkill stSetShortSkill{};
+		p378 stSetShortSkill{};
 		stSetShortSkill.Header.ClientId = g_pCurrentScene->m_pMyHuman->m_dwID;
 		stSetShortSkill.Header.PacketId = MSG_SetShortSkill_Opcode;
-		memcpy(stSetShortSkill.Skill, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.Skill));
+		memcpy(stSetShortSkill.SkillBar, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.SkillBar));
 
 		for (int ia = 0; ia < 20; ++ia)
 		{
-			if (stSetShortSkill.Skill[ia] >= 0 && stSetShortSkill.Skill[ia] < 96)
+			if (stSetShortSkill.SkillBar[ia] >= 0 && stSetShortSkill.SkillBar[ia] < 96)
 			{
-				stSetShortSkill.Skill[ia] -= 24 * g_pObjectManager->m_stMobData.Class;
+				stSetShortSkill.SkillBar[ia] -= 24 * g_pObjectManager->m_stMobData.Class;
 			}
-			else if (stSetShortSkill.Skill[ia] >= 105 && stSetShortSkill.Skill[ia] < 153)
+			else if (stSetShortSkill.SkillBar[ia] >= 105 && stSetShortSkill.SkillBar[ia] < 153)
 			{
-				stSetShortSkill.Skill[ia] -= 12 * g_pObjectManager->m_stMobData.Class;
+				stSetShortSkill.SkillBar[ia] -= 12 * g_pObjectManager->m_stMobData.Class;
 			}
 		}
 
-		SendOneMessage((char*)&stSetShortSkill, sizeof(stSetShortSkill));
+		SendOneMessage((char*)&stSetShortSkill, sizeof(p378));
 		pScene->UpdateScoreUI(0);
 		pScene->UpdateSkillBelt();
 	}
@@ -1943,27 +1943,27 @@ int SGridControl::SellItem(int nCellX, int nCellY, unsigned int dwFlags, unsigne
 		SAFE_DELETE(pItem);
 
 		auto pMobData = &g_pObjectManager->m_stMobData;
-		g_pObjectManager->m_cShortSkill[nSeg + nCellX] = static_cast<char>(g_pItemList[pNewItem->sIndex].IndexMesh);
+		g_pObjectManager->m_cShortSkill[nSeg + nCellX] = static_cast<char>(g_pItemList[pNewItem->sIndex].nIndexTexture);
 
-		MSG_SetShortSkill stSetShortSkill{};
+		p378 stSetShortSkill{};
 		stSetShortSkill.Header.ClientId = g_pCurrentScene->m_pMyHuman->m_dwID;
 		stSetShortSkill.Header.PacketId = MSG_SetShortSkill_Opcode;
 
-		memcpy(stSetShortSkill.Skill, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.Skill));
+		memcpy(stSetShortSkill.SkillBar, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.SkillBar));
 
 		for (int j = 0; j < 20; ++j)
 		{
-			if (stSetShortSkill.Skill[j] >= 0 && stSetShortSkill.Skill[j] < 96)
+			if (stSetShortSkill.SkillBar[j] >= 0 && stSetShortSkill.SkillBar[j] < 96)
 			{
-				stSetShortSkill.Skill[j] -= 24 * g_pObjectManager->m_stMobData.Class;
+				stSetShortSkill.SkillBar[j] -= 24 * g_pObjectManager->m_stMobData.Class;
 			}
-			else if (stSetShortSkill.Skill[j] >= 105 && stSetShortSkill.Skill[j] < 153)
+			else if (stSetShortSkill.SkillBar[j] >= 105 && stSetShortSkill.SkillBar[j] < 153)
 			{
-				stSetShortSkill.Skill[j] -= 12 * g_pObjectManager->m_stMobData.Class;
+				stSetShortSkill.SkillBar[j] -= 12 * g_pObjectManager->m_stMobData.Class;
 			}
 		}
 
-		SendOneMessage((char*)&stSetShortSkill, sizeof(stSetShortSkill));
+		SendOneMessage((char*)&stSetShortSkill, sizeof(p378));
 
 		auto pSoundManager = g_pSoundManager;
 		if (pSoundManager)
@@ -2213,26 +2213,26 @@ int SGridControl::SellItem2()
 		SAFE_DELETE(pReturnItem);
 
 		auto pMobData = &g_pObjectManager->m_stMobData;
-		g_pObjectManager->m_cShortSkill[nSeg + nCellX] = static_cast<char>(g_pItemList[pNewItem->sIndex].IndexMesh);
+		g_pObjectManager->m_cShortSkill[nSeg + nCellX] = static_cast<char>(g_pItemList[pNewItem->sIndex].nIndexTexture);
 
-		MSG_SetShortSkill stSetShortSkill{};
+		p378 stSetShortSkill{};
 		stSetShortSkill.Header.ClientId = g_pCurrentScene->m_pMyHuman->m_dwID;
 		stSetShortSkill.Header.PacketId = MSG_SetShortSkill_Opcode;
-		memcpy(stSetShortSkill.Skill, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.Skill));
+		memcpy(stSetShortSkill.SkillBar, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.SkillBar));
 
 		for (int i = 0; i < 20; ++i)
 		{
-			if (stSetShortSkill.Skill[i] >= 0 && stSetShortSkill.Skill[i] < 96)
+			if (stSetShortSkill.SkillBar[i] >= 0 && stSetShortSkill.SkillBar[i] < 96)
 			{
-				stSetShortSkill.Skill[i] -= 24 * g_pObjectManager->m_stMobData.Class;
+				stSetShortSkill.SkillBar[i] -= 24 * g_pObjectManager->m_stMobData.Class;
 			}
-			else if (stSetShortSkill.Skill[i] >= 105 && stSetShortSkill.Skill[i] < 153)
+			else if (stSetShortSkill.SkillBar[i] >= 105 && stSetShortSkill.SkillBar[i] < 153)
 			{
-				stSetShortSkill.Skill[i] -= 12 * g_pObjectManager->m_stMobData.Class;
+				stSetShortSkill.SkillBar[i] -= 12 * g_pObjectManager->m_stMobData.Class;
 			}
 		}
 
-		SendOneMessage((char*)&stSetShortSkill, sizeof(stSetShortSkill));
+		SendOneMessage((char*)&stSetShortSkill, sizeof(p378));
 
 		auto pSoundManager = g_pSoundManager;
 		if (pSoundManager)

@@ -242,7 +242,7 @@ struct STRUCT_MOB
 	BYTE Critical; // 794
 	BYTE SaveMana; // 795
 
-	unsigned char ShortSkill[4]; // 796 - 799
+	char ShortSkill[4]; // 796 - 799
 	char GuildLevel; // 800
 
 	BYTE MagicIncrement; // 801
@@ -435,7 +435,7 @@ struct STRUCT_CHARINFO
 	UINT8 Soul; // Configuração da Soul // 1082
 
 	long long Hold;
-	unsigned char SkillBar[16];
+	char SkillBar[16];
 
 	UINT32 MagicIncrement;
 	INT32 MortalSlot;
@@ -869,5 +869,18 @@ typedef struct
 	STRUCT_ITEM item;
 } p398;
 
+typedef struct
+{
+	PacketHeader Header;
+	union
+	{
+		char SkillBar[20];
+		struct
+		{
+			char ShortSkill[4];
+			char SkillBar2[16];
+		};
+	};
+} p378;
 
 #endif //__SHAREDSTRUCT_H__

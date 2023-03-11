@@ -6405,7 +6405,7 @@ int TMFieldScene::OnPacketEvent(unsigned int dwCode, char* buf)
 		return OnPacketReqChallange(pStd);
 		break;
 	case 0x378:
-		return OnPacketSetShortSkill(reinterpret_cast<MSG_SetShortSkill*>(pStd));
+		return OnPacketSetShortSkill(reinterpret_cast<p378*>(pStd));
 		break;
 	case 0x19C:
 		return OnPacketClearMenu(pStd);
@@ -14252,23 +14252,23 @@ void TMFieldScene::SetShortSkill(int nIndex, SGridControlItem* pGridItem)
 	}
 
 	g_pObjectManager->m_cShortSkill[nIndex] = static_cast<char>(g_pItemList[pGridItem->m_pItem->sIndex].IndexMesh);
-	MSG_SetShortSkill stSetShortSkill{};
+	p378 stSetShortSkill{};
 	stSetShortSkill.Header.ClientId = m_pMyHuman->m_dwID;
 	stSetShortSkill.Header.PacketId = MSG_SetShortSkill_Opcode;
-	memcpy(stSetShortSkill.Skill, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.Skill));
+	memcpy(stSetShortSkill.SkillBar, g_pObjectManager->m_cShortSkill, sizeof(stSetShortSkill.SkillBar));
 	for (int i = 0; i < 20; ++i)
 	{
-		if (stSetShortSkill.Skill[i] >= 0 && stSetShortSkill.Skill[i] < 96)
+		if (stSetShortSkill.SkillBar[i] >= 0 && stSetShortSkill.SkillBar[i] < 96)
 		{
-			stSetShortSkill.Skill[i] -= 24 * g_pObjectManager->m_stMobData.Class;
+			stSetShortSkill.SkillBar[i] -= 24 * g_pObjectManager->m_stMobData.Class;
 		}
-		else if (stSetShortSkill.Skill[i] >= 105 && stSetShortSkill.Skill[i] < 153)
+		else if (stSetShortSkill.SkillBar[i] >= 105 && stSetShortSkill.SkillBar[i] < 153)
 		{
-			stSetShortSkill.Skill[i] -= 12 * g_pObjectManager->m_stMobData.Class;
+			stSetShortSkill.SkillBar[i] -= 12 * g_pObjectManager->m_stMobData.Class;
 		}
 	}
 
-	SendOneMessage((char*)&stSetShortSkill, sizeof(stSetShortSkill));
+	SendOneMessage((char*)&stSetShortSkill, sizeof(p378));
 
 	GetSoundAndPlay(31, 0, 0);
 }
@@ -19986,9 +19986,9 @@ int TMFieldScene::OnPacketCloseShop(PacketHeader* pStd)
 	return 1;
 }
 
-int TMFieldScene::OnPacketSetShortSkill(MSG_SetShortSkill* pStd)
+int TMFieldScene::OnPacketSetShortSkill(p378* pStd)
 {	
-	memcpy(g_pObjectManager->m_cShortSkill, pStd->Skill, sizeof(pStd->Skill));
+	memcpy(g_pObjectManager->m_cShortSkill, pStd->SkillBar, sizeof(pStd->SkillBar));
 	for (int i = 0; i < 20; ++i)
 	{
 		if ((unsigned char)g_pObjectManager->m_cShortSkill[i] < 105 || (unsigned char)g_pObjectManager->m_cShortSkill[i] >= 117)

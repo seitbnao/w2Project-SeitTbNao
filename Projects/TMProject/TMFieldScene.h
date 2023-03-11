@@ -200,7 +200,7 @@ public:
 	int OnPacketWithdraw(PacketHeader* pStd);
 	int OnPacketReqChallange(PacketHeader* pStd);
 	int OnPacketCloseShop(PacketHeader* pStd);
-	int OnPacketSetShortSkill(MSG_SetShortSkill* pStd);
+	int OnPacketSetShortSkill(p378* pStd);
 	int OnPacketClearMenu(PacketHeader* pStd);
 	int OnPacketCombineComplete(PacketHeader* pStd);
 	int OnPacketCastleState(MSG_STANDARDPARM* pStd);
