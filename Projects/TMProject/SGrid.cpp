@@ -5153,7 +5153,7 @@ SGridControlItem::SGridControlItem(SGridControl* pParent, STRUCT_ITEM* pItem, fl
 		{
 			m_GCObj.eRenderType = RENDERCTRLTYPE::RENDER_IMAGE_STRETCH;
 			m_GCObj.nTextureSetIndex = 199;
-			m_GCObj.nTextureIndex = g_pItemList[m_pItem->sIndex].IndexMesh;
+			m_GCObj.nTextureIndex = g_pItemList[m_pItem->sIndex].nIndexTexture;
 			m_nWidth = (float)m_nCellWidth * (23.0f * RenderDevice::m_fWidthRatio);
 			m_nHeight = (float)m_nCellHeight * (23.0f * RenderDevice::m_fHeightRatio);
 			m_GCObj.m_fWidth = (float)m_nCellWidth * (23.0f * RenderDevice::m_fWidthRatio);
