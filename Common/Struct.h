@@ -324,13 +324,6 @@ typedef struct
 	} CharList;
 } p112;
 
-typedef struct 
-{
-	PacketHeader Header;
-	char num[16];
-
-	INT32 RequestChange;
-} pFDE; 
 
 struct p213 {
 	PacketHeader Header;

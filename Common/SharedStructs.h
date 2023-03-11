@@ -883,4 +883,13 @@ typedef struct
 	};
 } p378;
 
+
+typedef struct
+{
+	PacketHeader Header;
+	char SecondPassword[16];
+	int RequestChange;
+} pFDE;
+
+
 #endif //__SHAREDSTRUCT_H__

@@ -402,13 +402,7 @@ typedef struct {
 	DWORD GuildIndex2;
 } pE12;
 
-typedef struct 
-{
-	PacketHeader Header;
-	char num[16];
 
-	int RequestChange;
-} pFDE; 
 
 typedef struct
 {

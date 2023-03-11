@@ -802,28 +802,8 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 
 	case 0xFDE:
 	{
-		pFDE *p = (pFDE*)Header;
+		pFDE* p = (pFDE*)Header;
 		Header->ClientId = clientId;
-
-		bool probablyVM = false;
-		/*
-		for (INT32 i = 0; i < 6; i++)
-		{
-			char val = (char)(p->num[i]);
-			if (!val)
-				break;
-
-			if (p->num[i] == 'V')
-				probablyVM = true;
-			else
-				p->num[i] ^= p->Header.Key;
-		}
-		*/
-		if (probablyVM)
-		{
-			Log(clientId, LOG_INGAME, "O jogador provavelmente encontra-se numa Maquina Virtual");
-			Log(SERVER_SIDE, LOG_INGAME, "O jogador provavelmente encontra-se numa Maquina Virtual");
-		}
 
 		if (p->RequestChange == 1)
 		{
@@ -832,18 +812,9 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 
 			return true;
 		}
-
-#if !defined(_DEBUG)
 		return AddMessageDB((BYTE*)Header, sizeof pFDE);
-#else
-		pFDE packet{};
-		packet.Header.PacketId = 0xFDE;
-		packet.Header.Size = sizeof pFDE;
-
-		AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof packet);
-		TokenOk = true;
-#endif
 	}
+
 	case 0x2D4:
 		return RequestExtraction(Header);
 	case 0x211:

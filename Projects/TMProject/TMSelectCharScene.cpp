@@ -407,10 +407,10 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 			if (strlen(keypass) < 4)
 				return 1;
 
-			MSG_CHARPASSWORD msLock{};			
-			strncpy(msLock.ItemPassWord, keypass, strlen(keypass));
-			msLock.ItemPassWord[14] = 0;
-			msLock.ItemPassWord[15] = 0;
+			pFDE msLock{};
+			strncpy(msLock.SecondPassword, keypass, strlen(keypass));
+			msLock.SecondPassword[14] = 0;
+			msLock.SecondPassword[15] = 0;
 			msLock.Header.ClientId = 0;
 			msLock.Header.PacketId = MSG_CharPassword_Opcode;
 
@@ -431,10 +431,10 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 
 		if (!g_AccountLock)
 		{
-			MSG_CHARPASSWORD msLock{};
-			strncpy(msLock.ItemPassWord, keypass, strlen(keypass));
-			msLock.ItemPassWord[14] = 0;
-			msLock.ItemPassWord[15] = 0;
+			pFDE msLock{};
+			strncpy(msLock.SecondPassword, keypass, strlen(keypass));
+			msLock.SecondPassword[14] = 0;
+			msLock.SecondPassword[15] = 0;
 			msLock.Header.ClientId = 0;
 			msLock.Header.PacketId = MSG_CharPassword_Opcode;
 
@@ -455,12 +455,12 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 		{
 			if (!strcmp(keypasschage, keypass))
 			{
-				MSG_CHARPASSWORD msLock{};
-				strncpy(msLock.ItemPassWord, keypass, strlen(keypass));
-				msLock.ItemPassWord[14] = 0;
-				msLock.ItemPassWord[15] = 0;
+				pFDE msLock{};
+				strncpy(msLock.SecondPassword, keypass, strlen(keypass));
+				msLock.SecondPassword[14] = 0;
+				msLock.SecondPassword[15] = 0;
 				msLock.Header.ClientId = 0;
-				msLock.State = 1;
+				msLock.RequestChange = 1;
 				msLock.Header.PacketId = MSG_CharPassword_Opcode;
 
 				g_pSocketManager->SendOneMessage((char*)&msLock, sizeof(msLock));
@@ -1369,7 +1369,7 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 	return 1;
 	case 0xFDE:
 	{
-		MSG_CHARPASSWORD* pCnfNewChar = reinterpret_cast<MSG_CHARPASSWORD*>(pStd);
+		pFDE* pCnfNewChar = reinterpret_cast<pFDE*>(pStd);
 
 		if (g_AccountLock == 2)
 		{

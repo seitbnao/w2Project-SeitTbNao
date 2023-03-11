@@ -1602,28 +1602,28 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 	break;
 	case _MSG_DBRequestNumericPassword:
 	{
-		pFDE *p = (pFDE*)Header;
+		pFDE* p = (pFDE*)Header;
 
 		pFDE fde;
 		memset(&fde, 0, sizeof pFDE);
 
 		fde.Header.ClientId = p->Header.ClientId;
 		fde.Header.PacketId = _MSG_DBCNFRequestNumericPass;
-		fde.Header.Size = 32;
+		fde.Header.Size = sizeof pFDE;
 
 		INT32 index = GetIndex(conn, p->Header.ClientId);
 
 		if (Account[index].IsBanned)
 		{
-			pUser[conn].Sock.SendOneMessage((char*)& fde, sizeof pFDE);
+			pUser[conn].Sock.SendOneMessage((char*)&fde, sizeof pFDE);
 
 			return true;
 		}
 
 		if (!Account[index].Account.SecondPass[0])
 		{
-			// Seta a senha numêrica
-			strncpy_s(Account[index].Account.SecondPass, p->num, 16);
+			// Seta a senha numérica
+			strncpy_s(Account[index].Account.SecondPass, p->SecondPassword, 16);
 
 			pUser[conn].Sock.SendOneMessage((char*)&fde, sizeof pFDE);
 
@@ -1633,15 +1633,15 @@ INT32 CFileDB::ProcessMessage(char *msg, INT32 conn)
 		{
 			if (p->RequestChange == 1)
 			{
-				// Copia a nova senha numêrica para o usuario
-				strncpy_s(Account[index].Account.SecondPass, p->num, 16);
+				// Copia a nova senha numérica para o usuário
+				strncpy_s(Account[index].Account.SecondPass, p->SecondPassword, 16);
 
-				// Envia o pacote para o usuario, informando que esta correta
+				// Envia o pacote para o usuário, informando que está correta
 				pUser[conn].Sock.SendOneMessage((char*)&fde, sizeof pFDE);
 
 				DBWriteAccount(&Account[index].Account);
 			}
-			else if (!strncmp(p->num, Account[index].Account.SecondPass, 6))
+			else if (!strncmp(p->SecondPassword, Account[index].Account.SecondPass, 16))
 				pUser[conn].Sock.SendOneMessage((char*)&fde, sizeof pFDE);
 			else
 				SendDBSignal(conn, p->Header.ClientId, 0xFDF);

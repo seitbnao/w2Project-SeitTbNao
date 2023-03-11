@@ -9,9 +9,9 @@ bool CUser::SendNumericToken(PacketHeader *Header)
 	
 	TokenOk = true;
 
-	Log(clientId, LOG_INGAME, "Enviou senha numérica correta. %s", p->num);
+	Log(clientId, LOG_INGAME, "Enviou senha numérica correta. %s", p->SecondPassword);
 	AddMessage((BYTE*)p, sizeof pFDE);
 
-	strncpy_s(User.SecondPass, p->num, 6);
+	strncpy_s(User.SecondPass, p->SecondPassword, 6);
 	return true;
 } 

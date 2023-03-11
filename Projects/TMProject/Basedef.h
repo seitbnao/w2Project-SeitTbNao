@@ -631,12 +631,7 @@ struct MSG_MessagePanel
 };
 
 constexpr auto MSG_CharPassword_Opcode = 0xFDE;
-struct MSG_CHARPASSWORD
-{
-	PacketHeader Header;
-	char ItemPassWord[16];
-	char State;
-};
+ 
 
 constexpr auto MSG_CharacterLogin_Opcode = 0x213;
 struct MSG_CharacterLogin
