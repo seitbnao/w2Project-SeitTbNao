@@ -14780,7 +14780,7 @@ void TMFieldScene::SetVisibleAutoTrade(int bShow, int bCargo)
 				if (pRunAutoTrade)
 					pRunAutoTrade->SetVisible(0);
 
-				for (int j = 0; j < 11; ++j)
+				for (int j = 0; j < 10; ++j)
 				{
 					if (m_pGridAutoTrade[j])
 						m_pGridAutoTrade[j]->m_eGridType = TMEGRIDTYPE::GRID_TRADEMY2;
