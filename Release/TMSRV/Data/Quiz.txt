@@ -1,167 +1,167 @@
-# Pra inicar uma nova pergunta
+#_Pra_inicar_uma_nova_pergunta
 
-Question=Quanto √© 1 + 1?
+Question=Quanto_È_1_+_1?
 Answer0=2
 Answer1=11
 Answer2=1
 Answer3=5
 
-#
-Question=Qual tecla muda a barra de skill?
+#1
+Question=Qual_tecla_muda_a_barra_de_skill?
 Answer0=Z
 Answer1=X
 Answer2=Y
 Answer3=I
 
-#
-Question=Quanto √© 3 + 7?
+#2
+Question=Quanto_È_3_+_7?
 Answer0=10
 Answer1=3
 Answer2=7
 Answer3=11
 
-#
-Question=Qual tecla abre o minimapa no canto superior direito?
+#3
+Question=Qual_tecla_abre_o_minimapa_no_canto_superior_direito?
 Answer0=M
 Answer1=N
 Answer2=X
 Answer3=P
 
-#
-Question=Qual o n√≠vel m√°ximo das montarias?
+#4
+Question=Qual_o_nÌvel_m·ximo_das_montarias?
 Answer0=130
 Answer1=120
 Answer2=127
 Answer3=125
 
-#
-Question=Para a composi√ß√£o de +10, qual a quantia de gold necess√°ria?
+#5
+Question=Para_a_composiÁ„o_de_+10,_qual_a_quantia_de_gold_necess·ria?
 Answer0=50.000.000
 Answer1=500.000.000
 Answer2=5.000.000
 Answer3=250.000.000
 
-#
-Question=Para transferir adicional para arma arch, qual a quantia de gold necess√°ria?
+#6
+Question=Para_transferir_adicional_para_arma_arch,_qual_a_quantia_de_gold_necess·ria?
 Answer0=100.000.000
 Answer1=50.000.000
 Answer2=5.000.000
 Answer3=250.000.000
 
-#
-Question=Qual o significado da abrevia√ß√£o WYD?
-Answer0=With Your Destiny
-Answer1=With You Destiny
-Answer2=With Yor Destiny
-Answer3=With Yor Destino
+#7
+Question=Qual_o_significado_da_abreviaÁ„o_WYD?
+Answer0=With_Your_Destiny
+Answer1=With_You_Destiny
+Answer2=With_Yor_Destiny
+Answer3=With_Yor_Destino
 
-#
-Question=Qual tecla utilizamos para esconder nosso nickname?
+#8
+Question=Qual_tecla_utilizamos_para_esconder_nosso_nickname?
 Answer0=N
 Answer1=D
 Answer2=A
 Answer3=I
 
-#
-Question=Qual o m√°ximo de CP que podemos atingir?
+#9
+Question=Qual_o_m·ximo_de_CP_que_podemos_atingir?
 Answer0=75
 Answer1=65
 Answer2=100
 Answer3=85
 
-#
-Question=Quanto √© 2 + 2?
+#10
+Question=Quanto_È_2_+_2?
 Answer0=4
 Answer1=22
 Answer2=12
 Answer3=21
 
-#
-Question=Qual a classse que possui a skill Fera Flamejante?
+#11
+Question=Qual_a_classse_que_possui_a_skill_Fera_Flamejante?
 Answer0=BeastMaster
 Answer1=Foema
 Answer2=Transknight
 Answer3=Huntress
 
-#
-Question=Sem a Bolsa do Andarilho ativa, temos quantos slots liberados?
+#12
+Question=Sem_a_Bolsa_do_Andarilho_ativa,_temos_quantos_slots_liberados?
 Answer0=30
 Answer1=15
 Answer2=60
 Answer3=45
 
-#
-Question=Quanto √© 17 + 13?
+#13
+Question=Quanto_È_17_+_13?
 Answer0=30
 Answer1=17
 Answer2=13
 Answer3=37
 
-#
-Question=Qual linhagem n√£o pertence a Foema?
+#14
+Question=Qual_linhagem_n„o_pertence_a_Foema?
 Answer0=Captura
-Answer1=Magia Negra
-Answer2=Magia Branca
-Answer3=Magia Especial
+Answer1=Magia_Negra
+Answer2=Magia_Branca
+Answer3=Magia_Especial
 
-#
-Question=Qual a classe que pode se transformar?
+#15
+Question=Qual_a_classe_que_pode_se_transformar?
 Answer0=BeastMaster
 Answer1=Foema
 Answer2=Huntress
 Answer3=Transknight
 
-#
-Question=Qual a classe que pode usar a skill cancelamento?
+#16
+Question=Qual_a_classe_que_pode_usar_a_skill_cancelamento?
 Answer0=Foema
 Answer1=BeastMaster
 Answer2=Huntress
 Answer3=Transknight
 
-#
-Question=Qual a classe que pode reviver outros jogadores?
+#17
+Question=Qual_a_classe_que_pode_reviver_outros_jogadores?
 Answer0=Foema
 Answer1=BeastMaster
 Answer2=Huntress
 Answer3=Transknight
 
-#
-Question=Quando o Kefra nasce?
+#18
+Question=Quando_o_Kefra_nasce?
 Answer0=Quarta-feira
 Answer1=Quinta-feira
 Answer2=Sexta-feira
-Answer3=Ter√ßa-feira
+Answer3=TerÁa-feira
 
-#
-Question=Qual o dia da guerra de cidade?
+#19
+Question=Qual_o_dia_da_guerra_de_cidade?
 Answer0=Domingo
-Answer1=S√°bado
+Answer1=S·bado
 Answer2=Sexta-feira
 Answer3=Quinta-feira
 
-#
-Question=Qual o dia da Guerra do Castelo de Noatun?
+#20
+Question=Qual_o_dia_da_Guerra_do_Castelo_de_Noatun?
 Answer0=Domingo
-Answer1=S√°bado
+Answer1=S·bado
 Answer2=Sexta-feira
 Answer3=Quinta-feira
 
-#
-Question=Qual o hor√°rio da Quest do Coliseu Normal?
-Answer0=15:00h e 20:00h
-Answer1=16:00h e 21:00h
-Answer2=15:00h e 19:00h
-Answer3=16:00h e 20:00h
+#21
+Question=Qual_o_hor·rio_da_Quest_do_Coliseu_Normal?
+Answer0=15:00h_e_20:00h
+Answer1=16:00h_e_21:00h
+Answer2=15:00h_e_19:00h
+Answer3=16:00h_e_20:00h
 
-#
-Question=Qual o nome do Canal do servidor?
+#22
+Question=Qual_o_nome_do_Canal_do_servidor?
 Answer0=Basilisk
 Answer1=Sephira
 Answer2=WYD
 Answer3=Malech
 
-#
-Question=Qual a taxa de transfer√™ncia do teleporte para a cidade de Noatun?
+#23
+Question=Qual_a_taxa_de_transferÍncia_do_teleporte_para_a_cidade_de_Noatun?
 Answer0=700
 Answer1=70
 Answer2=7000
