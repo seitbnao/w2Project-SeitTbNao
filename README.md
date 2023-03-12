@@ -1,3 +1,8 @@
+# Metas
+   Manter o jogo atualizado para o client 759, para que em seguida seja possivel atualizar para as versões mais recentes
+
+
+
 # TMProject
 
 Este projeto é baseado em uma descompilação do cliente do jogo With Your Destiny. 
@@ -33,7 +38,7 @@ Para manter o código mais organizado, o padrão de código que consta atualment
 Como não temos um documento que dite todas as regras, caso surja uma dúvida, procure no código algum exemplo do que você está tentando fazer.
 
 ## Contribuidores
-Este projeto foi desenvolvido por:
+ 
 - Eric Santos (SKEWED)
 - Wed Souza (FREEDOM)
 - Kevin Kouketsu (shepher)
