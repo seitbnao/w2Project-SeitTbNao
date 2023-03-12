@@ -85,7 +85,7 @@ public:
     int OnPacketMessageChat(PacketHeader* pStd);
     int OnPacketMessageChat_Index(PacketHeader* pStd);
     int OnPacketMessageChat_Param(PacketHeader* pStd);
-    int OnPacketMessageWhisper(MSG_MessageWhisper* pMsg);
+    int OnPacketMessageWhisper(p334* pMsg);
     int OnPacketUpdateEtc(PacketHeader* pStd);
     int OnPacketUpdateCoin(MSG_STANDARDPARM* pStd);
     int OnPacketUpdateRMB(MSG_STANDARDPARM* pStd);

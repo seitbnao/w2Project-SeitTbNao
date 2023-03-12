@@ -1965,13 +1965,13 @@ int TMFieldScene::InitializeScene()
 	{
 		if (strcmp(g_TempNick, " "))
 		{
-			MSG_MessageWhisper stWhisper{};
+			p334 stWhisper{};
 			stWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 			stWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 
 			sprintf(stWhisper.MobName, "tab");
 			sprintf(stWhisper.String, g_TempNick);
-			SendOneMessage((char*)&stWhisper, sizeof(stWhisper));
+			SendOneMessage((char*)&stWhisper, sizeof(p334));
 		}
 	}
 
@@ -2499,7 +2499,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 			idwFontColor = 0xFFFFFF00;
 
-			MSG_MessageWhisper stMsgWhisper{};
+			p334 stMsgWhisper{};
 			stMsgWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 			stMsgWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 
@@ -2672,7 +2672,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		default:
 		{
 			idx = 0;
-			MSG_MessageChat stMsgChat{};
+			p333 stMsgChat{};
 			stMsgChat.Header.ClientId = g_pObjectManager->m_dwCharID;
 			stMsgChat.Header.PacketId = MSG_MessageChat_Opcode;
 
@@ -3063,7 +3063,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 				sprintf_s(str2, "%s %s", m_pPGTOver->m_szName, inputText);
 
-				MSG_MessageWhisper stMessageWhisper{};
+				p334 stMessageWhisper{};
 
 				stMessageWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 				stMessageWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
@@ -3711,7 +3711,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == B_CHAT_WHISPER)
 	{
-		MSG_MessageChat stMsgChat{};
+		p333 stMsgChat{};
 		stMsgChat.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgChat.Header.PacketId = MSG_MessageChat_Opcode;
 		sprintf(stMsgChat.String, "whisper");
@@ -3720,7 +3720,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == B_CHAT_PARTY)
 	{
-		MSG_MessageChat stMsgChat{};
+		p333 stMsgChat{};
 		stMsgChat.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgChat.Header.PacketId = MSG_MessageChat_Opcode;
 		sprintf(stMsgChat.String, "partychat");
@@ -3729,7 +3729,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == B_CHAT_KINGDOM)
 	{
-		MSG_MessageChat stMsgChat{};
+		p333 stMsgChat{};
 		stMsgChat.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgChat.Header.PacketId = MSG_MessageChat_Opcode;
 		sprintf(stMsgChat.String, "kingdomchat");
@@ -3738,7 +3738,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == B_CHAT_GUILD)
 	{
-		MSG_MessageChat stMsgChat{};
+		p333 stMsgChat{};
 		stMsgChat.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgChat.Header.PacketId = MSG_MessageChat_Opcode;
 		sprintf(stMsgChat.String, "guildchat");
@@ -3747,7 +3747,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == TMB_GUILDONOFF)
 	{
-		MSG_MessageChat stMsgChat{};
+		p333 stMsgChat{};
 		stMsgChat.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgChat.Header.PacketId = MSG_MessageChat_Opcode;
 
@@ -5107,7 +5107,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == 1617)
 	{
-		MSG_MessageWhisper stMsgWhisper{};
+		p334 stMsgWhisper{};
 		stMsgWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 
@@ -5119,7 +5119,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == 1618)
 	{
-		MSG_MessageWhisper stMsgWhisper{};
+		p334 stMsgWhisper{};
 		stMsgWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 
@@ -5131,7 +5131,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == 1619)
 	{
-		MSG_MessageWhisper stMsgWhisper{};
+		p334 stMsgWhisper{};
 		stMsgWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stMsgWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 
@@ -5816,7 +5816,7 @@ int TMFieldScene::OnKeyDownEvent(unsigned int iKeyCode)
 
 	if (iKeyCode == VK_INSERT)
 	{
-		MSG_MessageWhisper stWhisper{};
+		p334 stWhisper{};
 
 		stWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
@@ -6338,13 +6338,13 @@ int TMFieldScene::OnPacketEvent(unsigned int dwCode, char* buf)
 	case 0x1C1:
 		return OnPacketREQArray(pStd);
 	case 0x333:
-		return OnPacketMessageChat(reinterpret_cast<MSG_MessageChat*>(pStd));
+		return OnPacketMessageChat(reinterpret_cast<p333*>(pStd));
 	case 0x105:
-		return OnPacketMessageChat_Index(reinterpret_cast<MSG_MessageChat*>(pStd));
+		return OnPacketMessageChat_Index(reinterpret_cast<p333*>(pStd));
 	case 0x106:
 		return OnPacketMessageChat_Param(pStd);
 	case 0x334:
-		return OnPacketMessageWhisper(reinterpret_cast<MSG_MessageWhisper*>(pStd));
+		return OnPacketMessageWhisper(reinterpret_cast<p334*>(pStd));
 	case 0x7B1:
 		return OnPacketLongMessagePanel(reinterpret_cast<MSG_LongMessagePanel*>(pStd));
 	case 0x3B2:
@@ -11908,7 +11908,7 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 			{
 				m_dwDelayDisconnectTime = dwServerTime;
 
-				MSG_MessageWhisper stWhisper{};
+				p334 stWhisper{};
 				stWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 				stWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 				sprintf(stWhisper.MobName, "srv");
@@ -11944,7 +11944,7 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 			m_dwLastRelo = 0;
 		else if (dwServerTime > m_dwLastRelo + 5000 && m_cLastRelo == 1)
 		{
-			MSG_MessageWhisper stMsgImp{};
+			p334 stMsgImp{};
 			stMsgImp.Header.ClientId = g_pObjectManager->m_dwCharID;
 			stMsgImp.Header.PacketId = MSG_MessageWhisper_Opcode;
 			sprintf(stMsgImp.MobName, "relo");
@@ -11954,7 +11954,7 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 		}
 		else if (dwServerTime > m_dwLastRelo + 5000 && m_cLastRelo == 2)
 		{
-			MSG_MessageWhisper stMsgImp{};
+			p334 stMsgImp{};
 			stMsgImp.Header.ClientId = g_pObjectManager->m_dwCharID;
 			stMsgImp.Header.PacketId = MSG_MessageWhisper_Opcode;
 			sprintf(stMsgImp.MobName, "relo");
@@ -17670,7 +17670,7 @@ int TMFieldScene::OnKeyTotoEnter(char iCharCode, int lParam)
 	return 0;
 }
 
-int TMFieldScene::OnPacketMessageChat(MSG_MessageChat* pStd)
+int TMFieldScene::OnPacketMessageChat(p333* pStd)
 {	
 	if (m_pPartyList->m_nNumItem <= 0)
 		return 0;
@@ -17702,7 +17702,7 @@ int TMFieldScene::OnPacketMessageChat(MSG_MessageChat* pStd)
 	return 0;
 }
 
-int TMFieldScene::OnPacketMessageChat_Index(MSG_MessageChat* pStd)
+int TMFieldScene::OnPacketMessageChat_Index(p333* pStd)
 {
 	if (pStd->String[0] != 1)
 		return 0;
@@ -17756,7 +17756,7 @@ int TMFieldScene::OnPacketMessageChat_Param(PacketHeader* pStd)
 	return 0;
 }
 
-int TMFieldScene::OnPacketMessageWhisper(MSG_MessageWhisper* pMsg)
+int TMFieldScene::OnPacketMessageWhisper(p334* pMsg)
 {
 	if (g_pObjectManager->GetHumanByID(pMsg->Header.ClientId))
 		return 0;
@@ -24366,7 +24366,7 @@ void TMFieldScene::NewCCMode()
 
 void TMFieldScene::InsertInChatList(SListBox* pChatList, STRUCT_MOB *pMobData, SEditableText* pEditChat, unsigned int dwColor, int colorId, unsigned int startId)
 {
-	MSG_MessageWhisper stMsgWhisper{};
+	p334 stMsgWhisper{};
 	stMsgWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 	stMsgWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 	stMsgWhisper.Color = colorId;
@@ -24377,7 +24377,7 @@ void TMFieldScene::InsertInChatList(SListBox* pChatList, STRUCT_MOB *pMobData, S
 
 	pEditChat->SetText((char*)"");
 
-	SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
+	SendOneMessage((char*)&stMsgWhisper, sizeof(p334));
 
 	int len = strlen(stMsgWhisper.String) + strlen(pMobData->MobName);
 	const size_t maxLen = 40;

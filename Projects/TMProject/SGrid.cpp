@@ -3263,7 +3263,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 	{
 		if (!pFScene->m_dwLastNightmareTime || dwServerTime > pFScene->m_dwLastNightmareTime + 60000)
 		{
-			MSG_MessageWhisper Msg{};
+			p334 Msg{};
 			Msg.Header.ClientId = g_pObjectManager->m_dwCharID;
 			Msg.Header.PacketId = MSG_MessageWhisper_Opcode;
 			sprintf(Msg.MobName, "nig");

@@ -163,10 +163,10 @@ public:
 	int OnKeyNumPad(unsigned int iKeyCode);
 	int OnKeyTotoTab(char iCharCode, int lParam);
 	int OnKeyTotoEnter(char iCharCode, int lParam);
-	int OnPacketMessageChat(MSG_MessageChat* pStd);
-	int OnPacketMessageChat_Index(MSG_MessageChat* pStd);
+	int OnPacketMessageChat(p333* pStd);
+	int OnPacketMessageChat_Index(p333* pStd);
 	int OnPacketMessageChat_Param(PacketHeader* pStd);
-	int OnPacketMessageWhisper(MSG_MessageWhisper* pMsg);
+	int OnPacketMessageWhisper(p334* pMsg);
 	int OnPacketLongMessagePanel(MSG_LongMessagePanel* pMsg);
 	int OnPacketReqSummon(MSG_ReqSummon* pStd);
 	int OnPacketCancelSummon(PacketHeader* pStd);
@@ -331,7 +331,7 @@ public:
 	char m_cLastTeleport;
 	char m_cLastRelo;
 	char m_cLastWhisper;
-	MSG_MessageWhisper m_stLastWhisper;
+	p334 m_stLastWhisper;
 	char m_szSummoner[256];
 	char m_szSummoner2[256];
 	unsigned int m_dwLastDeadTime;

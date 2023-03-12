@@ -3470,7 +3470,7 @@ int TMHuman::OnPacketEvent(unsigned int dwCode, char* buf)
         return OnPacketMessageChat_Param((PacketHeader*)buf);
         break;
     case 0x334:
-        return OnPacketMessageWhisper(reinterpret_cast<MSG_MessageWhisper*>(buf));
+        return OnPacketMessageWhisper(reinterpret_cast<p334*>(buf));
         break;
     case 0x337:
         return OnPacketUpdateEtc((PacketHeader*)buf);
@@ -4478,11 +4478,11 @@ int TMHuman::OnPacketUpdateAffect(PacketHeader* pStd)
         if (!pFScene->m_nYear && !pFScene->m_nDays || pFScene->m_dwEventTime && dwServerTime > (pFScene->m_dwEventTime + 3600000))
         {
             pFScene->m_dwEventTime = dwServerTime;
-            MSG_MessageWhisper stWhisper{};
+            p334 stWhisper{};
             stWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
             stWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
             sprintf_s(stWhisper.MobName, "day");
-            SendOneMessage((char*)&stWhisper, sizeof(stWhisper));
+            SendOneMessage((char*)&stWhisper, sizeof(p334));
         }
 
         if (pFScene)
@@ -4931,7 +4931,7 @@ int TMHuman::OnPacketSetHpDam(PacketHeader* pStd)
 
 int TMHuman::OnPacketMessageChat(PacketHeader* pStd)
 {
-    auto pMsgChat = reinterpret_cast<MSG_MessageChat*>(pStd);
+    auto pMsgChat = reinterpret_cast<p333*>(pStd);
 
     pMsgChat->String[127] = 0;
     pMsgChat->String[126] = 0;
@@ -5012,7 +5012,7 @@ int TMHuman::OnPacketMessageChat_Param(PacketHeader* pStd)
 	return 0;
 }
 
-int TMHuman::OnPacketMessageWhisper(MSG_MessageWhisper* pMsg)
+int TMHuman::OnPacketMessageWhisper(p334* pMsg)
 {
     auto pScene = static_cast<TMFieldScene*>(g_pCurrentScene);
     

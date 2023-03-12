@@ -10,7 +10,7 @@
 
 bool CUser::HandleAdminCommand(p334* p)
 {
-	if (!p->eValue[0])
+	if (!p->String[0])
 	{
 		SendClientMessage(clientId, "Utilize /admin +command");
 
@@ -40,9 +40,9 @@ bool CUser::HandleAdminCommand(p334* p)
 	memset(&Item, 0, 8);
 
 	char szTMP[256] = { 0 };
-	if (!strncmp(p->eValue, "+move", 4))
+	if (!strncmp(p->String, "+move", 4))
 	{
-		int ret = sscanf_s(p->eValue, "+move %d %d", &x, &y);
+		int ret = sscanf_s(p->String, "+move %d %d", &x, &y);
 		if (ret != 2 || x < 0 || x >= 4096 || y < 0 || y >= 4096)
 		{
 			SendClientMessage(clientId, "Coordenadas invalidas");
@@ -54,7 +54,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		return true;
 	}
  
-	if (sscanf_s(p->eValue, "+set ban %s %d %d %d %d", &nickName, 16, &x2, &x, &y, &slot))
+	if (sscanf_s(p->String, "+set ban %s %d %d %d %d", &nickName, 16, &x2, &x, &y, &slot))
 	{
 		INT32 userId = GetUserByName(nickName);
 		if (userId <= 0 || userId >= MAX_PLAYER)
@@ -74,7 +74,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "Usuario banido e desconectado!");
 		return true;
 	}
-	if (sscanf_s(p->eValue, "+set hp %d %[^\n] ", &x, nickName, 16))
+	if (sscanf_s(p->String, "+set hp %d %[^\n] ", &x, nickName, 16))
 	{
 		for (int i = 1000; i < 30000; i++)
 		{
@@ -98,7 +98,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		return true;
 	}
 	
-	if (sscanf_s(p->eValue, "+set newrandom %d", &x))
+	if (sscanf_s(p->String, "+set newrandom %d", &x))
 	{
 		sServer.NewRandomMode = x == 1;
 
@@ -106,9 +106,9 @@ bool CUser::HandleAdminCommand(p334* p)
 		return true;
 	}
 	
-	if (!strncmp(p->eValue, "+check", 6))
+	if (!strncmp(p->String, "+check", 6))
 	{
-		int ret = sscanf_s(p->eValue, "+check %s", nickName, 36);
+		int ret = sscanf_s(p->String, "+check %s", nickName, 36);
 		if (ret == 0)
 		{
 			SendClientMessage(clientId, "Comando invalido. Digite o nome do usuario");
@@ -148,9 +148,9 @@ bool CUser::HandleAdminCommand(p334* p)
 		return true;
 	}
 
-	if (!strncmp(p->eValue, "+checkdoor", 11))
+	if (!strncmp(p->String, "+checkdoor", 11))
 	{
-		int ret = sscanf_s(p->eValue, "+check %d %d", &x, &y);
+		int ret = sscanf_s(p->String, "+check %d %d", &x, &y);
 		if (ret != 2 || x < 0 || x >= 4096 || y < 0 || y >= 4096)
 		{
 			SendClientMessage(clientId, "Coordenadas invalidas");
@@ -160,7 +160,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "%d", g_pHeightGrid[x][y]);
 		return true;
 	}
-	if (!strncmp(p->eValue, "+snoop", 6))
+	if (!strncmp(p->String, "+snoop", 6))
 	{
 		if (pMob[clientId].Mobs.Player.Info.Merchant & 1)
 		{
@@ -183,13 +183,13 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)&packet, 0);
 	}
-	else if (sscanf_s(p->eValue, "+set name %s", nickName, 16))
+	else if (sscanf_s(p->String, "+set name %s", nickName, 16))
 	{
 		strcpy_s(pMob[clientId].Mobs.Player.MobName, nickName);
 
 		CharLogOut(clientId);
 	}
-	else if (!strcmp(p->eValue, "+dcall"))
+	else if (!strcmp(p->String, "+dcall"))
 	{
 		int total = 0;
 		int count = 0;
@@ -204,7 +204,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Foram desconectados %d usuarios", total);
 	}
-	else if (!strcmp(p->eValue, "+userson"))
+	else if (!strcmp(p->String, "+userson"))
 	{
 		INT32 totalOn = 0,
 			on = 0;
@@ -237,13 +237,13 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Temos %d (%d) usuarios online", totalOn, on);
 	}
-	else if (!strncmp(p->eValue, "+set exp", 8))
+	else if (!strncmp(p->String, "+set exp", 8))
 	{
 		if (AccessLevel < 50)
 			return true;
 
 		UINT64 exp = 0;
-		int ret = sscanf_s(p->eValue, "+set exp %lld", &exp);
+		int ret = sscanf_s(p->String, "+set exp %lld", &exp);
 		if (ret == 0)
 		{
 			SendClientMessage(clientId, "andice invalido");
@@ -255,14 +255,14 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendScore(clientId);
 		SendEtc(clientId);
 	}
-	else if (!strncmp(p->eValue, "+generate", 9))
+	else if (!strncmp(p->String, "+generate", 9))
 	{
 		if (AccessLevel < 50)
 			return true;
 
 		int generate = -1;
 
-		int ret = sscanf_s(p->eValue, "+generate %d", &generate);
+		int ret = sscanf_s(p->String, "+generate %d", &generate);
 		if (generate < 0 || generate >= 8196)
 		{
 			SendClientMessage(clientId, "andice invalido");
@@ -273,7 +273,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		GenerateMob(generate, 0, 0);
 		SendClientMessage(clientId, "Criado o mob %s em %dx %dy", mGener.pList[generate].Leader.MobName, mGener.pList[generate].Segment_X[0], mGener.pList[generate].Segment_Y[0]);
 	}
-	else if (sscanf_s(p->eValue, "+gate check %d", &x))
+	else if (sscanf_s(p->String, "+gate check %d", &x))
 	{
 		if (x < 0 || x >= 4096)
 			return true;
@@ -281,7 +281,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		sprintf_s(szTMP, "Posiaao %dx %dy", g_pInitItem[x].PosX, g_pInitItem[x].PosY);
 		SendClientMessage(clientId, szTMP);
 	}
-	else if (sscanf_s(p->eValue, "+set weekmode %d", &x))
+	else if (sscanf_s(p->String, "+set weekmode %d", &x))
 	{
 		sServer.ForceWeekDay = x;
 		sServer.WeekMode = x - 1;
@@ -291,7 +291,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "SET WEEKMODE");
 	}
-	else if (sscanf_s(p->eValue, "+gate %d %s", &x, &nickName, 16))
+	else if (sscanf_s(p->String, "+gate %d %s", &x, &nickName, 16))
 	{
 		if (x < 0 || x >= 4096)
 			return true;
@@ -321,9 +321,9 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, szTMP);
 	}
-	else if (!strncmp(p->eValue, "+enter", 6))
+	else if (!strncmp(p->String, "+enter", 6))
 	{
-		INT32 ret = sscanf_s(p->eValue, "+enter %d", &x);
+		INT32 ret = sscanf_s(p->String, "+enter %d", &x);
 		if (ret == 0)
 		{
 			SendClientMessage(clientId, "Comando invalido... 1 = fechar. 0 = abrir");
@@ -343,10 +343,10 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Servidor foi %s", (x == 1) ? "fechado" : "aberto");
 	}
-	else if (!strcmp(p->eValue, "+checkheight"))
+	else if (!strcmp(p->String, "+checkheight"))
 	{
 		int x, y;
-		int ret = sscanf_s(p->eValue, "%d %d", &x, &y);
+		int ret = sscanf_s(p->String, "%d %d", &x, &y);
 		if (ret != 2 || x < 0 || x >= 4096 || y < 0 || y >= 4096)
 		{
 			SendClientMessage(clientId, "Coordenadas invalidas");
@@ -357,43 +357,43 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "%d %d", g_pHeightGrid[x][y], g_pHeightGrid[y][x]);
 	}
   
-	else if (!strcmp(p->eValue, "+rebornkefra"))
+	else if (!strcmp(p->String, "+rebornkefra"))
 	{
 		RebornKefra();
 
 		SendClientMessage(clientId, "REBORN KEFRA");
 	}
-	else if (!strcmp(p->eValue, "+reload boss"))
+	else if (!strcmp(p->String, "+reload boss"))
 	{
 		ReadBoss();
 
 		SendClientMessage(clientId, "RELOAD BOSS");
 	}
-	else if (!strcmp(p->eValue, "+reload teleport"))
+	else if (!strcmp(p->String, "+reload teleport"))
 	{
 		ReadTeleport();
 
 		SendClientMessage(clientId, "RELOAD TELEPORT");
 	}
-	else if (!strcmp(p->eValue, "+reload itemlevel"))
+	else if (!strcmp(p->String, "+reload itemlevel"))
 	{
 		ReadLevelItem();
 
 		SendClientMessage(clientId, "RELOAD LEVELITEM");
 	}
-	else if (!strcmp(p->eValue, "+reload premierstore"))
+	else if (!strcmp(p->String, "+reload premierstore"))
 	{
 		ReadMerchantStore();
 
 		SendClientMessage(clientId, "RELOAD PREMIERSTORE");
 	}
  
-	else if (!strncmp(p->eValue, "+set cash", 9))
+	else if (!strncmp(p->String, "+set cash", 9))
 	{
 		if (AccessLevel < 100)
 			return true;
 
-		int ret = sscanf_s(p->eValue, "+set cash %d", &x);
+		int ret = sscanf_s(p->String, "+set cash %d", &x);
 		if (ret != 1)
 			return true;
 
@@ -402,7 +402,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendSignalParm(clientId, 0x7530, RefreshGoldPacket, User.Cash);
 	}
-	else if (!strcmp(p->eValue, "+rvr start"))
+	else if (!strcmp(p->String, "+rvr start"))
 	{
 		sServer.RvR.CurrentScore = 1;
 		SendNotice("Guerra entre Reinos iniciada. Acesse o teleporte de Noatun!");
@@ -414,7 +414,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		sServer.RvR.Annoucement = 1;
 	}
-	else if (!strcmp(p->eValue, "+rvr close"))
+	else if (!strcmp(p->String, "+rvr close"))
 	{
 		for (INT32 i = 1000; i < MAX_MOB; i++)
 		{
@@ -478,9 +478,9 @@ bool CUser::HandleAdminCommand(p334* p)
 			}
 		}
 	}
-	else if (!strncmp(p->eValue, "+set runes", 10))
+	else if (!strncmp(p->String, "+set runes", 10))
 	{
-		int ret = sscanf_s(p->eValue, "+set runes %d", &x);
+		int ret = sscanf_s(p->String, "+set runes %d", &x);
 		if (ret != 1)
 		{
 			SendClientMessage(clientId, "Digite um valor valido");
@@ -498,9 +498,9 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "SET RUNES");
 		Log(clientId, LOG_INGAME, "Setado o valor de RunesPerSanc %d", x);
 	}
-	else if (!strncmp(p->eValue, "+set bonusrvr", 13))
+	else if (!strncmp(p->String, "+set bonusrvr", 13))
 	{
-		int ret = sscanf_s(p->eValue, "+set bonusrvr %d", &x);
+		int ret = sscanf_s(p->String, "+set bonusrvr %d", &x);
 		if (ret != 1)
 			return true;
 
@@ -519,7 +519,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "SET BONUSRVR");
 	}
-	else if (sscanf_s(p->eValue, "+quiz %s", nickName, 36))
+	else if (sscanf_s(p->String, "+quiz %s", nickName, 36))
 	{
 		static unsigned int coords[2][4] =
 		{
@@ -565,9 +565,9 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "%d pessoas erraram a resposta e %d acertaram...", count, correct);
 		return true;
 	}
-	else if (!strncmp(p->eValue, "+kill kefra", 11))
+	else if (!strncmp(p->String, "+kill kefra", 11))
 	{
-		int ret = sscanf_s(p->eValue, "+kill kefra %d", &x);
+		int ret = sscanf_s(p->String, "+kill kefra %d", &x);
 		if (ret != 1)
 			return true;
 
@@ -585,12 +585,12 @@ bool CUser::HandleAdminCommand(p334* p)
 		Log(SERVER_SIDE, LOG_INGAME, "KEFRA - Kefra derrotado por guildId: %d usando o comando.", x);
 	}
 	 
-	else if (!strncmp(p->eValue, "+set level", 10))
+	else if (!strncmp(p->String, "+set level", 10))
 	{
 		if (AccessLevel < 100)
 			return true;
 
-		int ret = sscanf_s(p->eValue, "+set level %d", &x);
+		int ret = sscanf_s(p->String, "+set level %d", &x);
 		if (ret != 1)
 		{
 			SendClientMessage(clientId, "Level invalido");
@@ -615,92 +615,92 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)&packet, 0);
 	}
-	else if (!strcmp(p->eValue, "+reload questbosses"))
+	else if (!strcmp(p->String, "+reload questbosses"))
 	{
 		ReadBossQuest();
 
 		SendClientMessage(clientId, "RELOAD QUESTBOSSES");
 	}
-	else if (!strcmp(p->eValue, "+reload nocp"))
+	else if (!strcmp(p->String, "+reload nocp"))
 	{
 		ReadNoCP();
 
 		SendClientMessage(clientId, "RELOAD NOCP");
 	}
-	else if (!strcmp(p->eValue, "+reload language"))
+	else if (!strcmp(p->String, "+reload language"))
 	{
 		ReadLanguageFile();
 
 		SendClientMessage(clientId, "RELOAD LANGUAGE");
 	}
-	else if (!strcmp(p->eValue, "+reload blockitem"))
+	else if (!strcmp(p->String, "+reload blockitem"))
 	{
 		ReadBlockedItem();
 
 		SendClientMessage(clientId, "RELOAD BLOCKITEM");
 	}
-	else if (!strcmp(p->eValue, "+reload message"))
+	else if (!strcmp(p->String, "+reload message"))
 	{
 		ReadMessages();
 
 		SendClientMessage(clientId, "RELOAD MESSAGE");
 	}
-	else if (!strcmp(p->eValue, "+reload scheduled"))
+	else if (!strcmp(p->String, "+reload scheduled"))
 	{
 		ReadScheduled();
 
 		SendClientMessage(clientId, "RELOAD SCHEDULED");
 	}
-	else if (!strcmp(p->eValue, "+reload heightmap"))
+	else if (!strcmp(p->String, "+reload heightmap"))
 	{
 		ReadHeightMap();
 		ApplyAttribute((char*)g_pHeightGrid, 4096);
 
 		SendClientMessage(clientId, "RELOAD HEIGHTMAP");
 	}
-	else if (!strcmp(p->eValue, "+reload attributemap"))
+	else if (!strcmp(p->String, "+reload attributemap"))
 	{
 		ReadAttributeMap();
 
 		SendClientMessage(clientId, "RELOAD ATTRIBUTEMAP!!!");
 	}
-	else if (!strncmp(p->eValue, "+limparinv", 10))
+	else if (!strncmp(p->String, "+limparinv", 10))
 	{
 		memset(pMob[clientId].Mobs.Player.Inventory, 0, sizeof STRUCT_ITEM * 60);
 
 		SendCarry(clientId);
 	}
-	else if (!_strnicmp(p->eValue, "+guildhour", 10))
+	else if (!_strnicmp(p->String, "+guildhour", 10))
 	{
-		INT32 ret = sscanf_s(p->eValue, "+guildhonour %d", &x);
+		INT32 ret = sscanf_s(p->String, "+guildhonour %d", &x);
 
 		sServer.GuildHour = x;
 		SendClientMessage(clientId, "SET GUILDHONOUR");
 	}
-	else if (!_strnicmp(p->eValue, "+guildday", 9))
+	else if (!_strnicmp(p->String, "+guildday", 9))
 	{
-		INT32 ret = sscanf_s(p->eValue, "+guildday %d", &x);
+		INT32 ret = sscanf_s(p->String, "+guildday %d", &x);
 
 		sServer.GuildDay = x;
 		SendClientMessage(clientId, "SET GUILDDAY");
 	}
-	else if (!_strnicmp(p->eValue, "+guildchall", 11))
+	else if (!_strnicmp(p->String, "+guildchall", 11))
 	{
-		INT32 ret = sscanf_s(p->eValue, "+guildchall %d %d", &x, &y);
+		INT32 ret = sscanf_s(p->String, "+guildchall %d %d", &x, &y);
 
 		g_pCityZone[x].chall_index = y;
 		SendClientMessage(clientId, "SET GUILDCHALL");
 	}
-	else if (!_strnicmp(p->eValue, "+guildchall2", 12))
+	else if (!_strnicmp(p->String, "+guildchall2", 12))
 	{
-		INT32 ret = sscanf_s(p->eValue, "+guildchall2 %d %d", &x, &y);
+		INT32 ret = sscanf_s(p->String, "+guildchall2 %d %d", &x, &y);
 
 		g_pCityZone[x].chall_index_2 = y;
 		SendClientMessage(clientId, "SET GUILDCHALL 2");
 	}
-	else if (!_strnicmp(p->eValue, "+guildowner", 11))
+	else if (!_strnicmp(p->String, "+guildowner", 11))
 	{
-		INT32 ret = sscanf_s(p->eValue, "+guildowner %d %d", &x, &y);
+		INT32 ret = sscanf_s(p->String, "+guildowner %d %d", &x, &y);
 
 		ChargedGuildList[sServer.Channel - 1][x] = y;
 		g_pCityZone[x].owner_index = y;
@@ -709,24 +709,24 @@ bool CUser::HandleAdminCommand(p334* p)
 		GuildZoneReport();
 		SendClientMessage(clientId, "SET GUILDOWNER");
 	}
-	else if (!strncmp(p->eValue, "+set guild impost", 17))
+	else if (!strncmp(p->String, "+set guild impost", 17))
 	{
 		INT64 value = 0;
-		sscanf_s(p->eValue, "+set guild impost %d %I64d", &x, &value);
+		sscanf_s(p->String, "+set guild impost %d %I64d", &x, &value);
 
 		g_pCityZone[x].impost = value;
 
 		SendClientMessage(clientId, "SET GUILD IMPOST");
 	}
-	else if (sscanf_s(p->eValue, "+set guild fame %d %d", &x, &y) == 2)
+	else if (sscanf_s(p->String, "+set guild fame %d %d", &x, &y) == 2)
 	{
 		SetGuildFame(x, y);
 
 		SendClientMessage(clientId, "SET GUILDFAME");
 	}
-	else if (!strncmp(p->eValue, "+set special", 12))
+	else if (!strncmp(p->String, "+set special", 12))
 	{
-		int ret = sscanf_s(p->eValue, "+set special%d %d", &x, &y);
+		int ret = sscanf_s(p->String, "+set special%d %d", &x, &y);
 		if (ret != 2 || x < 0 || x >= 4 || y < 0 || y > 255)
 		{
 			SendClientMessage(clientId, "Comando invalido");
@@ -741,7 +741,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "SET SPECIAL");
 	}
-	else if (sscanf_s(p->eValue, "+create %s %d", nickName, 16, &x))
+	else if (sscanf_s(p->String, "+create %s %d", nickName, 16, &x))
 	{
 		if (x == -1)
 			x = 1;
@@ -751,7 +751,7 @@ bool CUser::HandleAdminCommand(p334* p)
 	}
 
 #pragma region COMANDOS AUTO VENDA EVENTO
-	else if (sscanf_s(p->eValue, "+set lojastatus %d", &x))
+	else if (sscanf_s(p->String, "+set lojastatus %d", &x))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -761,7 +761,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "O evento de autovenda foi %s", (x == 0) ? "desligado" : "ligado");
 		Log(SERVER_SIDE, LOG_INGAME, "O evento de autovenda foi %s", (x == 0) ? "desligado" : "ligado");
 	}
-	else if (sscanf_s(p->eValue, "+set lojaitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->String, "+set lojaitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -771,7 +771,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		Log(SERVER_SIDE, LOG_INGAME, "%s - Item evento: %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.MobName, g_pItemList[Item.sIndex].ItemName, Item.sIndex, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3, Item.EFV3);
 	}
-	else if (sscanf_s(p->eValue, "+set lojarate %d", &x))
+	else if (sscanf_s(p->String, "+set lojarate %d", &x))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -781,7 +781,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "A rate de autovenda foi setada em %d", x);
 		Log(SERVER_SIDE, LOG_INGAME, "A rate de autovenda foi setada em %d", x);
 	}
-	else if (sscanf_s(p->eValue, "+set lojabonus %d", &x))
+	else if (sscanf_s(p->String, "+set lojabonus %d", &x))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -793,21 +793,21 @@ bool CUser::HandleAdminCommand(p334* p)
 	}
 #pragma endregion
 #pragma region COMANDOS EVENTO EM aREA
-	else if (sscanf_s(p->eValue, "+eventarea status %d", &x))
+	else if (sscanf_s(p->String, "+eventarea status %d", &x))
 	{
 		sServer.DropArea.CurrentScore = x;
 
 		SendClientMessage(clientId, "O evento foi %s", x ? "ativado" : "desativado");
 		return true;
 	}
-	else if (sscanf_s(p->eValue, "+eventarea message %d", &x))
+	else if (sscanf_s(p->String, "+eventarea message %d", &x))
 	{
 		sServer.DropArea.Message = x;
 
 		SendClientMessage(clientId, "O evento foi %s", x ? "ativado" : "desativado");
 		return true;
 	}
-	else if (sscanf_s(p->eValue, "+evta %d %d %d %d %d %d %d %d", &id, &x, &y, &x2, &y2, &slot, &rate, &limit))
+	else if (sscanf_s(p->String, "+evta %d %d %d %d %d %d %d %d", &id, &x, &y, &x2, &y2, &slot, &rate, &limit))
 	{
 		{
 			auto area = std::find_if(sServer.DropArea.areas.begin(), sServer.DropArea.areas.end(), [=](const STRUCT_DROPBYZONES& a) {
@@ -847,7 +847,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "area: %d %d %d %d - %d - rate: %d. Limite: %d", x, y, x2, y2, slot, rate, limit);
 		return true;
 	}
-	else if (sscanf_s(p->eValue, "+remove eventarea %d", &id))
+	else if (sscanf_s(p->String, "+remove eventarea %d", &id))
 	{
 		if (id < 0 || id >= 20)
 		{
@@ -870,7 +870,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		sServer.DropArea.areas.erase(area);
 		SendClientMessage(clientId, "Removido...");
 	}
-	else if (sscanf_s(p->eValue, "+eventinfo %d", &id))
+	else if (sscanf_s(p->String, "+eventinfo %d", &id))
 	{
 		if (id < 0 || id >= 20)
 		{
@@ -895,7 +895,7 @@ bool CUser::HandleAdminCommand(p334* p)
 	}
 #pragma endregion
 #pragma region COMANDOS BOSS EVENTO
-	else if (sscanf_s(p->eValue, "+set evitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->String, "+set evitem %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -905,7 +905,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		Log(SERVER_SIDE, LOG_INGAME, "%s - Item evento: %s [%hd] [%hhu %hhu %hhu %hhu %hhu %hhu]", pMob[clientId].Mobs.Player.MobName, g_pItemList[Item.sIndex].ItemName, Item.sIndex, Item.EF1, Item.EFV1, Item.EF2, Item.EFV2, Item.EF3, Item.EFV3);
 	}
-	else if (sscanf_s(p->eValue, "+set evstatus %d", &x))
+	else if (sscanf_s(p->String, "+set evstatus %d", &x))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -915,7 +915,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "O evento foi %s", (x == 0) ? "desligado" : "ligado");
 		Log(SERVER_SIDE, LOG_INGAME, "O evento foi %s", (x == 0) ? "desligado" : "ligado");
 	}
-	else if (sscanf_s(p->eValue, "+set evrate %d", &x))
+	else if (sscanf_s(p->String, "+set evrate %d", &x))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -925,7 +925,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "A rate foi setada em %d", x);
 		Log(SERVER_SIDE, LOG_INGAME, "A rate foi setada em %d", x);
 	}
-	else if (sscanf_s(p->eValue, "+set evbonus %d", &x))
+	else if (sscanf_s(p->String, "+set evbonus %d", &x))
 	{
 		if (pUser[clientId].AccessLevel < 50)
 			return true;
@@ -937,21 +937,21 @@ bool CUser::HandleAdminCommand(p334* p)
 	}
 #pragma endregion 
 #pragma region PREMIUMTIME
-	else if (sscanf_s(p->eValue, "+set premium gold %d", &id))
+	else if (sscanf_s(p->String, "+set premium gold %d", &id))
 	{
 		sServer.PremiumTime.Coin = id;
 
 		Log(SERVER_SIDE, LOG_INGAME, "Gold por tempo setado para %d", id);
 		SendClientMessage(clientId, "SET PREMIUM GOLD");
 	}
-	else if (sscanf_s(p->eValue, "+set premium time %d", &id))
+	else if (sscanf_s(p->String, "+set premium time %d", &id))
 	{
 		sServer.PremiumTime.Interval = id;
 
 		Log(SERVER_SIDE, LOG_INGAME, "Tempo de item por tempo setado para %d", id);
 		SendClientMessage(clientId, "SET PREMIUM TIME");
 	}
-	else if (sscanf_s(p->eValue, "+set premium status %d", &id))
+	else if (sscanf_s(p->String, "+set premium status %d", &id))
 	{
 		sServer.PremiumTime.Second = id;
 		sServer.PremiumTime.Last = 0;
@@ -959,7 +959,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		Log(SERVER_SIDE, LOG_INGAME, "Tempo de item por tempo setado para %d", id);
 		SendClientMessage(clientId, "SET PREMIUM STATUS");
 	}
-	else if (sscanf_s(p->eValue, "+set premium item %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->String, "+set premium item %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		memcpy(&sServer.PremiumTime.Item, &Item, sizeof STRUCT_ITEM);
 
@@ -967,9 +967,9 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "SET PREMIUM ITEM");
 	}
 #pragma endregion
-	else if (!strncmp(p->eValue, "+removeall", 10))
+	else if (!strncmp(p->String, "+removeall", 10))
 	{
-		INT32 ret = sscanf_s(p->eValue, "+removeall %[^\n]", nickName, 36);
+		INT32 ret = sscanf_s(p->String, "+removeall %[^\n]", nickName, 36);
 
 		INT32 len = strlen(nickName);
 		INT32 count = 0;
@@ -990,7 +990,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		else
 			SendClientMessage(clientId, "Foram removidos %d mobs %s", count, nickName);
 	}
-	else if (!strncmp(p->eValue, "+remove", 7) && sscanf_s(p->eValue, "+remove %[^\n]", nickName, 16))
+	else if (!strncmp(p->String, "+remove", 7) && sscanf_s(p->String, "+remove %[^\n]", nickName, 16))
 	{
 		INT32 len = strlen(nickName);
 		for (INT32 i = 1000; i < MAX_MOB; i++)
@@ -1009,7 +1009,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Mob nao encontrado");
 	}
-	else if (sscanf_s(p->eValue, "+giveall %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
+	else if (sscanf_s(p->String, "+giveall %hd %hhu %hhu %hhu %hhu %hhu %hhu", &Item.sIndex, &Item.EF1, &Item.EFV1, &Item.EF2, &Item.EFV2, &Item.EF3, &Item.EFV3))
 	{
 		if (AccessLevel < 100)
 			return true;
@@ -1035,7 +1035,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Entregue para %d personagens...", x);
 	}
-	else if (!strcmp(p->eValue, "+reloadall"))
+	else if (!strcmp(p->String, "+reloadall"))
 	{
 		ReadSkillData();
 		ReadItemList();
@@ -1045,7 +1045,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "RELOADALL");
 	}
-	else if (!strcmp(p->eValue, "+summonserver"))
+	else if (!strcmp(p->String, "+summonserver"))
 	{
 		INT32 total = 0;
 		for (INT32 i = 1; i < MAX_PLAYER; i++)
@@ -1072,7 +1072,7 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Summonado %d personagens...", total);
 	}
-	else if (sscanf_s(p->eValue, "+summon %36s", nickName, 16))
+	else if (sscanf_s(p->String, "+summon %36s", nickName, 16))
 	{
 		int userId = GetUserByName(nickName);
 		if (userId == 0)
@@ -1085,7 +1085,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		Teleportar(userId, pMob[clientId].Target.X, pMob[clientId].Target.Y);
 		SendClientMessage(clientId, "Summonou %s para %dx %dy", pMob[userId].Mobs.Player.MobName, pMob[clientId].Target.X, pMob[clientId].Target.Y);
 	}
-	else if (sscanf_s(p->eValue, "+kick %s", nickName, 16))
+	else if (sscanf_s(p->String, "+kick %s", nickName, 16))
 	{
 		int userId = GetUserByName(nickName);
 		if (userId == 0)
@@ -1100,7 +1100,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "%s - %s foi kickado - ClientId %d", pMob[clientId].Mobs.Player.MobName, nickName, userId);
 		Log(SERVER_SIDE, LOG_ADMIN, "%s - %s foi kickado - ClientId %d", pMob[clientId].Mobs.Player.MobName, nickName, userId);
 	}
-	else if (sscanf_s(p->eValue, "+teleport %36s %d %d", nickName, 16, &x, &y))
+	else if (sscanf_s(p->String, "+teleport %36s %d %d", nickName, 16, &x, &y))
 	{
 		int userId = GetUserByName(nickName);
 		if (userId == 0)
@@ -1113,14 +1113,14 @@ bool CUser::HandleAdminCommand(p334* p)
 		Teleportar(userId, x, y);
 		Log(SERVER_SIDE, LOG_ADMIN, "%s - Teleportou %s para %dx %dy", pMob[clientId].Mobs.Player.MobName, nickName, x, y);
 	}
-	else if (sscanf_s(p->eValue, "+set weather %d", &x))
+	else if (sscanf_s(p->String, "+set weather %d", &x))
 	{
 		sServer.Weather = x;
 
 		SendWeather();
 		SendClientMessage(clientId, "SET WEATHER");
 	}
-	else if (sscanf_s(p->eValue, "+set drop %d", &x))
+	else if (sscanf_s(p->String, "+set drop %d", &x))
 	{
 		for (int i = 0; i < 64; i++)
 			Taxes[i] = x;
@@ -1128,14 +1128,14 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "Drop setado para: %d.", x);
 		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o drop para %d.", pMob[clientId].Mobs.Player.MobName, x);
 	}
-	else if (sscanf_s(p->eValue, "+set bonusexp %d", &x))
+	else if (sscanf_s(p->String, "+set bonusexp %d", &x))
 	{
 		sServer.BonusEXP = x;
 
 		SendClientMessage(clientId, "Banus exp setado para: %d.", x);
 		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o banusexp para %d.", pMob[clientId].Mobs.Player.MobName, x);
 	}
-	else if (sscanf_s(p->eValue, "+set coin %d", &x))
+	else if (sscanf_s(p->String, "+set coin %d", &x))
 	{
 		pMob[clientId].Mobs.Player.Coin = x;
 
@@ -1144,34 +1144,34 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendClientMessage(clientId, "Gold setado para: %d.", x);
 		Log(SERVER_SIDE, LOG_ADMIN, "%s - Setou o Gold para %d.", pMob[clientId].Mobs.Player.MobName, x);
 	}
-	else if (!strncmp(p->eValue, "+reloadpacitem", 10))
+	else if (!strncmp(p->String, "+reloadpacitem", 10))
 	{
 		ReadPacItens();
 
 		SendClientMessage(clientId, "RELOAD PACITEM");
 	}
-	else if (!strncmp(p->eValue, "+reload npcquest", 17))
+	else if (!strncmp(p->String, "+reload npcquest", 17))
 	{
 		ReadNPCQuest();
 
 		SendClientMessage(clientId, "RELOAD NPCQUEST");
 	}
-	else if (!strncmp(p->eValue, "+reload evento", 10))
+	else if (!strncmp(p->String, "+reload evento", 10))
 	{
 		LoadNPCEvento();
 
 		SendClientMessage(clientId, "RELOAD EVENTO");
 	}
-	else if (!strncmp(p->eValue, "+reloadnpc", 10))
+	else if (!strncmp(p->String, "+reloadnpc", 10))
 	{
 		mGener.ReadNPCGener();
 
 		SendClientMessage(clientId, "RELOADNPC");
 	}
-	else if (!strncmp(p->eValue, "+not", 4))
+	else if (!strncmp(p->String, "+not", 4))
 	{
 		char message[96] = { 0 };
-		int ret = sscanf_s(p->eValue, "+not %96[^\n]", message, 95);
+		int ret = sscanf_s(p->String, "+not %96[^\n]", message, 95);
 
 		if (ret == 0)
 		{
@@ -1183,7 +1183,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendNotice(message);
 		return true;
 	}
-	else if (!strncmp(p->eValue, "+set", 4))
+	else if (!strncmp(p->String, "+set", 4))
 	{
 		static char cmdSet[4][4] =
 		{
@@ -1194,7 +1194,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		};
 
 		INT32 mode = -1;
-		INT32 ret = sscanf_s(p->eValue, "+set %s %d", nickName, 16, &x);
+		INT32 ret = sscanf_s(p->String, "+set %s %d", nickName, 16, &x);
 
 		for (INT32 i = 0; i < 4; i++)
 		{
@@ -1210,7 +1210,7 @@ bool CUser::HandleAdminCommand(p334* p)
 			short itemID = 0, ef[3] = { 0, 0, 0 }, efv[3] = { 0, 0, 0 };
 			short index = -1;
 
-			int ret = sscanf_s(p->eValue, "+set %02hd %04hd %03hd %03hd %03hd %03hd %03hd %03hd", &index, &itemID, &ef[0], &efv[0], &ef[1], &efv[1], &ef[2], &efv[2]);
+			int ret = sscanf_s(p->String, "+set %02hd %04hd %03hd %03hd %03hd %03hd %03hd %03hd", &index, &itemID, &ef[0], &efv[0], &ef[1], &efv[1], &ef[2], &efv[2]);
 			if (ret < 2)
 			{
 				SendClientMessage(clientId, "Comando invalido");
@@ -1266,7 +1266,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		SendScore(clientId);
 		SendEtc(clientId);
 	}
-	else if (sscanf_s(p->eValue, "+relo %s", nickName, 16))
+	else if (sscanf_s(p->String, "+relo %s", nickName, 16))
 	{
 
 		int userId = GetUserByName(nickName);
@@ -1279,14 +1279,14 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		Teleportar(clientId, pMob[userId].Target.X, pMob[userId].Target.Y);
 	}
-	else if (!strncmp(p->eValue, "+amountitem", 5))
+	else if (!strncmp(p->String, "+amountitem", 5))
 	{
 		if (AccessLevel != 100)
 			return true;
 
 		short itemID = 0, ef[3] = { 0, 0, 0 }, efv[3] = { 0, 0, 0 };
 
-		int ret = sscanf_s(p->eValue, "+amountitem %d %hu %hu %hu %hu %hu %hu %hu", &x, &itemID, &ef[0], &efv[0], &ef[1], &efv[1], &ef[2], &efv[2]);
+		int ret = sscanf_s(p->String, "+amountitem %d %hu %hu %hu %hu %hu %hu %hu", &x, &itemID, &ef[0], &efv[0], &ef[1], &efv[1], &ef[2], &efv[2]);
 		if (ret < 2)
 		{
 			SendClientMessage(clientId, "Comando invalido");
@@ -1331,14 +1331,14 @@ bool CUser::HandleAdminCommand(p334* p)
 		Log(SERVER_SIDE, LOG_ADMIN, "%s criou o item %s [%hu] [%hhu %hhu %hhu %hhu %hhu %hhu]  %d vezes", pMob[clientId].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, item.sIndex, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3, x);
 		return true;
 	}
-	else if(!strncmp(p->eValue, "+item", 5))
+	else if(!strncmp(p->String, "+item", 5))
 	{
 		if (AccessLevel != 100)
 			return true;
 
 		short itemID = 0, ef[3] = { 0, 0, 0 }, efv[3] = { 0, 0, 0 };
 
-		int ret = sscanf_s(p->eValue, "+item %04hd %03hd %03hd %03hd %03hd %03hd %03hd", &itemID, &ef[0], &efv[0], &ef[1], &efv[1], &ef[2], &efv[2]);
+		int ret = sscanf_s(p->String, "+item %04hd %03hd %03hd %03hd %03hd %03hd %03hd", &itemID, &ef[0], &efv[0], &ef[1], &efv[1], &ef[2], &efv[2]);
 		if (ret < 1)
 		{
 			SendClientMessage(clientId, "Comando invalido");
@@ -1380,7 +1380,7 @@ bool CUser::HandleAdminCommand(p334* p)
 		Log(SERVER_SIDE, LOG_ADMIN, "%s criou o item %s [%d] [%d %d %d %d %d %d]", pMob[clientId].Mobs.Player.MobName, g_pItemList[item.sIndex].ItemName, item.sIndex, item.EF1, item.EFV1, item.EF2, item.EFV2, item.EF3, item.EFV3);
 	}
 
-	else if (!strncmp(p->eValue, "+resetcities", 12))
+	else if (!strncmp(p->String, "+resetcities", 12))
 	{
 		for (int i = 0; i < 5; ++i)
 		{
@@ -1396,9 +1396,9 @@ bool CUser::HandleAdminCommand(p334* p)
 
 		SendClientMessage(clientId, "Cidades resetadas com sucesso, beba");
 	}
-	if (!strncmp(p->eValue, "+learn", 6))
+	if (!strncmp(p->String, "+learn", 6))
 	{
-		int ret = sscanf_s(p->eValue, "+learn %d", &x);
+		int ret = sscanf_s(p->String, "+learn %d", &x);
 		if (x < 0 || x >= 64)
 		{
 			SendClientMessage(clientId, "Comando invalido");

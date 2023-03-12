@@ -825,13 +825,13 @@ int TMSelectCharScene::OnKeyDownEvent(unsigned int iKeyCode)
 
 	if (iKeyCode == VK_INSERT)
 	{
-		MSG_MessageWhisper stWhisper{};
+		p334 stWhisper{};
 		stWhisper.Header.ClientId = g_pObjectManager->m_dwCharID;
 		stWhisper.Header.PacketId = MSG_MessageWhisper_Opcode;
 
 		sprintf_s(stWhisper.MobName, "time");
 
-		g_pSocketManager->SendOneMessage((char*)&stWhisper, sizeof stWhisper);
+		g_pSocketManager->SendOneMessage((char*)&stWhisper, sizeof p334);
 	}
 
 	return 1;

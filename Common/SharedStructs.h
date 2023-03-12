@@ -899,4 +899,19 @@ struct p1C6
 	char Answer[4][32];
 };
 
+struct p333
+{
+	PacketHeader Header;
+	char String[128];
+};
+
+typedef struct
+{
+	PacketHeader Header;
+	char MobName[16];
+	char String[128];
+	short Color;
+}p334;
+ 
+
 #endif //__SHAREDSTRUCT_H__

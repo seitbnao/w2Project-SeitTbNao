@@ -1700,8 +1700,8 @@ void ProcessSecTimer()
 				packet.Header.ClientId = SCHEDULE_ID;
 				packet.Header.PacketId = 0x334;
 
-				strcpy_s(packet.eCommand, "admin");
-				strcpy_s(packet.eValue, scheduled.Command.c_str());
+				strcpy_s(packet.MobName, "admin");
+				strcpy_s(packet.String, scheduled.Command.c_str());
 
 				pUser[SCHEDULE_ID].RequestCommand((PacketHeader*)&packet);
 

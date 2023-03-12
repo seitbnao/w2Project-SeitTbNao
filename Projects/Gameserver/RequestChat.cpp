@@ -7,22 +7,22 @@ bool CUser::RequestChat(PacketHeader *Header)
 {
 	p333 *p = (p333*)(Header);
 
-	p->eChat [95] = '\0';
+	p->String[127] = '\0';
 
-	if(!strcmp(p->eChat, "guild"))
+	if(!strcmp(p->String, "guild"))
 	{
 		SendGuildList(clientId);
 
 		return true;
 	}
-	else if(!strcmp(p->eChat, "guildoff"))
+	else if(!strcmp(p->String, "guildoff"))
 	{
 		pMob[clientId].GuildDisable = 1;
 		
 		SendScore(clientId);
 		return true;
 	}
-	else if(!strcmp(p->eChat, "guildon"))
+	else if(!strcmp(p->String, "guildon"))
 	{
 		if (pMob[clientId].Target.X >= 143 && pMob[clientId].Target.Y >= 546 && pMob[clientId].Target.X <= 195 && pMob[clientId].Target.Y <= 625)
 			return true;
@@ -32,10 +32,10 @@ bool CUser::RequestChat(PacketHeader *Header)
 		SendScore(clientId);
 		return true;
 	}
-	else if(!strncmp(p->eChat, "guildtax", 8))
+	else if(!strncmp(p->String, "guildtax", 8))
 	{
 		INT32 taxes = 0;
-		INT32 ret = sscanf_s(p->eChat, "guildtax %d", &taxes);
+		INT32 ret = sscanf_s(p->String, "guildtax %d", &taxes);
 		 
 		if(ret != 1 || taxes < 0 || taxes > 15)
 		{
@@ -77,28 +77,28 @@ bool CUser::RequestChat(PacketHeader *Header)
 		SendClientMessage(clientId, g_pLanguageString[_DD_Set_Guild_Tax], taxes);
 		return true;
 	}
-	else if(!strcmp(p->eChat, "whisper"))
+	else if(!strcmp(p->String, "whisper"))
 	{
 		AllStatus.Whisper = !AllStatus.Whisper;
 		SendClientMessage(clientId, "Whisper : %s", (AllStatus.Whisper) ? "Off" : "On");
 
 		return true;	
 	}
-	else if(!strcmp(p->eChat, "partychat"))
+	else if(!strcmp(p->String, "partychat"))
 	{
 		AllStatus.Citizen = !AllStatus.Citizen;
 		
 		SendClientMessage(clientId, "Citizen Chatting : %s", (AllStatus.Citizen) ? "Off" : "On");
 		return true;
 	}
-	else if(!strcmp(p->eChat, "guildchat"))
+	else if(!strcmp(p->String, "guildchat"))
 	{
 		AllStatus.Guild = !AllStatus.Guild;
 		
 		SendClientMessage(clientId, "Guild Chatting : %s", (AllStatus.Guild) ? "Off" : "On");
 		return true;
 	}
-	else if(!strcmp(p->eChat, "kingdomchat"))
+	else if(!strcmp(p->String, "kingdomchat"))
 	{
 		AllStatus.Kingdom = !AllStatus.Kingdom;
 		

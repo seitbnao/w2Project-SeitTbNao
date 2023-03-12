@@ -359,11 +359,7 @@ typedef struct
  
 
 
-typedef struct 
-{
-    PacketHeader Header;
-    char eChat[96];    
-}p333;
+ 
 
 
 const short _MSG_GuildZoneReport = (13 | 2048);
@@ -373,12 +369,7 @@ struct		 MSG_GuildZoneReport
 	int	Guild[5];
 };
 
-typedef struct 
-{
-    PacketHeader Header;
-    char eCommand[16];
-    char eValue[100];
-}p334;
+
 
 typedef struct
 {

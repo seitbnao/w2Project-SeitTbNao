@@ -934,7 +934,7 @@ int TMScene::OnPacketEvent(unsigned int dwCode, char* pSBuffer)
 		{
 			if (pStd->PacketId == 0x105)
 			{
-				auto pMessageChat = reinterpret_cast<MSG_MessageChat*>(pStd);
+				auto pMessageChat = reinterpret_cast<p333*>(pStd);
 				if (!pMessageChat->String[0])
 				{
 					char str[128]{};
@@ -958,7 +958,7 @@ int TMScene::OnPacketEvent(unsigned int dwCode, char* pSBuffer)
 			}
 			else if (pStd->PacketId == 0x106)
 			{
-				auto pMessageChat = reinterpret_cast<MSG_MessageChat*>(pStd);
+				auto pMessageChat = reinterpret_cast<p333*>(pStd);
 				if (!pMessageChat->String[0])
 				{
 					char szStr[128]{};
@@ -1250,7 +1250,7 @@ int TMScene::OnPacketEvent(unsigned int dwCode, char* pSBuffer)
 	}
 	if (pStd->PacketId == MSG_MessageShout_Opcode)
 	{
-		MSG_MessageWhisper* pShoutMessage = reinterpret_cast<MSG_MessageWhisper*>(pStd);
+		p334* pShoutMessage = reinterpret_cast<p334*>(pStd);
 		pShoutMessage->String[111] = 0;
 		pShoutMessage->String[110] = 0;
 

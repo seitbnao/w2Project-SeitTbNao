@@ -595,13 +595,7 @@ constexpr auto MSG_AccountLogin_Opcode = 0x20D;
 
 constexpr auto MSG_MessageWhisper_Opcode = 0x334;
 constexpr auto MSG_MessageShout_Opcode = 0xD1D;
-struct MSG_MessageWhisper
-{
-	PacketHeader Header;
-	char MobName[16];
-	char String[128];
-	short Color;
-};
+
 
 constexpr auto MSG_Encode_Opcode = 0xBFF;
 struct MSG_Encode
@@ -611,11 +605,7 @@ struct MSG_Encode
 };
 
 constexpr auto MSG_MessageChat_Opcode = 0x333;
-struct MSG_MessageChat
-{
-	PacketHeader Header;
-	char String[128];
-};
+
 
 constexpr auto MSG_UpdateScore_Opcode = 0x336;
 

@@ -665,7 +665,7 @@ void DeleteMob(int clientId, int reason)
 void SendSay(int clientId, const char *msg, ...)
 {
 	/* Arglist */
-	char buffer[108];
+	char buffer[128];
 	va_list arglist;
 	va_start(arglist, msg);
 	vsprintf_s(buffer, msg, arglist);
@@ -679,7 +679,7 @@ void SendSay(int clientId, const char *msg, ...)
 	packet.Header.Size = sizeof p333;
 	packet.Header.ClientId = clientId;
 
-	strncpy_s(packet.eChat, buffer, 96);
+	strncpy_s(packet.String, buffer, 128);
 
 	GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)&packet, 0);
 }
@@ -1183,8 +1183,8 @@ void SendChatGuild(INT32 clientId, INT32 guildId, const char *msg, ...)
 	packet.Header.Size = sizeof p334;
 	packet.Header.ClientId = SERVER_SIDE;
 
-	sprintf_s(packet.eValue, buffer);
-	strncpy_s(packet.eCommand, g_pGuild[guildId].MobName.c_str(), 16);
+	sprintf_s(packet.String, buffer);
+	strncpy_s(packet.MobName, g_pGuild[guildId].MobName.c_str(), 16);
 
 	char *p = (char*)&packet;
 	*(INT16*)&p[124] = 3;
