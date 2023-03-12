@@ -96,7 +96,6 @@
     <ClCompile Include="RequestChangeCity.cpp" />
     <ClCompile Include="RequestChangeSkillBar.cpp" />
     <ClCompile Include="RequestChat.cpp" />
-    <ClCompile Include="RequestClientInfo.cpp" />
     <ClCompile Include="RequestCloseAutoTrade.cpp" />
     <ClCompile Include="RequestCommand.cpp" />
     <ClCompile Include="RequestCompounder.cpp" />
@@ -118,7 +117,6 @@
     <ClCompile Include="RequestMerchantNPC.cpp" />
     <ClCompile Include="RequestMotion.cpp" />
     <ClCompile Include="RequestMoveItem.cpp" />
-    <ClCompile Include="RequestMsvfw32Info.cpp" />
     <ClCompile Include="RequestNightmareAccept.cpp" />
     <ClCompile Include="RequestOdin.cpp" />
     <ClCompile Include="RequestOpenAutoTrade.cpp" />
