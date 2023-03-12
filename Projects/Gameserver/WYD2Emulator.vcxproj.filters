@@ -239,9 +239,6 @@
     <ClCompile Include="RequestChat.cpp">
       <Filter>Source Files\Packets</Filter>
     </ClCompile>
-    <ClCompile Include="RequestClientInfo.cpp">
-      <Filter>Source Files\Packets</Filter>
-    </ClCompile>
     <ClCompile Include="RequestCloseAutoTrade.cpp">
       <Filter>Source Files\Packets</Filter>
     </ClCompile>
@@ -364,9 +361,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Common\pugixml.cpp">
       <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="RequestMsvfw32Info.cpp">
-      <Filter>Source Files\Packets</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\CGUID.cpp">
       <Filter>Source Files</Filter>
