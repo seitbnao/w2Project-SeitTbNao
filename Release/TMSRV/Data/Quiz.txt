@@ -1,6 +1,6 @@
 # Pra inicar uma nova pergunta
 
-Question=Quanto � 1 + 1?
+Question=Quanto é 1 + 1?
 Answer0=2
 Answer1=11
 Answer2=1
@@ -14,7 +14,7 @@ Answer2=Y
 Answer3=I
 
 #
-Question=Quanto � 3 + 7?
+Question=Quanto é 3 + 7?
 Answer0=10
 Answer1=3
 Answer2=7
@@ -28,28 +28,28 @@ Answer2=X
 Answer3=P
 
 #
-Question=Qual o n�vel m�ximo das montarias?
+Question=Qual o nível máximo das montarias?
 Answer0=130
 Answer1=120
 Answer2=127
 Answer3=125
 
 #
-Question=Para a composi��o de +10, qual a quantia de gold necess�ria?
+Question=Para a composição de +10, qual a quantia de gold necessária?
 Answer0=50.000.000
 Answer1=500.000.000
 Answer2=5.000.000
 Answer3=250.000.000
 
 #
-Question=Para transferir adicional para arma arch, qual a quantia de gold necess�ria?
+Question=Para transferir adicional para arma arch, qual a quantia de gold necessária?
 Answer0=100.000.000
 Answer1=50.000.000
 Answer2=5.000.000
 Answer3=250.000.000
 
 #
-Question=Qual o significado da abrevia��o WYD?
+Question=Qual o significado da abreviação WYD?
 Answer0=With Your Destiny
 Answer1=With You Destiny
 Answer2=With Yor Destiny
@@ -63,14 +63,14 @@ Answer2=A
 Answer3=I
 
 #
-Question=Qual o m�ximo de CP que podemos atingir?
+Question=Qual o máximo de CP que podemos atingir?
 Answer0=75
 Answer1=65
 Answer2=100
 Answer3=85
 
 #
-Question=Quanto � 2 + 2?
+Question=Quanto é 2 + 2?
 Answer0=4
 Answer1=22
 Answer2=12
@@ -91,14 +91,14 @@ Answer2=60
 Answer3=45
 
 #
-Question=Quanto � 17 + 13?
+Question=Quanto é 17 + 13?
 Answer0=30
 Answer1=17
 Answer2=13
 Answer3=37
 
 #
-Question=Qual linhagem n�o pertence a Foema?
+Question=Qual linhagem não pertence a Foema?
 Answer0=Captura
 Answer1=Magia Negra
 Answer2=Magia Branca
@@ -130,24 +130,24 @@ Question=Quando o Kefra nasce?
 Answer0=Quarta-feira
 Answer1=Quinta-feira
 Answer2=Sexta-feira
-Answer3=Ter�a-feira
+Answer3=Terça-feira
 
 #
 Question=Qual o dia da guerra de cidade?
 Answer0=Domingo
-Answer1=S�bado
+Answer1=Sábado
 Answer2=Sexta-feira
 Answer3=Quinta-feira
 
 #
 Question=Qual o dia da Guerra do Castelo de Noatun?
 Answer0=Domingo
-Answer1=S�bado
+Answer1=Sábado
 Answer2=Sexta-feira
 Answer3=Quinta-feira
 
 #
-Question=Qual o hor�rio da Quest do Coliseu Normal?
+Question=Qual o horário da Quest do Coliseu Normal?
 Answer0=15:00h e 20:00h
 Answer1=16:00h e 21:00h
 Answer2=15:00h e 19:00h
@@ -161,7 +161,7 @@ Answer2=WYD
 Answer3=Malech
 
 #
-Question=Qual a taxa de transfer�ncia do teleporte para a cidade de Noatun?
+Question=Qual a taxa de transferência do teleporte para a cidade de Noatun?
 Answer0=700
 Answer1=70
 Answer2=7000
