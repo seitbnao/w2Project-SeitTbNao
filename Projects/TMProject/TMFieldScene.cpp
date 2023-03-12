@@ -6459,7 +6459,7 @@ int TMFieldScene::OnPacketEvent(unsigned int dwCode, char* buf)
 		return OnPacketNuke(pStd);
 		break;
 	case 0x1C6:
-		return OnPacketRandomQuiz(reinterpret_cast<MSG_RandomQuiz*>(pStd));
+		return OnPacketRandomQuiz(reinterpret_cast<p1C6*>(pStd));
 		break;
 	case 0x2C8:
 		return OnPacketAutoKick(pStd);
@@ -22418,7 +22418,7 @@ int TMFieldScene::OnPacketNuke(PacketHeader* pStd)
 	return 1;
 }
 
-int TMFieldScene::OnPacketRandomQuiz(MSG_RandomQuiz* pStd)
+int TMFieldScene::OnPacketRandomQuiz(p1C6* pStd)
 {
 	pStd->Question[127] = 0;
 	pStd->Answer[0][31] = 0;

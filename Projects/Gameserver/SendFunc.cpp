@@ -1223,27 +1223,27 @@ void SendRepurchase(int clientId)
 
 void SendQuiz(int clientId)
 {
-	MSG_QUIZ packet{};
+	p1C6 packet{};
 	packet.Header.PacketId = 0x1C6;
-	packet.Header.Size = sizeof MSG_QUIZ;
+	packet.Header.Size = sizeof p1C6;
 	packet.Header.ClientId = clientId;
 
-	pUser[clientId].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof MSG_QUIZ);
+	pUser[clientId].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof p1C6);
 }
 
 void SendQuiz(int clientId, const char* question, std::array<std::string, 4> answers)
 {
-	MSG_QUIZ packet{};
+	p1C6 packet{};
 	packet.Header.PacketId = 0x1C6;
-	packet.Header.Size = sizeof MSG_QUIZ;
+	packet.Header.Size = sizeof p1C6;
 	packet.Header.ClientId = clientId;
 
-	strncpy_s(packet.Title, question, 95);
+	strncpy_s(packet.Question, question, 127);
 
 	for (int i = 0; i < 4; i++)
-		strncpy_s(packet.Ans[i], answers[i].c_str(), 31);
+		strncpy_s(packet.Answer[i], answers[i].c_str(), 31);
 
-	pUser[clientId].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof MSG_QUIZ);
+	pUser[clientId].AddMessage(reinterpret_cast<BYTE*>(&packet), sizeof p1C6);
 }
  
 void SendAutoPartyInfo(int clientId)

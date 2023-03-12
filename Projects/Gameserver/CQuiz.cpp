@@ -161,7 +161,7 @@ void CQuiz::Work()
 			int number1 = Rand() % 20 + 1;
 			int number2 = Rand() % 20 + 1;
 
-			question.Question = std::string("Quanto a ").append(std::to_string(number1)).append(" + ").append(std::to_string(number2)).append("?");
+			question.Question = std::string("Quanto é ").append(std::to_string(number1)).append(" + ").append(std::to_string(number2)).append("?");
 			question.Answers[0] = std::to_string(number1 + number2);
 
 			for (int i = 1; i < 4; i++)

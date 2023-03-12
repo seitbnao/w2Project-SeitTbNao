@@ -214,7 +214,7 @@ public:
 	int OnPacketREQArray(PacketHeader* pStd);
 	int OnPacketAttack(PacketHeader* pStd);
 	int OnPacketNuke(PacketHeader* pStd);
-	int OnPacketRandomQuiz(MSG_RandomQuiz* pStd);
+	int OnPacketRandomQuiz(p1C6* pStd);
 	int OnPacketAutoKick(PacketHeader* pStd);
 	int OnPacketItemPrice(MSG_STANDARDPARM2* pStd);
 	int OnPacketCapsuleInfo(MSG_CAPSULEINFO* pStd);

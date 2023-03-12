@@ -1238,14 +1238,8 @@ struct MSG_SENDSCORE_CUSTOM
 	int Lifes;
 };
 
-struct MSG_QUIZ 
-{
-	PacketHeader Header;
-	char Title[96];
-	char Ans[4][32];
-};
-
  
+
  
 
  

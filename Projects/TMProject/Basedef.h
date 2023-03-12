@@ -892,12 +892,7 @@ struct MSG_EnvEffect
 	short EffectParm;
 };
 
-struct MSG_RandomQuiz
-{
-	PacketHeader Header;
-	char Question[128];
-	char Answer[4][32];
-};
+
 
 struct MSG_LongMessagePanel
 {

@@ -892,4 +892,11 @@ typedef struct
 } pFDE;
 
 
+struct p1C6
+{
+	PacketHeader Header;
+	char Question[128];
+	char Answer[4][32];
+};
+
 #endif //__SHAREDSTRUCT_H__
