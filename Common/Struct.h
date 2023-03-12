@@ -1245,12 +1245,7 @@ struct MSG_QUIZ
 	char Ans[4][32];
 };
 
-struct MSG_QUIZ_ANSWER
-{
-	PacketHeader Header;
-	short Asw;
-	short Unk;
-};
+ 
  
 
  

@@ -909,7 +909,7 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 		return RequestAlchemy(Header);
 
 	case 0x2C7:
-		return static_cast<CQuiz*>(CEventManager::GetInstance().GetEvent(eEventType::Quiz))->HandlePacket(*this, reinterpret_cast<MSG_QUIZ_ANSWER*>(Header));
+		return static_cast<CQuiz*>(CEventManager::GetInstance().GetEvent(eEventType::Quiz))->HandlePacket(*this, reinterpret_cast<pMsgSignal*>(Header));
 
 
 

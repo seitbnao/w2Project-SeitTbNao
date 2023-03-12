@@ -44,7 +44,7 @@ public:
 	virtual bool CanRegister(CUser&);
 
 	bool GetStatus() const noexcept;
-	bool HandlePacket(CUser& user, MSG_QUIZ_ANSWER* packet);
+	bool HandlePacket(CUser& user, pMsgSignal* packet);
 
 protected:
 	virtual void Work();

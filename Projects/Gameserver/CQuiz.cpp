@@ -43,7 +43,7 @@ constexpr std::chrono::milliseconds CQuiz::GetWaitResponseTime() const
 	return 30s;
 }
 
-bool CQuiz::HandlePacket(CUser& user, MSG_QUIZ_ANSWER* packet)
+bool CQuiz::HandlePacket(CUser& user, pMsgSignal* packet)
 {
 	auto userInfo = std::find_if(std::begin(_users), std::end(_users), [&](const SQuizUserInfo info) {
 		return info.User->clientId == user.clientId;
@@ -70,7 +70,7 @@ bool CQuiz::HandlePacket(CUser& user, MSG_QUIZ_ANSWER* packet)
 		Log(SERVER_SIDE, LOG_HACK, "%s - Respondeu o quiz muito rapidamente. Tempo: %lld", userInfo->User->User.Username, std::chrono::duration_cast<std::chrono::milliseconds>(now - userInfo->lastInteraction).count());
 	}
 
-	if (packet->Asw == userInfo->correctIndex)
+	if (packet->Value == userInfo->correctIndex)
 	{
 		Log(userInfo->User->clientId, LOG_INGAME, "Acertou a resposta da pergunta do Quiz. Recebeu gold.");
 
