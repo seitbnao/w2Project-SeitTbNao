@@ -7095,62 +7095,62 @@ int ProcessAffect(int clientId)
 
 			if(LOCAL_40 != 0)
 			{
-				MSG_AttackOne LOCAL_95;
-				memset(&LOCAL_95, 0, sizeof MSG_AttackOne);
+				MSG_Attack sm_attack;
+				memset(&sm_attack, 0, sizeof MSG_Attack);
 
-				LOCAL_95.Header.PacketId = 0x367;
-				LOCAL_95.Header.ClientId = clientId;
-				LOCAL_95.Header.Size = sizeof MSG_AttackOne;
+				sm_attack.Header.PacketId = 0x367;
+				sm_attack.Header.ClientId = clientId;
+				sm_attack.Header.Size = sizeof MSG_Attack;
 
-				LOCAL_95.Header.TimeStamp = 0x0E0A1ACA;
-				LOCAL_95.PosX = pMob[clientId].Target.X;
-				LOCAL_95.PosY = pMob[clientId].Target.Y;
+				sm_attack.Header.TimeStamp = 0x0E0A1ACA;
+				sm_attack.PosX = pMob[clientId].Target.X;
+				sm_attack.PosY = pMob[clientId].Target.Y;
 
-				LOCAL_95.Motion = -2;
+				sm_attack.Motion = -2;
 
 				if(pMob[clientId].Mobs.Player.Equip[0].sIndex == 219)
-					LOCAL_95.Motion = -4;
+					sm_attack.Motion = -4;
 
-				LOCAL_95.AttackerID = clientId;
-				LOCAL_95.SkillIndex = 33;
+				sm_attack.AttackerID = clientId;
+				sm_attack.SkillIndex = 33;
 
 				INT32 LOCAL_96 = Rand() % 100;
 
 				INT32 LOCAL_97 = LOCAL_33 + LOCAL_34  + LOCAL_96;
 
-				LOCAL_95.Target[0].TargetID = LOCAL_40;
-				LOCAL_95.Target[0].Damage = -1;
+				sm_attack.Target[0].TargetID = LOCAL_40;
+				sm_attack.Target[0].Damage = -1;
 
 				if(LOCAL_97 > 300)
 				{
-					LOCAL_95.Target[1].TargetID = LOCAL_41;
-					LOCAL_95.Target[1].Damage = -1;
+					sm_attack.Target[1].TargetID = LOCAL_41;
+					sm_attack.Target[1].Damage = -1;
 				}
 				if(LOCAL_97 > 350)
 				{
-					LOCAL_95.Target[2].TargetID = LOCAL_42;
-					LOCAL_95.Target[2].Damage = -1;
+					sm_attack.Target[2].TargetID = LOCAL_42;
+					sm_attack.Target[2].Damage = -1;
 				}
 				if(LOCAL_97 > 400)
 				{
-					LOCAL_95.Target[3].TargetID = LOCAL_43;
-					LOCAL_95.Target[3].Damage = -1;
+					sm_attack.Target[3].TargetID = LOCAL_43;
+					sm_attack.Target[3].Damage = -1;
 				}
 				if(LOCAL_97 > 450)
 				{
-					LOCAL_95.Target[4].TargetID = LOCAL_44;
-					LOCAL_95.Target[4].Damage = -1;
+					sm_attack.Target[4].TargetID = LOCAL_44;
+					sm_attack.Target[4].Damage = -1;
 				}
 				if(LOCAL_97 > 500)
 				{
-					LOCAL_95.Target[5].TargetID = LOCAL_45;
-					LOCAL_95.Target[5].Damage = -1;
+					sm_attack.Target[5].TargetID = LOCAL_45;
+					sm_attack.Target[5].Damage = -1;
 				}
 
 				if(clientId < MAX_PLAYER)
 				{
 					pUser[clientId].TimeStamp.TimeStamp = 0x00E0A1ACA;
-					pUser[clientId].PacketControl((BYTE*)&LOCAL_95, sizeof MSG_AttackOne);
+					pUser[clientId].PacketControl((BYTE*)&sm_attack, sizeof MSG_Attack);
 				}
 				else
 				{
@@ -7159,7 +7159,7 @@ int ProcessAffect(int clientId)
 
 					for(;  LOCAL_98 < 13; LOCAL_98 ++)
 					{
-						INT32 LOCAL_99 = LOCAL_95.Target[LOCAL_98].TargetID;
+						INT32 LOCAL_99 = sm_attack.Target[LOCAL_98].TargetID;
 						INT32 LOCAL_100 = pMob[clientId].Mobs.Player.BaseScore.Damage;
 						LOCAL_100 = (LOCAL_100 * ((Rand() & 0x80000007) + 5)) / 10;
 						LOCAL_100 = LOCAL_100 - (pMob[clientId].Mobs.Player.CurrentScore.Ac >> 1);
@@ -7167,12 +7167,12 @@ int ProcessAffect(int clientId)
 						if(LOCAL_100 < 0)
 							LOCAL_100 = Rand() % 100;
 
-						LOCAL_95.Target[LOCAL_98].Damage = LOCAL_100;
+						sm_attack.Target[LOCAL_98].Damage = LOCAL_100;
 						if(LOCAL_99 <= 0 || LOCAL_99 >= 30000)
 							continue;
 
 						INT32 LOCAL_101 = pMob[LOCAL_99].Leader;
-						if(LOCAL_95.Target[LOCAL_98].Damage > 0)
+						if(sm_attack.Target[LOCAL_98].Damage > 0)
 						{
 							if(LOCAL_101 <= 0)
 								LOCAL_101 = LOCAL_99;
@@ -7201,9 +7201,9 @@ int ProcessAffect(int clientId)
 							}
 						}
 
-						if(LOCAL_95.Target[0].Damage > 0 || LOCAL_95.Target[0].Damage <= -5)
+						if(sm_attack.Target[0].Damage > 0 || sm_attack.Target[0].Damage <= -5)
 						{
-							INT32 LOCAL_104 = LOCAL_95.Target[0].Damage;
+							INT32 LOCAL_104 = sm_attack.Target[0].Damage;
 							INT32 petDamage = 0;
 							INT32 petId = pMob[LOCAL_99].Mobs.Player.Equip[14].sIndex;
 
@@ -7211,10 +7211,10 @@ int ProcessAffect(int clientId)
 							{
 								if (pMob[LOCAL_99].isNormalPet())
 								{
-									LOCAL_104 = AbsorveDamageByPet(&pMob[LOCAL_99], LOCAL_95.Target[0].Damage);
-									petDamage = LOCAL_95.Target[0].Damage - LOCAL_104;
+									LOCAL_104 = AbsorveDamageByPet(&pMob[LOCAL_99], sm_attack.Target[0].Damage);
+									petDamage = sm_attack.Target[0].Damage - LOCAL_104;
 								}
-								LOCAL_95.Target[0].Damage = LOCAL_104;
+								sm_attack.Target[0].Damage = LOCAL_104;
 							}
 							
 							INT32 itemId = pMob[LOCAL_99].Mobs.Player.Equip[13].sIndex;
@@ -7237,10 +7237,10 @@ int ProcessAffect(int clientId)
 								}
 
 								multHP *= LOCAL_107;
-								pMob[LOCAL_99].Mobs.Player.CurrentScore.Hp -= (LOCAL_95.Target[0].Damage / multHP);
+								pMob[LOCAL_99].Mobs.Player.CurrentScore.Hp -= (sm_attack.Target[0].Damage / multHP);
 							}
 							else
-								pMob[LOCAL_99].Mobs.Player.CurrentScore.Hp -= LOCAL_95.Target[0].Damage;
+								pMob[LOCAL_99].Mobs.Player.CurrentScore.Hp -= sm_attack.Target[0].Damage;
 
 							if(LOCAL_99 >= MAX_PLAYER && pMob[LOCAL_99].Mode == 4)
 								LinkMountHp(LOCAL_99);
@@ -7251,7 +7251,7 @@ int ProcessAffect(int clientId)
 
 						if(LOCAL_99 > 0 && LOCAL_99 < MAX_PLAYER)
 						{
-							pUser[LOCAL_99].Potion.CountHp -= LOCAL_95.Target[0].Damage;
+							pUser[LOCAL_99].Potion.CountHp -= sm_attack.Target[0].Damage;
 
 							SetReqHp(LOCAL_99);
 						}
@@ -7260,7 +7260,7 @@ int ProcessAffect(int clientId)
 							MobKilled(LOCAL_99, clientId, 0, 0);
 					}
 
-					GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)&LOCAL_95, 0);
+					GridMulticast_2(pMob[clientId].Target.X, pMob[clientId].Target.Y, (BYTE*)&sm_attack, 0);
 				}
 			}
 		}
