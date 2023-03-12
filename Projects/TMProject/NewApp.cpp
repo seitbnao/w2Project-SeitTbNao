@@ -48,8 +48,9 @@ NewApp::NewApp()
 	china_bWrite = 0;
 	china_Playtime = -1;
 	m_binactive = 1;
-
+#ifdef _DEBUG
 	CreateConsole();
+#endif // DEBUG
 }
 
 NewApp::~NewApp()
