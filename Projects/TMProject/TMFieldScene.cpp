@@ -13333,8 +13333,6 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 		sprintf(szStr, "%d", pMobData->SpecialBonus);
 		if (m_pSpBonus)
 			m_pSpBonus->SetText(szStr, 0);
-
-		sprintf(szStr, "%d", pMobData->ShortSkill);
 		if (m_pSkBonus)
 			m_pSkBonus->SetText(szStr, 0);
 
