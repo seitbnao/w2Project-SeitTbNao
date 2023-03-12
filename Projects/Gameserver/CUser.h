@@ -386,7 +386,6 @@ public:
 	bool GetCharInfo(PacketHeader *Header);
 	bool ChangeServer(PacketHeader *Header);
 	bool RequestExtraction(PacketHeader *Header);
-	bool RequestClientInfo(PacketHeader *Header);
 	bool RequestAlchemy(PacketHeader* Header);
 	bool RequestRepurchase(PacketHeader* header);
 	bool RequestPutOutSeal(PacketHeader* header);

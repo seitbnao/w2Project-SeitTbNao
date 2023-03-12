@@ -644,10 +644,6 @@ bool CUser::PacketControl(BYTE *pBuffer, INT32 size)
 
 	switch (Header->PacketId)
 	{
-	case 0x655:
-	case 0x656:
-		return RequestClientInfo(Header);
-
 	case 0x3E8:
 		return RequestRepurchase(Header);
 
