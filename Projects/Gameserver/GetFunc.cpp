@@ -160,7 +160,7 @@ void GetCreateMob(int clientId, BYTE *bufPak)
 	}
 	
 #if !defined(_DEBUG)
-	if((pMob[clientId].Mobs.Player.Status.Level >= 69 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL) || pMob[clientId].Mobs.Player.Equip[0].EFV2 >= ARCH)
+	if((pMob[clientId].Mobs.Player.CurrentScore.Level >= 69 && pMob[clientId].Mobs.Player.Equip[0].EFV2 == MORTAL) || pMob[clientId].Mobs.Player.Equip[0].EFV2 >= ARCH)
 		strncpy_s(p->pTab, mob->Tab, 26);
 #else
 	sprintf_s(p->pTab, "index = %d", clientId);
