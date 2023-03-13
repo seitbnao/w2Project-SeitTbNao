@@ -1,8 +1,5 @@
 # Metas
    Manter o jogo atualizado para o client 759, para que em seguida seja possivel atualizar para as versões mais recentes
-
-
-
 # TMProject
 
 Este projeto é baseado em uma descompilação do cliente do jogo With Your Destiny. 
@@ -15,6 +12,7 @@ O projeto pode ser compilado apenas para Windows utilizando Visual Studio (o pro
 
 A compilação para x64 é possível, basta que seja utilizado a dependência para x64 do DirectX assim como corrigir problemas quanto a compilação para esta arquitetura.
 
+O sufixo "_d" é utilizado nas compilações em modo DEBUG, para que seja possivel fazer a diferenciação e não disponibilização dos mesmo para jogadores.
 ## Dependências
 
 ### Visual Studio
