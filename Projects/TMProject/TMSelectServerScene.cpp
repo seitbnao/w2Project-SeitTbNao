@@ -200,7 +200,7 @@ int TMSelectServerScene::InitializeScene()
 	{
 		g_pObjectManager->m_bBilling = 0;
 
-		m_pMessageBox->SetMessage(g_pMessageStringTable[132], 0, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_132], 0, 0);
 		m_pMessageBox->SetVisible(1);
 	}
 
@@ -395,7 +395,7 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 		int nAspGetweek = -1;
 		int nAspGetday = -1;
 
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[23], 0);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_23], 0);
 		m_pMessagePanel->SetVisible(1, 0);
 
 		if (m_bAdmit == 1 && nIndexN == m_nAdmitGroup)
@@ -538,7 +538,7 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 						}
 					}
 					else
-						sprintf_s(szStr, g_pMessageStringTable[68], nIndexN + 1, num);
+						sprintf_s(szStr, g_pMessageStringTable[LANG_68], nIndexN + 1, num);
 
 					int nCount = nUserCount[num];
 					if (nCount < 0)
@@ -561,7 +561,7 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 				}
 				else if (m_bAdmit == 1 && num < m_nMaxGroup)
 				{
-					sprintf_s(szStr, g_pMessageStringTable[70]);
+					sprintf_s(szStr, g_pMessageStringTable[LANG_70]);
 
 					pServerItem[num - 1] = new SListBoxServerItem(6, szStr, 0xFFFFFFFF, 0.0f, 0.0f, static_cast<float>(g_nChannelWidth), 16.0f, nUserCount2[num], 0, 0, 0);
 
@@ -586,14 +586,14 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 		SListBoxServerItem* pItem = static_cast<SListBoxServerItem*>(m_pNServerList->GetItem(nServerIndex - 1));
 		if (!pItem || nServerGroupIndex < 0 || nServerIndex < 1)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[24], 4000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_24], 4000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
 
 		if (pItem->m_nCurrent >= 600)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[25], 4000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_25], 4000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
@@ -637,7 +637,7 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 				PostMessage(g_pApp->m_hWnd, 0x10u, 0, 0);
 		}
 		else if(m_pMessageBox->m_dwMessage == B_CREATE_ID)
-			ShellExecute(0, 0, g_pMessageStringTable[263], 0, 0, 3);
+			ShellExecute(0, 0, g_pMessageStringTable[LANG_263], 0, 0, 3);
 		break;
 	}
 
@@ -655,7 +655,7 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 
 			if (strlen(pEditID->GetText()) < 4)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[3], 4000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_3], 4000);
 				m_pMessagePanel->SetVisible(1, 1);
 
 				return 1;
@@ -664,7 +664,7 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 
 			if (strlen(pEditID->GetText()) > 12)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[4], 4000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_4], 4000);
 				m_pMessagePanel->SetVisible(1, 1);
 
 				return 1;
@@ -672,7 +672,7 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 
 			if (strlen(pEditPassword->GetText()) < 4)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[5], 4000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_5], 4000);
 				m_pMessagePanel->SetVisible(1, 1);
 
 				return 1;
@@ -682,14 +682,14 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 			pEditPassword->SetEnable(0);
 			m_dwLastClickLoginBtnTime = g_pTimerManager->GetServerTime();
 
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[7], 4000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_7], 4000);
 			m_pMessagePanel->SetVisible(1, 1);
 
 			if (!g_pSocketManager->ConnectServer(g_pApp->m_szServerIP, TM_CONNECTION_PORT, 0, 1124))
 			{
 				pLoginOK->SetEnable(1);
 
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[8], 4000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_8], 4000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -762,18 +762,18 @@ int TMSelectServerScene::OnControlEvent(unsigned int idwControlID, unsigned int 
 		}
 		break;
 		case B_CREATE_ID:
-			m_pMessageBox->SetMessage(g_pMessageStringTable[9], B_CREATE_ID, g_pMessageStringTable[10]);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_9], B_CREATE_ID, g_pMessageStringTable[LANG_10]);
 			m_pMessageBox->SetVisible(1);
 			break;
 		case B_QUIT:
-			m_pMessageBox->SetMessage(g_pMessageStringTable[11], B_QUIT, nullptr);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_11], B_QUIT, nullptr);
 			m_pMessageBox->SetVisible(1);
 			break;
 	}
 
 	if (idwControlID == B_SERVER_SEL_EXIT)
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[22], B_QUIT, nullptr);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_22], B_QUIT, nullptr);
 		m_pMessageBox->SetVisible(1);
 	}
 	return 1;
@@ -799,9 +799,9 @@ int TMSelectServerScene::OnCharEvent(char iCharCode, int lParam)
 		break;
 	case VK_ESCAPE:
 		if (m_cLogin && m_cLogin != 2)
-			m_pMessageBox->SetMessage(g_pMessageStringTable[2], 65874u, nullptr);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_2], 65874u, nullptr);
 		else
-			m_pMessageBox->SetMessage(g_pMessageStringTable[22], 65874u, nullptr);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_22], 65874u, nullptr);
 
 		m_pMessageBox->SetVisible(1);
 		break;
@@ -855,7 +855,7 @@ int TMSelectServerScene::OnPacketEvent(unsigned int dwCode, char* buf)
 		if (packet->PacketId == 0x101)
 			m_pLoginPanel->SetVisible(1);
 
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[12], 4000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_12], 4000);
 		m_pMessagePanel->SetVisible(1, 1);
 		m_pLoginBtns[0]->SetEnable(1);
 		m_pLoginPanel->SetVisible(1);
@@ -1418,7 +1418,7 @@ void TMSelectServerScene::InitializeUI()
 				if (g_szServerNameList[i][0])
 					sprintf_s(szStr, g_szServerNameList[i + 1]);
 				else
-					sprintf_s(szStr, g_pMessageStringTable[66], count);
+					sprintf_s(szStr, g_pMessageStringTable[LANG_66], count);
 
 				pGroupItem[i] = new SListBoxItem(szStr, 0xD0FFFFFF, 0.0f, 0.0f, 63.0f, 16.0f, 0, 0x77777777u, 1u, 0);
 				m_pNServerGroupList->AddItem(pGroupItem[i]);

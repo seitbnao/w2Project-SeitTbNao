@@ -6,6 +6,7 @@
 #include "stBase.h"
 #include "CGUID.h"
 #include <vector>
+
 #include "SharedStructs.h"
 class CGuid;
 

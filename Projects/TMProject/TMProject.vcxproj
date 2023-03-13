@@ -171,6 +171,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Common\Language.h" />
     <ClInclude Include="..\..\Common\SharedStructs.h" />
     <ClInclude Include="AES.h" />
     <ClInclude Include="Base64.h" />

@@ -2661,7 +2661,7 @@ int TMHuman::FrameMove(unsigned int dwServerTime)
                             TMFieldScene* pFScene = (TMFieldScene*)g_pCurrentScene;
                             if (!IsInTown())
                             {
-                                pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[27], 11u, 0);
+                                pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_27], 11u, 0);
                                 pFScene->m_pMessageBox->SetVisible(1);
                             }
                         }
@@ -4569,7 +4569,7 @@ int TMHuman::OnPacketUpdateScore(PacketHeader* pStd)
                             pMobData->CurrentScore.Level + 2,
                             pMobData->Equip[0].sIndex % 10);
                     else
-                        sprintf_s(szStr, g_pMessageStringTable[307]);
+                        sprintf_s(szStr, g_pMessageStringTable[LANG_307]);
 
                     if (dwCol != 0xFF000000)
                     {
@@ -5085,7 +5085,7 @@ int TMHuman::OnPacketMessageWhisper(p334* pMsg)
         if (pScene->m_pHelpList[3] != nullptr)
             pScene->m_pHelpList[3]->AddItem(new SListBoxItem(" ", 0xFFFFFFFF, 0.0f, 0.0f, 280.0f, 16.0f, 0, 0x77777777u, 1u, 0));
 
-        sprintf_s(szMsg, g_pMessageStringTable[226], pMsg->MobName);
+        sprintf_s(szMsg, g_pMessageStringTable[LANG_226], pMsg->MobName);
 
         char szTime[128]{};
         sprintf_s(szTime, "%s [%02d:%02d:%02d]", szMsg, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
@@ -5310,8 +5310,8 @@ int TMHuman::OnPacketTrade(MSG_Trade* pStd)
     if (pOpp)
     {
         char szMessage[128]{};
-        sprintf(szMessage, g_pMessageStringTable[64], pOpp->m_szName, pOpp->m_stScore.Level + 1);
-        pScene->m_pMessageBox->SetMessage(szMessage, 601, g_pMessageStringTable[28]);
+        sprintf(szMessage, g_pMessageStringTable[LANG_64], pOpp->m_szName, pOpp->m_stScore.Level + 1);
+        pScene->m_pMessageBox->SetMessage(szMessage, 601, g_pMessageStringTable[LANG_28]);
         pScene->m_pMessageBox->m_dwArg = pStd->OpponentID;
         pScene->m_pMessageBox->SetVisible(1);
         g_pCursor->DetachItem();
@@ -5438,10 +5438,10 @@ int TMHuman::OnPacketReqRanking(MSG_STANDARDPARM2* pStd)
         };
 
         char szTemp[128]{};
-        sprintf(szTemp, g_pMessageStringTable[153], pHuman->m_szName, szVS[pStd->Parm2 % 4]);
+        sprintf(szTemp, g_pMessageStringTable[LANG_153], pHuman->m_szName, szVS[pStd->Parm2 % 4]);
 
         auto pScene = static_cast<TMFieldScene*>(g_pCurrentScene);
-        pScene->m_pMessageBox->SetMessage(szTemp, 927, g_pMessageStringTable[154]);
+        pScene->m_pMessageBox->SetMessage(szTemp, 927, g_pMessageStringTable[LANG_154]);
         pScene->m_pMessageBox->SetVisible(1);
         pScene->m_pMessageBox->m_dwArg = pStd->Parm1;
     }

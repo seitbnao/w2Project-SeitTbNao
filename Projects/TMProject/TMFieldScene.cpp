@@ -717,7 +717,7 @@ int TMFieldScene::InitializeScene()
 	m_pPGTText = (SText*)m_pControlContainer->FindControl(645);
 
 	char szStr[128]{};
-	sprintf(szStr, " %s", g_pMessageStringTable[157]);
+	sprintf(szStr, " %s", g_pMessageStringTable[LANG_157]);
 
 	m_pAutoSkillPanel = (SPanel*)m_pControlContainer->FindControl(65648);
 	m_pAutoSkillPanelChild[0] = (SPanel*)m_pControlContainer->FindControl(65775);
@@ -825,7 +825,7 @@ int TMFieldScene::InitializeScene()
 	}
 
 	char szTempLeft[128]{};
-	sprintf(szTempLeft, "%s 100", g_pMessageStringTable[230]);
+	sprintf(szTempLeft, "%s 100", g_pMessageStringTable[LANG_230]);
 
 	m_pRemainText = new SText(-2,
 		szTempLeft,
@@ -2149,7 +2149,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[144], m_nHellStoreValue, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_144], m_nHellStoreValue, 0);
 			m_pMessageBox->m_dwArg = m_dwHellStoreID;
 			m_pMessageBox->SetVisible(1);
 		}
@@ -2248,7 +2248,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		{
 			auto pChatList = m_pChatList;
 
-			auto ipNewItem = new SListBoxItem(g_pMessageStringTable[1],
+			auto ipNewItem = new SListBoxItem(g_pMessageStringTable[LANG_1],
 				0xFFFFAAAA,
 				0.0,
 				0.0,
@@ -2318,7 +2318,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		if (dwServerTime - dwLastChatTime < 4000)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[33], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_33], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			pEditChat->SetText((char*)"");
 			m_pControlContainer->SetFocusedControl(0);
@@ -2345,7 +2345,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		m_sChatIndex = 0;
 
-		if (!strcmp(pEditChat->GetText(), g_pMessageStringTable[191]))
+		if (!strcmp(pEditChat->GetText(), g_pMessageStringTable[LANG_191]))
 		{
 			pEditChat->SetText((char*)"");
 			m_pControlContainer->SetFocusedControl(0);
@@ -2416,7 +2416,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		char Chat[128]{};
 		sprintf(Chat, "%s", pEditChat->GetText());
 		if (!BASE_CheckChatValid(Chat))
-			pEditChat->SetText(g_pMessageStringTable[1521]);
+			pEditChat->SetText(g_pMessageStringTable[LANG_1521]);
 
 		auto pPartyList = m_pPartyList;
 		auto pChatList = m_pChatList;
@@ -2479,7 +2479,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			char str1[128]{};
 			sscanf(Chat, "/%s", str1);
 
-			if (!strcmp(str1, "relo") || !strcmp(str1, g_pMessageStringTable[234]) || !strcmp(str1, "Relocate") || !strcmp(str1, "relocate"))
+			if (!strcmp(str1, "relo") || !strcmp(str1, g_pMessageStringTable[LANG_234]) || !strcmp(str1, "Relocate") || !strcmp(str1, "relocate"))
 			{
 				if (!m_pAutoTrade->IsVisible())
 				{
@@ -2553,46 +2553,46 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 				m_cLastWhisper = 1;
 				m_dwLastWhisper = g_pTimerManager->GetServerTime();
 			}
-			else if (!strcmp(str1, g_pMessageStringTable[389]))
+			else if (!strcmp(str1, g_pMessageStringTable[LANG_389]))
 			{
 				sprintf(stMsgWhisper.MobName, "%s", "spk");
-				strcpy(m_cWhisperName, g_pMessageStringTable[389]);
+				strcpy(m_cWhisperName, g_pMessageStringTable[LANG_389]);
 				SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
 			}
-			else if (!strcmp(str1, g_pMessageStringTable[386]))
+			else if (!strcmp(str1, g_pMessageStringTable[LANG_386]))
 			{
 				if (m_pMyHuman->m_sGuildLevel)
 				{
-					m_pMessagePanel->SetMessage(g_pMessageStringTable[370], 2000);
+					m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_370], 2000);
 					m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
 				if (!CheckGuildName(stMsgWhisper.String, 0))
 				{
-					m_pMessagePanel->SetMessage(g_pMessageStringTable[370], 2000);
+					m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_370], 2000);
 					m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
 				sprintf(stMsgWhisper.MobName, "%s", "create");
 				SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
 			}
-			else if (!strcmp(str1, g_pMessageStringTable[387]))
+			else if (!strcmp(str1, g_pMessageStringTable[LANG_387]))
 			{
 				if (m_pMyHuman->m_sGuildLevel != 9 && (m_pMyHuman->m_sGuildLevel < 3 || m_pMyHuman->m_sGuildLevel > 8))
 				{
-					m_pMessagePanel->SetMessage(g_pMessageStringTable[373], 2000);
+					m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_373], 2000);
 					m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
 				sprintf(stMsgWhisper.MobName, "%s", "handover");
 				SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
 			}
-			else if (!strcmp(str1, g_pMessageStringTable[391]))
+			else if (!strcmp(str1, g_pMessageStringTable[LANG_391]))
 			{
 				sprintf(stMsgWhisper.MobName, "%s", "getout");
 				SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
 			}
-			else if (!strcmp(str1, g_pMessageStringTable[390]))
+			else if (!strcmp(str1, g_pMessageStringTable[LANG_390]))
 			{
 				sprintf(stMsgWhisper.MobName, "%s", "war");
 				SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
@@ -2600,16 +2600,6 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			else if (!strcmp(str1, "srv"))
 			{
 				return 1;
-			}
-			else if (!strcmp(str1, g_pMessageStringTable[496]))
-			{
-				sprintf(stMsgWhisper.MobName, "%s", "item_lock");
-				SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
-			}
-			else if (!strcmp(str1, g_pMessageStringTable[497]))
-			{
-				sprintf(stMsgWhisper.MobName, "%s", "item_unlock");
-				SendOneMessage((char*)&stMsgWhisper, sizeof(stMsgWhisper));
 			}
 			else if (!strcmp(str1, "tab"))
 			{
@@ -2628,7 +2618,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 			if (!strcmp(str1, "r") || !(strcmp(str1, "re")))
 			{
-				sprintf(str1, g_pMessageStringTable[61]);
+				sprintf(str1, g_pMessageStringTable[LANG_61]);
 				sprintf(istrText, "[%s] [%s]> %s", g_pObjectManager->m_stMobData.MobName, str1, stMsgWhisper.String);
 			}
 			else
@@ -2778,14 +2768,14 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		if (m_pCargoPanel1->IsVisible() == 1)
 		{
 			m_nCoinMsgType = 0;
-			pText->SetText(g_pMessageStringTable[136], 0);
+			pText->SetText(g_pMessageStringTable[LANG_136], 0);
 			m_pControlContainer->SetFocusedControl(pEdit);
 			m_pInputGoldPanel->SetVisible(1);
 		}
 		if (m_pCargoPanel->IsVisible() == 1)
 		{
 			m_nCoinMsgType = 0;
-			pText->SetText(g_pMessageStringTable[136], 0);
+			pText->SetText(g_pMessageStringTable[LANG_136], 0);
 			m_pControlContainer->SetFocusedControl(pEdit);
 			m_pInputGoldPanel->SetVisible(1);
 		}
@@ -2795,7 +2785,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 				return 1;
 
 			m_nCoinMsgType = 1;
-			pText->SetText(g_pMessageStringTable[137], 0);
+			pText->SetText(g_pMessageStringTable[LANG_137], 0);
 			m_pControlContainer->SetFocusedControl(pEdit);
 			m_pInputGoldPanel->SetVisible(1);
 		}
@@ -2819,7 +2809,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			if (m_pCargoPanel->IsVisible() == 1)
 			{
 				m_nCoinMsgType = 2;
-				pText->SetText(g_pMessageStringTable[138], 0);
+				pText->SetText(g_pMessageStringTable[LANG_138], 0);
 				m_pControlContainer->SetFocusedControl(m_pControlContainer->FindControl(E_INPUT_GOLD));
 				m_pInputGoldPanel->SetVisible(1);
 				m_pChatSelectPanel->SetVisible(0);
@@ -2870,7 +2860,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			{
 				if (bFind == true || nInputValue < 0 || nInputValue > g_pObjectManager->m_stMobData.Coin && !m_nCoinMsgType)
 				{
-					m_pMessagePanel->SetMessage(g_pMessageStringTable[34], 1000);
+					m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_34], 1000);
 					m_pMessagePanel->SetVisible(1, 1);
 					m_pControlContainer->SetFocusedControl(pInputText);
 					m_pChatSelectPanel->SetVisible(0);
@@ -2880,7 +2870,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 			if (bFind == true && m_nCoinMsgType == 12)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[409], 1000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_409], 1000);
 				m_pMessagePanel->SetVisible(1, 1);
 				m_pControlContainer->SetFocusedControl(pInputText);
 				return 1;
@@ -2890,7 +2880,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			{
 				char istrMessage[128]{};
 
-				sprintf_s(istrMessage, g_pMessageStringTable[143], 2000000000);
+				sprintf_s(istrMessage, g_pMessageStringTable[LANG_143], 2000000000);
 
 				m_pMessagePanel->SetMessage(istrMessage, 1000);
 				m_pMessagePanel->SetVisible(1, 1);
@@ -3034,7 +3024,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 						if (pAutoTradeItem && j == 11)
 						{
-							m_pMessagePanel->SetMessage(g_pMessageStringTable[1], 2000);
+							m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_1], 2000);
 							m_pMessagePanel->SetVisible(1, 1);
 
 							pCargoItem->m_GCObj.dwColor = 0xFFFFFFFF;
@@ -3078,7 +3068,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 				if (!CheckGuildName(stMessageWhisper.String, 1))
 				{
-					m_pMessagePanel->SetMessage(g_pMessageStringTable[370], 2000);
+					m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_370], 2000);
 					m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
@@ -3290,7 +3280,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 			char szText[128]{};
 
-			sprintf_s(szText, g_pMessageStringTable[476], g_GameAuto_hpValue, g_GameAuto_mountValue);
+			sprintf_s(szText, g_pMessageStringTable[LANG_476], g_GameAuto_hpValue, g_GameAuto_mountValue);
 
 			auto pChatItem = new SListBoxItem(szText, 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777u, 1u, 0);
 
@@ -3310,9 +3300,9 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		char szText[128]{};
 
 		if (g_GameAuto_mountValue)
-			sprintf_s(szText, g_pMessageStringTable[478], g_GameAuto_mountValue);
+			sprintf_s(szText, g_pMessageStringTable[LANG_478], g_GameAuto_mountValue);
 		else
-			sprintf_s(szText, g_pMessageStringTable[477]);
+			sprintf_s(szText, g_pMessageStringTable[LANG_477]);
 
 		auto pChatItem = new SListBoxItem(szText, 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777u, 1u, 0);
 
@@ -3335,9 +3325,9 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		char szText[128]{};
 
 		if (g_GameAuto_hpValue)
-			sprintf_s(szText, g_pMessageStringTable[480], g_GameAuto_hpValue);
+			sprintf_s(szText, g_pMessageStringTable[LANG_480], g_GameAuto_hpValue);
 		else
-			sprintf_s(szText, g_pMessageStringTable[479]);
+			sprintf_s(szText, g_pMessageStringTable[LANG_479]);
 
 		auto pChatItem = new SListBoxItem(szText, 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777u, 1u, 0);
 
@@ -3447,7 +3437,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			break;
 		case B_CHAT_SELECT_SHOUT:
 			char src[128]{};
-			sprintf(src, "/%s ", g_pMessageStringTable[389]);
+			sprintf(src, "/%s ", g_pMessageStringTable[LANG_389]);
 			strcpy(m_cChatType, src);
 			break;
 		}
@@ -3812,7 +3802,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		m_pSystemPanel->SetVisible(0);
 
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[23], 0);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_23], 0);
 		m_pMessagePanel->SetVisible(1, 0);
 
 		auto serverGroup = 0; // v445
@@ -3944,7 +3934,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 						}
 					}
 					else
-						sprintf_s(iStrText, g_pMessageStringTable[68], num + 1, num);
+						sprintf_s(iStrText, g_pMessageStringTable[LANG_68], num + 1, num);
 
 					int nCount = nUserCount[num];
 					if (nCount < 0)
@@ -3967,7 +3957,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 				else if (serverGroup == currentServerGroupIndex && num < serverGroup)
 				{
 					char iStrTexr[14] = { 0 };
-					sprintf_s(iStrTexr, g_pMessageStringTable[70]);
+					sprintf_s(iStrTexr, g_pMessageStringTable[LANG_70]);
 
 					auto server = new SListBoxServerItem(6, iStrTexr, 0xFFFFFFFF, 0.0f, 0.0f, static_cast<float>(g_nChannelWidth), 16.0f, nUserCount2[num], 0, 0, 0);
 					if (nUserCount[num] < 0)
@@ -4227,9 +4217,9 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	if (idwControlID == TMB_HELP_SUMMON)
 	{
 		char szStr[128]{};
-		sprintf(szStr, g_pMessageStringTable[228], m_szSummoner);
+		sprintf(szStr, g_pMessageStringTable[LANG_228], m_szSummoner);
 
-		m_pMessageBox->SetMessage(szStr, 228u, g_pMessageStringTable[229]);
+		m_pMessageBox->SetMessage(szStr, 228u, g_pMessageStringTable[LANG_229]);
 		m_pMessageBox->SetVisible(1);
 		m_pHelpSummon->SetVisible(0);
 
@@ -4359,25 +4349,25 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 	}
 	if (idwControlID == B_ITEMMIX_RUN)
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[319], B_ITEMMIX_RUN, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_319], B_ITEMMIX_RUN, 0);
 		m_pMessageBox->SetVisible(1);
 		return 1;
 	}
 	if (idwControlID == TMB_ITEMMIX4_RUN)
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[319], TMB_ITEMMIX4_RUN, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_319], TMB_ITEMMIX4_RUN, 0);
 		m_pMessageBox->SetVisible(1);
 		return 1;
 	}
 	if (idwControlID == B_ITEM_MIX_RUN)
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[319], B_ITEM_MIX_RUN, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_319], B_ITEM_MIX_RUN, 0);
 		m_pMessageBox->SetVisible(1);
 		return 1;
 	}
 	if (idwControlID == B_MISSION_RUN)
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[319], B_MISSION_RUN, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_319], B_MISSION_RUN, 0);
 		m_pMessageBox->SetVisible(1);
 		return 1;
 	}
@@ -4520,9 +4510,9 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 		char szText[128]{};
 		if (m_pChatGeneral->m_bSelected)
-			sprintf(szText, "%s%s", g_pMessageStringTable[452], g_pMessageStringTable[446]);
+			sprintf(szText, "%s%s", g_pMessageStringTable[LANG_452], g_pMessageStringTable[LANG_446]);
 		else
-			sprintf(szText, "%s%s", g_pMessageStringTable[452], g_pMessageStringTable[447]);
+			sprintf(szText, "%s%s", g_pMessageStringTable[LANG_452], g_pMessageStringTable[LANG_447]);
 
 		auto ipNewItem = new SListBoxItem(szText, 0xFFCCAAFF, 0.0, 0.0, 280.0f, 16.0f, 0, 0x77777777u, 1u, 0);
 
@@ -4646,7 +4636,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		else
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[25], 4000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_25], 4000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		return 1;
@@ -4812,7 +4802,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			return 0;
 		}
 
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[156], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_156], 2000);
 		m_pPGTOver = 0;
 		return 1;
 	}
@@ -4858,7 +4848,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			return 0;
 		}
 
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[35], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_35], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 		return 1;
 	}
@@ -4921,7 +4911,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			return 0;
 		if (m_pPGTOver->m_usGuild)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[364], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_364], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 0;
 		}
@@ -4939,7 +4929,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			return 0;
 		}
 
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[155], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_155], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 		return 0;
 	}
@@ -4952,25 +4942,25 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		{
 			if (!m_pPGTOver->m_usGuild)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[367], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_367], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 0;
 			}
 			if (m_pPGTOver->m_usGuild != m_pMyHuman->m_usGuild)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[365], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_365], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 0;
 			}
 			if (m_pPGTOver->m_sGuildLevel >= 3 && m_pPGTOver->m_sGuildLevel <= 8)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[366], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_366], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 0;
 			}
 			if (g_pObjectManager->m_stMobData.Coin < 50000000)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[155], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_155], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 0;
 			}
@@ -4988,7 +4978,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			m_pPGTPanel->SetVisible(0);
 			return 0;
 		}
-		m_pMessageBox->SetMessage(g_pMessageStringTable[36], 816u, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_36], 816u, 0);
 		m_pMessageBox->m_dwArg = m_dwOpID;
 		m_pMessageBox->SetVisible(1);
 		return 1;
@@ -5002,7 +4992,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		if (m_pPGTOver)
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[158], 817u, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_158], 817u, 0);
 			m_pMessageBox->m_dwArg = m_pPGTOver->m_usGuild;
 			m_pMessageBox->SetVisible(1);
 			m_pPGTOver = 0;
@@ -5019,7 +5009,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			return 0;
 		}
 
-		m_pMessageBox->SetMessage(g_pMessageStringTable[159], 818u, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_159], 818u, 0);
 		m_pMessageBox->m_dwArg = m_dwOpID;
 		m_pMessageBox->SetVisible(1);
 
@@ -5034,7 +5024,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		if (m_pPGTOver)
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[221], 862, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_221], 862, 0);
 			m_pMessageBox->m_dwArg = m_pPGTOver->m_usGuild;
 			m_pMessageBox->SetVisible(1);
 			m_pPGTOver = 0;
@@ -5247,7 +5237,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		else
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[39], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_39], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		return 1;
@@ -5292,7 +5282,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		else
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[39], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_39], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		return 1;
@@ -5333,7 +5323,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		else
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[39], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_39], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		return 1;
@@ -5372,7 +5362,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		else
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[39], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_39], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		return 1;
@@ -5430,7 +5420,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 			if (BASE_GetManaSpent(skillId, g_pObjectManager->m_stMobData.SaveMana, Special) > g_pObjectManager->m_stMobData.CurrentScore.Mp)
 			{
-				auto ipNewItem = new SListBoxItem(g_pMessageStringTable[30],
+				auto ipNewItem = new SListBoxItem(g_pMessageStringTable[LANG_30],
 					0xFFFFAAAA,
 					0.0,
 					0.0,
@@ -5453,7 +5443,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 
 			if (dwServerTime > m_dwOldAttackTime + 1000	&& skillId == 42 && pPartyItem->m_dwCharID == m_pMyHuman->m_dwID)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[40], 1000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_40], 1000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -5577,7 +5567,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 			return 0;
 		}
 
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[41], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_41], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 		m_dwLastCheckTime = g_pApp->m_pTimerManager->GetServerTime();
 		return 1;
@@ -5592,7 +5582,7 @@ int TMFieldScene::OnControlEvent(unsigned int idwControlID, unsigned int idwEven
 		}
 		if (validItem == 1)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[145], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_145], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
@@ -6123,7 +6113,7 @@ int TMFieldScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, int nX
 
 			if (!m_pMessageBox->IsVisible() && (!m_pMyHuman->IsInTown() || PtInRect(&rectTownInCastle, pt) == 1))
 			{
-				m_pMessageBox->SetMessage(g_pMessageStringTable[27], 11u, 0);
+				m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_27], 11u, 0);
 				m_pMessageBox->SetVisible(1);
 				return 1;
 			}
@@ -6311,7 +6301,7 @@ int TMFieldScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, int nX
 			
 			UpdateSkillBelt();
 
-			m_pMessageBox->SetMessage(g_pMessageStringTable[227], 99u, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_227], 99u, 0);
 			m_pMessageBox->SetVisible(1);
 			return 1;
 		}
@@ -6501,7 +6491,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 
 	//if (m_dwDeleteURLTime && dwServerTime > m_dwDeleteURLTime + 1000)
 	//{
-	//	if (DelTempFiles(g_pMessageStringTable[269]) == 1)
+	//	if (DelTempFiles(g_pMessageStringTable[LANG_269]) == 1)
 	//		m_dwDeleteURLTime = 0;
 	//	else
 	//		m_dwDeleteURLTime = dwServerTime;
@@ -6778,7 +6768,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 	if (!m_bWarning && bWarn == 1)
 	{
 		m_bWarning = 1;
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[42], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_42], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 	}
 	else if (!bWarn)
@@ -7890,7 +7880,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 					if ((int)m_pMyHuman->m_vecPosition.x > 1963 && (int)m_pMyHuman->m_vecPosition.x < 1970 &&
 						(int)m_pMyHuman->m_vecPosition.y > 1770 && (int)m_pMyHuman->m_vecPosition.y < 1777)
 					{
-						m_pMessagePanel->SetMessage(g_pMessageStringTable[160], 3000);
+						m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_160], 3000);
 						m_pMessagePanel->SetVisible(1, 1);
 					}
 					else
@@ -7898,7 +7888,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 						if ((int)m_pMyHuman->m_vecPosition.x >= 2370 && (int)m_pMyHuman->m_vecPosition.x <= 2411 &&
 							(int)m_pMyHuman->m_vecPosition.y >= 1728 && (int)m_pMyHuman->m_vecPosition.y <= 1759)
 						{
-							m_pMessagePanel->SetMessage(g_pMessageStringTable[258], 3000);
+							m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_258], 3000);
 							m_pMessagePanel->SetVisible(1, 1);
 							return 1;
 						}
@@ -7918,7 +7908,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 							if (nPosIndex >= 0)
 							{
 								char szGoto[256]{};
-								sprintf(szGoto, g_pMessageStringTable[208], g_TeleportTable[nPosIndex].szTarget);
+								sprintf(szGoto, g_pMessageStringTable[LANG_208], g_TeleportTable[nPosIndex].szTarget);
 								int nShowPrice = 0;
 								if (!m_cWarClan && m_pMyHuman->m_cMantua && m_pMyHuman->m_cMantua != 3)
 									nShowPrice = 1;
@@ -7932,7 +7922,7 @@ int TMFieldScene::FrameMove(unsigned int dwServerTime)
 								if (g_TeleportTable[nPosIndex].nPrice > 0 && nShowPrice == 1)
 								{
 									char szPrice[256]{};
-									sprintf(szPrice, g_pMessageStringTable[207], g_TeleportTable[nPosIndex].nPrice);
+									sprintf(szPrice, g_pMessageStringTable[LANG_207], g_TeleportTable[nPosIndex].nPrice);
 									m_pMessageBox->SetMessage(szGoto, 16, szPrice);
 								}
 								else
@@ -8128,7 +8118,7 @@ void TMFieldScene::PGTVisible(unsigned int dwServerTime)
 	auto pPGTText = m_pPGTText;
 
 	char szStr[128]{};
-	sprintf(szStr, g_pMessageStringTable[60], pOver->m_szName);
+	sprintf(szStr, g_pMessageStringTable[LANG_60], pOver->m_szName);
 	pPGTText->SetText((char*)"", 0);
 
 	RECT rt;
@@ -8366,7 +8356,7 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 		auto pChatList = m_pChatList;
 		if (BASE_GetManaSpent((unsigned char)cSkillIndex, (unsigned char)g_pObjectManager->m_stMobData.SaveMana, nSpecial) > g_pObjectManager->m_stMobData.CurrentScore.Mp)
 		{
-			auto ipNewItem = new SListBoxItem(g_pMessageStringTable[30],
+			auto ipNewItem = new SListBoxItem(g_pMessageStringTable[LANG_30],
 				0xFFFFAAAA,
 				0.0f,
 				0.0f,
@@ -8384,7 +8374,7 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 		}
 		if (cSkillIndex == 85 && (100 * m_pMyHuman->m_stScore.Special[2]) > g_pObjectManager->m_stMobData.Coin)
 		{
-			auto ipNewItem = new SListBoxItem(g_pMessageStringTable[155],
+			auto ipNewItem = new SListBoxItem(g_pMessageStringTable[LANG_155],
 				0xFFFFAAAA,
 				0.0f,
 				0.0f,
@@ -9144,9 +9134,9 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 			if (cSkillIndex == 42)
 			{
 				if (m_pMyHuman->m_bParty == 1)
-					m_pMessagePanel->SetMessage(g_pMessageStringTable[31], 1000);
+					m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_31], 1000);
 				else
-					m_pMessagePanel->SetMessage(g_pMessageStringTable[32], 1000);
+					m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_32], 1000);
 
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
@@ -9260,7 +9250,7 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 			int nCls = m_pMyHuman->m_sHeadIndex % 10;
 			if (!IsValidSkill(31) && !IsValidSkill(39) && !IsValidSkill(47))
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[357], 1000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_357], 1000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -9324,7 +9314,7 @@ int TMFieldScene::SkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwServe
 
 	if (BASE_GetManaSpent((unsigned char)cSkillIndex, (unsigned char)g_pObjectManager->m_stMobData.SaveMana, Special) > g_pObjectManager->m_stMobData.CurrentScore.Mp)
 	{
-		auto ipNewItem = new SListBoxItem(g_pMessageStringTable[30],
+		auto ipNewItem = new SListBoxItem(g_pMessageStringTable[LANG_30],
 			0xFFFFAAAA,
 			0.0f,
 			0.0f,
@@ -9848,7 +9838,7 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 		{
 			auto pChatList = m_pChatList;
 
-			pChatList->AddItem(new SListBoxItem(g_pMessageStringTable[30],
+			pChatList->AddItem(new SListBoxItem(g_pMessageStringTable[LANG_30],
 				0xFFFFAAAA,
 				0.0f,
 				0.0f,
@@ -10495,7 +10485,7 @@ int TMFieldScene::AutoSkillUse(int nX, int nY, D3DXVECTOR3 vec, unsigned int dwS
 
 	if (BASE_GetManaSpent((unsigned char)cSkillIndex, (unsigned char)g_pObjectManager->m_stMobData.SaveMana, Special) > g_pObjectManager->m_stMobData.CurrentScore.Mp)
 	{
-		auto ipNewItem = new SListBoxItem(g_pMessageStringTable[30],
+		auto ipNewItem = new SListBoxItem(g_pMessageStringTable[LANG_30],
 			0xFFFFAAAA,
 			0.0f,
 			0.0f,
@@ -11046,7 +11036,7 @@ int TMFieldScene::MouseClick_NPC(int nX, int nY, D3DXVECTOR3 vec, unsigned int d
 
 	if (!m_pMessageBox->IsVisible())
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[437], pOver->m_sHeadIndex, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_437], pOver->m_sHeadIndex, 0);
 		m_pMessageBox->m_dwArg = pOver->m_dwID;
 		m_pMessageBox->SetVisible(1);
 	}
@@ -11756,7 +11746,7 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 			m_dwLastRemain = dwRemain;
 
 			char szMsg[128]{};
-			sprintf(szMsg, g_pMessageStringTable[224], m_dwLastRemain + 1);
+			sprintf(szMsg, g_pMessageStringTable[LANG_224], m_dwLastRemain + 1);
 
 			m_pMessagePanel->SetMessage(szMsg, 2000);
 			m_pMessagePanel->SetVisible(1, 1);
@@ -11783,7 +11773,7 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 			m_dwLastRemain = dwRemain;
 
 			char szMsg[128]{};
-			sprintf(szMsg, g_pMessageStringTable[225], m_dwLastRemain + 1);
+			sprintf(szMsg, g_pMessageStringTable[LANG_225], m_dwLastRemain + 1);
 
 			m_pMessagePanel->SetMessage(szMsg, 2000);
 			m_pMessagePanel->SetVisible(1, 1);
@@ -11807,7 +11797,7 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 			m_dwLastRemain = dwRemain;
 
 			char szMsg[128]{};
-			sprintf(szMsg, g_pMessageStringTable[224], m_dwLastRemain + 1);
+			sprintf(szMsg, g_pMessageStringTable[LANG_224], m_dwLastRemain + 1);
 
 			m_pMessagePanel->SetMessage(szMsg, 2000);
 			m_pMessagePanel->SetVisible(1, 1);
@@ -12000,7 +11990,7 @@ int TMFieldScene::TimeDelay(unsigned int dwServerTime)
 			m_dwLastRemain = dwRemain;
 
 			char szMsg[128]{};
-			sprintf(szMsg, g_pMessageStringTable[223], m_dwLastRemain + 1);
+			sprintf(szMsg, g_pMessageStringTable[LANG_223], m_dwLastRemain + 1);
 
 			m_pMessagePanel->SetMessage(szMsg, 2000);
 			m_pMessagePanel->SetVisible(1, 1);		
@@ -12026,7 +12016,7 @@ int TMFieldScene::GetItem(TMItem* pItem)
 	}
 
 	auto pListBox = m_pChatList;
-	auto pBoxItem = new SListBoxItem(g_pMessageStringTable[1], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0);
+	auto pBoxItem = new SListBoxItem(g_pMessageStringTable[LANG_1], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0);
 
 	pListBox->AddItem(pBoxItem);
 
@@ -12555,7 +12545,7 @@ void TMFieldScene::DoCombine()
 		{
 			if (!g_pObjectManager->m_stCombineItem.Item[i].sIndex)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[274], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return;
 			}
@@ -12594,7 +12584,7 @@ void TMFieldScene::DoCombine4()
 	}
 	else
 	{
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[274], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 	}
 }
@@ -12804,11 +12794,11 @@ void TMFieldScene::SetVisiblePotal(int bShow, int nPos)
 		return;
 
 	char strTmp1[32]{};
-	strcpy(strTmp1, g_pMessageStringTable[382]);
+	strcpy(strTmp1, g_pMessageStringTable[LANG_382]);
 	char strTmp2[32]{};
-	strcpy(strTmp2, g_pMessageStringTable[383]);
+	strcpy(strTmp2, g_pMessageStringTable[LANG_383]);
 	char strTmp3[32]{};
-	strcpy(strTmp3, g_pMessageStringTable[384]);
+	strcpy(strTmp3, g_pMessageStringTable[LANG_384]);
 	if (m_pPotalText1)
 		m_pPotalText1->SetText(strTmp1, 0);
 	if (m_pPotalText2)
@@ -12840,27 +12830,27 @@ void TMFieldScene::SetVisiblePotal(int bShow, int nPos)
 		m_pSkillPanel->m_bVisible = 0;
 
 		char szStr[128]{};
-		sprintf(szStr, "%s", g_pMessageStringTable[310]);
+		sprintf(szStr, "%s", g_pMessageStringTable[LANG_310]);
 		TMScene::LoadMsgText2(m_pPotalList, szPotalPos, 10 * nPos, 10 * (nPos + 1) - 1);
 		switch (nPos)
 		{
 		case 0:
-			sprintf(szStr, "%s", g_pMessageStringTable[310]);
+			sprintf(szStr, "%s", g_pMessageStringTable[LANG_310]);
 			break;
 		case 1:
-			sprintf(szStr, "%s", g_pMessageStringTable[311]);
+			sprintf(szStr, "%s", g_pMessageStringTable[LANG_311]);
 			break;
 		case 2:
-			sprintf(szStr, "%s", g_pMessageStringTable[312]);
+			sprintf(szStr, "%s", g_pMessageStringTable[LANG_312]);
 			break;
 		case 3:
-			sprintf(szStr, "%s", g_pMessageStringTable[313]);
+			sprintf(szStr, "%s", g_pMessageStringTable[LANG_313]);
 			break;
 		case 4:
-			sprintf(szStr, "%s", g_pMessageStringTable[314]);
+			sprintf(szStr, "%s", g_pMessageStringTable[LANG_314]);
 			break;
 		case 5:
-			sprintf(szStr, "%s", g_pMessageStringTable[315]);
+			sprintf(szStr, "%s", g_pMessageStringTable[LANG_315]);
 			break;
 		}
 
@@ -13120,7 +13110,7 @@ void TMFieldScene::SetVisibleServerWar()
 	auto pText = (SText*)m_pControlContainer->FindControl(65888);
 
 	m_nCoinMsgType = 9;
-	pText->SetText(g_pMessageStringTable[374], 0);
+	pText->SetText(g_pMessageStringTable[LANG_374], 0);
 	m_pControlContainer->SetFocusedControl(pEdit);
 	pInputGoldPanel->SetVisible(1);
 }
@@ -13132,7 +13122,7 @@ void TMFieldScene::SetVisibleRefuseServerWar()
 	auto pText = (SText*)m_pControlContainer->FindControl(65888);
 
 	m_nCoinMsgType = 10;
-	pText->SetText(g_pMessageStringTable[375], 0);
+	pText->SetText(g_pMessageStringTable[LANG_375], 0);
 	m_pControlContainer->SetFocusedControl(pEdit);
 	pInputGoldPanel->SetVisible(1);
 }
@@ -13283,7 +13273,7 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 			nLevelCount = (g_pNextLevel[CurLevel + 1] + g_pNextLevel[CurLevel]) / 10;
 
 		nLevelCount = static_cast<int>((((float)g_pObjectManager->m_nFakeExp * 100.0f) / (float)nLevelCount));
-		sprintf(szStr, g_pMessageStringTable[304], g_pObjectManager->m_nFakeExp, nLevelCount);
+		sprintf(szStr, g_pMessageStringTable[LANG_304], g_pObjectManager->m_nFakeExp, nLevelCount);
 		if (m_pGridCharFace)
 		{
 			m_pGridCharFace->m_GCPanel.nTextureSetIndex = 541;
@@ -13373,10 +13363,10 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 			m_pCIName->SetText(szNameTemp, 1);
 
 		static const char* szClass[4] = {
-			g_pMessageStringTable[121],
-			g_pMessageStringTable[122],
-			g_pMessageStringTable[123],
-			g_pMessageStringTable[124]
+			g_pMessageStringTable[LANG_121],
+			g_pMessageStringTable[LANG_122],
+			g_pMessageStringTable[LANG_123],
+			g_pMessageStringTable[LANG_124]
 		};
 			
 		char szValue[256]{};
@@ -13713,40 +13703,40 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 		switch (pMobData->Class)
 		{
 		case 0:
-			m_pCISp1Caption->SetText(g_pMessageStringTable[242], 0);
-			m_pCISp2Caption->SetText(g_pMessageStringTable[243], 0);
-			m_pCISp3Caption->SetText(g_pMessageStringTable[244], 0);
-			m_pCISp4Caption->SetText(g_pMessageStringTable[245], 0);
-			m_pSkillSec1->SetText(g_pMessageStringTable[107], 0);
-			m_pSkillSec2->SetText(g_pMessageStringTable[108], 0);
-			m_pSkillSec3->SetText(g_pMessageStringTable[109], 0);
+			m_pCISp1Caption->SetText(g_pMessageStringTable[LANG_242], 0);
+			m_pCISp2Caption->SetText(g_pMessageStringTable[LANG_243], 0);
+			m_pCISp3Caption->SetText(g_pMessageStringTable[LANG_244], 0);
+			m_pCISp4Caption->SetText(g_pMessageStringTable[LANG_245], 0);
+			m_pSkillSec1->SetText(g_pMessageStringTable[LANG_107], 0);
+			m_pSkillSec2->SetText(g_pMessageStringTable[LANG_108], 0);
+			m_pSkillSec3->SetText(g_pMessageStringTable[LANG_109], 0);
 			break;
 		case 1:
-			m_pCISp1Caption->SetText(g_pMessageStringTable[246], 0);
-			m_pCISp2Caption->SetText(g_pMessageStringTable[247], 0);
-			m_pCISp3Caption->SetText(g_pMessageStringTable[248], 0);
-			m_pCISp4Caption->SetText(g_pMessageStringTable[249], 0);
-			m_pSkillSec1->SetText(g_pMessageStringTable[110], 0);
-			m_pSkillSec2->SetText(g_pMessageStringTable[111], 0);
-			m_pSkillSec3->SetText(g_pMessageStringTable[112], 0);
+			m_pCISp1Caption->SetText(g_pMessageStringTable[LANG_246], 0);
+			m_pCISp2Caption->SetText(g_pMessageStringTable[LANG_247], 0);
+			m_pCISp3Caption->SetText(g_pMessageStringTable[LANG_248], 0);
+			m_pCISp4Caption->SetText(g_pMessageStringTable[LANG_249], 0);
+			m_pSkillSec1->SetText(g_pMessageStringTable[LANG_110], 0);
+			m_pSkillSec2->SetText(g_pMessageStringTable[LANG_111], 0);
+			m_pSkillSec3->SetText(g_pMessageStringTable[LANG_112], 0);
 			break;
 		case 2:
-			m_pCISp1Caption->SetText(g_pMessageStringTable[250], 0);
-			m_pCISp2Caption->SetText(g_pMessageStringTable[251], 0);
-			m_pCISp3Caption->SetText(g_pMessageStringTable[252], 0);
-			m_pCISp4Caption->SetText(g_pMessageStringTable[253], 0);
-			m_pSkillSec1->SetText(g_pMessageStringTable[113], 0);
-			m_pSkillSec2->SetText(g_pMessageStringTable[114], 0);
-			m_pSkillSec3->SetText(g_pMessageStringTable[115], 0);
+			m_pCISp1Caption->SetText(g_pMessageStringTable[LANG_250], 0);
+			m_pCISp2Caption->SetText(g_pMessageStringTable[LANG_251], 0);
+			m_pCISp3Caption->SetText(g_pMessageStringTable[LANG_252], 0);
+			m_pCISp4Caption->SetText(g_pMessageStringTable[LANG_253], 0);
+			m_pSkillSec1->SetText(g_pMessageStringTable[LANG_113], 0);
+			m_pSkillSec2->SetText(g_pMessageStringTable[LANG_114], 0);
+			m_pSkillSec3->SetText(g_pMessageStringTable[LANG_115], 0);
 			break;
 		case 3:
-			m_pCISp1Caption->SetText(g_pMessageStringTable[254], 0);
-			m_pCISp2Caption->SetText(g_pMessageStringTable[255], 0);
-			m_pCISp3Caption->SetText(g_pMessageStringTable[256], 0);
-			m_pCISp4Caption->SetText(g_pMessageStringTable[257], 0);
-			m_pSkillSec1->SetText(g_pMessageStringTable[133], 0);
-			m_pSkillSec2->SetText(g_pMessageStringTable[134], 0);
-			m_pSkillSec3->SetText(g_pMessageStringTable[135], 0);
+			m_pCISp1Caption->SetText(g_pMessageStringTable[LANG_254], 0);
+			m_pCISp2Caption->SetText(g_pMessageStringTable[LANG_255], 0);
+			m_pCISp3Caption->SetText(g_pMessageStringTable[LANG_256], 0);
+			m_pCISp4Caption->SetText(g_pMessageStringTable[LANG_257], 0);
+			m_pSkillSec1->SetText(g_pMessageStringTable[LANG_133], 0);
+			m_pSkillSec2->SetText(g_pMessageStringTable[LANG_134], 0);
+			m_pSkillSec3->SetText(g_pMessageStringTable[LANG_135], 0);
 			break;
 		}
 
@@ -13914,7 +13904,7 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 					if (add)
 					{
 						int freeDay = nDafaultDay - nYearDay * (m_nYear - Year) - (m_nDays - Day);
-						sprintf(szVal, g_pMessageStringTable[291], freeDay);
+						sprintf(szVal, g_pMessageStringTable[LANG_291], freeDay);
 					}
 				}
 				if (m_pAffectL[i] && !i)
@@ -13983,10 +13973,10 @@ void TMFieldScene::UpdateScoreUI(unsigned int unFlag)
 			m_pKingDomFlag->m_GCPanel.nTextureIndex = m_pMyHuman->UnSetCitizenMantle(m_pKingDomFlag->m_GCPanel.nTextureIndex);
 			m_pFlagDescText[0]->SetText(g_pItemList[pMobData->Equip[15].sIndex].ItemName, 0);
 
-			sprintf(szTemp, "%s %d", g_pMessageStringTable[80], BASE_GetItemAbility(&pMobData->Equip[15], 3));
+			sprintf(szTemp, "%s %d", g_pMessageStringTable[LANG_80], BASE_GetItemAbility(&pMobData->Equip[15], 3));
 			m_pFlagDescText[1]->SetText(szTemp, 0);
 
-			sprintf(szTemp, "%s %d", g_pMessageStringTable[81], BASE_GetItemAbility(&pMobData->Equip[15], 4));
+			sprintf(szTemp, "%s %d", g_pMessageStringTable[LANG_81], BASE_GetItemAbility(&pMobData->Equip[15], 4));
 			m_pFlagDescText[2]->SetText(szTemp, 0);
 			m_pKingDomFlag->SetVisible(1);
 		}
@@ -14124,7 +14114,7 @@ void TMFieldScene::SetMyHumanExp(long long unExp, int nFakeExp)
 
 		m_pExtraContainer->AddChild(new TMFont3(szStr, nTX, nTY + (int)(RenderDevice::m_fHeightRatio * 80.0f), 0xFFFF8866, 0.5f, 0, 1, 1200, 0, 1));
 
-		sprintf(szStr, g_pMessageStringTable[148], nExp);
+		sprintf(szStr, g_pMessageStringTable[LANG_148], nExp);
 		if (!m_bShowExp)
 		{
 			if (m_pChatListnotice)
@@ -14138,7 +14128,7 @@ void TMFieldScene::SetMyHumanExp(long long unExp, int nFakeExp)
 
 		m_pExtraContainer->AddChild(new TMFont3(szStr, nTX, nTY + (int)(RenderDevice::m_fHeightRatio * 80.0f), 0xFFFF8866, 1.0f, 0, 1, 1500, 0, 1));
 
-		sprintf(szStr, g_pMessageStringTable[305], nFExp);
+		sprintf(szStr, g_pMessageStringTable[LANG_305], nFExp);
 		if (!m_bShowExp)
 		{
 			if (m_pChatListnotice)
@@ -15186,11 +15176,11 @@ void TMFieldScene::InitBoard()
 	if (m_pGMsgPanel)
 	{
 		SListBoxBoardItem* pBoardItem = new SListBoxBoardItem((char*)"0",
-			g_pMessageStringTable[176],
-			g_pMessageStringTable[177],
-			g_pMessageStringTable[178],
-			g_pMessageStringTable[179],
-			g_pMessageStringTable[180],
+			g_pMessageStringTable[LANG_176],
+			g_pMessageStringTable[LANG_177],
+			g_pMessageStringTable[LANG_178],
+			g_pMessageStringTable[LANG_179],
+			g_pMessageStringTable[LANG_180],
 			0x5588FFFFu,
 			1);
 
@@ -15368,7 +15358,7 @@ void TMFieldScene::InitBoard()
 					pMobData->CurrentScore.Level + 1,
 					pMobData->Equip[0].sIndex % 10);
 			else
-				sprintf(szStr, g_pMessageStringTable[307]);
+				sprintf(szStr, g_pMessageStringTable[LANG_307]);
 
 			SListBoxItem* pChatItem = new SListBoxItem(szStr, dwCol, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0);
 
@@ -16220,7 +16210,7 @@ void TMFieldScene::VisibleInputTradeName()
 	if (pText && pEdit)
 	{
 		m_nCoinMsgType = 3;
-		pText->SetText(g_pMessageStringTable[141], 0);
+		pText->SetText(g_pMessageStringTable[LANG_141], 0);
 		m_pControlContainer->SetFocusedControl(pEdit);
 		pInputGoldPanel->SetVisible(1);
 		auto pInputBG2 = (SPanel*)m_pControlContainer->FindControl(574u);
@@ -16239,7 +16229,7 @@ void TMFieldScene::VisibleInputPass()
 	if (pText && pEdit)
 	{
 		m_nCoinMsgType = 11;
-		pText->SetText(g_pMessageStringTable[405], 0);
+		pText->SetText(g_pMessageStringTable[LANG_405], 0);
 		m_pControlContainer->SetFocusedControl(pEdit);
 		pInputGoldPanel->SetVisible(1);
 
@@ -16259,7 +16249,7 @@ void TMFieldScene::VisibleInputGuildName()
 	if (pText && pEdit)
 	{
 		m_nCoinMsgType = 8;
-		pText->SetText(g_pMessageStringTable[363], 0);
+		pText->SetText(g_pMessageStringTable[LANG_363], 0);
 		m_pControlContainer->SetFocusedControl(pEdit);
 		pInputGoldPanel->SetVisible(1);
 
@@ -16303,7 +16293,7 @@ void TMFieldScene::VisibleInputCharName(SGridControlItem* pItem, int nCellX, int
 		if (pText && pEdit)
 		{
 			m_nCoinMsgType = 6;
-			pText->SetText(g_pMessageStringTable[349], 0);
+			pText->SetText(g_pMessageStringTable[LANG_349], 0);
 			m_pControlContainer->SetFocusedControl(pEdit);
 			m_pInputGoldPanel->SetVisible(1);
 
@@ -16410,19 +16400,19 @@ void TMFieldScene::SendCapsuleItem()
 	int len = strlen(pEditID->GetText());
 	if (len >= 4)
 	{
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[15], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_15], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 		return;
 	}
 	if (len > 12)
 	{
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[16], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_16], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 		return;
 	}
 	if (!BASE_CheckValidString(pEditID->GetText()))
 	{
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[17], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_17], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 		return;
 	}
@@ -16433,7 +16423,7 @@ void TMFieldScene::SendCapsuleItem()
 	{
 		if (szName[i] == -95 && szName[i + 1] == -95)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[17], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_17], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return;
 		}
@@ -16539,7 +16529,7 @@ int TMFieldScene::OnMsgBoxEvent(unsigned int idwControlID, unsigned int idwEvent
 			auto pNode = g_pObjectManager->GetHumanByID(m_pMessageBox->m_dwArg);
 			if (!pNode)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[37], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_37], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -16641,7 +16631,7 @@ int TMFieldScene::OnMsgBoxEvent(unsigned int idwControlID, unsigned int idwEvent
 			}
 		}
 	
-		auto pItem = new SListBoxItem(g_pMessageStringTable[1], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777u, 1u, 0);
+		auto pItem = new SListBoxItem(g_pMessageStringTable[LANG_1], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777u, 1u, 0);
 
 		if (pItem)
 			m_pChatList->AddItem(pItem);
@@ -16708,7 +16698,7 @@ int TMFieldScene::OnMsgBoxEvent(unsigned int idwControlID, unsigned int idwEvent
 		}
 		else
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[38], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_38], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 
@@ -16966,7 +16956,7 @@ int TMFieldScene::OnMsgBoxEvent(unsigned int idwControlID, unsigned int idwEvent
 			break;
 		}
 
-		auto pItem = new SListBoxItem(g_pMessageStringTable[30], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777u, 1u, 0);
+		auto pItem = new SListBoxItem(g_pMessageStringTable[LANG_30], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777u, 1u, 0);
 
 		if (pItem)
 			m_pChatList->AddItem(pItem);
@@ -17567,7 +17557,7 @@ int TMFieldScene::OnKeyReturn(char iCharCode, int lParam)
 	else if (!strcmp(Button1->m_GCPanel.strString, Button8->m_GCPanel.strString))
 	{
 		char temp[32]{};
-		sprintf(temp, "/%s ", g_pMessageStringTable[389]);
+		sprintf(temp, "/%s ", g_pMessageStringTable[LANG_389]);
 
 		pEdit->SetText(temp);
 	}
@@ -17827,7 +17817,7 @@ int TMFieldScene::OnPacketMessageWhisper(p334* pMsg)
 
 		m_pHelpList[3]->AddItem(new SListBoxItem((char*)" ", 0xFFFFFFFF, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0));
 
-		sprintf(szMsg, g_pMessageStringTable[226], pMsg->MobName);
+		sprintf(szMsg, g_pMessageStringTable[LANG_226], pMsg->MobName);
 		char szTime[128]{};
 		sprintf(szTime, "%s [%02d:%02d:%02d]", szMsg, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
 		m_pHelpList[3]->AddItem(new SListBoxItem(szTime, 0xFFFFFFFF, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0));
@@ -17898,9 +17888,9 @@ int TMFieldScene::OnPacketLongMessagePanel(MSG_LongMessagePanel* pMsg)
 	if (m_pQuizPanel)
 	{
 		if (!pMsg->Parm1 && m_pQuizCaption)
-			m_pQuizCaption->SetText(g_pMessageStringTable[260], 0);
+			m_pQuizCaption->SetText(g_pMessageStringTable[LANG_260], 0);
 		else if (pMsg->Parm1 == 1 && m_pQuizCaption)
-			m_pQuizCaption->SetText(g_pMessageStringTable[259], 0);
+			m_pQuizCaption->SetText(g_pMessageStringTable[LANG_259], 0);
 
 		for (int j = 0; j < 4; ++j)
 		{
@@ -18667,7 +18657,7 @@ int TMFieldScene::OnPacketCNFRemoveServer(MSG_CNFRemoveServer* pStd)
 		return 1;
 	}
 
-	m_pMessagePanel->SetMessage(g_pMessageStringTable[7], 0);
+	m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_7], 0);
 	m_pMessagePanel->SetVisible(1, 0);
 
 	g_bMoveServer = 0;
@@ -18720,7 +18710,7 @@ int TMFieldScene::OnPacketCNFRemoveServer(MSG_CNFRemoveServer* pStd)
 		return 1;
 	}
 
-	m_pMessagePanel->SetMessage(g_pMessageStringTable[8], 4000);
+	m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_8], 4000);
 	m_pMessagePanel->SetVisible(1, 1);
 	if (m_eSceneType != ESCENE_TYPE::ESCENE_LOGIN)
 		g_pObjectManager->SetCurrentState(ObjectManager::TM_GAME_STATE::TM_SELECTSERVER_STATE);
@@ -19388,24 +19378,24 @@ int TMFieldScene::OnPacketShopList(PacketHeader* pStd)
 		switch ((pShopList->Item[0].sIndex - 5000) / 24)
 		{
 		case 0:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[107], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[108], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[109], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_107], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_108], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_109], 0);
 			break;
 		case 1:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[110], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[111], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[112], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_110], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_111], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_112], 0);
 			break;
 		case 2:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[113], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[114], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[115], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_113], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_114], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_115], 0);
 			break;
 		case 3:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[133], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[134], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[135], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_133], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_134], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_135], 0);
 			break;
 		}
 
@@ -19495,24 +19485,24 @@ int TMFieldScene::OnPacketRMBShopList(MSG_RMBShopList* pMsg)
 		switch ((pMsg->List[0].sIndex - 5000) / 24)
 		{
 		case 0:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[107], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[108], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[109], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_107], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_108], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_109], 0);
 			break;
 		case 1:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[110], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[111], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[112], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_110], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_111], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_112], 0);
 			break;
 		case 2:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[113], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[114], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[115], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_113], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_114], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_115], 0);
 			break;
 		case 3:
-			m_pSkillMSec1->SetText(g_pMessageStringTable[133], 0);
-			m_pSkillMSec2->SetText(g_pMessageStringTable[134], 0);
-			m_pSkillMSec3->SetText(g_pMessageStringTable[135], 0);
+			m_pSkillMSec1->SetText(g_pMessageStringTable[LANG_133], 0);
+			m_pSkillMSec2->SetText(g_pMessageStringTable[LANG_134], 0);
+			m_pSkillMSec3->SetText(g_pMessageStringTable[LANG_135], 0);
 			break;
 		}
 
@@ -19761,13 +19751,13 @@ int TMFieldScene::OnPacketREQParty(MSG_REQParty* pStd)
 	auto pChatList = m_pChatList;
 
 	char szMsg[128]{};
-	sprintf(szMsg, g_pMessageStringTable[62], pStd->Leader.MobName);
+	sprintf(szMsg, g_pMessageStringTable[LANG_62], pStd->Leader.MobName);
 
 	pChatList->AddItem(new SListBoxItem(szMsg, 0xFFCCAAFF, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0));
 
 	if (!m_bAutoParty)
 	{
-		sprintf(szMsg, g_pMessageStringTable[63], pStd->Leader.MobName);
+		sprintf(szMsg, g_pMessageStringTable[LANG_63], pStd->Leader.MobName);
 
 		pChatList->AddItem(new SListBoxItem(szMsg, 0xFFCCAAFF, 0.0f, 0.0f, 300.0f, 16.0f, 0, 0x77777777, 1, 0));
 		m_pPartyAutoButton->SetVisible(0);
@@ -19933,7 +19923,7 @@ int TMFieldScene::OnPacketSetHpMode(p292* pStd)
 	{
 		if (!m_pMessagePanel->m_bVisible)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[13], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_13], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 
@@ -19975,7 +19965,7 @@ int TMFieldScene::OnPacketReqChallange(PacketHeader* pStd)
 {
 	if (!m_pMessageBox->IsVisible())
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[407], 60, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_407], 60, 0);
 		m_pMessageBox->SetVisible(1);
 	}
 
@@ -20052,7 +20042,7 @@ int TMFieldScene::OnPacketStartTime(MSG_STANDARDPARM* pStd)
 int TMFieldScene::OnPacketRemainCount(MSG_STANDARDPARM* pStd)
 {
 	char szText[128]{};
-	sprintf(szText, "%s %d", g_pMessageStringTable[230], pStd->Parm);
+	sprintf(szText, "%s %d", g_pMessageStringTable[LANG_230], pStd->Parm);
 	m_dwRemainTime = g_pTimerManager->GetServerTime();
 	m_pRemainText->SetText(szText, 0);
 	m_pRemainText->SetVisible(1);
@@ -22750,16 +22740,16 @@ void TMFieldScene::GetTimeString(char* szVal, int sTime, int nTime, int i)
 		}
 
 		if (add)
-			sprintf(szVal, g_pMessageStringTable[291], nDafaultDay - nYearDay * (m_nYear - Year) - (m_nDays - m_pMyHuman->m_stAffect[i].Time % 10000));
+			sprintf(szVal, g_pMessageStringTable[LANG_291], nDafaultDay - nYearDay * (m_nYear - Year) - (m_nDays - m_pMyHuman->m_stAffect[i].Time % 10000));
 	}
 	else if (sTime > 86400)
-		sprintf(szVal, g_pMessageStringTable[291], sTime / 86400);
+		sprintf(szVal, g_pMessageStringTable[LANG_291], sTime / 86400);
 	else if (sTime > 3600)
-		sprintf(szVal, g_pMessageStringTable[292], sTime / 3600);
+		sprintf(szVal, g_pMessageStringTable[LANG_292], sTime / 3600);
 	else if (sTime <= 600)
 		sprintf(szVal, "%5d", sTime);
 	else
-		sprintf(szVal, g_pMessageStringTable[293], sTime / 60);
+		sprintf(szVal, g_pMessageStringTable[LANG_293], sTime / 60);
 }
 
 void TMFieldScene::Bag_View()
@@ -22792,11 +22782,11 @@ void TMFieldScene::Bag_View()
 		}
 
 		if (nDate)
-			sprintf(szStrDay, g_pMessageStringTable[291], nDate);
+			sprintf(szStrDay, g_pMessageStringTable[LANG_291], nDate);
 		else
 			sprintf(szStrDay, (char*)"");
 		if (nMonth)
-			sprintf(szStrMonth, g_pMessageStringTable[296], nMonth);
+			sprintf(szStrMonth, g_pMessageStringTable[LANG_296], nMonth);
 		else
 			sprintf(szStrMonth, (char*)"");
 		if (nDate)
@@ -22843,11 +22833,11 @@ void TMFieldScene::Bag_View()
 		}
 
 		if (nDate)
-			sprintf(szStrDay, g_pMessageStringTable[291], nDate);
+			sprintf(szStrDay, g_pMessageStringTable[LANG_291], nDate);
 		else
 			sprintf(szStrDay, (char*)"");
 		if (nMonth)
-			sprintf(szStrMonth, g_pMessageStringTable[296], nMonth);
+			sprintf(szStrMonth, g_pMessageStringTable[LANG_296], nMonth);
 		else
 			sprintf(szStrMonth, (char*)"");
 		if (nDate)
@@ -23116,15 +23106,15 @@ int TMFieldScene::AirMove_ShowUI(bool bShow)
 			SetVisibleShop(0);
 
 		char szStr[128]{};
-		sprintf(szStr, "%s", g_pMessageStringTable[378]);
+		sprintf(szStr, "%s", g_pMessageStringTable[LANG_378]);
 		m_pPotalText->SetText(szStr, 0);
 		m_pPotalText->SetTextColor(0xFFFFFFFF);
 		if (m_pPotalText1)
-			m_pPotalText1->SetText(g_pMessageStringTable[380], 0);
+			m_pPotalText1->SetText(g_pMessageStringTable[LANG_380], 0);
 		if (m_pPotalText2)
-			m_pPotalText2->SetText(g_pMessageStringTable[379], 0);
+			m_pPotalText2->SetText(g_pMessageStringTable[LANG_379], 0);
 		if (m_pPotalText3)
-			m_pPotalText3->SetText(g_pMessageStringTable[381], 0);
+			m_pPotalText3->SetText(g_pMessageStringTable[LANG_381], 0);
 
 		LoadMsgText3(m_pQuestList[0], (char*)"UI\\QuestSubjects.txt", 400, 0);
 		LoadMsgText3(m_pQuestList[1], (char*)"UI\\QuestSubjects2.txt", 400, 0);
@@ -23140,8 +23130,8 @@ int TMFieldScene::AirMove_ShowUI(bool bShow)
 		strncpy(strAirMovePlaceName[0], m_pQuestList[0]->m_pItemList[0]->GetText() + 1, 18);
 		strncpy(strAirMovePlaceName[1], m_pQuestList[0]->m_pItemList[1]->GetText() + 1, 18);
 		strncpy(strAirMovePlaceName[2], m_pQuestList[0]->m_pItemList[6]->GetText() + 1, 18);
-		sprintf(strAirMovePlaceName[3], g_pMessageStringTable[212]);
-		sprintf(strAirMovePlaceName[4], g_pMessageStringTable[218]);
+		sprintf(strAirMovePlaceName[3], g_pMessageStringTable[LANG_212]);
+		sprintf(strAirMovePlaceName[4], g_pMessageStringTable[LANG_218]);
 
 		for (int i = 0; i < 5; ++i)
 		{
@@ -24200,7 +24190,7 @@ int TMFieldScene::MouseClick_SkillMasterNPC(unsigned int dwServerTime, TMHuman* 
 {
 	if (g_pObjectManager->m_stMobData.Equip[10].sIndex == 1742 && !m_pMessageBox->IsVisible())
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[152], 1742, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_152], 1742, 0);
 		m_pMessageBox->m_dwArg = pOver->m_dwID;
 		m_pMessageBox->SetVisible(1);
 
@@ -24245,7 +24235,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 			if (g_pObjectManager->m_stMobData.Equip[10].sIndex == 1742 && (g_pObjectManager->m_stMobData.Equip[11].sIndex < 1760 ||
 				g_pObjectManager->m_stMobData.Equip[11].sIndex > 1763))
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[241], 4000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_241], 4000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -24260,7 +24250,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[131], 13, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_131], 13, 0);
 			m_pMessageBox->m_dwArg = pOver->m_dwID;
 			m_pMessageBox->SetVisible(1);
 		}
@@ -24281,7 +24271,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 			{
 				if (!m_pMessageBox->IsVisible())
 				{
-					m_pMessageBox->SetMessage(g_pMessageStringTable[233], 233, 0);
+					m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_233], 233, 0);
 					m_pMessageBox->m_dwArg = pOver->m_dwID;
 					m_pMessageBox->SetVisible(1);
 				}
@@ -24294,9 +24284,9 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 		if (!m_pMessageBox->IsVisible())
 		{
 			if (pOver->m_sHeadIndex == 51 && _locationCheck(pOver->m_vecPosition, 16, 16))
-				m_pMessageBox->SetMessage(g_pMessageStringTable[404], pOver->m_stScore.Merchant.Value & 0xF, 0);
+				m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_404], pOver->m_stScore.Merchant.Value & 0xF, 0);
 			else
-				m_pMessageBox->SetMessage(g_pMessageStringTable[152], pOver->m_stScore.Merchant.Value & 0xF, 0);
+				m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_152], pOver->m_stScore.Merchant.Value & 0xF, 0);
 
 			m_pMessageBox->m_dwArg = pOver->m_dwID;
 			m_pMessageBox->SetVisible(1);
@@ -24308,7 +24298,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[348], 271, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_348], 271, 0);
 			m_pMessageBox->m_dwArg = pOver->m_dwID;
 			m_pMessageBox->SetVisible(1);
 		}
@@ -24322,7 +24312,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 		if (pText)
 		{
 			m_nCoinMsgType = 7;
-			pText->SetText(g_pMessageStringTable[136], 0);
+			pText->SetText(g_pMessageStringTable[LANG_136], 0);
 			auto pEdit = (SEditableText*)g_pCurrentScene->m_pControlContainer->FindControl(65889);
 			m_pControlContainer->SetFocusedControl((SControl*)pEdit);
 		}
@@ -24331,7 +24321,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[152], pOver->m_sHeadIndex, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_152], pOver->m_sHeadIndex, 0);
 			m_pMessageBox->m_dwArg = pOver->m_dwID;
 			m_pMessageBox->SetVisible(1);
 		}
@@ -24341,7 +24331,7 @@ int TMFieldScene::MouseClick_QuestNPC(unsigned int dwServerTime, TMHuman* pOver)
 	{
 		if (!m_pMessageBox->IsVisible())
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[152], pOver->m_sHeadIndex, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_152], pOver->m_sHeadIndex, 0);
 			m_pMessageBox->m_dwArg = pOver->m_dwID;
 			m_pMessageBox->SetVisible(1);
 		}
@@ -24436,7 +24426,7 @@ DWORD WINAPI Guildmark_Download(void* pArg)
 	char strMarkBuffer[632]{};
 	char strURL[64]{};
 
-	strcpy(strURL, g_pMessageStringTable[377]);
+	strcpy(strURL, g_pMessageStringTable[LANG_377]);
 	strcat(strURL, pMark->strMarkFileName);
 
 	if (!pFScene->m_hInternetSession)

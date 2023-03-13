@@ -12,55 +12,55 @@ SGridControlItem* SGridControl::m_pLastAttachedItem;
 SGridControlItem* SGridControl::m_pSellItem;
 int SGridControl::m_bNeedUpdate = 1;
 char* SGridControl::m_szParamString[49] = {
-	g_pMessageStringTable[73],
-	g_pMessageStringTable[74],
-	g_pMessageStringTable[75],
-	g_pMessageStringTable[76],
-	g_pMessageStringTable[77],
-	g_pMessageStringTable[78],
-	g_pMessageStringTable[79],
-	g_pMessageStringTable[80],
-	g_pMessageStringTable[81],
-	g_pMessageStringTable[82],
-	g_pMessageStringTable[83],
-	g_pMessageStringTable[84],
-	g_pMessageStringTable[85],
-	g_pMessageStringTable[86],
-	g_pMessageStringTable[87],
-	g_pMessageStringTable[88],
-	g_pMessageStringTable[89],
-	g_pMessageStringTable[174],
-	g_pMessageStringTable[90],
-	g_pMessageStringTable[91],
-	g_pMessageStringTable[92],
-	g_pMessageStringTable[93],
-	g_pMessageStringTable[94],
-	g_pMessageStringTable[95],
-	g_pMessageStringTable[96],
-	g_pMessageStringTable[97],
-	g_pMessageStringTable[98],
-	g_pMessageStringTable[99],
-	g_pMessageStringTable[140],
-	g_pMessageStringTable[100],
-	g_pMessageStringTable[101],
-	g_pMessageStringTable[102],
-	g_pMessageStringTable[103],
-	g_pMessageStringTable[104],
-	g_pMessageStringTable[105],
-	g_pMessageStringTable[128],
-	g_pMessageStringTable[129],
-	g_pMessageStringTable[130],
-	g_pMessageStringTable[80],
-	g_pMessageStringTable[79],
-	g_pMessageStringTable[104],
-	g_pMessageStringTable[79],
-	g_pMessageStringTable[162],
-	g_pMessageStringTable[163],
-	g_pMessageStringTable[164],
-	g_pMessageStringTable[165],
-	g_pMessageStringTable[166],
-	g_pMessageStringTable[169],
-	g_pMessageStringTable[171]
+	g_pMessageStringTable[LANG_73],
+	g_pMessageStringTable[LANG_74],
+	g_pMessageStringTable[LANG_75],
+	g_pMessageStringTable[LANG_76],
+	g_pMessageStringTable[LANG_77],
+	g_pMessageStringTable[LANG_78],
+	g_pMessageStringTable[LANG_79],
+	g_pMessageStringTable[LANG_80],
+	g_pMessageStringTable[LANG_81],
+	g_pMessageStringTable[LANG_82],
+	g_pMessageStringTable[LANG_83],
+	g_pMessageStringTable[LANG_84],
+	g_pMessageStringTable[LANG_85],
+	g_pMessageStringTable[LANG_86],
+	g_pMessageStringTable[LANG_87],
+	g_pMessageStringTable[LANG_88],
+	g_pMessageStringTable[LANG_89],
+	g_pMessageStringTable[LANG_174],
+	g_pMessageStringTable[LANG_90],
+	g_pMessageStringTable[LANG_91],
+	g_pMessageStringTable[LANG_92],
+	g_pMessageStringTable[LANG_93],
+	g_pMessageStringTable[LANG_94],
+	g_pMessageStringTable[LANG_95],
+	g_pMessageStringTable[LANG_96],
+	g_pMessageStringTable[LANG_97],
+	g_pMessageStringTable[LANG_98],
+	g_pMessageStringTable[LANG_99],
+	g_pMessageStringTable[LANG_140],
+	g_pMessageStringTable[LANG_100],
+	g_pMessageStringTable[LANG_101],
+	g_pMessageStringTable[LANG_102],
+	g_pMessageStringTable[LANG_103],
+	g_pMessageStringTable[LANG_104],
+	g_pMessageStringTable[LANG_105],
+	g_pMessageStringTable[LANG_128],
+	g_pMessageStringTable[LANG_129],
+	g_pMessageStringTable[LANG_130],
+	g_pMessageStringTable[LANG_80],
+	g_pMessageStringTable[LANG_79],
+	g_pMessageStringTable[LANG_104],
+	g_pMessageStringTable[LANG_79],
+	g_pMessageStringTable[LANG_162],
+	g_pMessageStringTable[LANG_163],
+	g_pMessageStringTable[LANG_164],
+	g_pMessageStringTable[LANG_165],
+	g_pMessageStringTable[LANG_166],
+	g_pMessageStringTable[LANG_169],
+	g_pMessageStringTable[LANG_171]
 };
 
 SGridControl::SGridControl(unsigned int inTextureSetIndex, int inRowGridCount, int inColumnGridCount, float inX, float inY, float inWidth, float inHeight, TMEITEMTYPE type)
@@ -330,7 +330,7 @@ int SGridControl::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, int nX
 
 		pFScene->m_nCoinMsgType = 12;
 		pFScene->m_nLastAutoTradePos = -1;
-		pText->SetText(g_pMessageStringTable[408], 0); 
+		pText->SetText(g_pMessageStringTable[LANG_408], 0); 
 		
 		pFScene->m_pControlContainer->SetFocusedControl(pEdit);
 
@@ -368,8 +368,8 @@ int SGridControl::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, int nX
 					SGridControl::m_pSellItem = pItem;
 
 					char szMessage[128];
-					sprintf(szMessage, g_pMessageStringTable[342], &g_pItemList[pItem->m_pItem->sIndex]);
-					pFScene->m_pMessageBox->SetMessage(szMessage, 890, g_pMessageStringTable[343]);
+					sprintf(szMessage, g_pMessageStringTable[LANG_342], &g_pItemList[pItem->m_pItem->sIndex]);
+					pFScene->m_pMessageBox->SetMessage(szMessage, 890, g_pMessageStringTable[LANG_343]);
 					pFScene->m_pMessageBox->SetVisible(1);
 					return 1;
 				}
@@ -1336,7 +1336,7 @@ void SGridControl::BuyItem(int nCellX, int nCellY)
 			else
 			{
 				auto pListBox = pScene->m_pChatList;
-				auto ipNewItem = new SListBoxItem(g_pMessageStringTable[1],
+				auto ipNewItem = new SListBoxItem(g_pMessageStringTable[LANG_1],
 					0xFFFFAAAA,
 					0.0f,
 					0.0f,
@@ -1364,7 +1364,7 @@ void SGridControl::BuyItem(int nCellX, int nCellY)
 		if (pItem)
 		{
 			char szMsg[128]{};
-			sprintf(szMsg, g_pMessageStringTable[47], g_pItemList[pItem->m_pItem->sIndex].ItemName);			
+			sprintf(szMsg, g_pMessageStringTable[LANG_47], g_pItemList[pItem->m_pItem->sIndex].ItemName);			
 			g_pCurrentScene->m_pMessageBox->SetMessage(szMsg, 4, 0);
 			g_pCurrentScene->m_pMessageBox->SetVisible(1);
 			g_pCurrentScene->m_pMessageBox->m_dwArg = m_dwMerchantID | (pItem->m_pItem->sIndex << 16);
@@ -1450,7 +1450,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 
 			if (BASE_GetItemAbility(pItem->m_pItem, 111))
 			{
-				pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[309], 2000);
+				pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_309], 2000);
 				pFScene->m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -1458,7 +1458,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 				pItem->m_pItem->sIndex >= 526 && pItem->m_pItem->sIndex <= 537 || pItem->m_pItem->sIndex == 747 || 
 				pItem->m_pItem->sIndex == 4905)
 			{
-				pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[309], 2000);
+				pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_309], 2000);
 				pFScene->m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -1473,7 +1473,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 				pFScene->m_nCoinMsgType = 4;
 				pFScene->m_nLastAutoTradePos = 40 * page + 5 * pItem->m_nCellIndexY + pItem->m_nCellIndexX;
 
-				pText->SetText(g_pMessageStringTable[142], 0);
+				pText->SetText(g_pMessageStringTable[LANG_142], 0);
 
 				pFScene->m_pControlContainer->SetFocusedControl(pEdit);
 
@@ -1544,7 +1544,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 					bOK = false;
 				if (!bOK)
 				{
-					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[273], 2000);
+					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_273], 2000);
 					pFScene->m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
@@ -1553,14 +1553,14 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 					bOK = false;
 				if (!bOK)
 				{
-					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[302], 2000);
+					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_302], 2000);
 					pFScene->m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
 
 				if (target1pos & 0x3F)
 				{
-					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[276], 2000);
+					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_276], 2000);
 					pFScene->m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
@@ -1580,7 +1580,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 					bOK = false;
 				if (!bOK)
 				{
-					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[276], 2000);
+					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_276], 2000);
 					pFScene->m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
@@ -1589,7 +1589,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 					bOK = false;
 				if (!bOK)
 				{
-					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[302], 2000);
+					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_302], 2000);
 					pFScene->m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
@@ -1607,7 +1607,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 
 				if (!bOK)
 				{
-					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[276], 2000);
+					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_276], 2000);
 					pFScene->m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
@@ -1623,7 +1623,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 				int nItemSanc = BASE_GetItemSanc(pItem->m_pItem);
 				if (nItemSanc < 9 || !g_pItemList[pItem->m_pItem->sIndex].Pos)
 				{
-					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[192], 2000);
+					pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_192], 2000);
 					pFScene->m_pMessagePanel->SetVisible(1, 1);
 					return 1;
 				}
@@ -1752,7 +1752,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 			{
 				if (pItem && pFScene->m_eSceneType == ESCENE_TYPE::ESCENE_FIELD)
 				{
-					pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[144], 646, 0);
+					pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_144], 646, 0);
 					pFScene->m_pMessageBox->SetVisible(1);
 					pFScene->m_pMessageBox->m_dwArg = m_dwControlID;
 				}
@@ -1762,7 +1762,7 @@ int SGridControl::TradeItem(int nCellX, int nCellY)
 
 		auto pListBox = pFScene->m_pChatList;
 
-		auto pItem2 = new SListBoxItem(g_pMessageStringTable[1], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0,
+		auto pItem2 = new SListBoxItem(g_pMessageStringTable[LANG_1], 0xFFFFAAAA, 0.0f, 0.0f, 300.0f, 16.0f, 0,
 			0x77777777, 1, 0);
 		if (pItem2)
 			pListBox->AddItem(pItem2);
@@ -1826,8 +1826,8 @@ int SGridControl::SellItem(int nCellX, int nCellY, unsigned int dwFlags, unsigne
 		else
 		{
 			char szMessage[128]{};
-			sprintf(szMessage, g_pMessageStringTable[342], &g_pItemList[SGridControl::m_pSellItem->m_pItem->sIndex]);
-			pScene->m_pMessageBox->SetMessage(szMessage, 890, g_pMessageStringTable[343]);
+			sprintf(szMessage, g_pMessageStringTable[LANG_342], &g_pItemList[SGridControl::m_pSellItem->m_pItem->sIndex]);
+			pScene->m_pMessageBox->SetMessage(szMessage, 890, g_pMessageStringTable[LANG_343]);
 			pScene->m_pMessageBox->SetVisible(1);
 			g_pCursor->m_pAttachedItem = 0;
 		}
@@ -1840,7 +1840,7 @@ int SGridControl::SellItem(int nCellX, int nCellY, unsigned int dwFlags, unsigne
 
 		char szMessage[128]{};
 		sprintf(szMessage, g_pItemList[SGridControl::m_pSellItem->m_pItem->sIndex].ItemName);
-		pScene->m_pMessageBox->SetMessage(szMessage, 740, g_pMessageStringTable[18]);
+		pScene->m_pMessageBox->SetMessage(szMessage, 740, g_pMessageStringTable[LANG_18]);
 		pScene->m_pMessageBox->SetVisible(1);
 		g_pCursor->m_pAttachedItem = 0;
 	}
@@ -2125,7 +2125,7 @@ int SGridControl::SellItem(int nCellX, int nCellY, unsigned int dwFlags, unsigne
 		}
 		else if (nVolatile == 190 && sDestType == 1 && m_dwEnableColor != 0x330000FF && pItem)
 		{
-			g_pCurrentScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[303], 3000);
+			g_pCurrentScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_303], 3000);
 			g_pCurrentScene->m_pMessagePanel->SetVisible(1, 1);
 		}
 		else if (CanChangeItem(g_pCursor->m_pAttachedItem, nCellX, nCellY, 0))
@@ -2163,8 +2163,8 @@ int SGridControl::SellItem2()
 		if (!g_pEventTranslator->m_bCtrl)
 		{
 			char szMessage[128]{};
-			sprintf(szMessage, g_pMessageStringTable[342], g_pItemList[SGridControl::m_pSellItem->m_pItem->sIndex].ItemName);
-			pScene->m_pMessageBox->SetMessage(szMessage, 890, g_pMessageStringTable[343]);
+			sprintf(szMessage, g_pMessageStringTable[LANG_342], g_pItemList[SGridControl::m_pSellItem->m_pItem->sIndex].ItemName);
+			pScene->m_pMessageBox->SetMessage(szMessage, 890, g_pMessageStringTable[LANG_343]);
 			pScene->m_pMessageBox->SetVisible(1);
 			g_pCursor->m_pAttachedItem = 0;
 		}
@@ -2328,7 +2328,7 @@ int SGridControl::SellItem2()
 	}
 	else if (nVolatile == 190 && sDestType == 1 && m_dwEnableColor != 0x330000FF && pItem)
 	{
-		pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[303], 3000);
+		pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_303], 3000);
 		pFScene->m_pMessagePanel->SetVisible(1, 1);
 	}
 	else if (CanChangeItem(g_pCursor->m_pAttachedItem, nCellX, nCellY, 0))
@@ -2728,7 +2728,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		pDescNameText->SetText(pFScene->m_MissionClass.m_stMissionHelp[itemId].MobName, 0);
 
 		if (itemId >= 50)
-			pDescNameText->SetText(g_pMessageStringTable[434], 0);
+			pDescNameText->SetText(g_pMessageStringTable[LANG_434], 0);
 
 		pDescNameText->SetTextColor(0x0FFAAAAFF);
 		pFScene->m_pParamText[0]->SetText((char*)"                                 ", 0);
@@ -2832,8 +2832,8 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			char szStrPrice[128]{};
 			if (nItemId == 4010 || nItemId == 4011 || nItemId >= 4026 && nItemId <= 4029)
 			{
-				sprintf(szStrPrice, g_pMessageStringTable[57], nPrice + nPrice / 100);
-				sprintf(szStrPrice, "%s (%s:%d%%)", szStrPrice, g_pMessageStringTable[146], 1);
+				sprintf(szStrPrice, g_pMessageStringTable[LANG_57], nPrice + nPrice / 100);
+				sprintf(szStrPrice, "%s (%s:%d%%)", szStrPrice, g_pMessageStringTable[LANG_146], 1);
 			}
 			else
 			{
@@ -2842,18 +2842,18 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 
 				if (pFScene->m_nIsMP == 2)
 				{
-					sprintf(szStrPrice, g_pMessageStringTable[487], nPrice);
+					sprintf(szStrPrice, g_pMessageStringTable[LANG_487], nPrice);
 					sprintf(szStrPrice, "%s", szStrPrice);
 				}
 				else if (pFScene->m_nIsMP == 1)
 				{
-					sprintf(szStrPrice, g_pMessageStringTable[385], nPrice);
+					sprintf(szStrPrice, g_pMessageStringTable[LANG_385], nPrice);
 					sprintf(szStrPrice, "%s", szStrPrice);
 				}
 				else
 				{
-					sprintf(szStrPrice, g_pMessageStringTable[57], nPrice + (int)fFinalPrice);
-					sprintf(szStrPrice, "%s (%s:%d%%)", szStrPrice, g_pMessageStringTable[146], g_pObjectManager->m_nTax);
+					sprintf(szStrPrice, g_pMessageStringTable[LANG_57], nPrice + (int)fFinalPrice);
+					sprintf(szStrPrice, "%s (%s:%d%%)", szStrPrice, g_pMessageStringTable[LANG_146], g_pObjectManager->m_nTax);
 				}
 			}
 
@@ -2916,7 +2916,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		}
 		else if (!BASE_CanRefine(pItem->m_pItem) && nItemPos && nItemPos != (int)TMEITEMTYPE::ITEMTYPE_MOUNT)
 		{
-			sprintf(szText, g_pMessageStringTable[48], g_pItemList[pItem->m_pItem->sIndex].ItemName);
+			sprintf(szText, g_pMessageStringTable[LANG_48], g_pItemList[pItem->m_pItem->sIndex].ItemName);
 
 			int nRefLevel = BASE_GetItemAbility(pItem->m_pItem, 87) + 64;
 			if (nRefLevel >= 65)
@@ -2976,7 +2976,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			if (nRefLevel >= 65)
 				sprintf(szText, "%s [%c]", g_pItemList[pItem->m_pItem->sIndex].ItemName, nRefLevel);
 			else if (pItem->m_pItem->sIndex >= 2360 && pItem->m_pItem->sIndex <= 2389 && (pItem->m_pItem->stEffect[2].cValue >= 10))
-				sprintf(szText, g_pMessageStringTable[483], g_pItemList[pItem->m_pItem->sIndex].ItemName, g_pItemList[pItem->m_pItem->stEffect[2].cValue + 4179].ItemName);
+				sprintf(szText, g_pMessageStringTable[LANG_483], g_pItemList[pItem->m_pItem->sIndex].ItemName, g_pItemList[pItem->m_pItem->stEffect[2].cValue + 4179].ItemName);
 			else
 				sprintf(szText, "%s", g_pItemList[pItem->m_pItem->sIndex].ItemName);
 
@@ -2993,38 +2993,38 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 	int nLineId = 0;
 	if (nClassType & 1)
 	{
-		SGridControl::m_szParamString[23] = g_pMessageStringTable[106];
-		SGridControl::m_szParamString[24] = g_pMessageStringTable[107];
-		SGridControl::m_szParamString[25] = g_pMessageStringTable[108];
-		SGridControl::m_szParamString[26] = g_pMessageStringTable[109];
+		SGridControl::m_szParamString[23] = g_pMessageStringTable[LANG_106];
+		SGridControl::m_szParamString[24] = g_pMessageStringTable[LANG_107];
+		SGridControl::m_szParamString[25] = g_pMessageStringTable[LANG_108];
+		SGridControl::m_szParamString[26] = g_pMessageStringTable[LANG_109];
 	}
 	else if (nClassType & 2)
 	{
-		SGridControl::m_szParamString[23] = g_pMessageStringTable[106];
-		SGridControl::m_szParamString[24] = g_pMessageStringTable[110];
-		SGridControl::m_szParamString[25] = g_pMessageStringTable[111];
-		SGridControl::m_szParamString[26] = g_pMessageStringTable[112];
+		SGridControl::m_szParamString[23] = g_pMessageStringTable[LANG_106];
+		SGridControl::m_szParamString[24] = g_pMessageStringTable[LANG_110];
+		SGridControl::m_szParamString[25] = g_pMessageStringTable[LANG_111];
+		SGridControl::m_szParamString[26] = g_pMessageStringTable[LANG_112];
 	}
 	else if (nClassType & 4)
 	{
-		SGridControl::m_szParamString[23] = g_pMessageStringTable[106];
-		SGridControl::m_szParamString[24] = g_pMessageStringTable[113];
-		SGridControl::m_szParamString[25] = g_pMessageStringTable[114];
-		SGridControl::m_szParamString[26] = g_pMessageStringTable[115];
+		SGridControl::m_szParamString[23] = g_pMessageStringTable[LANG_106];
+		SGridControl::m_szParamString[24] = g_pMessageStringTable[LANG_113];
+		SGridControl::m_szParamString[25] = g_pMessageStringTable[LANG_114];
+		SGridControl::m_szParamString[26] = g_pMessageStringTable[LANG_115];
 	}
 	else if (nClassType & 8)
 	{
-		SGridControl::m_szParamString[23] = g_pMessageStringTable[106];
-		SGridControl::m_szParamString[24] = g_pMessageStringTable[133];
-		SGridControl::m_szParamString[25] = g_pMessageStringTable[134];
-		SGridControl::m_szParamString[26] = g_pMessageStringTable[135];
+		SGridControl::m_szParamString[23] = g_pMessageStringTable[LANG_106];
+		SGridControl::m_szParamString[24] = g_pMessageStringTable[LANG_133];
+		SGridControl::m_szParamString[25] = g_pMessageStringTable[LANG_134];
+		SGridControl::m_szParamString[26] = g_pMessageStringTable[LANG_135];
 	}
 	if (nClassType == 255)
 	{
-		SGridControl::m_szParamString[23] = g_pMessageStringTable[95];
-		SGridControl::m_szParamString[24] = g_pMessageStringTable[96];
-		SGridControl::m_szParamString[25] = g_pMessageStringTable[97];
-		SGridControl::m_szParamString[26] = g_pMessageStringTable[98];
+		SGridControl::m_szParamString[23] = g_pMessageStringTable[LANG_95];
+		SGridControl::m_szParamString[24] = g_pMessageStringTable[LANG_96];
+		SGridControl::m_szParamString[25] = g_pMessageStringTable[LANG_97];
+		SGridControl::m_szParamString[26] = g_pMessageStringTable[LANG_98];
 	}
 
 	auto pMobData = &g_pObjectManager->m_stMobData;
@@ -3064,7 +3064,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		dwColor = 0xFFFFFFFF;
 		int SkillNumber = GetSkillIndex(pItem->m_pItem->sIndex);
 
-		sprintf(szDesc, g_pMessageStringTable[49], g_pSpell[SkillNumber].Range);
+		sprintf(szDesc, g_pMessageStringTable[LANG_49], g_pSpell[SkillNumber].Range);
 		pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 		pFScene->m_pParamText[nLineId]->SetTextColor(dwColor);
 		++nLineId;
@@ -3072,7 +3072,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		auto mob = &g_pObjectManager->m_stMobData;
 		if (SkillNumber == 22 || SkillNumber == 31)
 		{
-			sprintf(szDesc, g_pMessageStringTable[231]);
+			sprintf(szDesc, g_pMessageStringTable[LANG_231]);
 			pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 			pFScene->m_pParamText[nLineId]->SetTextColor(dwColor);
 			++nLineId;
@@ -3087,7 +3087,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			}
 
 			char szText[128]{};
-			sprintf(szText, g_pMessageStringTable[50], g_pSpell[SkillNumber].ManaSpent);
+			sprintf(szText, g_pMessageStringTable[LANG_50], g_pSpell[SkillNumber].ManaSpent);
 			if (manaSpent)
 				sprintf(szDesc, "%s ( %d )", szText, manaSpent);
 			else
@@ -3113,7 +3113,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		int nSkillDamage = BASE_GetSkillDamage(SkillNumber, mob, weather, pFScene->GetWeaponDamage(), faceId);
 
 		char szText[128]{};
-		sprintf(szText, g_pMessageStringTable[51], g_pSpell[SkillNumber].InstanceValue);
+		sprintf(szText, g_pMessageStringTable[LANG_51], g_pSpell[SkillNumber].InstanceValue);
 
 		if (nSkillDamage)
 			sprintf(szDesc, "%s ( %d )", szText, nSkillDamage);
@@ -3134,33 +3134,33 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			attribute = 5;
 
 		static const char* attributes[6] = {
-			g_pMessageStringTable[116],
-			g_pMessageStringTable[117],
-			g_pMessageStringTable[118],
-			g_pMessageStringTable[119],
-			g_pMessageStringTable[120],
-			g_pMessageStringTable[481]
+			g_pMessageStringTable[LANG_116],
+			g_pMessageStringTable[LANG_117],
+			g_pMessageStringTable[LANG_118],
+			g_pMessageStringTable[LANG_119],
+			g_pMessageStringTable[LANG_120],
+			g_pMessageStringTable[LANG_481]
 		};
 
-		sprintf(szDesc, g_pMessageStringTable[52], attributes[attribute]);
+		sprintf(szDesc, g_pMessageStringTable[LANG_52], attributes[attribute]);
 
 		pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 		pFScene->m_pParamText[nLineId]->SetTextColor(dwColor);
 		++nLineId;
 
 		static const char* requirements[12] = {
-					g_pMessageStringTable[107],
-					g_pMessageStringTable[108],
-					g_pMessageStringTable[109],
-					g_pMessageStringTable[110],
-					g_pMessageStringTable[111],
-					g_pMessageStringTable[112],
-					g_pMessageStringTable[113],
-					g_pMessageStringTable[114],
-					g_pMessageStringTable[115],
-					g_pMessageStringTable[133],
-					g_pMessageStringTable[134],
-					g_pMessageStringTable[135]
+					g_pMessageStringTable[LANG_107],
+					g_pMessageStringTable[LANG_108],
+					g_pMessageStringTable[LANG_109],
+					g_pMessageStringTable[LANG_110],
+					g_pMessageStringTable[LANG_111],
+					g_pMessageStringTable[LANG_112],
+					g_pMessageStringTable[LANG_113],
+					g_pMessageStringTable[LANG_114],
+					g_pMessageStringTable[LANG_115],
+					g_pMessageStringTable[LANG_133],
+					g_pMessageStringTable[LANG_134],
+					g_pMessageStringTable[LANG_135]
 		};
 
 		for (int l = 3; l < 6; ++l)
@@ -3182,7 +3182,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 					itemId /= 2;
 				}
 
-				sprintf(szDesc, g_pMessageStringTable[53], requirements[itemId], reqScore);
+				sprintf(szDesc, g_pMessageStringTable[LANG_53], requirements[itemId], reqScore);
 
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(dwColor);
@@ -3202,10 +3202,10 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 					continue;
 
 				static const char* classRequirements[4] = {
-					g_pMessageStringTable[121],
-					g_pMessageStringTable[122],
-					g_pMessageStringTable[123],
-					g_pMessageStringTable[124]
+					g_pMessageStringTable[LANG_121],
+					g_pMessageStringTable[LANG_122],
+					g_pMessageStringTable[LANG_123],
+					g_pMessageStringTable[LANG_124]
 				};
 
 				auto mob = &g_pObjectManager->m_stMobData;
@@ -3233,7 +3233,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 				else
 					dwColor = 0xFFFF0000;
 
-				sprintf(szDesc, g_pMessageStringTable[54], ++req);
+				sprintf(szDesc, g_pMessageStringTable[LANG_54], ++req);
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(dwColor);
 				++nLineId;
@@ -3242,7 +3242,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			{
 				dwColor = 0xFFFFFFFF;
 				int itemId = (pItem->m_pItem->sIndex - 5000) / 8;
-				sprintf(szDesc, g_pMessageStringTable[55], requirements[itemId], req);
+				sprintf(szDesc, g_pMessageStringTable[LANG_55], requirements[itemId], req);
 
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(dwColor);
@@ -3251,7 +3251,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		}
 		if (IsPassiveSkill(pItem->m_pItem->sIndex) == 1)
 		{
-			sprintf(szDesc, g_pMessageStringTable[139]);
+			sprintf(szDesc, g_pMessageStringTable[LANG_139]);
 			pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 			pFScene->m_pParamText[nLineId]->SetTextColor(0xFFAAFFAA);
 			++nLineId;
@@ -3311,7 +3311,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 				pFScene->m_pParamText[nLineId]->SetTextColor(0xFFFFFFAA);
 				++nLineId;
 
-				sprintf(szDesc, g_pMessageStringTable[280]);
+				sprintf(szDesc, g_pMessageStringTable[LANG_280]);
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(0xFFFFFFFF);
 				++nLineId;
@@ -3324,7 +3324,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 				pFScene->m_pParamText[nLineId]->SetTextColor(0xFFAAFFAA);
 				++nLineId;
 
-				sprintf(szDesc, g_pMessageStringTable[281]);
+				sprintf(szDesc, g_pMessageStringTable[LANG_281]);
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(0xFFAAFFAA);
 			}
@@ -3360,21 +3360,21 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		char formattedMonth[128]{};
 
 		if (date)
-			sprintf(formattedDate, g_pMessageStringTable[291], date);
+			sprintf(formattedDate, g_pMessageStringTable[LANG_291], date);
 		else
 			sprintf(formattedDate, "");
 		if (year)
-			sprintf(formattedYear, g_pMessageStringTable[297], year + 2000);
+			sprintf(formattedYear, g_pMessageStringTable[LANG_297], year + 2000);
 		else
 			sprintf(formattedYear, "");
 		if (month)
-			sprintf(formattedMonth, g_pMessageStringTable[296], month);
+			sprintf(formattedMonth, g_pMessageStringTable[LANG_296], month);
 		else
 			sprintf(formattedMonth, "");
 
 		char timeTypeStr[128]{};
-		sprintf(timeTypeStr, g_pMessageStringTable[298], 0);
-		sprintf(szDesc, "%s %s %s %s 0%s", g_pMessageStringTable[299], formattedYear, formattedMonth, formattedDate, timeTypeStr);
+		sprintf(timeTypeStr, g_pMessageStringTable[LANG_298], 0);
+		sprintf(szDesc, "%s %s %s %s 0%s", g_pMessageStringTable[LANG_299], formattedYear, formattedMonth, formattedDate, timeTypeStr);
 
 		pFScene->m_dwNightmareTime = dwServerTime;
 		pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
@@ -3422,15 +3422,15 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		char formattedMin[128]{};
 
 		if (date)
-			sprintf(formattedDate, g_pMessageStringTable[291], date);
+			sprintf(formattedDate, g_pMessageStringTable[LANG_291], date);
 		else
 			sprintf(formattedDate, "");
 		if (hour)
-			sprintf(formattedHour, g_pMessageStringTable[292], hour);
+			sprintf(formattedHour, g_pMessageStringTable[LANG_292], hour);
 		else
 			sprintf(formattedHour, "");
 		if (min)
-			sprintf(formattedMin, g_pMessageStringTable[293], min);
+			sprintf(formattedMin, g_pMessageStringTable[LANG_293], min);
 		else
 			sprintf(formattedMin, "");
 
@@ -3480,21 +3480,21 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			char formattedMonth[128]{};
 
 			if (date)
-				sprintf(formattedDate, g_pMessageStringTable[291], date);
+				sprintf(formattedDate, g_pMessageStringTable[LANG_291], date);
 			else
 				sprintf(formattedDate, "");
 			if (year)
-				sprintf(formattedYear, g_pMessageStringTable[297], year + 2000);
+				sprintf(formattedYear, g_pMessageStringTable[LANG_297], year + 2000);
 			else
 				sprintf(formattedYear, "");
 			if (month)
-				sprintf(formattedMonth, g_pMessageStringTable[296], month);
+				sprintf(formattedMonth, g_pMessageStringTable[LANG_296], month);
 			else
 				sprintf(formattedMonth, "");
 
 			char timeTypeStr[128]{};
-			sprintf(timeTypeStr, g_pMessageStringTable[298], 0);
-			sprintf(szDesc, "%s %s %s %s 0%s", g_pMessageStringTable[299], formattedYear, formattedMonth, formattedDate, timeTypeStr);
+			sprintf(timeTypeStr, g_pMessageStringTable[LANG_298], 0);
+			sprintf(szDesc, "%s %s %s %s 0%s", g_pMessageStringTable[LANG_299], formattedYear, formattedMonth, formattedDate, timeTypeStr);
 
 			pFScene->m_dwNightmareTime = dwServerTime;
 			pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
@@ -3530,21 +3530,21 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			char formattedMonth[128]{};
 
 			if (date)
-				sprintf(formattedDate, g_pMessageStringTable[291], date);
+				sprintf(formattedDate, g_pMessageStringTable[LANG_291], date);
 			else
 				sprintf(formattedDate, "");
 			if (year)
-				sprintf(formattedYear, g_pMessageStringTable[297], year + 2000);
+				sprintf(formattedYear, g_pMessageStringTable[LANG_297], year + 2000);
 			else
 				sprintf(formattedYear, "");
 			if (month)
-				sprintf(formattedMonth, g_pMessageStringTable[296], month);
+				sprintf(formattedMonth, g_pMessageStringTable[LANG_296], month);
 			else
 				sprintf(formattedMonth, "");
 
 			char timeTypeStr[128]{};
-			sprintf(timeTypeStr, g_pMessageStringTable[298], 0);
-			sprintf(szDesc, "%s %s %s %s 0%s", g_pMessageStringTable[299], formattedYear, formattedMonth, formattedDate, timeTypeStr);
+			sprintf(timeTypeStr, g_pMessageStringTable[LANG_298], 0);
+			sprintf(szDesc, "%s %s %s %s 0%s", g_pMessageStringTable[LANG_299], formattedYear, formattedMonth, formattedDate, timeTypeStr);
 
 			pFScene->m_dwNightmareTime = dwServerTime;
 			pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
@@ -3567,7 +3567,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			int add = BASE_GetStaticItemAbility(pItem->m_pItem, dwEFParam[l]);
 			if (dwEFParam[l] == 80 && add <= 0 && pItem->m_pItem->sIndex >= 2330 && pItem->m_pItem->sIndex <= 2389)
 			{
-				sprintf(szDesc, "%s", g_pMessageStringTable[168]);
+				sprintf(szDesc, "%s", g_pMessageStringTable[LANG_168]);
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(0xFFFFFFFF);
 				++nLineId;
@@ -3583,10 +3583,10 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 					if (add != 255 && !cktrans && (pItem->m_pItem->sIndex < 4190 || pItem->m_pItem->sIndex > 4200))
 					{
 						static const char* reqs[4] = {
-							 g_pMessageStringTable[121],
-							 g_pMessageStringTable[122],
-							 g_pMessageStringTable[123],
-							 g_pMessageStringTable[124]
+							 g_pMessageStringTable[LANG_121],
+							 g_pMessageStringTable[LANG_122],
+							 g_pMessageStringTable[LANG_123],
+							 g_pMessageStringTable[LANG_124]
 						};
 
 						sprintf(szDesc, "%s : ", SGridControl::m_szParamString[l]);
@@ -3622,7 +3622,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 
 						char szText[128]{};
 						sprintf(szDesc, "%s : %d ", SGridControl::m_szParamString[l], add + 1);
-						sprintf(szText, g_pMessageStringTable[56], someWeaponAdd * add / 100 + 1);
+						sprintf(szText, g_pMessageStringTable[LANG_56], someWeaponAdd * add / 100 + 1);
 						strcat(szDesc, szText);
 					}
 
@@ -3676,7 +3676,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 						if (pItem->m_pItem->sIndex >= 2360 && pItem->m_pItem->sIndex < 2390
 							|| pItem->m_pItem->sIndex >= 2960 && pItem->m_pItem->sIndex < 3000)
 						{
-							sprintf(szDesc, "%s : %u", g_pMessageStringTable[167], add);
+							sprintf(szDesc, "%s : %u", g_pMessageStringTable[LANG_167], add);
 						}
 						else
 						{
@@ -3728,7 +3728,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 						if (add >= 0)
 							sprintf(szDesc, "%s : %d", SGridControl::m_szParamString[l], add);
 						else
-							sprintf(szDesc, "%s", g_pMessageStringTable[168]);
+							sprintf(szDesc, "%s", g_pMessageStringTable[LANG_168]);
 						pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 						pFScene->m_pParamText[nLineId]->SetTextColor(0xFFFFFFFF);
 						++nLineId;
@@ -3742,7 +3742,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 					}
 					else if (dwEFParam[l] == 84 && pItem->m_pItem->sIndex >= 2300 && pItem->m_pItem->sIndex < 2330 && add <= 0)
 					{
-						sprintf(szDesc, "%s", g_pMessageStringTable[170]);
+						sprintf(szDesc, "%s", g_pMessageStringTable[LANG_170]);
 						pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 						pFScene->m_pParamText[nLineId]->SetTextColor(0xFFFFFFFF);
 						++nLineId;
@@ -3767,7 +3767,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 
 							char szText[128]{};
 							sprintf(szDesc, "%s : %d ", SGridControl::m_szParamString[l], add + 1);
-							sprintf(szText, g_pMessageStringTable[56], someWeaponAdd * add / 100 + 1);
+							sprintf(szText, g_pMessageStringTable[LANG_56], someWeaponAdd * add / 100 + 1);
 							strcat(szDesc, szText);
 						}
 
@@ -3861,14 +3861,14 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			unsigned int nPos = BASE_GetItemAbility(pItem->m_pItem, 17);
 			if (nPos == 4 || nPos == 8 || nPos == 128)
 			{
-				sprintf(szDesc, "%s : 25", g_pMessageStringTable[80]);
+				sprintf(szDesc, "%s : 25", g_pMessageStringTable[LANG_80]);
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(0xFF88AAFF);
 				++nLineId;
 			}
 			else if (nPos == 16)
 			{
-				sprintf(szDesc, "%s : 1", g_pMessageStringTable[151]);
+				sprintf(szDesc, "%s : 1", g_pMessageStringTable[LANG_151]);
 				pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 				pFScene->m_pParamText[nLineId]->SetTextColor(0xFF88AAFF);
 				++nLineId;
@@ -3878,14 +3878,14 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 				int nUnique = g_pItemList[pItem->m_pItem->sIndex].Unique;
 				if (nUnique == 47 || nUnique == 44)
 				{
-					sprintf(szDesc, "%s : 8%%", g_pMessageStringTable[104]);
+					sprintf(szDesc, "%s : 8%%", g_pMessageStringTable[LANG_104]);
 					pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 					pFScene->m_pParamText[nLineId]->SetTextColor(0xFF88AAFF);
 					++nLineId;
 				}
 				else
 				{
-					sprintf(szDesc, "%s : 40", g_pMessageStringTable[79]);
+					sprintf(szDesc, "%s : 40", g_pMessageStringTable[LANG_79]);
 					pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 					pFScene->m_pParamText[nLineId]->SetTextColor(0xFF88AAFF);
 					++nLineId;
@@ -3897,7 +3897,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 	int hGuild = BASE_GetItemAbility(pItem->m_pItem, 56);
 	if (hGuild > 0)
 	{
-		sprintf(szDesc, g_pMessageStringTable[439], hGuild / 10, hGuild % 10);
+		sprintf(szDesc, g_pMessageStringTable[LANG_439], hGuild / 10, hGuild % 10);
 		pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 		pFScene->m_pParamText[nLineId]->SetTextColor(0xFFFFF00);
 		++nLineId;
@@ -3905,7 +3905,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 	hGuild = BASE_GetItemAbility(pItem->m_pItem, 57);
 	if (hGuild > 0)
 	{
-		sprintf(szDesc, g_pMessageStringTable[440], hGuild / 10, hGuild % 10);
+		sprintf(szDesc, g_pMessageStringTable[LANG_440], hGuild / 10, hGuild % 10);
 		pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 		pFScene->m_pParamText[nLineId]->SetTextColor(0xFFFFF00);
 		++nLineId;
@@ -3928,24 +3928,24 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 				mult = 2;
 
 			if (!sancCalc)
-				sprintf(szDesc, g_pMessageStringTable[195], 8 * mult);
+				sprintf(szDesc, g_pMessageStringTable[LANG_195], 8 * mult);
 			if (sancCalc == 1)
-				sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], mult * 40 * sanc);
+				sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], mult * 40 * sanc);
 			if (sancCalc == 2)
-				sprintf(szDesc, g_pMessageStringTable[197], 2 * mult);
+				sprintf(szDesc, g_pMessageStringTable[LANG_197], 2 * mult);
 			if (sancCalc == 3)
-				sprintf(szDesc, "%s : %d", g_pMessageStringTable[198], mult * 40 * sanc);
+				sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_198], mult * 40 * sanc);
 		}
 		else
 		{
 			if (nGrade == 5)
-				sprintf(szDesc, g_pMessageStringTable[195], 8);
+				sprintf(szDesc, g_pMessageStringTable[LANG_195], 8);
 			if (nGrade == 6)
-				sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], 40);
+				sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], 40);
 			if (nGrade == 7)
-				sprintf(szDesc, g_pMessageStringTable[197], 2);
+				sprintf(szDesc, g_pMessageStringTable[LANG_197], 2);
 			if (nGrade == 8)
-				sprintf(szDesc, "%s : %d", g_pMessageStringTable[198], 40);
+				sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_198], 40);
 		}
 
 		int sancCalc = 10;
@@ -3964,40 +3964,40 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		switch (nGrade)
 		{
 		case 9:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], otherSancCalc + sancCalc);
 			break;
 		case 10:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[198], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_198], otherSancCalc + sancCalc);
 			break;
 		case 20:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], otherSancCalc + sancCalc);
 			break;
 		case 21:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[198], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_198], otherSancCalc + sancCalc);
 			break;
 		case 22:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], otherSancCalc + sancCalc);
 			pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 			pFScene->m_pParamText[nLineId]->SetTextColor(0xFF88AAFF);
 			++nLineId;
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[198], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_198], otherSancCalc + sancCalc);
 			break;
 		case 24:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], otherSancCalc + sancCalc);
 			break;
 		case 25:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], otherSancCalc + sancCalc);
 			pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 			pFScene->m_pParamText[nLineId]->SetTextColor(0xFF88AAFF);
 			++nLineId;
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[198], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_198], otherSancCalc + sancCalc);
 			break;
 		case 26:
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[196], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_196], otherSancCalc + sancCalc);
 			pFScene->m_pParamText[nLineId]->SetText(szDesc, 0);
 			pFScene->m_pParamText[nLineId]->SetTextColor(0xFF88AAFF);
 			++nLineId;
-			sprintf(szDesc, "%s : %d", g_pMessageStringTable[198], otherSancCalc + sancCalc);
+			sprintf(szDesc, "%s : %d", g_pMessageStringTable[LANG_198], otherSancCalc + sancCalc);
 			break;
 		}
 
@@ -4041,12 +4041,12 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 				}
 			}
 
-			sprintf(szText, g_pMessageStringTable[58], nPrice);
+			sprintf(szText, g_pMessageStringTable[LANG_58], nPrice);
 			pParamText->SetText(szText, 0);
 			if ((pItem->m_pItem->sIndex == 412 || pItem->m_pItem->sIndex == 413)
 				&& !g_pItemList[pItem->m_pItem->sIndex].Price)
 			{
-				pParamText->SetText(g_pMessageStringTable[340], 0);
+				pParamText->SetText(g_pMessageStringTable[LANG_340], 0);
 			}
 		}
 		else if (m_eGridType == TMEGRIDTYPE::GRID_SKILLM)
@@ -4057,7 +4057,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			if (nSkillPoint > g_pObjectManager->m_stMobData.SkillPoint)
 				pParamText->SetTextColor(0xFFFF0000);
 
-			sprintf(szText, g_pMessageStringTable[59], nSkillPoint);
+			sprintf(szText, g_pMessageStringTable[LANG_59], nSkillPoint);
 			pParamText->SetText(szText, 0);
 		}
 		else if (m_eGridType == TMEGRIDTYPE::GRID_TRADEMY2 || m_eGridType == TMEGRIDTYPE::GRID_TRADEOP)
@@ -4070,7 +4070,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		{
 			int nSkillPoint = g_pSpell[pItem->m_pItem->sIndex - 570].SkillPoint;
 			char szText[128]{};
-			sprintf(szText, g_pMessageStringTable[59], nSkillPoint);
+			sprintf(szText, g_pMessageStringTable[LANG_59], nSkillPoint);
 			pParamText->SetText(szText, 0);
 		}
 		else
@@ -4090,12 +4090,12 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 
 	if (pFScene->m_nIsMP == 2)
 	{
-		sprintf(szText, g_pMessageStringTable[487], nItemPrice);
+		sprintf(szText, g_pMessageStringTable[LANG_487], nItemPrice);
 		sprintf(szText, "%s", szText);
 	}
 	else if (pFScene->m_nIsMP == 1)
 	{
-		sprintf(szText, g_pMessageStringTable[385], nItemPrice);
+		sprintf(szText, g_pMessageStringTable[LANG_385], nItemPrice);
 		sprintf(szText, "%s", szText);
 	}
 	else
@@ -4105,7 +4105,7 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 			for (int nn = 0; nn < 10; ++nn)
 			{
 				if (pItem->m_pItem->sIndex == pFScene->m_stRepurcharse[nn].stItem.sIndex)
-					sprintf(szText, g_pMessageStringTable[486], nItemPrice);
+					sprintf(szText, g_pMessageStringTable[LANG_486], nItemPrice);
 			}
 		}
 		else if (pFScene->m_bEventCouponOpen == 1)
@@ -4128,8 +4128,8 @@ int SGridControl::MouseOver(int nCellX, int nCellY, int bPtInRect)
 		}
 		else
 		{
-			sprintf(szText, g_pMessageStringTable[57], nItemPrice + (int)taxPrice);
-			sprintf(szText, "%s (%s:%d%%)", szText, g_pMessageStringTable[146], g_pObjectManager->m_nTax);
+			sprintf(szText, g_pMessageStringTable[LANG_57], nItemPrice + (int)taxPrice);
+			sprintf(szText, "%s (%s:%d%%)", szText, g_pMessageStringTable[LANG_146], g_pObjectManager->m_nTax);
 		}
 
 		if (pItem->m_pItem->sIndex == 4998 || pItem->m_pItem->sIndex == 4999)
@@ -4237,7 +4237,7 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 			else
 			{
 				auto pChatList = pFScene->m_pChatList;
-				pChatList->AddItem(new SListBoxItem(g_pMessageStringTable[30], 0xFFFFAAAA, 0.0f, 0.0f, 280.0f,
+				pChatList->AddItem(new SListBoxItem(g_pMessageStringTable[LANG_30], 0xFFFFAAAA, 0.0f, 0.0f, 280.0f,
 					16.0f, 0, 0x77777777, 1, 0));
 
 				auto pSoundManager = g_pSoundManager;
@@ -4291,8 +4291,8 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 			if (pFScene->m_dwOldAttackTime + 1000 < g_pTimerManager->GetServerTime())
 			{
 				char szMessage[128]{};
-				sprintf(szMessage, g_pMessageStringTable[149], g_pItemList[pItem->m_pItem->sIndex].ItemName);
-				pFScene->m_pMessageBox->SetMessage(szMessage, 84, g_pMessageStringTable[150]);
+				sprintf(szMessage, g_pMessageStringTable[LANG_149], g_pItemList[pItem->m_pItem->sIndex].ItemName);
+				pFScene->m_pMessageBox->SetMessage(szMessage, 84, g_pMessageStringTable[LANG_150]);
 				pFScene->m_pMessageBox->SetVisible(1);
 
 				short sDestType = CheckType(pItem->m_pGridControl->m_eItemType,
@@ -4416,7 +4416,7 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 		}
 		if (nType == 14)
 		{
-			pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[175], 38, 0);
+			pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_175], 38, 0);
 			pFScene->m_pMessageBox->m_dwArg = nCellY | (nCellX << 16);
 			pFScene->m_pMessageBox->SetVisible(1);
 			return;
@@ -4498,7 +4498,7 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 		}
 		if (nItemSIndex == 3336 && g_pCurrentScene->m_eSceneType == ESCENE_TYPE::ESCENE_FIELD)
 		{
-			pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[286], 3000);
+			pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_286], 3000);
 			pFScene->m_pMessagePanel->SetVisible(1, 1);
 			return;
 		}
@@ -4547,7 +4547,7 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 		if (nType == 187 && g_pCurrentScene->m_eSceneType == ESCENE_TYPE::ESCENE_FIELD)
 		{
 
-			pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[300], 883, 0);
+			pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_300], 883, 0);
 			pFScene->m_pMessageBox->m_dwArg = nCellY | (nCellX << 16);
 			pFScene->m_pMessageBox->SetVisible(1);
 			return;
@@ -4561,7 +4561,7 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 				{
 					if (pFScene->m_pGridDRing->m_pItemList[0])
 					{
-						pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[285], 3000);
+						pFScene->m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_285], 3000);
 						pFScene->m_pMessagePanel->SetVisible(1, 1);
 						return;
 					}
@@ -4575,14 +4575,14 @@ void SGridControl::RButton(int nCellX, int nCellY, int bPtInRect)
 			}
 			else if (nType == 206)
 			{
-				pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[350], 883, 0);
+				pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_350], 883, 0);
 				pFScene->m_pMessageBox->m_dwArg = nCellY | (nCellX << 16);
 				pFScene->m_pMessageBox->SetVisible(1);
 				return;
 			}
 			else if (nType == 211)
 			{
-				pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[356], 883, 0);
+				pFScene->m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_356], 883, 0);
 				pFScene->m_pMessageBox->m_dwArg = nCellY | (nCellX << 16);
 				pFScene->m_pMessageBox->SetVisible(1);
 				return;
@@ -4638,31 +4638,31 @@ void SGridControl::UpdateCapsuleInfo(int nIndex)
 		pNameText->SetTextColor(0xFFFFFFAA);
 
 		if (nVisualClass >= 0)
-			sprintf(szStr, "%s : %s[%s]", g_pMessageStringTable[73], g_pMessageStringTable[nClass + 121], 
+			sprintf(szStr, "%s : %s[%s]", g_pMessageStringTable[LANG_73], g_pMessageStringTable[nClass + 121], 
 				g_pMessageStringTable[nVisualClass + 121]);
 		else
-			sprintf(szStr, "%s : %s", g_pMessageStringTable[73], g_pMessageStringTable[nClass + 121]);
+			sprintf(szStr, "%s : %s", g_pMessageStringTable[LANG_73], g_pMessageStringTable[nClass + 121]);
 
 		pScene->m_pParamText[0]->SetText(szStr, 0);
 		pScene->m_pParamText[0]->SetTextColor(0xFFAAFFFF);
 
-		sprintf(szStr, "%s : %d", g_pMessageStringTable[167], g_pObjectManager->m_stCapsuleInfo[nIndex].Level + 1);
+		sprintf(szStr, "%s : %d", g_pMessageStringTable[LANG_167], g_pObjectManager->m_stCapsuleInfo[nIndex].Level + 1);
 		pScene->m_pParamText[1]->SetText(szStr, 0);
 		pScene->m_pParamText[1]->SetTextColor(0xFFFFFFFF);
 
-		sprintf(szStr, "%s : %d", g_pMessageStringTable[100], g_pObjectManager->m_stCapsuleInfo[nIndex].sStr);
+		sprintf(szStr, "%s : %d", g_pMessageStringTable[LANG_100], g_pObjectManager->m_stCapsuleInfo[nIndex].sStr);
 		pScene->m_pParamText[2]->SetText(szStr, 0);
 		pScene->m_pParamText[2]->SetTextColor(0xFFFFFFFF);
 
-		sprintf(szStr, "%s : %d", g_pMessageStringTable[101], g_pObjectManager->m_stCapsuleInfo[nIndex].sInt);
+		sprintf(szStr, "%s : %d", g_pMessageStringTable[LANG_101], g_pObjectManager->m_stCapsuleInfo[nIndex].sInt);
 		pScene->m_pParamText[3]->SetText(szStr, 0);
 		pScene->m_pParamText[3]->SetTextColor(0xFFFFFFFF);
 
-		sprintf(szStr, "%s : %d", g_pMessageStringTable[102], g_pObjectManager->m_stCapsuleInfo[nIndex].sDex);
+		sprintf(szStr, "%s : %d", g_pMessageStringTable[LANG_102], g_pObjectManager->m_stCapsuleInfo[nIndex].sDex);
 		pScene->m_pParamText[4]->SetText(szStr, 0);
 		pScene->m_pParamText[4]->SetTextColor(0xFFFFFFFF);
 
-		sprintf(szStr, "%s : %d", g_pMessageStringTable[103], g_pObjectManager->m_stCapsuleInfo[nIndex].sCon);
+		sprintf(szStr, "%s : %d", g_pMessageStringTable[LANG_103], g_pObjectManager->m_stCapsuleInfo[nIndex].sCon);
 		pScene->m_pParamText[5]->SetText(szStr, 0);
 		pScene->m_pParamText[5]->SetTextColor(0xFFFFFFFF);
 
@@ -4733,7 +4733,7 @@ void SGridControl::UpdateCapsuleInfo(int nIndex)
 		if (g_pObjectManager->m_stCapsuleInfo[nIndex].Quest & 0x1111)
 			nQuest = 4;
 
-		sprintf(szStr, "%s : %d", g_pMessageStringTable[358], nQuest);
+		sprintf(szStr, "%s : %d", g_pMessageStringTable[LANG_358], nQuest);
 		pScene->m_pParamText[9]->SetText(szStr, 0);
 		pScene->m_pParamText[9]->SetTextColor(0xFFFFFFFF);
 	}
@@ -4752,8 +4752,8 @@ char SGridControl::AutoSellShowPrice(char* Price)
 	char szPrice4[128];
 
 	sprintf(szPrice2, "%d", nPrice % 10000);
-	sprintf(szPrice3, g_pMessageStringTable[283], nPrice / 10000 % 10000);
-	sprintf(szPrice4, g_pMessageStringTable[282], nPrice / 100000000);
+	sprintf(szPrice3, g_pMessageStringTable[LANG_283], nPrice / 10000 % 10000);
+	sprintf(szPrice4, g_pMessageStringTable[LANG_282], nPrice / 100000000);
 	if (nPrice % 10000 <= 0)
 	{
 		if (nPrice / 10000 % 10000 <= 0)
@@ -4761,31 +4761,31 @@ char SGridControl::AutoSellShowPrice(char* Price)
 			if (nPrice / 100000000 <= 0)
 				sprintf(szPrice, "");
 			else
-				sprintf(szPrice, "%s %s", szPrice4, g_pMessageStringTable[284]);
+				sprintf(szPrice, "%s %s", szPrice4, g_pMessageStringTable[LANG_284]);
 		}
 		else if (nPrice / 100000000 <= 0)
 		{
-			sprintf(szPrice, "%s %s", szPrice3, g_pMessageStringTable[284]);
+			sprintf(szPrice, "%s %s", szPrice3, g_pMessageStringTable[LANG_284]);
 		}
 		else
 		{
-			sprintf(szPrice, "%s %s %s", szPrice4, szPrice3, g_pMessageStringTable[284]);
+			sprintf(szPrice, "%s %s %s", szPrice4, szPrice3, g_pMessageStringTable[LANG_284]);
 		}
 	}
 	else if (nPrice / 10000 % 10000 <= 0)
 	{
 		if (nPrice / 100000000 <= 0)
-			sprintf(szPrice, "%s %s", szPrice2, g_pMessageStringTable[284]);
+			sprintf(szPrice, "%s %s", szPrice2, g_pMessageStringTable[LANG_284]);
 		else
-			sprintf(szPrice, "%s %s %s ", szPrice4, szPrice2, g_pMessageStringTable[284]);
+			sprintf(szPrice, "%s %s %s ", szPrice4, szPrice2, g_pMessageStringTable[LANG_284]);
 	}
 	else if (nPrice / 100000000 <= 0)
 	{
-		sprintf(szPrice, "%s %s%s", szPrice3, szPrice2, g_pMessageStringTable[284]);
+		sprintf(szPrice, "%s %s%s", szPrice3, szPrice2, g_pMessageStringTable[LANG_284]);
 	}
 	else
 	{
-		sprintf(szPrice, "%s %s %s %s", szPrice4, szPrice3, szPrice2, g_pMessageStringTable[284]);
+		sprintf(szPrice, "%s %s %s %s", szPrice4, szPrice3, szPrice2, g_pMessageStringTable[LANG_284]);
 	}
 
 	sprintf(Price, "%s", szPrice);

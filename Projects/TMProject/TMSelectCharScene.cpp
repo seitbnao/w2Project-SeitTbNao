@@ -252,10 +252,10 @@ int TMSelectCharScene::InitializeScene()
 
 		if (fp)
 		{
-			szClass[0] = g_pMessageStringTable[121];
-			szClass[1] = g_pMessageStringTable[122];
-			szClass[2] = g_pMessageStringTable[123];
-			szClass[3] = g_pMessageStringTable[124];
+			szClass[0] = g_pMessageStringTable[LANG_121];
+			szClass[1] = g_pMessageStringTable[LANG_122];
+			szClass[2] = g_pMessageStringTable[LANG_123];
+			szClass[3] = g_pMessageStringTable[LANG_124];
 
 			HUMAN_LOOKINFO stHumanLook{};
 			SANC_INFO stSancInfo{};
@@ -385,7 +385,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 	{
 		if (m_bSelect)
 		{
-			m_pMessageBox->SetMessage(g_pMessageStringTable[11], 65796, 0);
+			m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_11], 65796, 0);
 			m_pMessageBox->SetVisible(1);
 		}
 		else
@@ -501,7 +501,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 		int nSlot = g_pObjectManager->m_cCharacterSlot;
 		if (nSlot < 0 || nSlot >= 4)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[14], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_14], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		else if (m_pHuman[nSlot] && pSelChar->MobName[nSlot][0])
@@ -525,19 +525,19 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 		SEditableText* pEditID = static_cast<SEditableText*>(m_pControlContainer->FindControl(4626));
 		if (strlen(pEditID->GetText()) < 4)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[15], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_15], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
 		if (strlen(pEditID->GetText()) > 12)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[16], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_16], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
 		if (!BASE_CheckValidString(pEditID->GetText()))
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[17], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_17], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
@@ -546,7 +546,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 		{
 			if (szName[i] == -95 && szName[i + 1] == -95)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[17], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_17], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -565,7 +565,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 
 		if (!g_pObjectManager->m_pTargetObject || nClass == -1)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[14], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_14], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
@@ -587,7 +587,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 	}
 	if (idwControlID == 4615)
 	{
-		m_pMessageBox->SetMessage(g_pMessageStringTable[18], 4615, 0);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_18], 4615, 0);
 		m_pMessageBox->SetVisible(1);
 		return 1;
 	}
@@ -654,26 +654,26 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 		int size = strlen(m_pEditRename->GetText());
 		if (size < 4)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[15], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_15], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
 		if (size > 12)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[16], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_16], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
 		if (!BASE_CheckValidString(m_pEditRename->GetText()))
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[17], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_17], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
 		char* szName = BASE_TransCurse(m_pEditRename->GetText());
 		if (strcmp(m_pEditRename->GetText(), szName))
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[17], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_17], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
@@ -683,7 +683,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 		{
 			if (buf[i] == -95 && buf[i + 1] == -95)
 			{
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[17], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_17], 2000);
 				m_pMessagePanel->SetVisible(1, 1);
 				return 1;
 			}
@@ -754,7 +754,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 		}
 		if (m_pMessageBox->m_dwMessage == 65875)
 		{
-			ShellExecute(0, 0, g_pMessageStringTable[263], 0, 0, 3);
+			ShellExecute(0, 0, g_pMessageStringTable[LANG_263], 0, 0, 3);
 			return 1;
 		}
 		if (m_pMessageBox->m_dwMessage == 1)
@@ -774,7 +774,7 @@ int TMSelectCharScene::OnControlEvent(unsigned int idwControlID, unsigned int id
 
 			m_bMovingNow = 1;
 			m_dwLastMoveTime = dwServerTime;
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[206], 0);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_206], 0);
 			m_pMessagePanel->SetVisible(1, 1);
 			return 1;
 		}
@@ -971,10 +971,10 @@ int TMSelectCharScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, i
 
 		char* szClass[4]
 		{
-			g_pMessageStringTable[121],
-			g_pMessageStringTable[122],
-			g_pMessageStringTable[123],
-			g_pMessageStringTable[124]
+			g_pMessageStringTable[LANG_121],
+			g_pMessageStringTable[LANG_122],
+			g_pMessageStringTable[LANG_123],
+			g_pMessageStringTable[LANG_124]
 		};
 
 		int nClassa{};
@@ -1000,7 +1000,7 @@ int TMSelectCharScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, i
 		pName->SetText(m_pHuman[i]->m_szName, 1);
 
 		if (g_pObjectManager->m_stSelCharData.Equip[i][0].sIndex >= 40)
-			pClass->SetText(g_pMessageStringTable[294], 0);
+			pClass->SetText(g_pMessageStringTable[LANG_294], 0);
 		else
 			pClass->SetText(szClass[nClassa], 0);
 
@@ -1074,11 +1074,11 @@ int TMSelectCharScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, i
 
 		char* szTownName[5]
 		{
-			g_pMessageStringTable[125],
-			g_pMessageStringTable[126],
-			g_pMessageStringTable[173],
-			g_pMessageStringTable[321],
-			g_pMessageStringTable[127]
+			g_pMessageStringTable[LANG_125],
+			g_pMessageStringTable[LANG_126],
+			g_pMessageStringTable[LANG_173],
+			g_pMessageStringTable[LANG_321],
+			g_pMessageStringTable[LANG_127]
 		};
 
 		int nTownIndex = BASE_GetVillage(
@@ -1105,28 +1105,28 @@ int TMSelectCharScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, i
 		switch (nClassa)
 		{
 		case 0:
-			m_pSp1Caption->SetText(g_pMessageStringTable[242], 0);
-			m_pSp2Caption->SetText(g_pMessageStringTable[243], 0);
-			m_pSp3Caption->SetText(g_pMessageStringTable[244], 0);
-			m_pSp4Caption->SetText(g_pMessageStringTable[245], 0);
+			m_pSp1Caption->SetText(g_pMessageStringTable[LANG_242], 0);
+			m_pSp2Caption->SetText(g_pMessageStringTable[LANG_243], 0);
+			m_pSp3Caption->SetText(g_pMessageStringTable[LANG_244], 0);
+			m_pSp4Caption->SetText(g_pMessageStringTable[LANG_245], 0);
 			break;
 		case 1:
-			m_pSp1Caption->SetText(g_pMessageStringTable[246], 0);
-			m_pSp2Caption->SetText(g_pMessageStringTable[247], 0);
-			m_pSp3Caption->SetText(g_pMessageStringTable[248], 0);
-			m_pSp4Caption->SetText(g_pMessageStringTable[249], 0);
+			m_pSp1Caption->SetText(g_pMessageStringTable[LANG_246], 0);
+			m_pSp2Caption->SetText(g_pMessageStringTable[LANG_247], 0);
+			m_pSp3Caption->SetText(g_pMessageStringTable[LANG_248], 0);
+			m_pSp4Caption->SetText(g_pMessageStringTable[LANG_249], 0);
 			break;
 		case 2:
-			m_pSp1Caption->SetText(g_pMessageStringTable[250], 0);
-			m_pSp2Caption->SetText(g_pMessageStringTable[251], 0);
-			m_pSp3Caption->SetText(g_pMessageStringTable[252], 0);
-			m_pSp4Caption->SetText(g_pMessageStringTable[253], 0);
+			m_pSp1Caption->SetText(g_pMessageStringTable[LANG_250], 0);
+			m_pSp2Caption->SetText(g_pMessageStringTable[LANG_251], 0);
+			m_pSp3Caption->SetText(g_pMessageStringTable[LANG_252], 0);
+			m_pSp4Caption->SetText(g_pMessageStringTable[LANG_253], 0);
 			break;
 		case 3:
-			m_pSp1Caption->SetText(g_pMessageStringTable[254], 0);
-			m_pSp2Caption->SetText(g_pMessageStringTable[255], 0);
-			m_pSp3Caption->SetText(g_pMessageStringTable[256], 0);
-			m_pSp4Caption->SetText(g_pMessageStringTable[257], 0);
+			m_pSp1Caption->SetText(g_pMessageStringTable[LANG_254], 0);
+			m_pSp2Caption->SetText(g_pMessageStringTable[LANG_255], 0);
+			m_pSp3Caption->SetText(g_pMessageStringTable[LANG_256], 0);
+			m_pSp4Caption->SetText(g_pMessageStringTable[LANG_257], 0);
 			break;
 		}
 
@@ -1180,9 +1180,9 @@ int TMSelectCharScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, i
 
 			char szName[128]{};
 
-			sprintf(szName, g_pMessageStringTable[149], m_pHuman[g_pObjectManager->m_cCharacterSlot]->m_szName);
+			sprintf(szName, g_pMessageStringTable[LANG_149], m_pHuman[g_pObjectManager->m_cCharacterSlot]->m_szName);
 
-			m_pMessageBox->SetMessage(szName, 1u, g_pMessageStringTable[200]);
+			m_pMessageBox->SetMessage(szName, 1u, g_pMessageStringTable[LANG_200]);
 			m_pMessageBox->SetVisible(1);
 		}
 		return 1;
@@ -1272,22 +1272,22 @@ int TMSelectCharScene::OnMouseEvent(unsigned int dwFlags, unsigned int wParam, i
 			switch (nIndex)
 			{
 			case 0:
-				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[121], 0);
+				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[LANG_121], 0);
 				pListBox->Empty();
 				TMScene::LoadMsgText(pListBox, (char*)"UI\\chardesctrans.txt");
 				break;
 			case 1:
-				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[122], 0);
+				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[LANG_122], 0);
 				pListBox->Empty();
 				TMScene::LoadMsgText(pListBox, (char*)"UI\\chardescfoema.txt");
 				break;
 			case 2:
-				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[123], 0);
+				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[LANG_123], 0);
 				pListBox->Empty();
 				TMScene::LoadMsgText(pListBox, (char*)"UI\\chardescbeast.txt");
 				break;
 			case 3:
-				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[124], 0);
+				static_cast<SText*>(m_pControlContainer->FindControl(TMT_CREATE_CLASS))->SetText(g_pMessageStringTable[LANG_124], 0);
 				pListBox->Empty();
 				TMScene::LoadMsgText(pListBox, (char*)"UI\\chardeschunter.txt");
 				break;
@@ -1409,7 +1409,7 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 	return 1;
 	case 0x11A:
 	{
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[19], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_19], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 	}
 	return 1;
@@ -1424,7 +1424,7 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 	return 1;
 	case 0x11B:
 	{
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[20], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_20], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 	}
 	return 1;
@@ -1453,7 +1453,7 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 	return 1;
 	case 0x119:
 	{
-		m_pMessagePanel->SetMessage(g_pMessageStringTable[21], 2000);
+		m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_21], 2000);
 		m_pMessagePanel->SetVisible(1, 1);
 	}
 	return 1;
@@ -1474,10 +1474,10 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 		{
 			char szCharName[128]{};
 			if (!strcmp(m_pEditRename->GetText(), ""))
-				sprintf(szCharName, g_pMessageStringTable[201], m_pHuman[pReqTransper->Slot]->m_szName);
+				sprintf(szCharName, g_pMessageStringTable[LANG_201], m_pHuman[pReqTransper->Slot]->m_szName);
 			else
 			{
-				sprintf(szCharName, g_pMessageStringTable[201], m_pEditRename->GetText());
+				sprintf(szCharName, g_pMessageStringTable[LANG_201], m_pEditRename->GetText());
 				m_pEditRename->SetText((char*)"");
 			}
 
@@ -1524,7 +1524,7 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 		}
 		else if (pReqTransper->Result == 1)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[202], 3500);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_202], 3500);
 			m_pMessagePanel->SetVisible(1, 1);
 			m_pRename->SetVisible(1);
 
@@ -1534,20 +1534,20 @@ int TMSelectCharScene::OnPacketEvent(unsigned int dwCode, char* buf)
 		}
 		else if (pReqTransper->Result == 2)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[203], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_203], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		else if (pReqTransper->Result == 3)
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[205], 2000);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_205], 2000);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 		else
 		{
 			if (pReqTransper->Result == 4)
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[1131], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_1131], 2000);
 			else
-				m_pMessagePanel->SetMessage(g_pMessageStringTable[204], 2000);
+				m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_204], 2000);
 
 			m_pMessagePanel->SetVisible(1, 1);
 		}
@@ -2057,11 +2057,11 @@ void TMSelectCharScene::ReloadCharList(RELOAD_CHARLIST_TYPE type)
 		m_pHuman[i]->m_usGuild = usGuild;
 		usGuild &= 0x7FFFu;
 
-		szTownName[0] = g_pMessageStringTable[125];
-		szTownName[1] = g_pMessageStringTable[126];
-		szTownName[2] = g_pMessageStringTable[173];
-		szTownName[3] = g_pMessageStringTable[321];
-		szTownName[4] = g_pMessageStringTable[127];
+		szTownName[0] = g_pMessageStringTable[LANG_125];
+		szTownName[1] = g_pMessageStringTable[LANG_126];
+		szTownName[2] = g_pMessageStringTable[LANG_173];
+		szTownName[3] = g_pMessageStringTable[LANG_321];
+		szTownName[4] = g_pMessageStringTable[LANG_127];
 
 		int nTownIndex = BASE_GetVillage(
 			g_pObjectManager->m_stSelCharData.HomeTownX[i],

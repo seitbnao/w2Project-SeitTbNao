@@ -879,7 +879,7 @@ void CItemMix::DoCombine(SMessagePanel* MessagePanel, SGridControl** GridInvList
             {
                 if (m_stCombineItem.CarryPos[i] < 0 && m_NPCHead != 54)
                 {
-                    MessagePanel->SetMessage(g_pMessageStringTable[412], 2000u);
+                    MessagePanel->SetMessage(g_pMessageStringTable[LANG_412], 2000u);
                     MessagePanel->SetVisible(1, 1);
 
                     return;
@@ -897,19 +897,19 @@ void CItemMix::DoCombine(SMessagePanel* MessagePanel, SGridControl** GridInvList
             }
             else
             {
-                MessagePanel->SetMessage(g_pMessageStringTable[414], 2000u);
+                MessagePanel->SetMessage(g_pMessageStringTable[LANG_414], 2000u);
                 MessagePanel->SetVisible(1, 1);
             }
         }
         else
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[413], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_413], 2000u);
             MessagePanel->SetVisible(1, 1);
         }
     }
     else
     {
-        MessagePanel->SetMessage(g_pMessageStringTable[412], 2000u);
+        MessagePanel->SetMessage(g_pMessageStringTable[LANG_412], 2000u);
         MessagePanel->SetVisible(1, 1);
     }
 }
@@ -1199,14 +1199,14 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
                 || Item->m_pItem->sIndex >= 1669 && Item->m_pItem->sIndex <= 1672
                 || Item->m_pItem->sIndex == 1714))
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[274], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000u);
             MessagePanel->SetVisible(1, 1);
             return 0;
         }
 
         if (!Item2)
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[274], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000u);
             MessagePanel->SetVisible(1, 1);
 
             return 0;
@@ -1230,14 +1230,14 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
                     || Item->m_pItem->sIndex >= 1669 && Item->m_pItem->sIndex <= 1672
                     || Item->m_pItem->sIndex == 1714)
                 {
-                    MessagePanel->SetMessage(g_pMessageStringTable[274], 2000u);
+                    MessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000u);
                     MessagePanel->SetVisible(1, 1);
                     return 0;
                 }
 
                 if (BASE_GetItemAbility(Item->m_pItem, EF_TRANS) == 3)
                 {
-                    MessagePanel->SetMessage(g_pMessageStringTable[359], 2000u);
+                    MessagePanel->SetMessage(g_pMessageStringTable[LANG_359], 2000u);
                     MessagePanel->SetVisible(1, 1);
                     return 0;
                 }
@@ -1256,7 +1256,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
 
         if (strcmp(g_pItemList[Item1->m_pItem->sIndex].ItemName, g_pItemList[Item2->m_pItem->sIndex].ItemName))
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[262], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_262], 2000u);
             MessagePanel->SetVisible(1, 1);
 
             return 0;
@@ -1282,7 +1282,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
 
         if (!bOK)
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[273], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_273], 2000u);
             MessagePanel->SetVisible(1, 1);
 
             return 0;
@@ -1290,7 +1290,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
 
         if (!(target1pos & 63))
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[276], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_276], 2000u);
             MessagePanel->SetVisible(1, 1);
 
             return 0;
@@ -1324,7 +1324,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
 
         if (!bOKa)
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[275], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_275], 2000u);
             MessagePanel->SetVisible(1, 1);
 
             return 0;
@@ -1337,7 +1337,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
 
         if (!bOKa)
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[276], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_276], 2000u);
             MessagePanel->SetVisible(1, 1);
 
             return 0;
@@ -1372,7 +1372,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
                 && Item->m_pItem->sIndex != 1714
                 || nItemSanc != 9))
         {
-            MessagePanel->SetMessage(g_pMessageStringTable[274], 2000u);
+            MessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000u);
             MessagePanel->SetVisible(1, 1);
 
             return 0;
@@ -1448,7 +1448,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
 
             if (!check)
             {
-                MessagePanel->SetMessage(g_pMessageStringTable[274], 2000u);
+                MessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000u);
                 MessagePanel->SetVisible(1, 1);
 
                 return 0;
@@ -1474,7 +1474,7 @@ int CItemMix::HardCode(SMessagePanel* MessagePanel, SGridControl** GridInvList)
 
             if (!checka)
             {
-                MessagePanel->SetMessage(g_pMessageStringTable[274], 2000u);
+                MessagePanel->SetMessage(g_pMessageStringTable[LANG_274], 2000u);
                 MessagePanel->SetVisible(1, 1);
                 return 0;
             }

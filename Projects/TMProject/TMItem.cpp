@@ -168,7 +168,7 @@ int TMItem::InitObject()
         coin += (unsigned char)tempb;
 
         char szValue[64]{};
-        sprintf(szValue, g_pMessageStringTable[65], coin);
+        sprintf(szValue, g_pMessageStringTable[LANG_65], coin);
         if (m_pNameLabel)
             m_pNameLabel->SetText(szValue, 0);
     }

@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <iphlpapi.h>
 #include <SharedStructs.h>
+#include <Language.h>
 using namespace std::chrono_literals;
 
 #pragma comment(lib, "IPHLPAPI.lib")

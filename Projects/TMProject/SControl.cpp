@@ -1166,7 +1166,7 @@ int SEditableText::OnCharEvent(char iCharCode, int lParam)
 	if (g_pCurrentScene->GetSceneType() == ESCENE_TYPE::ESCENE_FIELD && iCharCode != VK_BACK)
 	{
 		char temp[64]{};
-		sprintf(temp, "/%s", g_pMessageStringTable[389]);
+		sprintf(temp, "/%s", g_pMessageStringTable[LANG_389]);
 		int length = strlen(temp);
 
 		if (m_strText[0] == '/' && !strncmp(m_strText, temp, length))
@@ -2099,7 +2099,7 @@ SListBoxBoardItem::SListBoxBoardItem(char* szIndex, char* szVIndex, char* szTitl
 {
 	unsigned int dwFontColor = 0xFFFFFFFF;
 
-	if (strcmp(szVIndex, g_pMessageStringTable[176]) && (*szVIndex < '0' || *szVIndex > '9'))
+	if (strcmp(szVIndex, g_pMessageStringTable[LANG_176]) && (*szVIndex < '0' || *szVIndex > '9'))
 		dwFontColor = 0xFFAAFFAA;
 
 	m_pTitleText = new SText(-2, szTitle, dwFontColor, 44.0f, 0.0f, 260.0f, 16.0f, 1, dwColor, 1, bTitile == 1 ? 1 : 0);
@@ -2670,8 +2670,8 @@ SMessageBox::SMessageBox(const char* istrMessage, char ibyMessageBoxType, float 
 	m_pPanel1 = new SPanel(501, 0.0, 0.0, 256.0f, 172.0f, 0x77777777, RENDERCTRLTYPE::RENDER_IMAGE_STRETCH);
 	m_pMessage = new SText(-1, istrMessage, 0xFFFFFFFF, 20.0f, 36.0f, (float)strlen(istrMessage) * 6.0f, 52.0f, -1, 1, 0, 0);
 	m_pMessage2 = new SText(-1, istrMessage, 0xFFFFFFFF, 20.0f, 52.0f, (float)strlen(istrMessage) * 6.0f, 52.0f, -1, 1, 0, 0);
-	m_pCaption = new SText(-1, g_pMessageStringTable[237], 0xFFFFFFFF, 96.0f, 9.0f,
-		(float)strlen(g_pMessageStringTable[237]) * 6.0f, 22.0f, -1, 1, 0, 0);
+	m_pCaption = new SText(-1, g_pMessageStringTable[LANG_237], 0xFFFFFFFF, 96.0f, 9.0f,
+		(float)strlen(g_pMessageStringTable[LANG_237]) * 6.0f, 22.0f, -1, 1, 0, 0);
 
 	m_bPickable = 1;
 
@@ -2688,7 +2688,7 @@ SMessageBox::SMessageBox(const char* istrMessage, char ibyMessageBoxType, float 
 
 	if (ibyMessageBoxType == TMC_MESSAGEBOX_MESSAGE)
 	{
-		m_pOKButton = new SButton(-2, 17.0f, 132.0f, 103.0f, 21.0f, 0, 1, g_pMessageStringTable[238]);
+		m_pOKButton = new SButton(-2, 17.0f, 132.0f, 103.0f, 21.0f, 0, 1, g_pMessageStringTable[LANG_238]);
 
 		if (m_pOKButton != nullptr)
 		{
@@ -2697,7 +2697,7 @@ SMessageBox::SMessageBox(const char* istrMessage, char ibyMessageBoxType, float 
 			AddChild(m_pOKButton);
 		}
 
-		m_pCancelButton = new SButton(-2, 137.0f, 132.0f, 103.0f, 21.0f, 0, 1, g_pMessageStringTable[239]);
+		m_pCancelButton = new SButton(-2, 137.0f, 132.0f, 103.0f, 21.0f, 0, 1, g_pMessageStringTable[LANG_239]);
 		if (m_pCancelButton != nullptr)
 		{
 			m_pCancelButton->SetControlID(2);
@@ -2708,7 +2708,7 @@ SMessageBox::SMessageBox(const char* istrMessage, char ibyMessageBoxType, float 
 	else if (ibyMessageBoxType == TMC_MESSAGEBOX_OK)
 	{
 		m_pPanelBtn1 = new SPanel(165, 70.0f, 76.0f, 88.0f, 23.0f, 0x77777777, RENDERCTRLTYPE::RENDER_IMAGE_STRETCH);
-		m_pOKButton = new SButton(-2, 70.0f, 76.0f, 88.0f, 23.0f, 0, 1, g_pMessageStringTable[238]);
+		m_pOKButton = new SButton(-2, 70.0f, 76.0f, 88.0f, 23.0f, 0, 1, g_pMessageStringTable[LANG_238]);
 
 		if (m_pOKButton != nullptr)
 		{

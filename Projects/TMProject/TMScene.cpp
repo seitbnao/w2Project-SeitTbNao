@@ -856,7 +856,7 @@ int TMScene::OnPacketEvent(unsigned int dwCode, char* pSBuffer)
 	{
 		if (!m_pMessagePanel->IsVisible())
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[13], 4000u);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_13], 4000u);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 
@@ -871,7 +871,7 @@ int TMScene::OnPacketEvent(unsigned int dwCode, char* pSBuffer)
 	{
 		if(!m_pMessagePanel->IsVisible())
 		{
-			m_pMessagePanel->SetMessage(g_pMessageStringTable[13], 4000u);
+			m_pMessagePanel->SetMessage(g_pMessageStringTable[LANG_13], 4000u);
 			m_pMessagePanel->SetVisible(1, 1);
 		}
 
@@ -885,7 +885,7 @@ int TMScene::OnPacketEvent(unsigned int dwCode, char* pSBuffer)
 	if (pStd->PacketId == 0x194)
 	{
 		g_pObjectManager->m_bBilling = 1;
-		m_pMessageBox->SetMessage(g_pMessageStringTable[132], B_CREATE_ID, nullptr);
+		m_pMessageBox->SetMessage(g_pMessageStringTable[LANG_132], B_CREATE_ID, nullptr);
 		m_pMessageBox->SetVisible(1);
 		return 1;
 	}
@@ -1198,42 +1198,42 @@ int TMScene::OnPacketEvent(unsigned int dwCode, char* pSBuffer)
 				TMFieldScene* pFScene = static_cast<TMFieldScene*>(g_pCurrentScene);
 				if (!strcmp(pMsgPanel->String, "Whisper : Off"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[448], g_pMessageStringTable[447]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_448], g_pMessageStringTable[LANG_447]);
 					pFScene->SetWhisper(0);
 				}
 				if (!strcmp(pMsgPanel->String, "Whisper : On"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[448], g_pMessageStringTable[446]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_448], g_pMessageStringTable[LANG_446]);
 					pFScene->SetWhisper(1);
 				}
 				if (!strcmp(pMsgPanel->String, "Citizen Chatting : Off"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[449], g_pMessageStringTable[447]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_449], g_pMessageStringTable[LANG_447]);
 					pFScene->SetPartyChat(0);
 				}
 				if (!strcmp(pMsgPanel->String, "Citizen Chatting : On"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[449], g_pMessageStringTable[446]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_449], g_pMessageStringTable[LANG_446]);
 					pFScene->SetPartyChat(1);
 				}
 				if (!strcmp(pMsgPanel->String, "Guild Chatting : Off"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[450], g_pMessageStringTable[447]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_450], g_pMessageStringTable[LANG_447]);
 					pFScene->SetGuildChat(0);
 				}
 				if (!strcmp(pMsgPanel->String, "Guild Chatting : On"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[450], g_pMessageStringTable[446]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_450], g_pMessageStringTable[LANG_446]);
 					pFScene->SetGuildChat(1);
 				}
 				if (!strcmp(pMsgPanel->String, "Kingdom Chatting : On"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[451], g_pMessageStringTable[446]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_451], g_pMessageStringTable[LANG_446]);
 					pFScene->SetKingDomChat(1);
 				}
 				if (!strcmp(pMsgPanel->String, "Kingdom Chatting : Off"))
 				{
-					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[451], g_pMessageStringTable[447]);
+					sprintf(pMsgPanel->String, "%s%s", g_pMessageStringTable[LANG_451], g_pMessageStringTable[LANG_447]);
 					pFScene->SetKingDomChat(0);
 				}
 			}
