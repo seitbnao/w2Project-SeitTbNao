@@ -706,7 +706,7 @@ int TMFieldScene::InitializeScene()
 	m_pKingDomGuild->m_bSelected = 0;
 	m_pChatList->m_pScrollBar->SetVisible(1);
 	m_pChatListnotice->m_nPosX = 490.0f * RenderDevice::m_fWidthRatio;
-	m_pChatListnotice->m_nPosX = 440.0f * RenderDevice::m_fHeightRatio;
+	m_pChatListnotice->m_nPosY = 440.0f * RenderDevice::m_fHeightRatio;
 	m_pChatListnotice->m_pScrollBar->SetVisible(0);
 
 	m_pAutoRunBtn = (SButton*)m_pControlContainer->FindControl(316);
