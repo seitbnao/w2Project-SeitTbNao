@@ -41,6 +41,7 @@ Como não temos um documento que dite todas as regras, caso surja uma dúvida, p
 - Wed Souza (FREEDOM)
 - Kevin Kouketsu (shepher)
 - Djunio Filho (seitbnao)
+- iTzMeForce
 
 # General Public License:
 
