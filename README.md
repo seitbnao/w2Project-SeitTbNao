@@ -40,6 +40,7 @@ Como não temos um documento que dite todas as regras, caso surja uma dúvida, p
 - Eric Santos (SKEWED)
 - Wed Souza (FREEDOM)
 - Kevin Kouketsu (shepher)
+- Djunio Filho (seitbnao)
 
 # General Public License:
 
